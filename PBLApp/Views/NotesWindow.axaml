@@ -10,7 +10,7 @@
         x:DataType="vm:NotesTabViewModel"
         Title="{loc:Tr Tab_Notes}"
         Width="700" Height="500"
-        Background="#11111B"
+        Background="{DynamicResource BgBaseBrush}"
         WindowStartupLocation="CenterOwner">
 
     <v:NotesTabView />

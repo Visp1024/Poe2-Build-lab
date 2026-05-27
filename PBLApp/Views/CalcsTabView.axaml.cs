@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using PBLApp.Controls;
 using PBLApp.ViewModels;
 
 namespace PBLApp.Views;
@@ -10,6 +11,7 @@ public partial class CalcsTabView : UserControl
     {
         InitializeComponent();
         AddHandler(PointerPressedEvent, OnAnyPointerPressed, handledEventsToo: false);
+        LayoutPersistence.Bind(SplitGrid, "CalcsTab.Columns", 0);
     }
 
     private void OnAnyPointerPressed(object? sender, PointerPressedEventArgs e)

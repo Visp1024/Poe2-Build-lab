@@ -69,10 +69,10 @@ public partial class GemViewModel : ObservableObject
     private string _searchText = "";
 
     [ObservableProperty]
-    private decimal _level = 20;
+    private decimal _level = 19;
 
     [ObservableProperty]
-    private decimal _quality = 0;
+    private decimal _quality = 20;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(NameForeground))]
@@ -102,15 +102,33 @@ public partial class GemViewModel : ObservableObject
             describeStats: stats => StatDescriptionEngine.Instance.Describe(stats));
     }
 
+    /// <summary>Toggled by the editable ComboBox's GotFocus/LostFocus handlers
+    /// so the DisplayText setter can tell user input apart from Avalonia's
+    /// template-init back-propagation (which pushes Text="" once the editable
+    /// ComboBox materialises). True only while the user is actively editing.</summary>
+    public bool UserEditing { get; set; }
+
     // Translated display text for the ComboBox. When the gem is committed (not being
     // typed), shows the Russian name. While the user is actively typing, shows the
-    // raw input so filtering works. The setter forwards to SearchText.
+    // raw input so filtering works. The setter forwards to SearchText, but rejects
+    // empty pushes from non-user sources to survive ComboBox template initialisation.
     public string DisplayText
     {
         get => !string.IsNullOrEmpty(_committedName) && _searchText == _committedName
             ? GameTranslationService.TGem(_committedName)
             : _searchText;
-        set => SearchText = value;
+        set
+        {
+            if (!UserEditing && string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(_committedName))
+            {
+                // Avalonia's editable ComboBox pushes its empty internal Text back into
+                // the source during template apply. Reject and re-publish our value so
+                // the ComboBox picks up the committed name.
+                OnPropertyChanged(nameof(DisplayText));
+                return;
+            }
+            SearchText = value;
+        }
     }
 
     // Full list for the current gem type (active or support)
@@ -326,7 +344,7 @@ public partial class SkillGroupViewModel : ObservableObject
     }
 
     private GemViewModel MakeEmptySlot() =>
-        new(_parent, Index, 0, new GemEntry("", 20, 0, true, true));
+        new(_parent, Index, 0, new GemEntry("", 19, 20, true, true));
 }
 
 // ── SkillsTabViewModel ────────────────────────────────────────────────────────
@@ -353,6 +371,37 @@ public partial class SkillsTabViewModel : ViewModelBase
 
     [ObservableProperty] private SkillGroupViewModel? _selectedGroup;
     [ObservableProperty] private string _newGroupGemName = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FilteredActiveGemNameItems))]
+    private string _newGroupSearch = "";
+
+    /// <summary>Filtered list of active gem names for the "+ Add Skill" picker popup.
+    /// Filters by both English name and translated display name (case-insensitive).</summary>
+    public IReadOnlyList<GemNameItem> FilteredActiveGemNameItems
+    {
+        get
+        {
+            var s = _newGroupSearch;
+            if (string.IsNullOrWhiteSpace(s)) return ActiveGemNameItems;
+            return ActiveGemNameItems.Where(g =>
+                g.Name.Contains(s, StringComparison.OrdinalIgnoreCase) ||
+                g.DisplayName.Contains(s, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+    }
+
+    /// <summary>Pick a skill from the "+ Add Skill" popup. Creates a new group
+    /// with the chosen gem and selects it. Clears the search text afterwards.</summary>
+    public void AddGroupFromPicker(string gemName)
+    {
+        if (string.IsNullOrWhiteSpace(gemName)) return;
+        _host.AddSkillGroupWithGem(gemName);
+        Refresh();
+        SelectedGroup = Groups.LastOrDefault();
+        _onGroupsChanged?.Invoke();
+        NewGroupSearch = "";
+    }
 
     public SkillsTabViewModel(LuaHost host, BuildModel build,
         Action? onStatsChanged  = null,

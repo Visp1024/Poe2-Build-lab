@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <!-- Spacing scale (used for Margin/Padding) -->
+    <sys:Double x:Key="SpacingXs">4</sys:Double>
+    <sys:Double x:Key="SpacingSm">8</sys:Double>
+    <sys:Double x:Key="SpacingMd">12</sys:Double>
+    <sys:Double x:Key="SpacingLg">16</sys:Double>
+    <sys:Double x:Key="SpacingXl">24</sys:Double>
+    <sys:Double x:Key="Spacing2xl">32</sys:Double>
+
+    <Thickness x:Key="PaddingXs">4</Thickness>
+    <Thickness x:Key="PaddingSm">8</Thickness>
+    <Thickness x:Key="PaddingMd">12</Thickness>
+    <Thickness x:Key="PaddingLg">16</Thickness>
+    <Thickness x:Key="PaddingXl">24</Thickness>
+    <Thickness x:Key="PaddingHeader">16,12</Thickness>
+    <Thickness x:Key="PaddingHeaderCompact">8,10</Thickness>
+    <Thickness x:Key="PaddingSidebar">12,8</Thickness>
+
+    <!-- Corner radius -->
+    <CornerRadius x:Key="RadiusSm">4</CornerRadius>
+    <CornerRadius x:Key="RadiusMd">6</CornerRadius>
+    <CornerRadius x:Key="RadiusLg">8</CornerRadius>
+    <CornerRadius x:Key="RadiusXl">12</CornerRadius>
+    <CornerRadius x:Key="RadiusPill">999</CornerRadius>
+
+    <!-- Border thickness -->
+    <Thickness x:Key="BorderThin">1</Thickness>
+    <Thickness x:Key="BorderMedium">2</Thickness>
+
+    <!-- Focus ring offset -->
+    <sys:Double x:Key="FocusRingThickness">2</sys:Double>
+</ResourceDictionary>

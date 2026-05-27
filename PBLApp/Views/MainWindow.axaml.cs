@@ -1,9 +1,9 @@
-using Avalonia.Controls;
 using PBLApp.Controls;
+using SukiUI.Controls;
 
 namespace PBLApp.Views;
 
-public partial class MainWindow : Window
+public partial class MainWindow : SukiWindow
 {
     public MainWindow()
     {

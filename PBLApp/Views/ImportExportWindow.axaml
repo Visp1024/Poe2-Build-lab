@@ -9,7 +9,7 @@
         x:DataType="vm:ImportTabViewModel"
         Title="{loc:Tr Tab_ImportExport}"
         Width="900" Height="640"
-        Background="#11111B"
+        Background="{DynamicResource BgBaseBrush}"
         WindowStartupLocation="CenterOwner">
 
     <ContentControl x:CompileBindings="False" Content="{Binding}" />

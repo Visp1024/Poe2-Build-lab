@@ -9,7 +9,7 @@
         x:DataType="vm:ConfigTabViewModel"
         Title="{loc:Tr Tab_Config}"
         Width="1920" Height="1080"
-        Background="#11111B"
+        Background="{DynamicResource BgBaseBrush}"
         WindowStartupLocation="CenterOwner">
 
     <ContentControl x:CompileBindings="False" Content="{Binding}" />

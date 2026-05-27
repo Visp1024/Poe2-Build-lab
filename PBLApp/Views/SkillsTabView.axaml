@@ -14,20 +14,41 @@
             <Setter Property="Padding" Value="6,4" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="FocusAdorner" Value="{x:Null}" />
+        </Style>
+        <!-- Suppress the inner "focus rectangle" ContentPresenter renders on selected items.
+             We paint our own selection via Background on the template root. -->
+        <Style Selector="ListBoxItem /template/ ContentPresenter">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
         </Style>
         <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-            <Setter Property="Background" Value="#45475A" />
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="ListBoxItem:selected:focus /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="ListBoxItem:selected:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BgOverlayBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
         </Style>
         <Style Selector="TextBlock.col-header">
-            <Setter Property="Foreground" Value="#585B70" />
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
             <Setter Property="FontSize" Value="10" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
         <Style Selector="ComboBox.gem-combo">
-            <Setter Property="Background" Value="#1E1E2E" />
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderThickness" Value="0,0,0,1" />
-            <Setter Property="BorderBrush" Value="#313244" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BgRaisedBrush}" />
             <Setter Property="Padding" Value="6,0" />
             <Setter Property="FontSize" Value="15" />
             <Setter Property="Height" Value="28" />
@@ -39,18 +60,28 @@
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="VerticalAlignment" Value="Stretch" />
         </Style>
+        <!-- IsEditable=True ComboBox renders text via an internal TextBox in its template.
+             SukiUI's default TextBox foreground doesn't inherit from ComboBox.Foreground,
+             so without this selector the user-typed name was invisible (dark on dark).
+             Use a fixed bright brush — the gem-specific colour is conveyed via the
+             dropdown items' TextBlocks, not the editable field's text. -->
+        <Style Selector="ComboBox.gem-combo /template/ TextBox">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
         <Style Selector="ComboBox.gem-combo TextBlock">
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="FontSize" Value="15" />
         </Style>
         <Style Selector="ComboBox.gem-combo:focus">
-            <Setter Property="BorderBrush" Value="#89B4FA" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AttrIntBrush}" />
         </Style>
         <Style Selector="NumericUpDown.gem-spin">
-            <Setter Property="Background" Value="#1E1E2E" />
-            <Setter Property="Foreground" Value="#CDD6F4" />
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="#313244" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BgRaisedBrush}" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontFamily" Value="Cascadia Code,Consolas,monospace" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -59,7 +90,7 @@
         </Style>
         <Style Selector="Button.icon-btn">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#585B70" />
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
             <Setter Property="Padding" Value="2,0" />
             <Setter Property="MinWidth" Value="0" />
             <Setter Property="FontSize" Value="13" />
@@ -67,7 +98,7 @@
         </Style>
         <Style Selector="Button.icon-btn:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#F38BA8" />
+            <Setter Property="Foreground" Value="{DynamicResource AttrStrBrush}" />
         </Style>
 
         <!-- Gem tooltip panel style -->
@@ -76,83 +107,112 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
         </Style>
+
+        <Style Selector="Button.support-cell">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Button.support-cell /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.support-cell:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+        </Style>
     </UserControl.Styles>
 
 
-    <Grid ColumnDefinitions="260,*">
+    <Grid Name="RootGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="520" MinWidth="180" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="*" MinWidth="420" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Resizable splitter between active-gem list and editor panel. -->
+        <GridSplitter Grid.Column="1"
+                      Width="5"
+                      Background="{DynamicResource BorderSubtleBrush}"
+                      ResizeDirection="Columns"
+                      HorizontalAlignment="Stretch"
+                      ShowsPreview="False" />
 
         <!-- ── Left: active-gem list ──────────────────────────────────────── -->
-        <Border Grid.Column="0" Background="#181825"
-                BorderBrush="#45475A" BorderThickness="0,0,1,0">
+        <Border Grid.Column="0" Background="{DynamicResource BgMantleBrush}"
+                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,1,0">
             <DockPanel>
 
-                <!-- Header: new-skill dropdown + New + Delete -->
-                <Border DockPanel.Dock="Top" Background="#1E1E2E" Padding="6,6"
-                        BorderBrush="#45475A" BorderThickness="0,0,0,1">
-                    <Grid ColumnDefinitions="Auto,5,*,Auto,Auto">
+                <!-- Header: title + Delete (selected group) -->
+                <Border DockPanel.Dock="Top" Background="{DynamicResource BgMantleBrush}" Padding="6,6"
+                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="*,Auto">
                         <TextBlock Grid.Column="0"
                                    Text="{loc:Tr Skill_Header}" FontWeight="Bold"
-                                   Foreground="#89B4FA" FontSize="12"
+                                   Foreground="{DynamicResource AttrIntBrush}" FontSize="12"
                                    VerticalAlignment="Center" />
-
-                        <Border Grid.Column="1" Width="1" Background="#45475A" Margin="0,3" />
-
-                        <ComboBox Grid.Column="2"
-                                  Classes="gem-combo"
-                                  IsEditable="True"
-                                  HorizontalAlignment="Stretch"
-                                  Text="{Binding NewGroupGemName, Mode=TwoWay}"
-                                  MaxDropDownHeight="300"
-                                  Margin="4,0"
-                                  ToolTip.Tip="{loc:Tr Skill_AddTip}">
-                            <ComboBox.ItemsSource>
-                                <Binding Path="ActiveGemNameItems" />
-                            </ComboBox.ItemsSource>
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate x:DataType="vm:GemNameItem">
-                                    <Border HorizontalAlignment="Stretch" Background="Transparent"
-                                            ToolTip.ShowDelay="500">
-                                        <ToolTip.Tip>
-                                            <ToolTip x:CompileBindings="False" Padding="0"
-                                                     Background="Transparent" BorderThickness="0">
-                                                <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
-                                                        Padding="10,8" CornerRadius="4" MaxWidth="360"
-                                                        IsVisible="{Binding TooltipEntries, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                                    <ItemsControl ItemsSource="{Binding TooltipEntries}">
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Panel>
-                                                                    <Border IsVisible="{Binding IsSep}" Height="1"
-                                                                            Background="#313244" Margin="0,3"/>
-                                                                    <TextBlock IsVisible="{Binding !IsSep}"
-                                                                               ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
-                                                                               FontFamily="Cascadia Code,Consolas,monospace"
-                                                                               FontSize="11" TextWrapping="Wrap" MaxWidth="340"/>
-                                                                </Panel>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </Border>
-                                            </ToolTip>
-                                        </ToolTip.Tip>
-                                        <TextBlock Text="{Binding DisplayName}" Foreground="{Binding Color}" FontSize="14" VerticalAlignment="Center" />
-                                    </Border>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-
-                        <Button Grid.Column="3"
-                                Content="{loc:Tr Btn_New}"
-                                Command="{Binding AddGroupCommand}"
-                                Padding="7,2" FontSize="11" Margin="2,0" />
-
-                        <Button Grid.Column="4"
+                        <Button Grid.Column="1"
                                 Content="{loc:Tr Btn_Delete}"
                                 Command="{Binding SelectedGroup.RemoveGroupCommand}"
-                                Padding="7,2" FontSize="11" Margin="2,0,0,0"
+                                Padding="7,2" FontSize="11"
                                 IsEnabled="{Binding SelectedGroup, Converter={x:Static ObjectConverters.IsNotNull}}" />
                     </Grid>
                 </Border>
+
+                <!-- + Add Skill — bottom-docked button with skill-picker flyout -->
+                <Button DockPanel.Dock="Bottom"
+                        Name="AddSkillButton"
+                        Content="{loc:Tr Skill_AddNew}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="6,4,6,6"
+                        Padding="0,7"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        Background="{DynamicResource BgRaisedBrush}"
+                        Foreground="{DynamicResource AttrIntBrush}"
+                        BorderBrush="{DynamicResource AttrIntBrush}"
+                        BorderThickness="1">
+                    <Button.Flyout>
+                        <Flyout Placement="Top" ShowMode="Standard"
+                                Opened="AddSkillFlyout_Opened">
+                            <Border Background="{DynamicResource BgSurfaceBrush}"
+                                    BorderBrush="{DynamicResource BorderStrongBrush}"
+                                    BorderThickness="1" CornerRadius="3"
+                                    Padding="8" Width="340" Height="420">
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Top"
+                                               Text="{loc:Tr Skill_PickerTitle}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               FontSize="11" FontWeight="Bold"
+                                               Margin="0,0,0,6" />
+                                    <TextBox DockPanel.Dock="Top"
+                                             Name="PickerSearch"
+                                             Text="{Binding NewGroupSearch, Mode=TwoWay}"
+                                             PlaceholderText="search…"
+                                             Margin="0,0,0,6"
+                                             KeyDown="PickerSearch_KeyDown" />
+                                    <ListBox Name="PickerList"
+                                             ItemsSource="{Binding FilteredActiveGemNameItems}"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             DoubleTapped="PickerList_DoubleTapped"
+                                             KeyDown="PickerList_KeyDown">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:GemNameItem">
+                                                <Grid ColumnDefinitions="*,Auto" Height="24">
+                                                    <TextBlock Grid.Column="0"
+                                                               Text="{Binding DisplayName}"
+                                                               Foreground="{Binding Color}"
+                                                               FontSize="13" VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </DockPanel>
+                            </Border>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
 
                 <!-- Group list — shows active gem name coloured by attribute -->
                 <ListBox ItemsSource="{Binding Groups}"
@@ -166,7 +226,7 @@
                                 <ToolTip.Tip>
                                     <ToolTip x:CompileBindings="False" Padding="0"
                                              Background="Transparent" BorderThickness="0">
-                                        <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
+                                        <Border Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BgRaisedBrush}" BorderThickness="1"
                                                 Padding="10,8" CornerRadius="4" MaxWidth="360"
                                                 IsVisible="{Binding ActiveGem.TooltipEntries, Converter={x:Static ObjectConverters.IsNotNull}}">
                                             <ItemsControl ItemsSource="{Binding ActiveGem.TooltipEntries}">
@@ -174,7 +234,7 @@
                                                     <DataTemplate>
                                                         <Panel>
                                                             <Border IsVisible="{Binding IsSep}" Height="1"
-                                                                    Background="#313244" Margin="0,3"/>
+                                                                    Background="{DynamicResource BgRaisedBrush}" Margin="0,3"/>
                                                             <TextBlock IsVisible="{Binding !IsSep}"
                                                                        ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
                                                                        FontFamily="Cascadia Code,Consolas,monospace"
@@ -186,18 +246,19 @@
                                         </Border>
                                     </ToolTip>
                                 </ToolTip.Tip>
-                                <Grid ColumnDefinitions="16,*,Auto" Height="24">
+                                <Grid ColumnDefinitions="18,*,Auto" Height="30">
                                     <TextBlock Grid.Column="0" Text="★"
-                                               Foreground="#F9E2AF"
+                                               Foreground="{DynamicResource Brand400Brush}"
                                                IsVisible="{Binding IsMain}"
-                                               FontSize="10" VerticalAlignment="Center" />
+                                               FontSize="13" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1"
                                                Text="{Binding ActiveGemName}"
                                                Foreground="{Binding ListItemColor}"
-                                               FontSize="12" VerticalAlignment="Center"
+                                               FontSize="14" FontWeight="Medium"
+                                               VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis" />
                                     <TextBlock Grid.Column="2" Text="{loc:Tr Skill_Main}"
-                                               Foreground="#A6E3A1" FontSize="10"
+                                               Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
                                                IsVisible="{Binding IsMain}"
                                                VerticalAlignment="Center" Margin="4,0,0,0" />
                                 </Grid>
@@ -210,17 +271,17 @@
         </Border>
 
         <!-- ── Right: group editor ────────────────────────────────────────── -->
-        <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
+        <Grid Grid.Column="2" RowDefinitions="Auto,Auto,*">
 
             <TextBlock Grid.Row="0" Grid.RowSpan="3"
                        Text="{loc:Tr Skill_NoSelection}"
                        IsVisible="{Binding !Groups.Count}"
-                       Foreground="#585B70" FontSize="12"
+                       Foreground="{DynamicResource TextMutedBrush}" FontSize="12"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
 
             <!-- ── Active gem editor (header row) ── -->
-            <Border Grid.Row="0" Background="#1E1E2E" Padding="8,7"
-                    BorderBrush="#45475A" BorderThickness="0,0,0,1"
+            <Border Grid.Row="0" Background="{DynamicResource BgMantleBrush}" Padding="8,7"
+                    BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,0,1"
                     IsVisible="{Binding SelectedGroup, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <Grid ColumnDefinitions="*,Auto,88,Auto,88,Auto,Auto">
 
@@ -232,7 +293,7 @@
                         <ToolTip.Tip>
                             <ToolTip x:CompileBindings="False" Padding="0"
                                      Background="Transparent" BorderThickness="0">
-                                <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
+                                <Border Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BgRaisedBrush}" BorderThickness="1"
                                         Padding="10,8" CornerRadius="4" MaxWidth="360"
                                         IsVisible="{Binding SelectedGroup.ActiveGem.TooltipEntries, Converter={x:Static ObjectConverters.IsNotNull}}">
                                     <ItemsControl ItemsSource="{Binding SelectedGroup.ActiveGem.TooltipEntries}">
@@ -240,7 +301,7 @@
                                             <DataTemplate>
                                                 <Panel>
                                                     <Border IsVisible="{Binding IsSep}" Height="1"
-                                                            Background="#313244" Margin="0,3"/>
+                                                            Background="{DynamicResource BgRaisedBrush}" Margin="0,3"/>
                                                     <TextBlock IsVisible="{Binding !IsSep}"
                                                                ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
                                                                FontFamily="Cascadia Code,Consolas,monospace"
@@ -281,7 +342,7 @@
 
                     <!-- Group Enabled + Set as Main -->
                     <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="4" Margin="10,0,4,0">
-                        <TextBlock Text="{loc:Tr Skill_LblOn}" Foreground="#A6ADC8" FontSize="12"
+                        <TextBlock Text="{loc:Tr Skill_LblOn}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
                                    VerticalAlignment="Center" />
                         <CheckBox IsChecked="{Binding SelectedGroup.IsEnabled, Mode=TwoWay, FallbackValue=True}"
                                   VerticalAlignment="Center" />
@@ -290,14 +351,14 @@
                     <Button Grid.Column="6"
                             Content="{loc:Tr Btn_StarMain}"
                             Command="{Binding SetAsMainCommand}"
-                            Background="#313244" Foreground="#A6E3A1"
+                            Background="{DynamicResource BgRaisedBrush}" Foreground="{DynamicResource AttrDexBrush}"
                             Padding="8,4" FontSize="12" />
                 </Grid>
             </Border>
 
             <!-- ── Support gem column headers ── -->
-            <Border Grid.Row="1" Background="#13131D" Padding="4,3"
-                    BorderBrush="#45475A" BorderThickness="0,0,0,1"
+            <Border Grid.Row="1" Background="{DynamicResource BgSurfaceBrush}" Padding="4,3"
+                    BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,0,1"
                     IsVisible="{Binding SelectedGroup, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <Grid ColumnDefinitions="26,*,90,90,28">
                     <TextBlock Grid.Column="1" Text="{loc:Tr Skill_ColSupport}" Classes="col-header" Margin="2,0" />
@@ -314,13 +375,13 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:GemViewModel">
                             <Border Padding="4,3"
-                                    BorderBrush="#2A2A3E" BorderThickness="0,0,0,1"
+                                    BorderBrush="{DynamicResource BgRaisedBrush}" BorderThickness="0,0,0,1"
                                     Background="Transparent"
                                     ToolTip.ShowDelay="400">
                                 <ToolTip.Tip>
                                     <ToolTip x:CompileBindings="False" Padding="0"
                                              Background="Transparent" BorderThickness="0">
-                                        <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
+                                        <Border Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BgRaisedBrush}" BorderThickness="1"
                                                 Padding="10,8" CornerRadius="4" MaxWidth="360"
                                                 IsVisible="{Binding !IsEmpty}">
                                             <ItemsControl ItemsSource="{Binding TooltipEntries}">
@@ -328,7 +389,7 @@
                                                     <DataTemplate>
                                                         <Panel>
                                                             <Border IsVisible="{Binding IsSep}" Height="1"
-                                                                    Background="#313244" Margin="0,3"/>
+                                                                    Background="{DynamicResource BgRaisedBrush}" Margin="0,3"/>
                                                             <TextBlock IsVisible="{Binding !IsSep}"
                                                                        ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
                                                                        FontFamily="Cascadia Code,Consolas,monospace"
@@ -352,50 +413,76 @@
                                             HorizontalContentAlignment="Center"
                                             VerticalContentAlignment="Center" />
 
-                                    <!-- Support gem name: filtered + coloured items -->
-                                    <ComboBox Grid.Column="1"
-                                              Classes="gem-combo"
-                                              IsEditable="True"
-                                              HorizontalAlignment="Stretch"
-                                              Text="{Binding DisplayText, Mode=TwoWay}"
-                                              ItemsSource="{Binding FilteredGemNames}"
-                                              Foreground="{Binding NameForeground}"
-                                              SelectionChanged="SupportGemNameBox_SelectionChanged"
-                                              KeyDown="SupportGemNameBox_KeyDown"
-                                              LostFocus="GemNameBox_LostFocus"
-                                              MaxDropDownHeight="300">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:GemNameItem">
-                                                <Border HorizontalAlignment="Stretch" Background="Transparent"
-                                                        ToolTip.ShowDelay="500">
-                                                    <ToolTip.Tip>
-                                                        <ToolTip x:CompileBindings="False" Padding="0"
-                                                                 Background="Transparent" BorderThickness="0">
-                                                            <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
-                                                                    Padding="10,8" CornerRadius="4" MaxWidth="360"
-                                                                    IsVisible="{Binding TooltipEntries, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                                                <ItemsControl ItemsSource="{Binding TooltipEntries}">
-                                                                    <ItemsControl.ItemTemplate>
-                                                                        <DataTemplate>
-                                                                            <Panel>
-                                                                                <Border IsVisible="{Binding IsSep}" Height="1"
-                                                                                        Background="#313244" Margin="0,3"/>
-                                                                                <TextBlock IsVisible="{Binding !IsSep}"
-                                                                                           ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
-                                                                                           FontFamily="Cascadia Code,Consolas,monospace"
-                                                                                           FontSize="11" TextWrapping="Wrap" MaxWidth="340"/>
-                                                                            </Panel>
-                                                                        </DataTemplate>
-                                                                    </ItemsControl.ItemTemplate>
-                                                                </ItemsControl>
-                                                            </Border>
-                                                        </ToolTip>
-                                                    </ToolTip.Tip>
-                                                    <TextBlock Text="{Binding DisplayName}" Foreground="{Binding Color}" FontSize="14" VerticalAlignment="Center" />
+                                    <!-- Support gem cell: Button-with-Flyout picker.
+                                         Editable ComboBox + ItemsSource was unreliable in
+                                         Avalonia 12 (Text source value was overridden by
+                                         template selection state). Picker pattern matches
+                                         the "+ Add Skill" UX. -->
+                                    <Button Grid.Column="1"
+                                            Classes="support-cell"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Padding="6,2"
+                                            FontSize="14"
+                                            Foreground="{Binding NameForeground}"
+                                            Background="Transparent"
+                                            BorderThickness="0,0,0,1"
+                                            BorderBrush="{DynamicResource BgRaisedBrush}">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding DisplayText, TargetNullValue='', FallbackValue=''}"
+                                                       Foreground="{Binding NameForeground}"
+                                                       FontSize="14"
+                                                       VerticalAlignment="Center"
+                                                       IsVisible="{Binding DisplayText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{loc:Tr Skill_AddSupportTip}"
+                                                       Foreground="{DynamicResource TextMutedBrush}"
+                                                       FontSize="14"
+                                                       VerticalAlignment="Center"
+                                                       IsVisible="{Binding DisplayText, Converter={x:Static StringConverters.IsNullOrEmpty}}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Grid.Column="1" Text="▾"
+                                                       Foreground="{DynamicResource TextMutedBrush}"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center" Margin="6,0,4,0" />
+                                        </Grid>
+                                        <Button.Flyout>
+                                            <Flyout Placement="Bottom" ShowMode="Standard"
+                                                    Opened="SupportPickerFlyout_Opened">
+                                                <Border Background="{DynamicResource BgSurfaceBrush}"
+                                                        BorderBrush="{DynamicResource BorderStrongBrush}"
+                                                        BorderThickness="1" CornerRadius="3"
+                                                        Padding="8" Width="340" Height="420">
+                                                    <DockPanel>
+                                                        <TextBox DockPanel.Dock="Top"
+                                                                 Name="SupportPickerSearch"
+                                                                 Text="{Binding SearchText, Mode=TwoWay}"
+                                                                 PlaceholderText="search…"
+                                                                 Margin="0,0,0,6"
+                                                                 KeyDown="SupportPickerSearch_KeyDown" />
+                                                        <ListBox Name="SupportPickerList"
+                                                                 ItemsSource="{Binding FilteredGemNames}"
+                                                                 Background="Transparent"
+                                                                 BorderThickness="0"
+                                                                 DoubleTapped="SupportPickerList_DoubleTapped"
+                                                                 KeyDown="SupportPickerList_KeyDown">
+                                                            <ListBox.ItemTemplate>
+                                                                <DataTemplate x:DataType="vm:GemNameItem">
+                                                                    <TextBlock Text="{Binding DisplayName}"
+                                                                               Foreground="{Binding Color}"
+                                                                               FontSize="13" Height="24"
+                                                                               VerticalAlignment="Center"
+                                                                               TextTrimming="CharacterEllipsis" />
+                                                                </DataTemplate>
+                                                            </ListBox.ItemTemplate>
+                                                        </ListBox>
+                                                    </DockPanel>
                                                 </Border>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
 
                                     <!-- Level -->
                                     <NumericUpDown Grid.Column="2"

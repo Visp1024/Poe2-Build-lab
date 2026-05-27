@@ -10,16 +10,15 @@
     <UserControl.Styles>
         <!-- Frame: dark scroll-like background + warm gold outline -->
         <Style Selector="Border.tooltip-frame">
-            <!-- ARGB: 85% opaque deep midnight -->
-            <Setter Property="Background" Value="#D90A0A14"/>
-            <Setter Property="BorderBrush" Value="#A8824B"/>
+            <Setter Property="Background" Value="{DynamicResource TooltipBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderGoldBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="CornerRadius" Value="2"/>
             <Setter Property="Padding" Value="14,12"/>
         </Style>
         <!-- Inner soft inset glow look: a second slim border just inside -->
         <Style Selector="Border.tooltip-inset">
-            <Setter Property="BorderBrush" Value="#5A3F1F"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderBrownBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="1"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -37,7 +36,7 @@
                                 <!-- Separator row -->
                                 <Border IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsSeparator}}"
                                         Height="1"
-                                        Background="#5A3F1F"
+                                        Background="{DynamicResource TooltipBorderBrownBrush}"
                                         Margin="0,4,0,4"
                                         HorizontalAlignment="Stretch" />
                                 <!-- Text row: WrapPanel hosts one TextBlock per coloured segment.

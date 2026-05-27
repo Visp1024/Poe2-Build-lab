@@ -11,16 +11,16 @@
 
     <UserControl.Styles>
         <Style Selector="ComboBox">
-            <Setter Property="Background" Value="#181825"/>
-            <Setter Property="Foreground" Value="#CDD6F4"/>
-            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="MinHeight" Value="28"/>
         </Style>
         <Style Selector="TextBox">
-            <Setter Property="Background" Value="#181825"/>
-            <Setter Property="Foreground" Value="#CDD6F4"/>
-            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="MinHeight" Value="28"/>
         </Style>
@@ -29,15 +29,15 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Toolbar -->
-        <Border Grid.Row="0" Background="#1E1E2E"
-                BorderBrush="#313244" BorderThickness="0,0,0,1"
+        <Border Grid.Row="0" Background="{DynamicResource BgMantleBrush}"
+                BorderBrush="{DynamicResource BgRaisedBrush}" BorderThickness="0,0,0,1"
                 Padding="10,5">
             <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
 
                 <!-- Class selector -->
                 <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,12,0"
                             VerticalAlignment="Center">
-                    <TextBlock Text="{loc:Tr Tree_Class}" Foreground="#585B70" FontSize="11"
+                    <TextBlock Text="{loc:Tr Tree_Class}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                VerticalAlignment="Center"/>
                     <ComboBox ItemsSource="{Binding Classes}"
                               SelectedItem="{Binding SelectedClass}"
@@ -48,7 +48,7 @@
                 <!-- Ascendancy selector -->
                 <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,16,0"
                             VerticalAlignment="Center">
-                    <TextBlock Text="{loc:Tr Tree_Asc}" Foreground="#585B70" FontSize="11"
+                    <TextBlock Text="{loc:Tr Tree_Asc}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                VerticalAlignment="Center"/>
                     <ComboBox ItemsSource="{Binding AvailableAscendancies}"
                               SelectedItem="{Binding SelectedAscend}"
@@ -57,13 +57,13 @@
                 </StackPanel>
 
                 <!-- Separator -->
-                <Border Width="1" Height="20" Background="#313244" Margin="0,0,12,0"
+                <Border Width="1" Height="20" Background="{DynamicResource BgRaisedBrush}" Margin="0,0,12,0"
                         VerticalAlignment="Center"/>
 
                 <!-- Search -->
                 <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,16,0"
                             VerticalAlignment="Center">
-                    <TextBlock Text="{loc:Tr Tree_Search}" Foreground="#585B70" FontSize="11"
+                    <TextBlock Text="{loc:Tr Tree_Search}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                VerticalAlignment="Center"/>
                     <TextBox Text="{Binding SearchText}"
                              PlaceholderText="{loc:Tr Tree_PhNodeName}"
@@ -72,15 +72,15 @@
 
                 <!-- Stats -->
                 <TextBlock Text="{Binding NodesLabel}"
-                           Foreground="#45475A" FontSize="11"
+                           Foreground="{DynamicResource BorderStrongBrush}" FontSize="11"
                            Margin="0,0,12,0" VerticalAlignment="Center"/>
                 <TextBlock Text="{Binding AllocatedLabel}"
-                           Foreground="#A6E3A1" FontSize="11" FontWeight="Bold"
+                           Foreground="{DynamicResource AttrDexBrush}" FontSize="11" FontWeight="Bold"
                            Margin="0,0,12,0" VerticalAlignment="Center"/>
 
                 <!-- Hint -->
                 <TextBlock Text="{loc:Tr Tree_Hint}"
-                           Foreground="#313244" FontSize="10"
+                           Foreground="{DynamicResource BgRaisedBrush}" FontSize="10"
                            VerticalAlignment="Center"/>
 
             </WrapPanel>

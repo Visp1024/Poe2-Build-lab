@@ -56,6 +56,9 @@
   <data name="Skill_ColOn"        xml:space="preserve"><value>ВКЛ</value></data>
   <data name="Skill_LblOn"        xml:space="preserve"><value>Вкл:</value></data>
   <data name="Skill_AddTip"       xml:space="preserve"><value>Выберите активное умение для добавления</value></data>
+  <data name="Skill_AddSupportTip" xml:space="preserve"><value>+ добавить саппорт</value></data>
+  <data name="Skill_AddNew"       xml:space="preserve"><value>+ Добавить умение</value></data>
+  <data name="Skill_PickerTitle"  xml:space="preserve"><value>Выберите активное умение</value></data>
 
   <!-- Items tab -->
   <data name="Item_NoSelection"   xml:space="preserve"><value>Выберите слот слева для просмотра предмета.</value></data>

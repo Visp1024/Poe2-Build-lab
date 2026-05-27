@@ -281,7 +281,7 @@ public sealed class LuaHost : IDisposable
             local g = build.skillsTab.socketGroupList[_grpIdx]
             if g then
                 table.insert(g.gemList, {
-                    nameSpec='', level=20, quality=0, enabled=true,
+                    nameSpec='', level=19, quality=20, enabled=true,
                     count=1, enableGlobal1=true, enableGlobal2=true
                 })
             end
@@ -779,7 +779,7 @@ public sealed class LuaHost : IDisposable
         State["_newGemName"] = gemName;
         State.DoString(@"
             local newGroup = {label='', enabled=true, gemList={
-                {nameSpec=_newGemName, level=20, quality=0, enabled=true,
+                {nameSpec=_newGemName, level=19, quality=20, enabled=true,
                  count=1, enableGlobal1=true, enableGlobal2=true}
             }}
             table.insert(build.skillsTab.socketGroupList, newGroup)
