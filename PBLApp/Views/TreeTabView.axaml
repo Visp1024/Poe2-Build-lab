@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:ctrl="using:PBLApp.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="700"
+             xmlns:loc="using:PBLApp.Localization"
+             x:Class="PBLApp.Views.TreeTabView"
+             x:DataType="vm:TreeTabViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="#181825"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="MinHeight" Value="28"/>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#181825"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="MinHeight" Value="28"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Background="#1E1E2E"
+                BorderBrush="#313244" BorderThickness="0,0,0,1"
+                Padding="10,5">
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <!-- Class selector -->
+                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,12,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{loc:Tr Tree_Class}" Foreground="#585B70" FontSize="11"
+                               VerticalAlignment="Center"/>
+                    <ComboBox ItemsSource="{Binding Classes}"
+                              SelectedItem="{Binding SelectedClass}"
+                              DisplayMemberBinding="{Binding DisplayName}"
+                              Width="110" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Ascendancy selector -->
+                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,16,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{loc:Tr Tree_Asc}" Foreground="#585B70" FontSize="11"
+                               VerticalAlignment="Center"/>
+                    <ComboBox ItemsSource="{Binding AvailableAscendancies}"
+                              SelectedItem="{Binding SelectedAscend}"
+                              DisplayMemberBinding="{Binding DisplayName}"
+                              Width="140" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Separator -->
+                <Border Width="1" Height="20" Background="#313244" Margin="0,0,12,0"
+                        VerticalAlignment="Center"/>
+
+                <!-- Search -->
+                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,16,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{loc:Tr Tree_Search}" Foreground="#585B70" FontSize="11"
+                               VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding SearchText}"
+                             PlaceholderText="{loc:Tr Tree_PhNodeName}"
+                             Width="180" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Stats -->
+                <TextBlock Text="{Binding NodesLabel}"
+                           Foreground="#45475A" FontSize="11"
+                           Margin="0,0,12,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding AllocatedLabel}"
+                           Foreground="#A6E3A1" FontSize="11" FontWeight="Bold"
+                           Margin="0,0,12,0" VerticalAlignment="Center"/>
+
+                <!-- Hint -->
+                <TextBlock Text="{loc:Tr Tree_Hint}"
+                           Foreground="#313244" FontSize="10"
+                           VerticalAlignment="Center"/>
+
+            </WrapPanel>
+        </Border>
+
+        <!-- Tree canvas -->
+        <ctrl:TreeCanvas x:Name="TreeCanvasControl"
+                         Grid.Row="1"
+                         Nodes="{Binding Nodes}"
+                         AllocatedIds="{Binding AllocatedIds}"
+                         SearchText="{Binding SearchText}"
+                         AscendancyFilter="{Binding AscendancyFilter}"
+                         AllocNodeCommand="{Binding AllocNodeCommand}"
+                         DeallocNodeCommand="{Binding DeallocNodeCommand}"
+                         RadiusEmitters="{Binding RadiusEmitters}"
+                         AscendancyBackgrounds="{Binding AscendancyBackgrounds}"
+                         ClipToBounds="True" />
+
+    </Grid>
+
+</UserControl>

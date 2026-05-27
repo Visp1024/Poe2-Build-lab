@@ -1,0 +1,73 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="700"
+             x:Class="PBLApp.Views.ItemTooltipView"
+             x:DataType="vm:ItemTooltipViewModel">
+
+    <UserControl.Styles>
+        <!-- Frame: dark scroll-like background + warm gold outline -->
+        <Style Selector="Border.tooltip-frame">
+            <!-- ARGB: 85% opaque deep midnight -->
+            <Setter Property="Background" Value="#D90A0A14"/>
+            <Setter Property="BorderBrush" Value="#A8824B"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Padding" Value="14,12"/>
+        </Style>
+        <!-- Inner soft inset glow look: a second slim border just inside -->
+        <Style Selector="Border.tooltip-inset">
+            <Setter Property="BorderBrush" Value="#5A3F1F"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="1"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="tooltip-frame" MaxWidth="560">
+        <Border Classes="tooltip-inset" Padding="6,4">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Lines}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="vm:TooltipLineVm">
+                            <Grid>
+                                <!-- Separator row -->
+                                <Border IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsSeparator}}"
+                                        Height="1"
+                                        Background="#5A3F1F"
+                                        Margin="0,4,0,4"
+                                        HorizontalAlignment="Stretch" />
+                                <!-- Text row: WrapPanel hosts one TextBlock per coloured segment.
+                                     FontSize is taken from the line's Size (×0.7 to map PoB pixel sizes to Avalonia DIPs).
+                                     Header lines (size ≥ 20) get FontWeight=Bold + slight LetterSpacing for small-caps feel. -->
+                                <ItemsControl IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsText}}"
+                                              ItemsSource="{Binding Segments}"
+                                              HorizontalAlignment="{Binding Centered, Converter={x:Static vm:TooltipKindConverter.CenterOrLeft}}"
+                                              Tag="{Binding Size}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="vm:TooltipSegment">
+                                            <TextBlock Text="{Binding Text}"
+                                                       Foreground="{Binding ColorHex, Converter={x:Static vm:TooltipKindConverter.HexToBrush}}"
+                                                       FontFamily="Segoe UI"
+                                                       FontSize="{Binding $parent[ItemsControl].Tag, Converter={x:Static vm:TooltipKindConverter.ScaleSize}}"
+                                                       FontWeight="{Binding $parent[ItemsControl].Tag, Converter={x:Static vm:TooltipKindConverter.WeightForSize}}"
+                                                       TextWrapping="Wrap" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+    </Border>
+</UserControl>

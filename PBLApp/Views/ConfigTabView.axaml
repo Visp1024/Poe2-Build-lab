@@ -1,0 +1,248 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:conv="using:PBLApp.Converters"
+             xmlns:engine="using:PBLEngine"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
+             x:Class="PBLApp.Views.ConfigTabView"
+             x:DataType="vm:ConfigTabViewModel">
+
+    <UserControl.Resources>
+        <conv:TypeMatchConverter x:Key="TypeMatch" />
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <!-- Bordered group box (mimics PoB's section panels) -->
+        <Style Selector="Border.group-box">
+            <Setter Property="Background" Value="#181825" />
+            <Setter Property="BorderBrush" Value="#45475A" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="Padding" Value="10,18,10,10" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+        <Style Selector="Button.section-title">
+            <Setter Property="Background" Value="#181825" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="6,1" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Foreground" Value="#CDD6F4" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.section-title /template/ ContentPresenter">
+            <Setter Property="Background" Value="#181825" />
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+        <Style Selector="Button.section-title:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#1E1E2E" />
+            <Setter Property="Foreground" Value="#89B4FA" />
+        </Style>
+        <Style Selector="TextBlock.opt-label">
+            <Setter Property="Foreground" Value="#CDD6F4" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <Grid ColumnDefinitions="*,*,*" Margin="10">
+
+            <!-- Left column -->
+            <ItemsControl Grid.Column="0" ItemsSource="{Binding LeftSections}" Margin="0,0,6,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ConfigSectionViewModel">
+                        <StackPanel Margin="0,0,0,12">
+                            <Button Classes="section-title"
+                                    Command="{Binding ToggleCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="{Binding ChevronGlyph}" />
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                            </Button>
+                            <Border Classes="group-box"
+                                    IsVisible="{Binding IsExpanded}">
+                                <ItemsControl ItemsSource="{Binding Options}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ConfigOptionViewModel">
+                                            <Grid ColumnDefinitions="*,140" Margin="2,3" MinHeight="22">
+
+                                                <TextBlock Grid.Column="0"
+                                                           Classes="opt-label"
+                                                           Text="{Binding Label}"
+                                                           Margin="0,0,8,0" />
+
+                                                <CheckBox Grid.Column="1"
+                                                          IsChecked="{Binding IsChecked}"
+                                                          IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=check}"
+                                                          HorizontalAlignment="Left" />
+
+                                                <ComboBox Grid.Column="1"
+                                                          ItemsSource="{Binding ListOptions}"
+                                                          SelectedItem="{Binding SelectedItem}"
+                                                          IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=list}"
+                                                          MinWidth="130" HorizontalAlignment="Stretch">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate x:DataType="engine:ConfigListItem">
+                                                            <TextBlock Text="{Binding Label}" />
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding TextValue}"
+                                                         IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=count|integer|float|countAllowZero}"
+                                                         Width="90"
+                                                         HorizontalAlignment="Left" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Middle column -->
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding MiddleSections}" Margin="6,0,6,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ConfigSectionViewModel">
+                        <StackPanel Margin="0,0,0,12">
+                            <Button Classes="section-title"
+                                    Command="{Binding ToggleCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="{Binding ChevronGlyph}" />
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                            </Button>
+                            <Border Classes="group-box"
+                                    IsVisible="{Binding IsExpanded}">
+                                <ItemsControl ItemsSource="{Binding Options}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ConfigOptionViewModel">
+                                            <Grid ColumnDefinitions="*,140" Margin="2,3" MinHeight="22">
+
+                                                <TextBlock Grid.Column="0"
+                                                           Classes="opt-label"
+                                                           Text="{Binding Label}"
+                                                           Margin="0,0,8,0" />
+
+                                                <CheckBox Grid.Column="1"
+                                                          IsChecked="{Binding IsChecked}"
+                                                          IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=check}"
+                                                          HorizontalAlignment="Left" />
+
+                                                <ComboBox Grid.Column="1"
+                                                          ItemsSource="{Binding ListOptions}"
+                                                          SelectedItem="{Binding SelectedItem}"
+                                                          IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=list}"
+                                                          MinWidth="130" HorizontalAlignment="Stretch">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate x:DataType="engine:ConfigListItem">
+                                                            <TextBlock Text="{Binding Label}" />
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding TextValue}"
+                                                         IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=count|integer|float|countAllowZero}"
+                                                         Width="90"
+                                                         HorizontalAlignment="Left" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Right column -->
+            <ItemsControl Grid.Column="2" ItemsSource="{Binding RightSections}" Margin="6,0,0,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ConfigSectionViewModel">
+                        <StackPanel Margin="0,0,0,12">
+                            <Button Classes="section-title"
+                                    Command="{Binding ToggleCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="{Binding ChevronGlyph}" />
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                            </Button>
+                            <Border Classes="group-box"
+                                    IsVisible="{Binding IsExpanded}">
+                                <ItemsControl ItemsSource="{Binding Options}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ConfigOptionViewModel">
+                                            <Grid Margin="2,3" MinHeight="22">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- For 'text' type (Custom Modifiers) the input gets the full row, no label column -->
+                                                <TextBlock Grid.Column="0"
+                                                           Classes="opt-label"
+                                                           Text="{Binding Label}"
+                                                           IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=check|list|count|integer|float|countAllowZero}"
+                                                           Margin="0,0,8,0" />
+
+                                                <CheckBox Grid.Column="1"
+                                                          IsChecked="{Binding IsChecked}"
+                                                          IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=check}"
+                                                          HorizontalAlignment="Left" />
+
+                                                <ComboBox Grid.Column="1"
+                                                          ItemsSource="{Binding ListOptions}"
+                                                          SelectedItem="{Binding SelectedItem}"
+                                                          IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=list}"
+                                                          MinWidth="130">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate x:DataType="engine:ConfigListItem">
+                                                            <TextBlock Text="{Binding Label}" />
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding TextValue}"
+                                                         IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=count|integer|float|countAllowZero}"
+                                                         Width="90"
+                                                         HorizontalAlignment="Left" />
+
+                                                <!-- Custom Modifiers multi-line textbox: span both columns -->
+                                                <TextBox Grid.Column="0" Grid.ColumnSpan="2"
+                                                         Text="{Binding TextValue}"
+                                                         IsVisible="{Binding Type, Converter={StaticResource TypeMatch}, ConverterParameter=text}"
+                                                         AcceptsReturn="True"
+                                                         TextWrapping="Wrap"
+                                                         MinHeight="160"
+                                                         FontFamily="Cascadia Code,Consolas,monospace"
+                                                         HorizontalAlignment="Stretch" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </Grid>
+    </ScrollViewer>
+
+</UserControl>

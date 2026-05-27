@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- Buttons -->
+  <data name="Btn_Save"           xml:space="preserve"><value>Save</value></data>
+  <data name="Btn_SaveNotes"      xml:space="preserve"><value>Save Notes</value></data>
+  <data name="Btn_Delete"         xml:space="preserve"><value>Delete</value></data>
+  <data name="Btn_Refresh"        xml:space="preserve"><value>Refresh</value></data>
+  <data name="Btn_Back"           xml:space="preserve"><value>&#x2190; Back</value></data>
+  <data name="Btn_OpenBuild"      xml:space="preserve"><value>Open Build</value></data>
+  <data name="Btn_NewBuild"       xml:space="preserve"><value>New Build</value></data>
+  <data name="Btn_Import"         xml:space="preserve"><value>Import Build</value></data>
+  <data name="Btn_GenerateCode"   xml:space="preserve"><value>Generate Code</value></data>
+  <data name="Btn_CopyClipboard"  xml:space="preserve"><value>Copy to Clipboard</value></data>
+  <data name="Btn_New"            xml:space="preserve"><value>New</value></data>
+  <data name="Btn_StarMain"       xml:space="preserve"><value>&#x2605; Main</value></data>
+
+  <!-- Tab headers -->
+  <data name="Tab_Items"          xml:space="preserve"><value>Items</value></data>
+  <data name="Tab_Tree"           xml:space="preserve"><value>Tree</value></data>
+  <data name="Tab_Skills"         xml:space="preserve"><value>Skills</value></data>
+  <data name="Tab_Calcs"          xml:space="preserve"><value>Calcs</value></data>
+  <data name="Tab_Notes"          xml:space="preserve"><value>Notes</value></data>
+  <data name="Tab_Config"         xml:space="preserve"><value>Config</value></data>
+  <data name="Tab_ImportExport"   xml:space="preserve"><value>Import / Export</value></data>
+  <data name="Tab_PopOut"         xml:space="preserve"><value>Open in separate window</value></data>
+
+  <!-- Build list -->
+  <data name="List_Title"         xml:space="preserve"><value>PoE2 Build Lab &#x2014; Builds</value></data>
+  <data name="List_Empty"         xml:space="preserve"><value>No builds found. Click &#xAB;New Build&#xBB; to create one.</value></data>
+  <data name="List_Language"      xml:space="preserve"><value>Language:</value></data>
+
+  <!-- Build page -->
+  <data name="Page_Loading"       xml:space="preserve"><value>Loading build...</value></data>
+
+  <!-- Tree tab -->
+  <data name="Tree_Class"         xml:space="preserve"><value>Class:</value></data>
+  <data name="Tree_Asc"           xml:space="preserve"><value>Asc:</value></data>
+  <data name="Tree_Search"        xml:space="preserve"><value>Search:</value></data>
+  <data name="Tree_PhNodeName"    xml:space="preserve"><value>node name&#x2026;</value></data>
+  <data name="Tree_Hint"          xml:space="preserve"><value>Drag=pan &#xB7; Wheel=zoom &#xB7; Click=toggle node</value></data>
+
+  <!-- Skills tab -->
+  <data name="Skill_Header"       xml:space="preserve"><value>Skills</value></data>
+  <data name="Skill_ActiveSkill"  xml:space="preserve"><value>Active Skill:</value></data>
+  <data name="Skill_NoGroups"     xml:space="preserve"><value>(no skill groups)</value></data>
+  <data name="Skill_NoSelection"  xml:space="preserve"><value>Select a skill or add one using the dropdown on the left.</value></data>
+  <data name="Skill_Main"         xml:space="preserve"><value>(Main)</value></data>
+  <data name="Skill_ColSupport"   xml:space="preserve"><value>SUPPORT GEM</value></data>
+  <data name="Skill_ColLevel"     xml:space="preserve"><value>LEVEL</value></data>
+  <data name="Skill_ColQuality"   xml:space="preserve"><value>QUALITY</value></data>
+  <data name="Skill_ColOn"        xml:space="preserve"><value>ON</value></data>
+  <data name="Skill_LblOn"        xml:space="preserve"><value>On:</value></data>
+  <data name="Skill_AddTip"       xml:space="preserve"><value>Select active skill to add</value></data>
+
+  <!-- Items tab -->
+  <data name="Item_NoSelection"   xml:space="preserve"><value>Select a slot on the left to view item details.</value></data>
+  <data name="Item_Empty"         xml:space="preserve"><value>(empty)</value></data>
+  <data name="Slot_Helmet"        xml:space="preserve"><value>HELMET</value></data>
+  <data name="Slot_Weapon1"       xml:space="preserve"><value>WEAPON 1</value></data>
+  <data name="Slot_BodyArmour"    xml:space="preserve"><value>BODY ARMOUR</value></data>
+  <data name="Slot_Weapon2"       xml:space="preserve"><value>WEAPON 2</value></data>
+  <data name="Slot_Ring1"         xml:space="preserve"><value>RING 1</value></data>
+  <data name="Slot_Gloves"        xml:space="preserve"><value>GLOVES</value></data>
+  <data name="Slot_Ring2"         xml:space="preserve"><value>RING 2</value></data>
+  <data name="Slot_Amulet"        xml:space="preserve"><value>AMULET</value></data>
+  <data name="Slot_Belt"          xml:space="preserve"><value>BELT</value></data>
+  <data name="Slot_Ring3"         xml:space="preserve"><value>RING 3</value></data>
+  <data name="Slot_Boots"         xml:space="preserve"><value>BOOTS</value></data>
+  <data name="Slot_Flask1"        xml:space="preserve"><value>FLASK 1</value></data>
+  <data name="Slot_Flask2"        xml:space="preserve"><value>FLASK 2</value></data>
+  <data name="Slot_Flask3"        xml:space="preserve"><value>FLASK 3</value></data>
+  <data name="Slot_Flask4"        xml:space="preserve"><value>FLASK 4</value></data>
+  <data name="Slot_Flask5"        xml:space="preserve"><value>FLASK 5</value></data>
+  <data name="Slot_Charm1"        xml:space="preserve"><value>CHARM 1</value></data>
+  <data name="Slot_Charm2"        xml:space="preserve"><value>CHARM 2</value></data>
+  <data name="Slot_Charm3"        xml:space="preserve"><value>CHARM 3</value></data>
+  <data name="Slot_Arm1"          xml:space="preserve"><value>ARM 1</value></data>
+  <data name="Slot_Arm2"          xml:space="preserve"><value>ARM 2</value></data>
+  <data name="Slot_Leg1"          xml:space="preserve"><value>LEG 1</value></data>
+  <data name="Slot_Leg2"          xml:space="preserve"><value>LEG 2</value></data>
+
+  <!-- Calcs tab UI -->
+  <data name="Calc_ActiveSkill"   xml:space="preserve"><value>Active Skill:</value></data>
+  <data name="Calc_NoGroups"      xml:space="preserve"><value>(no skill groups)</value></data>
+  <data name="Calc_TotalDPS"      xml:space="preserve"><value>Total DPS:</value></data>
+  <data name="Calc_AvgDmg"        xml:space="preserve"><value>Avg Dmg:</value></data>
+  <data name="Calc_HitDamage"     xml:space="preserve"><value>Skill Hit Damage</value></data>
+  <data name="Calc_AvgDamage"     xml:space="preserve"><value>average damage</value></data>
+  <data name="Calc_ColType"       xml:space="preserve"><value>Type</value></data>
+  <data name="Calc_ColMin"        xml:space="preserve"><value>Min</value></data>
+  <data name="Calc_ColMax"        xml:space="preserve"><value>Max</value></data>
+  <data name="Calc_AttackRate"    xml:space="preserve"><value>Attack / Cast Rate</value></data>
+  <data name="Calc_Speed"         xml:space="preserve"><value>Speed:</value></data>
+  <data name="Calc_CastTime"      xml:space="preserve"><value>Cast Time:</value></data>
+  <data name="Calc_HitChance"     xml:space="preserve"><value>Hit Chance:</value></data>
+  <data name="Calc_Crits"         xml:space="preserve"><value>Crits</value></data>
+  <data name="Calc_CritChance"    xml:space="preserve"><value>Crit Chance:</value></data>
+  <data name="Calc_CritMult"      xml:space="preserve"><value>Crit Multiplier:</value></data>
+  <data name="Calc_CritEffect"    xml:space="preserve"><value>Crit Effect:</value></data>
+  <data name="Calc_Calculation"   xml:space="preserve"><value>Calculation:</value></data>
+  <data name="Calc_ModSources"    xml:space="preserve"><value>Modifier sources:</value></data>
+  <data name="Calc_ColValue"      xml:space="preserve"><value>Value</value></data>
+  <data name="Calc_ColSource"     xml:space="preserve"><value>Source</value></data>
+  <data name="Calc_ColName"       xml:space="preserve"><value>Name</value></data>
+  <data name="Calc_ClickStat"     xml:space="preserve"><value>Click a stat on the left to see its breakdown</value></data>
+  <data name="Calc_NoBreakdown"   xml:space="preserve"><value>No calc breakdown for this stat.</value></data>
+
+  <!-- Calcs stat section labels -->
+  <data name="Stat_SkillDPS"      xml:space="preserve"><value>Skill DPS</value></data>
+  <data name="Stat_HitRanges"     xml:space="preserve"><value>Hit Damage Ranges</value></data>
+  <data name="Stat_Hit"           xml:space="preserve"><value>Hit</value></data>
+  <data name="Stat_AttackRate"    xml:space="preserve"><value>Attack / Cast Rate</value></data>
+  <data name="Stat_Crit"          xml:space="preserve"><value>Crit</value></data>
+  <data name="Stat_SkillInfo"     xml:space="preserve"><value>Skill Info</value></data>
+  <data name="Stat_Ailments"      xml:space="preserve"><value>Ailments</value></data>
+  <data name="Stat_Attributes"    xml:space="preserve"><value>Attributes</value></data>
+  <data name="Stat_Life"          xml:space="preserve"><value>Life</value></data>
+  <data name="Stat_Mana"          xml:space="preserve"><value>Mana</value></data>
+  <data name="Stat_EnergyShield"  xml:space="preserve"><value>Energy Shield</value></data>
+  <data name="Stat_Armour"        xml:space="preserve"><value>Armour</value></data>
+  <data name="Stat_Evasion"       xml:space="preserve"><value>Evasion</value></data>
+  <data name="Stat_BlockDeflect"  xml:space="preserve"><value>Block / Deflect</value></data>
+  <data name="Stat_MaxHitTaken"   xml:space="preserve"><value>Max Hit Taken</value></data>
+  <data name="Stat_Resistances"   xml:space="preserve"><value>Resistances</value></data>
+  <data name="Stat_Charges"       xml:space="preserve"><value>Charges</value></data>
+
+  <!-- Calcs stat row labels -->
+  <data name="Row_TotalDPS"           xml:space="preserve"><value>Total DPS</value></data>
+  <data name="Row_CombinedDPS"        xml:space="preserve"><value>Combined DPS</value></data>
+  <data name="Row_AverageDamage"      xml:space="preserve"><value>Average Damage</value></data>
+  <data name="Row_WithDotDPS"         xml:space="preserve"><value>With DoT DPS</value></data>
+  <data name="Row_TotalDotDPS"        xml:space="preserve"><value>Total DoT DPS</value></data>
+  <data name="Row_ImpaleDPS"          xml:space="preserve"><value>Impale DPS</value></data>
+  <data name="Row_PhysMin"            xml:space="preserve"><value>Physical Min</value></data>
+  <data name="Row_PhysMax"            xml:space="preserve"><value>Physical Max</value></data>
+  <data name="Row_LightMin"           xml:space="preserve"><value>Lightning Min</value></data>
+  <data name="Row_LightMax"           xml:space="preserve"><value>Lightning Max</value></data>
+  <data name="Row_ColdMin"            xml:space="preserve"><value>Cold Min</value></data>
+  <data name="Row_ColdMax"            xml:space="preserve"><value>Cold Max</value></data>
+  <data name="Row_FireMin"            xml:space="preserve"><value>Fire Min</value></data>
+  <data name="Row_FireMax"            xml:space="preserve"><value>Fire Max</value></data>
+  <data name="Row_ChaosMin"           xml:space="preserve"><value>Chaos Min</value></data>
+  <data name="Row_ChaosMax"           xml:space="preserve"><value>Chaos Max</value></data>
+  <data name="Row_HitChance"          xml:space="preserve"><value>Hit Chance</value></data>
+  <data name="Row_Accuracy"           xml:space="preserve"><value>Accuracy</value></data>
+  <data name="Row_SpeedPerSec"        xml:space="preserve"><value>Speed (per second)</value></data>
+  <data name="Row_TimeSec"            xml:space="preserve"><value>Time (seconds)</value></data>
+  <data name="Row_HitSpeed"           xml:space="preserve"><value>Hit Speed</value></data>
+  <data name="Row_CritChance"         xml:space="preserve"><value>Crit Chance</value></data>
+  <data name="Row_CritMult"           xml:space="preserve"><value>Crit Multiplier</value></data>
+  <data name="Row_CritEffectMod"      xml:space="preserve"><value>Crit Effect Mod</value></data>
+  <data name="Row_PreEffCrit"         xml:space="preserve"><value>Pre-Effective Crit</value></data>
+  <data name="Row_Duration"           xml:space="preserve"><value>Duration</value></data>
+  <data name="Row_Radius"             xml:space="preserve"><value>Radius</value></data>
+  <data name="Row_IgniteChance"       xml:space="preserve"><value>Ignite Chance</value></data>
+  <data name="Row_IgniteOnHit"        xml:space="preserve"><value>Ignite On Hit</value></data>
+  <data name="Row_IgniteOnCrit"       xml:space="preserve"><value>Ignite On Crit</value></data>
+  <data name="Row_IgniteDPS"          xml:space="preserve"><value>Ignite DPS</value></data>
+  <data name="Row_IgniteDuration"     xml:space="preserve"><value>Ignite Duration</value></data>
+  <data name="Row_ShockChance"        xml:space="preserve"><value>Shock Chance</value></data>
+  <data name="Row_ShockOnHit"         xml:space="preserve"><value>Shock On Hit</value></data>
+  <data name="Row_ShockOnCrit"        xml:space="preserve"><value>Shock On Crit</value></data>
+  <data name="Row_ShockEffect"        xml:space="preserve"><value>Shock Effect</value></data>
+  <data name="Row_ChillChance"        xml:space="preserve"><value>Chill Chance</value></data>
+  <data name="Row_ChillOnHit"         xml:space="preserve"><value>Chill On Hit</value></data>
+  <data name="Row_FreezeOnHit"        xml:space="preserve"><value>Freeze On Hit</value></data>
+  <data name="Row_FreezeOnCrit"       xml:space="preserve"><value>Freeze On Crit</value></data>
+  <data name="Row_BleedOnHit"         xml:space="preserve"><value>Bleed On Hit</value></data>
+  <data name="Row_PoisonOnHit"        xml:space="preserve"><value>Poison On Hit</value></data>
+  <data name="Row_StunBuildup"        xml:space="preserve"><value>Stun Buildup</value></data>
+  <data name="Row_Strength"           xml:space="preserve"><value>Strength</value></data>
+  <data name="Row_Dexterity"          xml:space="preserve"><value>Dexterity</value></data>
+  <data name="Row_Intelligence"       xml:space="preserve"><value>Intelligence</value></data>
+  <data name="Row_Life"               xml:space="preserve"><value>Life</value></data>
+  <data name="Row_LifeUnreserved"     xml:space="preserve"><value>Life Unreserved</value></data>
+  <data name="Row_LifeRegen"          xml:space="preserve"><value>Life Regen</value></data>
+  <data name="Row_LifeRegenPct"       xml:space="preserve"><value>Life % Regen</value></data>
+  <data name="Row_LifeLeech"          xml:space="preserve"><value>Life Leech</value></data>
+  <data name="Row_Mana"               xml:space="preserve"><value>Mana</value></data>
+  <data name="Row_ManaCost"           xml:space="preserve"><value>Mana Cost</value></data>
+  <data name="Row_ManaRegen"          xml:space="preserve"><value>Mana Regen</value></data>
+  <data name="Row_ManaLeech"          xml:space="preserve"><value>Mana Leech</value></data>
+  <data name="Row_ES"                 xml:space="preserve"><value>Energy Shield</value></data>
+  <data name="Row_ESRegen"            xml:space="preserve"><value>ES Regen</value></data>
+  <data name="Row_ESRegenPct"         xml:space="preserve"><value>ES % Regen</value></data>
+  <data name="Row_Armour"             xml:space="preserve"><value>Armour</value></data>
+  <data name="Row_PhysReduction"      xml:space="preserve"><value>Phys. Reduction</value></data>
+  <data name="Row_PhysDmgRedHit"      xml:space="preserve"><value>Phys. Dmg. Red. When Hit</value></data>
+  <data name="Row_Evasion"            xml:space="preserve"><value>Evasion</value></data>
+  <data name="Row_EvadeChance"        xml:space="preserve"><value>Evade Chance</value></data>
+  <data name="Row_ProjEvade"          xml:space="preserve"><value>Proj. Evade</value></data>
+  <data name="Row_BlockChance"        xml:space="preserve"><value>Block Chance</value></data>
+  <data name="Row_SpellBlock"         xml:space="preserve"><value>Spell Block</value></data>
+  <data name="Row_DeflectChance"      xml:space="preserve"><value>Deflect Chance</value></data>
+  <data name="Row_SpellDeflect"       xml:space="preserve"><value>Spell Deflect</value></data>
+  <data name="Row_Physical"           xml:space="preserve"><value>Physical</value></data>
+  <data name="Row_Fire"               xml:space="preserve"><value>Fire</value></data>
+  <data name="Row_Cold"               xml:space="preserve"><value>Cold</value></data>
+  <data name="Row_Lightning"          xml:space="preserve"><value>Lightning</value></data>
+  <data name="Row_Chaos"              xml:space="preserve"><value>Chaos</value></data>
+  <data name="Row_FireResist"         xml:space="preserve"><value>Fire Resist</value></data>
+  <data name="Row_FireMaxResist"      xml:space="preserve"><value>Fire Max Resist</value></data>
+  <data name="Row_ColdResist"         xml:space="preserve"><value>Cold Resist</value></data>
+  <data name="Row_ColdMaxResist"      xml:space="preserve"><value>Cold Max Resist</value></data>
+  <data name="Row_LightResist"        xml:space="preserve"><value>Lightning Resist</value></data>
+  <data name="Row_LightMaxResist"     xml:space="preserve"><value>Lightning Max</value></data>
+  <data name="Row_ChaosResist"        xml:space="preserve"><value>Chaos Resist</value></data>
+  <data name="Row_ChaosMaxResist"     xml:space="preserve"><value>Chaos Max Resist</value></data>
+  <data name="Row_EnduranceCharges"   xml:space="preserve"><value>Endurance Charges</value></data>
+  <data name="Row_FrenzyCharges"      xml:space="preserve"><value>Frenzy Charges</value></data>
+  <data name="Row_PowerCharges"       xml:space="preserve"><value>Power Charges</value></data>
+  <data name="Row_MaxEndurance"       xml:space="preserve"><value>Max Endurance</value></data>
+  <data name="Row_MaxFrenzy"          xml:space="preserve"><value>Max Frenzy</value></data>
+  <data name="Row_MaxPower"           xml:space="preserve"><value>Max Power</value></data>
+
+  <!-- Damage type names (for hit table) -->
+  <data name="DmgType_Physical"   xml:space="preserve"><value>Physical</value></data>
+  <data name="DmgType_Lightning"  xml:space="preserve"><value>Lightning</value></data>
+  <data name="DmgType_Cold"       xml:space="preserve"><value>Cold</value></data>
+  <data name="DmgType_Fire"       xml:space="preserve"><value>Fire</value></data>
+  <data name="DmgType_Chaos"      xml:space="preserve"><value>Chaos</value></data>
+
+  <!-- Import/Export -->
+  <data name="Import_Title"       xml:space="preserve"><value>Import Build</value></data>
+  <data name="Import_Desc"        xml:space="preserve"><value>Paste a share code from another Path of Building user:</value></data>
+  <data name="Import_Placeholder" xml:space="preserve"><value>Paste share code here&#x2026;</value></data>
+  <data name="Export_Title"       xml:space="preserve"><value>Export / Share Build</value></data>
+  <data name="Export_Desc"        xml:space="preserve"><value>Generate a code to share this build with other users:</value></data>
+
+  <!-- Status messages -->
+  <data name="Msg_ErrorSave"      xml:space="preserve"><value>Error: could not save build.</value></data>
+  <data name="Msg_CodeGenerated"  xml:space="preserve"><value>Code generated ({0} chars).</value></data>
+  <data name="Msg_Copied"         xml:space="preserve"><value>Copied to clipboard.</value></data>
+  <data name="Msg_PasteCode"      xml:space="preserve"><value>Paste a share code above.</value></data>
+  <data name="Msg_Importing"      xml:space="preserve"><value>Importing&#x2026;</value></data>
+  <data name="Msg_InvalidCode"    xml:space="preserve"><value>Invalid share code &#x2014; could not decode.</value></data>
+  <data name="Msg_Imported"       xml:space="preserve"><value>Build imported successfully.</value></data>
+  <data name="Msg_Error"          xml:space="preserve"><value>Error: {0}</value></data>
+
+  <!-- Class change dialog -->
+  <data name="Dlg_ChangeClass_Title"   xml:space="preserve"><value>Change Class</value></data>
+  <data name="Dlg_ChangeClass_Msg"     xml:space="preserve"><value>Changing class will reset all selected nodes.&#xA;Proceed?</value></data>
+  <data name="Dlg_ChangeClass_Confirm" xml:space="preserve"><value>Change Class</value></data>
+  <data name="Dlg_ChangeClass_Cancel"  xml:space="preserve"><value>Cancel</value></data>
+
+  <!-- Attribute selection dialog -->
+  <data name="Dlg_ChooseAttr_Title" xml:space="preserve"><value>Choose Attribute</value></data>
+  <data name="Dlg_ChooseAttr_Msg"   xml:space="preserve"><value>This node grants +5 to any attribute.&#xA;Choose which attribute to allocate:</value></data>
+  <data name="Attr_Strength"        xml:space="preserve"><value>Strength</value></data>
+  <data name="Attr_Dexterity"       xml:space="preserve"><value>Dexterity</value></data>
+  <data name="Attr_Intelligence"    xml:space="preserve"><value>Intelligence</value></data>
+
+  <!-- BuildPage sidebar -->
+  <data name="Sidebar_DPS"          xml:space="preserve"><value>DPS:</value></data>
+  <data name="Sidebar_Life"         xml:space="preserve"><value>Life:</value></data>
+  <data name="Sidebar_ES"           xml:space="preserve"><value>ES:</value></data>
+  <data name="Sidebar_Mana"         xml:space="preserve"><value>Mana:</value></data>
+  <data name="Sidebar_Armour"       xml:space="preserve"><value>Armour:</value></data>
+  <data name="Sidebar_Eva"          xml:space="preserve"><value>Eva:</value></data>
+
+  <!-- Items tab section headers and pool -->
+  <data name="Item_EquippedHeader"  xml:space="preserve"><value>EQUIPPED ITEMS</value></data>
+  <data name="Item_BaseJewelsHeader" xml:space="preserve"><value>BASE JEWELS</value></data>
+  <data name="Item_ExtraSlotsHeader" xml:space="preserve"><value>EXTRA SLOTS</value></data>
+  <data name="Item_PoolHeader"      xml:space="preserve"><value>ITEM POOL</value></data>
+  <data name="Item_PoolSearch"      xml:space="preserve"><value>&#x1F50D;  Search items&#x2026;</value></data>
+  <data name="Item_PoolEmpty"       xml:space="preserve"><value>No items in pool. Use '+ Import' to add items.</value></data>
+  <data name="Item_PlaceholderEdit" xml:space="preserve"><value>Select an item slot or pool item to edit</value></data>
+  <data name="Item_CreateNew"       xml:space="preserve"><value>&#x2726; Create New Item</value></data>
+  <data name="Item_PoolCreate"      xml:space="preserve"><value>&#x2726; Create</value></data>
+  <data name="Item_PoolImport"      xml:space="preserve"><value>+ Import</value></data>
+  <data name="Item_Equip"           xml:space="preserve"><value>&#x2694; Equip</value></data>
+  <data name="Item_Unequip"         xml:space="preserve"><value>Unequip</value></data>
+
+  <!-- Item import modal -->
+  <data name="ItemImport_Header"    xml:space="preserve"><value>IMPORT ITEM</value></data>
+  <data name="ItemImport_Hint"      xml:space="preserve"><value>In PoE2: hover item &#x2192; Ctrl+C, then Ctrl+V below</value></data>
+  <data name="ItemImport_AddBtn"    xml:space="preserve"><value>Add to Pool</value></data>
+
+  <!-- Item editor -->
+  <data name="Editor_TitleEdit"     xml:space="preserve"><value>EDIT ITEM</value></data>
+  <data name="Editor_TitleCreate"   xml:space="preserve"><value>CREATE ITEM</value></data>
+  <data name="Editor_BtnSave"       xml:space="preserve"><value>&#x1F4BE; Save</value></data>
+  <data name="Editor_BtnDelete"     xml:space="preserve"><value>&#x1F5D1; Delete</value></data>
+  <data name="Editor_BtnClose"      xml:space="preserve"><value>&#x2715; Close</value></data>
+  <data name="Editor_RarityNormal"  xml:space="preserve"><value>NORMAL</value></data>
+  <data name="Editor_RarityMagic"   xml:space="preserve"><value>MAGIC</value></data>
+  <data name="Editor_RarityRare"    xml:space="preserve"><value>RARE</value></data>
+  <data name="Editor_RarityUnique"  xml:space="preserve"><value>UNIQUE</value></data>
+  <data name="Editor_ItemLevel"     xml:space="preserve"><value>ITEM LEVEL</value></data>
+  <data name="Editor_Category"      xml:space="preserve"><value>CATEGORY</value></data>
+  <data name="Editor_BaseItem"      xml:space="preserve"><value>BASE ITEM</value></data>
+  <data name="Editor_UniqueItem"    xml:space="preserve"><value>UNIQUE ITEM</value></data>
+  <data name="Editor_SelectedBase"  xml:space="preserve"><value>SELECTED BASE</value></data>
+  <data name="Editor_SelectedUnique" xml:space="preserve"><value>SELECTED UNIQUE</value></data>
+  <data name="Editor_Mods"          xml:space="preserve"><value>MODS</value></data>
+  <data name="Editor_FilterAll"     xml:space="preserve"><value>All</value></data>
+  <data name="Editor_FilterPrefix"  xml:space="preserve"><value>Prefix</value></data>
+  <data name="Editor_FilterSuffix"  xml:space="preserve"><value>Suffix</value></data>
+  <data name="Editor_NoMods"        xml:space="preserve"><value>No mods. Use '+ Add Mod' (or select a unique on the left).</value></data>
+  <data name="Editor_Quality"       xml:space="preserve"><value>QUALITY</value></data>
+  <data name="Editor_Corrupted"     xml:space="preserve"><value>Corrupted</value></data>
+  <data name="Editor_CorruptedHint" xml:space="preserve"><value>Corrupted items cannot be modified</value></data>
+  <data name="Editor_Runes"         xml:space="preserve"><value>RUNES / IDOLS</value></data>
+  <data name="Editor_AddRune"       xml:space="preserve"><value>+ Add Rune</value></data>
+  <data name="Editor_NoRunes"       xml:space="preserve"><value>No runes or idols socketed</value></data>
+  <data name="Editor_BaseStats"     xml:space="preserve"><value>BASE STATS</value></data>
+  <data name="Editor_StatArmour"    xml:space="preserve"><value>Armour</value></data>
+  <data name="Editor_StatEvasion"   xml:space="preserve"><value>Evasion</value></data>
+  <data name="Editor_StatES"        xml:space="preserve"><value>Energy Shield</value></data>
+  <data name="Editor_StatWard"      xml:space="preserve"><value>Ward</value></data>
+  <data name="Editor_StatSpirit"    xml:space="preserve"><value>Spirit</value></data>
+  <data name="Editor_StatCharmSlots" xml:space="preserve"><value>Charm Slots</value></data>
+
+  <!-- Tree tab status -->
+  <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Allocated: {0}</value></data>
+  <data name="Tree_NodesFmt"        xml:space="preserve"><value>Nodes: {0}</value></data>
+
+</root>

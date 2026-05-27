@@ -1,0 +1,41 @@
+{
+  "steam": "D:\\Games\\steamapps\\common\\Path of Exile 2",
+
+  "translations": ["English", "Russian"],
+
+  "tables": [
+    {
+      "name": "PassiveSkills",
+      "columns": [
+        "Id",
+        "Name",
+        "PassiveSkillGraphId",
+        "IsKeystone",
+        "IsNotable",
+        "IsJewelSocket",
+        "IsAscendancyStartingNode",
+        "FlavourText",
+        "Stats",
+        "Stat1Value",
+        "Stat2Value",
+        "Stat3Value",
+        "Stat4Value",
+        "Stat5Value"
+      ]
+    },
+    {
+      "name": "Stats",
+      "columns": ["Id"]
+    },
+    {
+      "name": "ActiveSkills",
+      "columns": [
+        "Id",
+        "DisplayedName",
+        "Description",
+        "ShortDescription",
+        "StatDescription"
+      ]
+    }
+  ]
+}

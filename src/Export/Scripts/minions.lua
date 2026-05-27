@@ -1,0 +1,385 @@
+local function makeSkillMod(modName, modType, modVal, flags, keywordFlags, ...)
+	return {
+		name = modName,
+		type = modType,
+		value = modVal,
+		flags = flags or 0,
+		keywordFlags = keywordFlags or 0,
+		...
+	}
+end
+local function makeFlagMod(modName, ...)
+	return makeSkillMod(modName, "FLAG", true, 0, 0, ...)
+end
+local function makeSkillDataMod(dataKey, dataValue, ...)
+	return makeSkillMod("SkillData", "LIST", { key = dataKey, value = dataValue }, 0, 0, ...)
+end
+dofile("../Data/Global.lua")
+local skillStatMap = LoadModule("../Data/SkillStatMap.lua", makeSkillMod, makeFlagMod, makeSkillDataMod)
+
+local function tableToString(tbl, pre)
+	pre = pre or ""
+	local tableString = "{ "
+	local outNames = { }
+	for name in pairs(tbl) do
+		table.insert(outNames, name)
+	end
+	table.sort(outNames)
+	for _, name in ipairs(outNames) do
+		if type(tbl[name]) == "table" then
+			tableString = tableString .. tableToString(tbl[name], pre .. name .. ".")
+		else
+			if _ > 1 then
+				tableString = tableString .. ", "
+			end
+			tableString = tableString .. pre .. name .. " = " .. (type(tbl[name]) == "string" and '"' or '') .. tostring(tbl[name]) .. (type(tbl[name]) == "string" and '"' or '')
+		end
+	end
+	return tableString .. " }"
+end
+
+local function getOTStats(OTFile, modList)
+	local file = OTFile..".ot"
+	local text
+	if main.ggpk.ot[file] then
+		text = main.ggpk.ot[file]
+	elseif getFile(file) then
+		text = convertUTF16to8(getFile(file))
+		main.ggpk.ot[file] = text
+	else
+		print("Invalid OT File location: "..file)
+		return modList
+	end
+	local inWantedBlock = false
+	if text then
+		for line in text:gmatch("[^\r\n]+") do
+			local superClass = line:match("extends \"(.+)\"")
+			if superClass and superClass ~= "Metadata/Monsters/Monster" and superClass ~= "nothing" then
+				modList = getOTStats(superClass, modList)
+			end
+			-- Detect start of a block
+			if line:match("^Stats") then
+				inWantedBlock = true
+			elseif inWantedBlock and line:match("^}") then
+				inWantedBlock = false
+			elseif inWantedBlock and line:find("=") and not line:find("//") then
+				local key, value = line:gsub("%s+",""):match("^(.-)=(.+)$")
+				if key and value then
+					table.insert(modList, { Id = key, Stat1 = { Id = key }, Stat1Value = { tonumber(value) } })
+				end
+			end
+		end
+	end
+	return modList
+end
+
+local itemClassMap = {
+	["Claw"] = "Claw",
+	["Dagger"] = "Dagger",
+	["Wand"] = "Wand",
+	["One Hand Sword"] = "One Hand Sword",
+	["Thrusting One Hand Sword"] = "One Hand Sword",
+	["One Hand Axe"] = "One Hand Axe",
+	["One Hand Mace"] = "One Hand Mace",
+	["Crossbow"] = "Crossbow",
+	["Bow"] = "Bow",
+	["Fishing Rod"] = "Fishing Rod",
+	["Staff"] = "Staff",
+	["Warstaff"] = "Warstaff",
+	["Two Hand Sword"] = "Two Hand Sword",
+	["Two Hand Axe"] = "Two Hand Axe",
+	["Two Hand Mace"] = "Two Hand Mace",
+	["Shield"] = "Shield",
+	["Sceptre"] = "One Hand Mace",
+	["Flail"] = "Flail",
+	["Spear"] = "Spear",
+	["Talisman"] = "Talisman",
+	["Unarmed"] = "None",
+}
+
+local directiveTable = { }
+
+-- #monster <MonsterId> [<Name>] [<ExtraSkills>]
+directiveTable.monster = function(state, args, out)
+	state.varietyId = nil
+	state.name = nil
+	state.limit = nil
+	state.extraFlags = state.extraFlags or { }
+	state.extraModList = { }
+	state.extraSkillList = { }
+	for arg in args:gmatch("%S+") do
+		if state.varietyId == nil then
+			state.varietyId = arg
+		elseif state.name == nil then
+			if arg == "#" then
+				state.name = state.varietyId
+			else
+				state.name = arg
+			end
+		else
+			table.insert(state.extraSkillList, arg)
+		end
+	end
+	state.varietyId = state.varietyId or args
+	state.name = state.name or args
+end
+
+-- #limit <LimitVarName>
+directiveTable.limit = function(state, args, out)
+	state.limit = args
+end
+
+-- #flags
+directiveTable.flags = function(state, args, out)
+	for flag in args:gmatch("%S+") do
+		table.insert(state.extraFlags, flag)
+	end
+end
+
+-- #mod <ModDecl>
+directiveTable.mod = function(state, args, out)
+	table.insert(state.extraModList, args)
+end
+
+-- #skill <SkillId>
+directiveTable.skill = function(state, args, out)
+	table.insert(state.extraSkillList, args)
+end
+
+-- #emit
+directiveTable.emit = function(state, args, out)
+
+	local monsterVariety = dat("MonsterVarieties"):GetRow("Id", state.varietyId)
+	if not monsterVariety then
+		print("Invalid Variety: "..state.varietyId)
+		return
+	end
+	local matchingEntries = {}
+	local allMonsterPackIds = {}
+
+	-- Step 1: From MonsterPackEntries
+	for entry in dat("MonsterPackEntries"):Rows() do
+		if entry.MonsterPacksKey then
+			local packId = entry.MonsterPacksKey.Id
+			if packId then
+				allMonsterPackIds[packId] = true
+				if entry.MonsterVarietiesKey and entry.MonsterVarietiesKey.Name == monsterVariety.Name then
+					table.insert(matchingEntries, packId)
+				end
+			end
+		end
+	end
+	-- Step 2: Check if monster is in AdditionalMonsters within MonsterPacks
+	for packId in pairs(allMonsterPackIds) do
+		local pack = dat("MonsterPacks"):GetRow("Id", tostring(packId))
+		if pack.AdditionalMonsters then
+			for _, addMon in ipairs(pack.AdditionalMonsters) do
+				if addMon.Name == monsterVariety.Name then
+					table.insert(matchingEntries, pack.Id)
+				end
+			end
+		end
+		if pack.BossMonsters then
+			for _, bossMon in ipairs(pack.BossMonsters) do
+				if bossMon.Name == monsterVariety.Name then
+					table.insert(matchingEntries, pack.Id)
+				end
+			end
+		end
+	end
+	-- Step 3: Get WorldAreas for each matching MonsterPack
+	local worldAreaNames = {}
+	local seenAreas = {}
+
+	for _, packId in ipairs(matchingEntries) do
+		local pack = dat("MonsterPacks"):GetRow("Id", tostring(packId))
+		if pack and pack.WorldAreas then
+			for _, worldAreaRef in ipairs(pack.WorldAreas) do
+				local area = dat("WorldAreas"):GetRow("Id", worldAreaRef.Id)
+				if area and area.Name ~= "NULL" and not area.Name:match("DNT") then
+					local isMap = false
+					for _, tag in ipairs(area.Tags or {}) do
+						if tag.Id == "map" then
+							isMap = true
+						end
+					end
+					local displayName = area.Name
+					if isMap then
+						displayName = displayName .. " (Map)"
+					elseif area.Id:match("^Sanctum_(%d+)") then
+						local floorNum = area.Id:match("^Sanctum_(%d+)")
+						displayName = displayName .. " (Floor " .. floorNum .. ")"
+					elseif area.Act and area.Act ~= 10 and area.Name ~= "Trial of the Sekhemas" then
+						displayName = displayName .. " (Act " .. tostring(area.Act) .. ")"
+					end
+					if not seenAreas[displayName] then
+						table.insert(worldAreaNames, displayName)
+						seenAreas[displayName] = true
+					end
+				end
+			end
+		end
+		-- Check every EndGameMap for NativePacks containing this packId
+		for mapRow in dat("EndGameMaps"):Rows() do
+			if mapRow.NativePacks then
+				for _, nativePack in ipairs(mapRow.NativePacks) do
+					if nativePack.Id == packId then
+						local areaIds = {}
+						if mapRow.BossVersion and mapRow.BossVersion.Id then
+							table.insert(areaIds, mapRow.BossVersion.Id)
+						end
+						for _, areaId in ipairs(areaIds) do
+							local area = dat("WorldAreas"):GetRow("Id", areaId)
+							if area and area.Name ~= "NULL" and not area.Name:match("DNT") then
+								local isMap = false
+								for _, tag in ipairs(area.Tags or {}) do
+									if tag.Id == "map" then
+										isMap = true
+									end
+								end
+								local displayName = area.Name
+								if isMap then
+									displayName = displayName .. " (Map)"
+								elseif area.Act and area.Act ~= 10 then
+									displayName = displayName .. " (Act " .. tostring(area.Act) .. ")"
+								end
+								if not seenAreas[displayName] then
+									table.insert(worldAreaNames, displayName)
+									seenAreas[displayName] = true
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	out:write('minions["', state.name, '"] = {\n')
+	out:write('\tname = "', monsterVariety.Name, '",\n')
+	out:write('\tmonsterTags = { ')
+	for _, tag in ipairs(monsterVariety.Tags) do
+		out:write('"',tag.Id, '", ')
+	end
+	out:write('},\n')
+	if #state.extraFlags > 0 then
+		out:write('\textraFlags = {\n')
+		for _, flag in ipairs(state.extraFlags) do
+			out:write('\t\t', flag, ' = true,\n')
+		end
+		out:write('\t},\n')
+	end
+	out:write('\tlife = ', (monsterVariety.LifeMultiplier/100), ',\n')
+	if monsterVariety.Type.BaseDamageIgnoresAttackSpeed then
+		out:write('\tbaseDamageIgnoresAttackSpeed = true,\n')
+	end
+	if monsterVariety.Type.EnergyShield ~= 0 then
+		out:write('\tenergyShield = ', (monsterVariety.Type.EnergyShield / 100), ',\n')
+	end
+	if monsterVariety.Type.Armour ~= 0 then
+		out:write('\tarmour = ', monsterVariety.Type.Armour / 100, ',\n')
+	end
+	if monsterVariety.Type.Evasion ~= 0 then
+		out:write('\tevasion = ', monsterVariety.Type.Evasion / 100, ',\n')
+	end
+	out:write('\tfireResist = ', monsterVariety.Type.Resistances[1].Fire1[1], ',\n')
+	out:write('\tcoldResist = ', monsterVariety.Type.Resistances[1].Cold1[1], ',\n')
+	out:write('\tlightningResist = ', monsterVariety.Type.Resistances[1].Lightning1[1], ',\n')
+	out:write('\tchaosResist = ', monsterVariety.Type.Resistances[1].Chaos1[1], ',\n')
+	out:write('\tdamage = ', (monsterVariety.DamageMultiplier/100), ',\n')
+	out:write('\tdamageSpread = ', (monsterVariety.Type.DamageSpread / 100), ',\n')
+	out:write('\tattackTime = ', (monsterVariety.AttackDuration/1000), ',\n')
+	out:write('\tattackRange = ', monsterVariety.MaximumAttackRange, ',\n')
+	out:write('\taccuracy = 1,\n') -- minions don't need accuracy as of 0.3. Printing 1 just so nothing breaks.
+	for _, mod in ipairs(monsterVariety.Mods) do
+		if mod.Id == "MonsterSpeedAndDamageFixupSmall" then
+			out:write('\tdamageFixup = 0.11,\n')
+		elseif mod.Id == "MonsterSpeedAndDamageFixupLarge" then
+			out:write('\tdamageFixup = 0.22,\n')
+		elseif mod.Id == "MonsterSpeedAndDamageFixupComplete" then
+			out:write('\tdamageFixup = 0.33,\n')
+		end
+	end
+	if monsterVariety.MainHandItemClass and itemClassMap[monsterVariety.MainHandItemClass.Id] then
+		out:write('\tweaponType1 = "', itemClassMap[monsterVariety.MainHandItemClass.Id], '",\n')
+	end
+	if monsterVariety.OffHandItemClass and itemClassMap[monsterVariety.OffHandItemClass.Id] then
+		out:write('\tweaponType2 = "', itemClassMap[monsterVariety.OffHandItemClass.Id], '",\n')
+	end
+	if state.limit then
+		out:write('\tlimit = "', state.limit, '",\n')
+	end
+	out:write('\tbaseMovementSpeed = ', monsterVariety.MovementSpeed, ',\n')
+	if monsterVariety.ExperienceMultiplier then
+		out:write('\tspectreReservation = ', math.floor(((monsterVariety.ExperienceMultiplier/100) ^ 0.75) * 50), ',\n')
+		out:write('\tcompanionReservation = ', (round(math.sqrt(monsterVariety.ExperienceMultiplier/100), 2) * 30), ',\n') 
+	end
+	if monsterVariety.MonsterCategory then
+		out:write('\tmonsterCategory = "', (monsterVariety.MonsterCategory.Type), '",\n')
+	end
+	out:write('\tspawnLocation = {\n')
+	table.sort(worldAreaNames)
+	for _, name in ipairs(worldAreaNames) do
+		if name == "The Ziggurat Refuge" then
+			out:write('\t\t"Found in Maps",\n')
+		else
+			out:write('\t\t"', name, '",\n')
+		end
+	end
+	out:write('\t},\n')
+	out:write('\tskillList = {\n')
+	for _, grantedEffect in ipairs(monsterVariety.GrantedEffects) do
+		out:write('\t\t"', grantedEffect.Id, '",\n')
+	end
+	for _, skill in ipairs(state.extraSkillList) do
+		out:write('\t\t"', skill, '",\n')
+	end
+	out:write('\t},\n')
+
+	local modList = { }
+	for _, mod in ipairs(monsterVariety.Mods) do
+		table.insert(modList, mod)
+	end
+	for _, mod in ipairs(monsterVariety.SpecialMods) do
+		table.insert(modList, mod)
+	end
+	if monsterVariety.ObjectType then
+		modList = getOTStats(monsterVariety.ObjectType, modList)
+	end
+	out:write('\tmodList = {\n')
+	for _, mod in ipairs(modList) do
+		local modStats = ""
+		for i = 1, 6 do
+			if mod["Stat"..i] then
+				modStats = ' [' .. mod["Stat"..i].Id .. ' = ' .. mod["Stat"..i.."Value"][1] .. ']'
+				if skillStatMap[mod["Stat"..i].Id] then
+					local newMod = skillStatMap[mod["Stat"..i].Id][1]
+					--mod("Speed", "INC", -80, ModFlag.Cast, KeywordFlag.Curse)
+					out:write('\t\tmod("', newMod.name, '", "', newMod.type, '", ', newMod.value and type(newMod.value) ~= "boolean" and tableToString(newMod.value) or (skillStatMap[mod["Stat"..i].Id].value or mod["Stat"..i.."Value"][1] * (skillStatMap[mod["Stat"..i].Id].mult or 1) / (skillStatMap[mod["Stat"..i].Id].div or 1)), ', ', newMod.flags or 0, ', ', newMod.keywordFlags or 0)
+					for _, extra in ipairs(newMod) do
+						out:write(', ', tableToString(extra))
+					end
+					out:write('), -- ', mod.Id, modStats, '\n')
+				else
+					out:write('\t\t-- ', mod.Id, modStats, '\n')
+				end
+			end
+		end
+	end
+	for _, mod in ipairs(state.extraModList) do
+		out:write('\t\t', mod, ',\n')
+	end
+	out:write('\t},\n')
+	out:write('}\n')
+	state.extraFlags = { }
+end
+
+-- #spectre <MonsterId> [<Name>]
+directiveTable.spectre = function(state, args, out)
+	directiveTable.monster(state, args, out)
+end
+
+for _, name in pairs({"Spectres","Minions"}) do
+	processTemplateFile(name, "Minions/", "../Data/", directiveTable)
+end
+
+print("Minion data exported.")

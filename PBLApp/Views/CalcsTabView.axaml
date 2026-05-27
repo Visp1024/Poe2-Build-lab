@@ -1,0 +1,327 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:engine="using:PBLEngine"
+             xmlns:core="using:PBLApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
+             xmlns:loc="using:PBLApp.Localization"
+             x:Class="PBLApp.Views.CalcsTabView"
+             x:DataType="vm:CalcsTabViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.statrow">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Border.statrow:pointerover">
+            <Setter Property="Background" Value="#2A2A40" />
+        </Style>
+        <Style Selector="Border.statrow.selected">
+            <Setter Property="Background" Value="#45475A" />
+        </Style>
+        <Style Selector="Border.infobox">
+            <Setter Property="Background" Value="#1E1E2E" />
+            <Setter Property="BorderBrush" Value="#45475A" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8,6" />
+        </Style>
+        <Style Selector="TextBlock.boxheader">
+            <Setter Property="Foreground" Value="#89B4FA" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+        <Style Selector="TextBlock.statlabel">
+            <Setter Property="Foreground" Value="#A6ADC8" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="TextBlock.statvalue">
+            <Setter Property="Foreground" Value="#A6E3A1" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontFamily" Value="Cascadia Code,Consolas,monospace" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Skill selector header -->
+        <Border Grid.Row="0" Background="#181825" Padding="8,6"
+                BorderBrush="#45475A" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <TextBlock Text="{loc:Tr Calc_ActiveSkill}" Classes="statlabel" />
+                <ComboBox ItemsSource="{Binding SkillGroups}"
+                          SelectedItem="{Binding SelectedSkillGroup}"
+                          MinWidth="240"
+                          Background="#313244" Foreground="#CDD6F4"
+                          BorderBrush="#45475A">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SkillGroupDisplayVm">
+                            <TextBlock Text="{Binding DisplayName}" Foreground="#CDD6F4" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="{loc:Tr Calc_NoGroups}"
+                           IsVisible="{Binding !SkillGroups.Count}"
+                           Foreground="#585B70" FontSize="11"
+                           VerticalAlignment="Center" />
+
+                <!-- Active Skill sub-selector (shown when group has multiple active skills) -->
+                <TextBlock Text="{loc:Tr Calc_ActiveSkill}" Classes="statlabel"
+                           IsVisible="{Binding HasMultipleActiveSkills}" />
+                <ComboBox ItemsSource="{Binding ActiveSkills}"
+                          SelectedItem="{Binding SelectedActiveSkill}"
+                          IsVisible="{Binding HasMultipleActiveSkills}"
+                          MinWidth="180"
+                          Background="#313244" Foreground="#CDD6F4"
+                          BorderBrush="#45475A">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ActiveSkillDisplayVm">
+                            <TextBlock Text="{Binding DisplayName}" Foreground="#CDD6F4" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <!-- DPS summary in header -->
+                <Border Width="1" Background="#45475A" Margin="4,2" />
+                <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="{loc:Tr Calc_TotalDPS}" Classes="statlabel" />
+                        <TextBlock Text="{Binding TotalDpsText}" Classes="statvalue" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="{loc:Tr Calc_AvgDmg}" Classes="statlabel" />
+                        <TextBlock Text="{Binding AvgDamageLabel}" Classes="statvalue" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Main split: stat tree | details panel -->
+        <Grid Grid.Row="1" ColumnDefinitions="280,4,*">
+
+            <!-- Left: stat tree -->
+            <ScrollViewer Grid.Column="0" Padding="0,4,0,4">
+                <ItemsControl ItemsSource="{Binding Sections}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:StatSectionViewModel">
+                            <StackPanel Margin="0,0,0,4">
+                                <Border Background="#313244" Padding="8,3" Margin="0,0,0,1">
+                                    <TextBlock Text="{Binding Label}"
+                                               FontWeight="Bold" FontSize="11"
+                                               Foreground="#89B4FA" />
+                                </Border>
+                                <ItemsControl ItemsSource="{Binding Rows}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:StatRowViewModel">
+                                            <Border Classes="statrow"
+                                                    Classes.selected="{Binding IsSelected}"
+                                                    Padding="8,2" Cursor="Hand">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Text="{Binding Label}"
+                                                               Foreground="#CDD6F4" FontSize="11"
+                                                               VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding Value}"
+                                                               Foreground="#A6E3A1" FontSize="11"
+                                                               FontFamily="Cascadia Code,Consolas,monospace"
+                                                               HorizontalAlignment="Right"
+                                                               VerticalAlignment="Center" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Splitter -->
+            <GridSplitter Grid.Column="1" Width="4"
+                          ResizeDirection="Columns"
+                          Background="#45475A" />
+
+            <!-- Right: skill details + breakdown -->
+            <ScrollViewer Grid.Column="2" Padding="8,4,4,8">
+                <StackPanel Spacing="6">
+
+                    <!-- Skill Hit Damage table -->
+                    <Border Classes="infobox"
+                            IsVisible="{Binding HasDamageData}">
+                        <StackPanel Spacing="4">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{loc:Tr Calc_HitDamage}" Classes="boxheader" Margin="0" />
+                                <TextBlock Text="—" Foreground="#585B70" FontSize="11" VerticalAlignment="Center"
+                                           IsVisible="{Binding !HasDamageData}" />
+                                <TextBlock Text="{Binding AvgDamageLabel}"
+                                           Foreground="#A6E3A1" FontSize="11"
+                                           FontFamily="Cascadia Code,Consolas,monospace"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="{loc:Tr Calc_AvgDamage}"
+                                           Foreground="#585B70" FontSize="11"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                            <!-- Table header -->
+                            <Grid ColumnDefinitions="90,*,*" Margin="0,2,0,0">
+                                <TextBlock Grid.Column="0" Text="{loc:Tr Calc_ColType}"
+                                           Foreground="#585B70" FontSize="10" FontWeight="Bold" />
+                                <TextBlock Grid.Column="1" Text="{loc:Tr Calc_ColMin}"
+                                           Foreground="#585B70" FontSize="10" FontWeight="Bold"
+                                           HorizontalAlignment="Right" />
+                                <TextBlock Grid.Column="2" Text="{loc:Tr Calc_ColMax}"
+                                           Foreground="#585B70" FontSize="10" FontWeight="Bold"
+                                           HorizontalAlignment="Right" />
+                            </Grid>
+                            <Rectangle Height="1" Fill="#45475A" />
+                            <!-- Rows per damage type -->
+                            <ItemsControl ItemsSource="{Binding DamageRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:DamageTypeRow">
+                                        <Grid ColumnDefinitions="90,*,*" Margin="0,1">
+                                            <TextBlock Grid.Column="0" Text="{Binding Type}"
+                                                       Foreground="#CDD6F4" FontSize="11" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Min}"
+                                                       Foreground="#A6E3A1" FontSize="11"
+                                                       HorizontalAlignment="Right"
+                                                       FontFamily="Cascadia Code,Consolas,monospace" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Max}"
+                                                       Foreground="#A6E3A1" FontSize="11"
+                                                       HorizontalAlignment="Right"
+                                                       FontFamily="Cascadia Code,Consolas,monospace" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Attack/Cast Rate + Crits side by side -->
+                    <Grid ColumnDefinitions="*,6,*">
+
+                        <!-- Attack / Cast Rate -->
+                        <Border Grid.Column="0" Classes="infobox">
+                            <StackPanel Spacing="3">
+                                <TextBlock Text="{loc:Tr Calc_AttackRate}" Classes="boxheader" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_Speed}" Classes="statlabel" />
+                                    <TextBlock Grid.Column="1" Text="{Binding SpeedText}" Classes="statvalue" />
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_CastTime}" Classes="statlabel" />
+                                    <TextBlock Grid.Column="1" Text="{Binding CastTimeText}" Classes="statvalue" />
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_HitChance}" Classes="statlabel" />
+                                    <TextBlock Grid.Column="1" Text="{Binding HitChanceText}" Classes="statvalue" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Crits -->
+                        <Border Grid.Column="2" Classes="infobox">
+                            <StackPanel Spacing="3">
+                                <TextBlock Text="{loc:Tr Calc_Crits}" Classes="boxheader" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_CritChance}" Classes="statlabel" />
+                                    <TextBlock Grid.Column="1" Text="{Binding CritChanceText}" Classes="statvalue" />
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_CritMult}" Classes="statlabel" />
+                                    <TextBlock Grid.Column="1" Text="{Binding CritMultText}" Classes="statvalue" />
+                                </Grid>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_CritEffect}" Classes="statlabel" />
+                                    <TextBlock Grid.Column="1" Text="{Binding CritEffectText}" Classes="statvalue" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Breakdown panel (when stat is clicked) -->
+                    <StackPanel Spacing="0"
+                                IsVisible="{Binding SelectedStat, Converter={x:Static ObjectConverters.IsNotNull}}">
+
+                        <!-- Title -->
+                        <Border Background="#313244" Padding="10,6" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding BreakdownTitle}"
+                                       FontWeight="Bold" FontSize="12"
+                                       Foreground="#CDD6F4" />
+                        </Border>
+
+                        <StackPanel Spacing="10" Margin="0,6,0,0">
+
+                            <!-- Calc breakdown lines -->
+                            <Border Classes="infobox">
+                                <StackPanel Spacing="0">
+                                    <TextBlock Text="{loc:Tr Calc_Calculation}" Foreground="#89B4FA"
+                                               FontSize="11" FontWeight="Bold" Margin="0,0,0,4" />
+                                    <ItemsControl ItemsSource="{Binding BreakdownLines}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="x:String">
+                                                <TextBlock Text="{Binding}"
+                                                           FontFamily="Cascadia Code,Consolas,monospace"
+                                                           FontSize="11"
+                                                           Foreground="#A6ADC8"
+                                                           Padding="0,1" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Modifier source table -->
+                            <Border Classes="infobox"
+                                    IsVisible="{Binding HasModifierRows}">
+                                <StackPanel Spacing="0">
+                                    <TextBlock Text="{loc:Tr Calc_ModSources}" Foreground="#89B4FA"
+                                               FontSize="11" FontWeight="Bold" Margin="0,0,0,4" />
+                                    <Grid ColumnDefinitions="60,60,80,*" Margin="0,0,0,2">
+                                        <TextBlock Grid.Column="0" Text="{loc:Tr Calc_ColValue}"  Foreground="#585B70" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="1" Text="Type"   Foreground="#585B70" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="2" Text="{loc:Tr Calc_ColSource}" Foreground="#585B70" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="3" Text="{loc:Tr Calc_ColName}"   Foreground="#585B70" FontSize="10" FontWeight="Bold" />
+                                    </Grid>
+                                    <Rectangle Height="1" Fill="#45475A" Margin="0,0,0,2" />
+                                    <ItemsControl ItemsSource="{Binding ModifierRows}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="engine:ModifierEntry">
+                                                <Grid ColumnDefinitions="60,60,80,*" Margin="0,1">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Value}"
+                                                               Foreground="#A6E3A1" FontSize="11"
+                                                               FontFamily="Cascadia Code,Consolas,monospace" />
+                                                    <TextBlock Grid.Column="1" Text="{Binding ModType}"
+                                                               Foreground="#FAB387" FontSize="10" />
+                                                    <TextBlock Grid.Column="2" Text="{Binding Source}"
+                                                               Foreground="#89B4FA" FontSize="10" />
+                                                    <TextBlock Grid.Column="3" Text="{Binding SourceName}"
+                                                               Foreground="#CDD6F4" FontSize="10"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Hint when nothing is selected -->
+                    <TextBlock Text="{loc:Tr Calc_ClickStat}"
+                               IsVisible="{Binding SelectedStat, Converter={x:Static ObjectConverters.IsNull}}"
+                               Foreground="#585B70" FontSize="12"
+                               HorizontalAlignment="Center"
+                               Margin="0,20,0,0" />
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
+    </Grid>
+
+</UserControl>

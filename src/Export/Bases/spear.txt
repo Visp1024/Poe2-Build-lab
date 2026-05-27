@@ -1,0 +1,6 @@
+-- Item data (c) Grinding Gear Games
+local itemBases = ...
+
+#type Spear
+#socketLimit 3
+#baseMatch BaseType Metadata/Items/Weapons/OneHandWeapons/Spears/AbstractSpear

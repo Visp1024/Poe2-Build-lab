@@ -1,0 +1,15 @@
+services:
+  busted-tests:
+    #build: .
+    image: ghcr.io/pathofbuildingcommunity/pathofbuilding-tests:latest
+    environment:
+      HOME: /tmp
+    container_name: pathofbuilding-tests
+    command: busted --lua=luajit
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "9966:9966"
+    working_dir: /workdir
+    volumes:
+      - ./:/workdir:ro

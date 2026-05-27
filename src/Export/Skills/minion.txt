@@ -1,0 +1,336 @@
+-- Path of Building
+--
+-- Minion active skills
+-- Skill data (c) Grinding Gear Games
+--
+local skills, mod, flag, skill = ...
+
+#skill MeleeAtAnimationSpeed
+#set MeleeAtAnimationSpeed
+#flags attack melee
+#mods
+#skillEnd
+
+#skill MinionMelee
+#set MinionMelee
+#flags attack melee
+#mods
+#skillEnd
+
+#skill MinionMeleeStep
+#set MinionMeleeStep
+#flags attack melee
+#mods
+#skillEnd
+
+#skill MinionMeleeBow
+#set MinionMeleeBow
+#flags attack projectile
+#mods
+#skillEnd
+
+#skill GasShotSkeletonSniperMinion
+#set GasShotSkeletonSniperMinion
+#flags attack projectile area
+#mods
+#set GasShotCloudSkeletonSniperMinion
+#flags attack area duration
+#mods
+#set GasShotCloudExplodeSkeletonSniperMinion
+#flags attack area
+#mods
+#skillEnd
+
+#skill BoneshatterBruteMinion
+#set BoneshatterBruteMinion
+#flags attack melee
+#mods
+#set BoneshatterShockwaveBruteMinion
+#flags attack area
+#mods
+#skillEnd
+
+#skill ShatteringRoarSkeletalBruteMinion
+#set ShatteringRoarSkeletalBruteMinion
+#flags hit duration warcry
+#mods
+#skillEnd
+
+#skill ArcSkeletonMageMinion
+#set ArcSkeletonMageMinion
+#flags spell chaining
+#mods
+#skillEnd
+
+#skill DeathStormSkeletonStormMageMinion
+#set DeathStormSkeletonStormMageMinion
+#flags spell area hit
+#mods
+#skillEnd
+
+#skill FrostBoltSkeletonMageMinion
+#set FrostBoltSkeletonMageMinion
+#flags spell projectile
+#mods
+#set FrostBoltSkeletonMageMinionExplosion
+#flags area hit
+#mods
+#skillEnd
+
+#skill IceArmourSkeletonMageMinion
+#set IceArmourSkeletonMageMinion
+#flags spell duration
+#mods
+#skillEnd
+
+#skill HealSkeletonClericMinion Heal Buff
+#set HealSkeletonClericMinion
+#flags
+#mods
+#skillEnd
+
+#skill FireBombSkeletonMinion
+#set FireBombSkeletonMinion
+#flags attack area duration
+#mods
+#set FireBombBurningGroundSkeletonMinion
+#flags
+#mods
+#skillEnd
+
+#skill DestructiveLinkSkeletonBombadierMinion
+#set DestructiveLinkSkeletonBombadierMinion
+#flags area spell
+#mods
+#skillEnd
+
+#skill EnrageSkeletonReaverMinion
+#set EnrageSkeletonReaverMinion
+#flags
+#mods
+#skillEnd
+
+#skill GAAncestralJadeHulkLeapImpact Leap Slam
+#set GAAncestralJadeHulkLeapImpact
+#flags attack area
+#mods
+#skillEnd
+
+#skill TCAncestralLeagueKaruiHulk Shield Charge
+#set TCAncestralLeagueKaruiHulk
+#flags attack melee area
+#mods
+#skillEnd
+
+#skill MPSAncestralTotemSpiritSoulCasterProjectile Projectile Spell
+#set MPSAncestralTotemSpiritSoulCasterProjectile
+#flags spell projectile
+#mods
+#skillEnd
+
+skills["MinionInstability"] = {
+	name = "Minion Instability",
+	hidden = true,
+	skillTypes = { [SkillType.Damage] = true, },
+	qualityStats = {
+	},
+	levels = {
+		[1] = { levelRequirement = 0, },
+	},
+	preDamageFunc = function(activeSkill, output)
+		local skillData = activeSkill.skillData
+		skillData.FireBonusMin = output.Life * skillData.selfFireExplosionLifeMultiplier
+		skillData.FireBonusMax = output.Life * skillData.selfFireExplosionLifeMultiplier
+	end,
+	statSets = {
+		[1] = {
+			label = "Minion Instability",
+			incrementalEffectiveness = 0,
+			statDescriptionScope = "skill_stat_descriptions",
+			baseFlags = {
+			},
+			baseMods = {
+				skill("selfFireExplosionLifeMultiplier", 0.01, { type = "Multiplier", var = "MinionInstabilityBaseDamage" }),
+				skill("showAverage", true),
+			},
+			constantStats = {
+			},
+			stats = {
+			},
+			levels = {
+				[1] = { },
+			},
+		},
+	}
+}
+
+#addSkillTypes Melee MeleeSingleTarget Area
+#skill GAAnimateWeaponMaceSlam Mace Slam
+#set GAAnimateWeaponMaceSlam
+#flags attack melee area
+#mods
+#skillEnd
+
+#addSkillTypes Melee MeleeSingleTarget Area
+#skill DTTAnimateWeaponSpearDashStabImpact Spear Dash
+#set DTTAnimateWeaponSpearDashStabImpact
+#flags attack melee area
+#mods
+#skillEnd
+
+#addSkillTypes Melee MeleeSingleTarget Area
+#skill GAAnimateWeaponQuarterstaffSweep Quarterstaff Sweep
+#set GAAnimateWeaponQuarterstaffSweep
+#flags attack melee
+#mods
+#skillEnd
+
+#skill RavenousSwarmAttack Attack
+#set RavenousSwarmAttack
+#flags attack melee area
+#mods
+#skillEnd
+
+#skill LivingLightningZap Zap
+#set LivingLightningZap
+#flags attack melee chaining
+statMap = {
+	["living_lightning_damage_+%_final_per_additional_hit"] = {
+		mod("Damage", "MORE", nil),
+		div = 3/2, --Average over 3 hits
+	},
+},
+#baseMod skill("timeOverride", 0.001, { type = "Multiplier", var = "LivingLightningAttackTime" })
+#mods
+#skillEnd
+
+#skill DeathFromAboveDaemonMinion
+#set DeathFromAboveDaemonMinion
+#flags attack projectile area
+statMap = {
+	["death_from_above_number_of_volleys"] = {
+		skill("dpsMultiplier", nil),
+	},
+},
+#mods
+#skillEnd
+
+#skill HyenaCompanionMelee
+#set HyenaCompanionMelee
+#flags attack melee
+#mods
+#skillEnd
+
+#skill MeleeAtAnimationSpeedWolfCompanion
+#set MeleeAtAnimationSpeed
+#flags attack melee
+#mods
+#skillEnd
+
+#skill WolfLeapAttackMinion
+#set WolfLeapAttackMinion
+#flags attack melee area
+#mods
+#skillEnd
+
+#skill CorpseBeetleExplode
+#set CorpseBeetleExplode
+#flags spell area
+#mods
+#skillEnd
+
+#skill WaterBubbleWaterDjinn
+#set WaterBubbleWaterDjinn
+#flags duration area
+#mods
+#skillEnd
+
+#skill ChilledGroundBurstWaterDjinn
+#set ChilledGroundBurstWaterDjinn
+#flags spell area
+#mods
+#skillEnd
+
+#skill ESRechargeForceRestartWaterDjinn
+#set ESRechargeForceRestartWaterDjinn
+#flags duration
+#mods
+#skillEnd
+
+#skill ChilledGroundOasisConvertWaterDjinn
+#set ChilledGroundOasisConvertWaterDjinn
+#flags duration
+#mods
+#skillEnd
+
+#skill PassiveTriggeredManaWaveWaterDjinn
+#set PassiveTriggeredManaWaveWaterDjinn
+#flags duration
+#mods
+#skillEnd
+
+#skill LivingBombFireDjinn
+#set LivingBombFireDjinn
+#flags spell area hit
+#mods
+#skillEnd
+
+#skill FireRuneFireDjinn
+#set FireRuneFireDjinn
+#flags spell projectile
+#mods
+#set FireRuneHazardFireDjinn
+#flags spell duration
+#mods
+#set FireRuneTornadoFireDjinn
+#flags spell area duration
+#mods
+#skillEnd
+
+#skill MeteorFireDjinn
+#set MeteorFireDjinn
+#flags spell area
+#mods
+#set MeteorFireDjinnWave
+#flags spell area
+#mods
+#skillEnd
+
+#skill MassFusilladeFireDjinn
+#set MassFusilladeFireDjinn
+#flags spell projectile area
+#mods
+#set MassFusilladeExplodeFireDjinn
+#flags spell projectile area
+#mods
+#skillEnd
+
+#skill FlameSliceFireDjinn
+#set FlameSliceFireDjinn
+#flags attack melee area
+#mods
+#skillEnd
+
+#skill KnifeThrowSandDjinn
+#set KnifeThrowSandDjinn
+#flags spell projectile
+#mods
+#set KnifeThrowSandDjinnCascade
+#flags spell projectile area
+#mods
+#skillEnd
+
+#skill ExplosiveTeleportSandDjinn
+#set ExplosiveTeleportSandDjinn
+#flags spell area
+#mods
+#set ExplosiveTeleportCloneSandDjinn
+#flags spell area
+#mods
+#skillEnd
+
+#skill HandSlamSandDjinn
+#set HandSlamSandDjinn
+#flags spell area
+#mods
+#skillEnd

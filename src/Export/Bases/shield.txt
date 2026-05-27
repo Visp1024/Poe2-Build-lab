@@ -1,0 +1,20 @@
+-- Item data (c) Grinding Gear Games
+local itemBases = ...
+
+#type Shield
+#socketLimit 3
+
+#subType Armour
+#baseMatch Metadata/Items/Armours/Shields/FourShieldStr%d+
+
+#subType Evasion
+#baseMatch Metadata/Items/Armours/Shields/FourShieldDex%d+
+
+#subType Armour/Evasion
+#baseMatch Metadata/Items/Armours/Shields/FourShieldStrDex%d+
+
+#subType Armour/Energy Shield
+#baseMatch Metadata/Items/Armours/Shields/FourShieldStrInt%d+
+
+#subType
+#base Metadata/Items/Armours/Shields/ShieldDemigods

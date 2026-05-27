@@ -1,0 +1,6 @@
+# Зависимости для конвертера ресурсов дерева пассивных навыков
+# pip install -r tools/requirements.txt
+
+zstandard>=0.22       # ZStandard decompressor (.zst)
+Pillow>=10.0          # PNG encode/decode
+texture2ddecoder>=1.0 # BC1 / BC7 / BCn decompressor

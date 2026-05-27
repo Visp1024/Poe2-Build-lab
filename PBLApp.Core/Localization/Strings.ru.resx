@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- Buttons -->
+  <data name="Btn_Save"           xml:space="preserve"><value>Сохранить</value></data>
+  <data name="Btn_SaveNotes"      xml:space="preserve"><value>Сохранить</value></data>
+  <data name="Btn_Delete"         xml:space="preserve"><value>Удалить</value></data>
+  <data name="Btn_Refresh"        xml:space="preserve"><value>Обновить</value></data>
+  <data name="Btn_Back"           xml:space="preserve"><value>&#x2190; Назад</value></data>
+  <data name="Btn_OpenBuild"      xml:space="preserve"><value>Открыть</value></data>
+  <data name="Btn_NewBuild"       xml:space="preserve"><value>Новая сборка</value></data>
+  <data name="Btn_Import"         xml:space="preserve"><value>Импортировать</value></data>
+  <data name="Btn_GenerateCode"   xml:space="preserve"><value>Сгенерировать</value></data>
+  <data name="Btn_CopyClipboard"  xml:space="preserve"><value>Копировать</value></data>
+  <data name="Btn_New"            xml:space="preserve"><value>Новая</value></data>
+  <data name="Btn_StarMain"       xml:space="preserve"><value>&#x2605; Главное</value></data>
+
+  <!-- Tab headers -->
+  <data name="Tab_Items"          xml:space="preserve"><value>Предметы</value></data>
+  <data name="Tab_Tree"           xml:space="preserve"><value>Дерево</value></data>
+  <data name="Tab_Skills"         xml:space="preserve"><value>Умения</value></data>
+  <data name="Tab_Calcs"          xml:space="preserve"><value>Расчёты</value></data>
+  <data name="Tab_Notes"          xml:space="preserve"><value>Заметки</value></data>
+  <data name="Tab_Config"         xml:space="preserve"><value>Настройки</value></data>
+  <data name="Tab_ImportExport"   xml:space="preserve"><value>Импорт / Экспорт</value></data>
+  <data name="Tab_PopOut"         xml:space="preserve"><value>Открыть в отдельном окне</value></data>
+
+  <!-- Build list -->
+  <data name="List_Title"         xml:space="preserve"><value>PoE2 Build Lab &#x2014; Сборки</value></data>
+  <data name="List_Empty"         xml:space="preserve"><value>Сборки не найдены. Нажмите «Новая сборка», чтобы создать.</value></data>
+  <data name="List_Language"      xml:space="preserve"><value>Язык:</value></data>
+
+  <!-- Build page -->
+  <data name="Page_Loading"       xml:space="preserve"><value>Загрузка сборки...</value></data>
+
+  <!-- Tree tab -->
+  <data name="Tree_Class"         xml:space="preserve"><value>Класс:</value></data>
+  <data name="Tree_Asc"           xml:space="preserve"><value>Восх.:</value></data>
+  <data name="Tree_Search"        xml:space="preserve"><value>Поиск:</value></data>
+  <data name="Tree_PhNodeName"    xml:space="preserve"><value>название ноды&#x2026;</value></data>
+  <data name="Tree_Hint"          xml:space="preserve"><value>Тащи=пан &#xB7; Колесо=масштаб &#xB7; Клик=выбрать ноду</value></data>
+
+  <!-- Skills tab -->
+  <data name="Skill_Header"       xml:space="preserve"><value>Умения</value></data>
+  <data name="Skill_ActiveSkill"  xml:space="preserve"><value>Активное умение:</value></data>
+  <data name="Skill_NoGroups"     xml:space="preserve"><value>(нет групп умений)</value></data>
+  <data name="Skill_NoSelection"  xml:space="preserve"><value>Выберите умение или добавьте через список слева.</value></data>
+  <data name="Skill_Main"         xml:space="preserve"><value>(Главное)</value></data>
+  <data name="Skill_ColSupport"   xml:space="preserve"><value>ПОДДЕРЖКА</value></data>
+  <data name="Skill_ColLevel"     xml:space="preserve"><value>УР.</value></data>
+  <data name="Skill_ColQuality"   xml:space="preserve"><value>КА.</value></data>
+  <data name="Skill_ColOn"        xml:space="preserve"><value>ВКЛ</value></data>
+  <data name="Skill_LblOn"        xml:space="preserve"><value>Вкл:</value></data>
+  <data name="Skill_AddTip"       xml:space="preserve"><value>Выберите активное умение для добавления</value></data>
+
+  <!-- Items tab -->
+  <data name="Item_NoSelection"   xml:space="preserve"><value>Выберите слот слева для просмотра предмета.</value></data>
+  <data name="Item_Empty"         xml:space="preserve"><value>(пусто)</value></data>
+  <data name="Slot_Helmet"        xml:space="preserve"><value>ШЛЕМ</value></data>
+  <data name="Slot_Weapon1"       xml:space="preserve"><value>ОРУЖИЕ 1</value></data>
+  <data name="Slot_BodyArmour"    xml:space="preserve"><value>НАГРУДНИК</value></data>
+  <data name="Slot_Weapon2"       xml:space="preserve"><value>ОРУЖИЕ 2</value></data>
+  <data name="Slot_Ring1"         xml:space="preserve"><value>КОЛЬЦО 1</value></data>
+  <data name="Slot_Gloves"        xml:space="preserve"><value>ПЕРЧАТКИ</value></data>
+  <data name="Slot_Ring2"         xml:space="preserve"><value>КОЛЬЦО 2</value></data>
+  <data name="Slot_Amulet"        xml:space="preserve"><value>АМУЛЕТ</value></data>
+  <data name="Slot_Belt"          xml:space="preserve"><value>ПОЯС</value></data>
+  <data name="Slot_Ring3"         xml:space="preserve"><value>КОЛЬЦО 3</value></data>
+  <data name="Slot_Boots"         xml:space="preserve"><value>САПОГИ</value></data>
+  <data name="Slot_Flask1"        xml:space="preserve"><value>ФЛАКОН 1</value></data>
+  <data name="Slot_Flask2"        xml:space="preserve"><value>ФЛАКОН 2</value></data>
+  <data name="Slot_Flask3"        xml:space="preserve"><value>ФЛАКОН 3</value></data>
+  <data name="Slot_Flask4"        xml:space="preserve"><value>ФЛАКОН 4</value></data>
+  <data name="Slot_Flask5"        xml:space="preserve"><value>ФЛАКОН 5</value></data>
+  <data name="Slot_Charm1"        xml:space="preserve"><value>ЧАРМ 1</value></data>
+  <data name="Slot_Charm2"        xml:space="preserve"><value>ЧАРМ 2</value></data>
+  <data name="Slot_Charm3"        xml:space="preserve"><value>ЧАРМ 3</value></data>
+  <data name="Slot_Arm1"          xml:space="preserve"><value>РУКА 1</value></data>
+  <data name="Slot_Arm2"          xml:space="preserve"><value>РУКА 2</value></data>
+  <data name="Slot_Leg1"          xml:space="preserve"><value>НОГА 1</value></data>
+  <data name="Slot_Leg2"          xml:space="preserve"><value>НОГА 2</value></data>
+
+  <!-- Calcs tab UI -->
+  <data name="Calc_ActiveSkill"   xml:space="preserve"><value>Активное умение:</value></data>
+  <data name="Calc_NoGroups"      xml:space="preserve"><value>(нет групп умений)</value></data>
+  <data name="Calc_TotalDPS"      xml:space="preserve"><value>Общий ДПС:</value></data>
+  <data name="Calc_AvgDmg"        xml:space="preserve"><value>Ср. урон:</value></data>
+  <data name="Calc_HitDamage"     xml:space="preserve"><value>Урон попадания навыка</value></data>
+  <data name="Calc_AvgDamage"     xml:space="preserve"><value>средний урон</value></data>
+  <data name="Calc_ColType"       xml:space="preserve"><value>Тип</value></data>
+  <data name="Calc_ColMin"        xml:space="preserve"><value>Мин</value></data>
+  <data name="Calc_ColMax"        xml:space="preserve"><value>Макс</value></data>
+  <data name="Calc_AttackRate"    xml:space="preserve"><value>Скорость атаки/применения</value></data>
+  <data name="Calc_Speed"         xml:space="preserve"><value>Скорость:</value></data>
+  <data name="Calc_CastTime"      xml:space="preserve"><value>Время:</value></data>
+  <data name="Calc_HitChance"     xml:space="preserve"><value>Попадание:</value></data>
+  <data name="Calc_Crits"         xml:space="preserve"><value>Криты</value></data>
+  <data name="Calc_CritChance"    xml:space="preserve"><value>Шанс крита:</value></data>
+  <data name="Calc_CritMult"      xml:space="preserve"><value>Множитель крита:</value></data>
+  <data name="Calc_CritEffect"    xml:space="preserve"><value>Эффект крита:</value></data>
+  <data name="Calc_Calculation"   xml:space="preserve"><value>Расчёт:</value></data>
+  <data name="Calc_ModSources"    xml:space="preserve"><value>Источники модов:</value></data>
+  <data name="Calc_ColValue"      xml:space="preserve"><value>Значение</value></data>
+  <data name="Calc_ColSource"     xml:space="preserve"><value>Источник</value></data>
+  <data name="Calc_ColName"       xml:space="preserve"><value>Название</value></data>
+  <data name="Calc_ClickStat"     xml:space="preserve"><value>Нажмите на параметр слева для просмотра расчёта</value></data>
+  <data name="Calc_NoBreakdown"   xml:space="preserve"><value>Расчёт для этого параметра недоступен.</value></data>
+
+  <!-- Calcs stat section labels -->
+  <data name="Stat_SkillDPS"      xml:space="preserve"><value>ДПС навыка</value></data>
+  <data name="Stat_HitRanges"     xml:space="preserve"><value>Диапазоны урона</value></data>
+  <data name="Stat_Hit"           xml:space="preserve"><value>Попадание</value></data>
+  <data name="Stat_AttackRate"    xml:space="preserve"><value>Скорость атаки/применения</value></data>
+  <data name="Stat_Crit"          xml:space="preserve"><value>Крит</value></data>
+  <data name="Stat_SkillInfo"     xml:space="preserve"><value>Информация о навыке</value></data>
+  <data name="Stat_Ailments"      xml:space="preserve"><value>Недуги</value></data>
+  <data name="Stat_Attributes"    xml:space="preserve"><value>Характеристики</value></data>
+  <data name="Stat_Life"          xml:space="preserve"><value>Жизнь</value></data>
+  <data name="Stat_Mana"          xml:space="preserve"><value>Мана</value></data>
+  <data name="Stat_EnergyShield"  xml:space="preserve"><value>Энергетический щит</value></data>
+  <data name="Stat_Armour"        xml:space="preserve"><value>Броня</value></data>
+  <data name="Stat_Evasion"       xml:space="preserve"><value>Уклонение</value></data>
+  <data name="Stat_BlockDeflect"  xml:space="preserve"><value>Блок / Отражение</value></data>
+  <data name="Stat_MaxHitTaken"   xml:space="preserve"><value>Макс. урон за удар</value></data>
+  <data name="Stat_Resistances"   xml:space="preserve"><value>Сопротивления</value></data>
+  <data name="Stat_Charges"       xml:space="preserve"><value>Заряды</value></data>
+
+  <!-- Calcs stat row labels -->
+  <data name="Row_TotalDPS"           xml:space="preserve"><value>Общий ДПС</value></data>
+  <data name="Row_CombinedDPS"        xml:space="preserve"><value>Совокупный ДПС</value></data>
+  <data name="Row_AverageDamage"      xml:space="preserve"><value>Средний урон</value></data>
+  <data name="Row_WithDotDPS"         xml:space="preserve"><value>ДПС с ДоТ</value></data>
+  <data name="Row_TotalDotDPS"        xml:space="preserve"><value>Общий ДПС ДоТ</value></data>
+  <data name="Row_ImpaleDPS"          xml:space="preserve"><value>ДПС пронзания</value></data>
+  <data name="Row_PhysMin"            xml:space="preserve"><value>Физ. мин</value></data>
+  <data name="Row_PhysMax"            xml:space="preserve"><value>Физ. макс</value></data>
+  <data name="Row_LightMin"           xml:space="preserve"><value>Молния мин</value></data>
+  <data name="Row_LightMax"           xml:space="preserve"><value>Молния макс</value></data>
+  <data name="Row_ColdMin"            xml:space="preserve"><value>Холод мин</value></data>
+  <data name="Row_ColdMax"            xml:space="preserve"><value>Холод макс</value></data>
+  <data name="Row_FireMin"            xml:space="preserve"><value>Огонь мин</value></data>
+  <data name="Row_FireMax"            xml:space="preserve"><value>Огонь макс</value></data>
+  <data name="Row_ChaosMin"           xml:space="preserve"><value>Хаос мин</value></data>
+  <data name="Row_ChaosMax"           xml:space="preserve"><value>Хаос макс</value></data>
+  <data name="Row_HitChance"          xml:space="preserve"><value>Шанс попасть</value></data>
+  <data name="Row_Accuracy"           xml:space="preserve"><value>Точность</value></data>
+  <data name="Row_SpeedPerSec"        xml:space="preserve"><value>Скорость (в сек.)</value></data>
+  <data name="Row_TimeSec"            xml:space="preserve"><value>Время (в сек.)</value></data>
+  <data name="Row_HitSpeed"           xml:space="preserve"><value>Скорость попадания</value></data>
+  <data name="Row_CritChance"         xml:space="preserve"><value>Шанс крита</value></data>
+  <data name="Row_CritMult"           xml:space="preserve"><value>Множитель крита</value></data>
+  <data name="Row_CritEffectMod"      xml:space="preserve"><value>Мод эффекта крита</value></data>
+  <data name="Row_PreEffCrit"         xml:space="preserve"><value>Крит до эффективности</value></data>
+  <data name="Row_Duration"           xml:space="preserve"><value>Длительность</value></data>
+  <data name="Row_Radius"             xml:space="preserve"><value>Радиус</value></data>
+  <data name="Row_IgniteChance"       xml:space="preserve"><value>Шанс поджога</value></data>
+  <data name="Row_IgniteOnHit"        xml:space="preserve"><value>Поджог при попадании</value></data>
+  <data name="Row_IgniteOnCrit"       xml:space="preserve"><value>Поджог при крите</value></data>
+  <data name="Row_IgniteDPS"          xml:space="preserve"><value>ДПС поджога</value></data>
+  <data name="Row_IgniteDuration"     xml:space="preserve"><value>Длит. поджога</value></data>
+  <data name="Row_ShockChance"        xml:space="preserve"><value>Шанс шока</value></data>
+  <data name="Row_ShockOnHit"         xml:space="preserve"><value>Шок при попадании</value></data>
+  <data name="Row_ShockOnCrit"        xml:space="preserve"><value>Шок при крите</value></data>
+  <data name="Row_ShockEffect"        xml:space="preserve"><value>Эффект шока</value></data>
+  <data name="Row_ChillChance"        xml:space="preserve"><value>Шанс заморозки</value></data>
+  <data name="Row_ChillOnHit"         xml:space="preserve"><value>Заморозка при попадании</value></data>
+  <data name="Row_FreezeOnHit"        xml:space="preserve"><value>Заморозка при попадании</value></data>
+  <data name="Row_FreezeOnCrit"       xml:space="preserve"><value>Заморозка при крите</value></data>
+  <data name="Row_BleedOnHit"         xml:space="preserve"><value>Кровотечение при попадании</value></data>
+  <data name="Row_PoisonOnHit"        xml:space="preserve"><value>Яд при попадании</value></data>
+  <data name="Row_StunBuildup"        xml:space="preserve"><value>Накопление оглушения</value></data>
+  <data name="Row_Strength"           xml:space="preserve"><value>Сила</value></data>
+  <data name="Row_Dexterity"          xml:space="preserve"><value>Ловкость</value></data>
+  <data name="Row_Intelligence"       xml:space="preserve"><value>Интеллект</value></data>
+  <data name="Row_Life"               xml:space="preserve"><value>Жизнь</value></data>
+  <data name="Row_LifeUnreserved"     xml:space="preserve"><value>Незарезерв. жизнь</value></data>
+  <data name="Row_LifeRegen"          xml:space="preserve"><value>Регенерация жизни</value></data>
+  <data name="Row_LifeRegenPct"       xml:space="preserve"><value>% регенерации жизни</value></data>
+  <data name="Row_LifeLeech"          xml:space="preserve"><value>Вампиризм жизни</value></data>
+  <data name="Row_Mana"               xml:space="preserve"><value>Мана</value></data>
+  <data name="Row_ManaCost"           xml:space="preserve"><value>Стоимость маны</value></data>
+  <data name="Row_ManaRegen"          xml:space="preserve"><value>Регенерация маны</value></data>
+  <data name="Row_ManaLeech"          xml:space="preserve"><value>Вампиризм маны</value></data>
+  <data name="Row_ES"                 xml:space="preserve"><value>Энергетический щит</value></data>
+  <data name="Row_ESRegen"            xml:space="preserve"><value>Регенерация ЭЩ</value></data>
+  <data name="Row_ESRegenPct"         xml:space="preserve"><value>% регенерации ЭЩ</value></data>
+  <data name="Row_Armour"             xml:space="preserve"><value>Броня</value></data>
+  <data name="Row_PhysReduction"      xml:space="preserve"><value>Снижение физ. урона</value></data>
+  <data name="Row_PhysDmgRedHit"      xml:space="preserve"><value>Снижение физ. урона при ударе</value></data>
+  <data name="Row_Evasion"            xml:space="preserve"><value>Уклонение</value></data>
+  <data name="Row_EvadeChance"        xml:space="preserve"><value>Шанс уклонения</value></data>
+  <data name="Row_ProjEvade"          xml:space="preserve"><value>Уклонение от снарядов</value></data>
+  <data name="Row_BlockChance"        xml:space="preserve"><value>Шанс блока</value></data>
+  <data name="Row_SpellBlock"         xml:space="preserve"><value>Блок заклинаний</value></data>
+  <data name="Row_DeflectChance"      xml:space="preserve"><value>Шанс отражения</value></data>
+  <data name="Row_SpellDeflect"       xml:space="preserve"><value>Отражение заклинаний</value></data>
+  <data name="Row_Physical"           xml:space="preserve"><value>Физический</value></data>
+  <data name="Row_Fire"               xml:space="preserve"><value>Огонь</value></data>
+  <data name="Row_Cold"               xml:space="preserve"><value>Холод</value></data>
+  <data name="Row_Lightning"          xml:space="preserve"><value>Молния</value></data>
+  <data name="Row_Chaos"              xml:space="preserve"><value>Хаос</value></data>
+  <data name="Row_FireResist"         xml:space="preserve"><value>Сопрот. огню</value></data>
+  <data name="Row_FireMaxResist"      xml:space="preserve"><value>Макс. сопрот. огню</value></data>
+  <data name="Row_ColdResist"         xml:space="preserve"><value>Сопрот. холоду</value></data>
+  <data name="Row_ColdMaxResist"      xml:space="preserve"><value>Макс. сопрот. холоду</value></data>
+  <data name="Row_LightResist"        xml:space="preserve"><value>Сопрот. молнии</value></data>
+  <data name="Row_LightMaxResist"     xml:space="preserve"><value>Макс. сопрот. молнии</value></data>
+  <data name="Row_ChaosResist"        xml:space="preserve"><value>Сопрот. хаосу</value></data>
+  <data name="Row_ChaosMaxResist"     xml:space="preserve"><value>Макс. сопрот. хаосу</value></data>
+  <data name="Row_EnduranceCharges"   xml:space="preserve"><value>Заряды стойкости</value></data>
+  <data name="Row_FrenzyCharges"      xml:space="preserve"><value>Заряды неистовства</value></data>
+  <data name="Row_PowerCharges"       xml:space="preserve"><value>Заряды силы</value></data>
+  <data name="Row_MaxEndurance"       xml:space="preserve"><value>Макс. стойкость</value></data>
+  <data name="Row_MaxFrenzy"          xml:space="preserve"><value>Макс. неистовство</value></data>
+  <data name="Row_MaxPower"           xml:space="preserve"><value>Макс. сила</value></data>
+
+  <!-- Damage type names -->
+  <data name="DmgType_Physical"   xml:space="preserve"><value>Физический</value></data>
+  <data name="DmgType_Lightning"  xml:space="preserve"><value>Молния</value></data>
+  <data name="DmgType_Cold"       xml:space="preserve"><value>Холод</value></data>
+  <data name="DmgType_Fire"       xml:space="preserve"><value>Огонь</value></data>
+  <data name="DmgType_Chaos"      xml:space="preserve"><value>Хаос</value></data>
+
+  <!-- Import/Export -->
+  <data name="Import_Title"       xml:space="preserve"><value>Импорт сборки</value></data>
+  <data name="Import_Desc"        xml:space="preserve"><value>Вставьте код из другой копии Path of Building:</value></data>
+  <data name="Import_Placeholder" xml:space="preserve"><value>Вставьте код здесь&#x2026;</value></data>
+  <data name="Export_Title"       xml:space="preserve"><value>Экспорт / Поделиться</value></data>
+  <data name="Export_Desc"        xml:space="preserve"><value>Сгенерируйте код для отправки другим пользователям:</value></data>
+
+  <!-- Status messages -->
+  <data name="Msg_ErrorSave"      xml:space="preserve"><value>Ошибка: не удалось сохранить сборку.</value></data>
+  <data name="Msg_CodeGenerated"  xml:space="preserve"><value>Код сгенерирован ({0} символов).</value></data>
+  <data name="Msg_Copied"         xml:space="preserve"><value>Скопировано в буфер обмена.</value></data>
+  <data name="Msg_PasteCode"      xml:space="preserve"><value>Вставьте код выше.</value></data>
+  <data name="Msg_Importing"      xml:space="preserve"><value>Импорт&#x2026;</value></data>
+  <data name="Msg_InvalidCode"    xml:space="preserve"><value>Неверный код &#x2014; не удалось декодировать.</value></data>
+  <data name="Msg_Imported"       xml:space="preserve"><value>Сборка успешно импортирована.</value></data>
+  <data name="Msg_Error"          xml:space="preserve"><value>Ошибка: {0}</value></data>
+
+  <!-- Class change dialog -->
+  <data name="Dlg_ChangeClass_Title"   xml:space="preserve"><value>Сменить класс</value></data>
+  <data name="Dlg_ChangeClass_Msg"     xml:space="preserve"><value>При смене класса все выбранные ноды будут сброшены.&#xA;Продолжить?</value></data>
+  <data name="Dlg_ChangeClass_Confirm" xml:space="preserve"><value>Сменить класс</value></data>
+  <data name="Dlg_ChangeClass_Cancel"  xml:space="preserve"><value>Отмена</value></data>
+
+  <!-- Attribute selection dialog -->
+  <data name="Dlg_ChooseAttr_Title" xml:space="preserve"><value>Выбор характеристики</value></data>
+  <data name="Dlg_ChooseAttr_Msg"   xml:space="preserve"><value>Этот нод даёт +5 к любой характеристике.&#xA;Выберите, какую характеристику получить:</value></data>
+  <data name="Attr_Strength"        xml:space="preserve"><value>Сила</value></data>
+  <data name="Attr_Dexterity"       xml:space="preserve"><value>Ловкость</value></data>
+  <data name="Attr_Intelligence"    xml:space="preserve"><value>Интеллект</value></data>
+
+  <!-- BuildPage sidebar -->
+  <data name="Sidebar_DPS"          xml:space="preserve"><value>ДПС:</value></data>
+  <data name="Sidebar_Life"         xml:space="preserve"><value>Жизнь:</value></data>
+  <data name="Sidebar_ES"           xml:space="preserve"><value>ЭЩ:</value></data>
+  <data name="Sidebar_Mana"         xml:space="preserve"><value>Мана:</value></data>
+  <data name="Sidebar_Armour"       xml:space="preserve"><value>Броня:</value></data>
+  <data name="Sidebar_Eva"          xml:space="preserve"><value>Укл:</value></data>
+
+  <!-- Items tab section headers and pool -->
+  <data name="Item_EquippedHeader"  xml:space="preserve"><value>ЭКИПИРОВКА</value></data>
+  <data name="Item_BaseJewelsHeader" xml:space="preserve"><value>БАЗОВЫЕ САМОЦВЕТЫ</value></data>
+  <data name="Item_ExtraSlotsHeader" xml:space="preserve"><value>ДОП. СЛОТЫ</value></data>
+  <data name="Item_PoolHeader"      xml:space="preserve"><value>ПУЛ ПРЕДМЕТОВ</value></data>
+  <data name="Item_PoolSearch"      xml:space="preserve"><value>&#x1F50D;  Поиск предметов&#x2026;</value></data>
+  <data name="Item_PoolEmpty"       xml:space="preserve"><value>Пул пуст. Нажмите «+ Импорт», чтобы добавить предметы.</value></data>
+  <data name="Item_PlaceholderEdit" xml:space="preserve"><value>Выберите слот или предмет в пуле для редактирования</value></data>
+  <data name="Item_CreateNew"       xml:space="preserve"><value>&#x2726; Создать предмет</value></data>
+  <data name="Item_PoolCreate"      xml:space="preserve"><value>&#x2726; Создать</value></data>
+  <data name="Item_PoolImport"      xml:space="preserve"><value>+ Импорт</value></data>
+  <data name="Item_Equip"           xml:space="preserve"><value>&#x2694; Надеть</value></data>
+  <data name="Item_Unequip"         xml:space="preserve"><value>Снять</value></data>
+
+  <!-- Item import modal -->
+  <data name="ItemImport_Header"    xml:space="preserve"><value>ИМПОРТ ПРЕДМЕТА</value></data>
+  <data name="ItemImport_Hint"      xml:space="preserve"><value>В PoE2: наведите на предмет &#x2192; Ctrl+C, затем Ctrl+V ниже</value></data>
+  <data name="ItemImport_AddBtn"    xml:space="preserve"><value>Добавить в пул</value></data>
+
+  <!-- Item editor -->
+  <data name="Editor_TitleEdit"     xml:space="preserve"><value>РЕДАКТИРОВАНИЕ</value></data>
+  <data name="Editor_TitleCreate"   xml:space="preserve"><value>СОЗДАНИЕ ПРЕДМЕТА</value></data>
+  <data name="Editor_BtnSave"       xml:space="preserve"><value>&#x1F4BE; Сохранить</value></data>
+  <data name="Editor_BtnDelete"     xml:space="preserve"><value>&#x1F5D1; Удалить</value></data>
+  <data name="Editor_BtnClose"      xml:space="preserve"><value>&#x2715; Закрыть</value></data>
+  <data name="Editor_RarityNormal"  xml:space="preserve"><value>ОБЫЧНЫЙ</value></data>
+  <data name="Editor_RarityMagic"   xml:space="preserve"><value>МАГИЧЕСКИЙ</value></data>
+  <data name="Editor_RarityRare"    xml:space="preserve"><value>РЕДКИЙ</value></data>
+  <data name="Editor_RarityUnique"  xml:space="preserve"><value>УНИКАЛЬНЫЙ</value></data>
+  <data name="Editor_ItemLevel"     xml:space="preserve"><value>УРОВЕНЬ ПРЕДМЕТА</value></data>
+  <data name="Editor_Category"      xml:space="preserve"><value>КАТЕГОРИЯ</value></data>
+  <data name="Editor_BaseItem"      xml:space="preserve"><value>БАЗА</value></data>
+  <data name="Editor_UniqueItem"    xml:space="preserve"><value>УНИКАЛЬНЫЙ ПРЕДМЕТ</value></data>
+  <data name="Editor_SelectedBase"  xml:space="preserve"><value>ВЫБРАННАЯ БАЗА</value></data>
+  <data name="Editor_SelectedUnique" xml:space="preserve"><value>ВЫБРАННАЯ УНИКАЛКА</value></data>
+  <data name="Editor_Mods"          xml:space="preserve"><value>МОДЫ</value></data>
+  <data name="Editor_FilterAll"     xml:space="preserve"><value>Все</value></data>
+  <data name="Editor_FilterPrefix"  xml:space="preserve"><value>Префикс</value></data>
+  <data name="Editor_FilterSuffix"  xml:space="preserve"><value>Суффикс</value></data>
+  <data name="Editor_NoMods"        xml:space="preserve"><value>Нет модов. Нажмите «+ Добавить мод» или выберите уникалку слева.</value></data>
+  <data name="Editor_Quality"       xml:space="preserve"><value>КАЧЕСТВО</value></data>
+  <data name="Editor_Corrupted"     xml:space="preserve"><value>Осквернённый</value></data>
+  <data name="Editor_CorruptedHint" xml:space="preserve"><value>Осквернённые предметы нельзя модифицировать</value></data>
+  <data name="Editor_Runes"         xml:space="preserve"><value>РУНЫ / ИДОЛЫ</value></data>
+  <data name="Editor_AddRune"       xml:space="preserve"><value>+ Добавить руну</value></data>
+  <data name="Editor_NoRunes"       xml:space="preserve"><value>Нет вставленных рун или идолов</value></data>
+  <data name="Editor_BaseStats"     xml:space="preserve"><value>БАЗОВЫЕ СТАТЫ</value></data>
+  <data name="Editor_StatArmour"    xml:space="preserve"><value>Броня</value></data>
+  <data name="Editor_StatEvasion"   xml:space="preserve"><value>Уклонение</value></data>
+  <data name="Editor_StatES"        xml:space="preserve"><value>Энерг. щит</value></data>
+  <data name="Editor_StatWard"      xml:space="preserve"><value>Защита</value></data>
+  <data name="Editor_StatSpirit"    xml:space="preserve"><value>Дух</value></data>
+  <data name="Editor_StatCharmSlots" xml:space="preserve"><value>Слотов оберегов</value></data>
+
+  <!-- Tree tab status -->
+  <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Выбрано: {0}</value></data>
+  <data name="Tree_NodesFmt"        xml:space="preserve"><value>Нодов: {0}</value></data>
+
+</root>
