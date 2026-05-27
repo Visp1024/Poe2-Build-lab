@@ -1,0 +1,60 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        Typography classes — usage:  <TextBlock Classes="h1" ... />
+        Pulls FontFamily / FontSize from Tokens.Typography.axaml and Foreground
+        from Tokens.Colors.axaml (theme-variant aware).
+    -->
+    <Style Selector="TextBlock.display">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeDisplay}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.h1">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeH1}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.h2">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeH2}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.h3">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeH3}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.body">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.body-sm">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeBodySm}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.caption">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+    </Style>
+    <Style Selector="TextBlock.num-lg">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyMono}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeNumLg}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.num-md">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyMono}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeNumMd}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+</Styles>

@@ -1,0 +1,26 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <!--
+        Typography tokens (values only).
+
+        UI family is Inter (registered globally via Program.cs `.WithInterFont()`).
+        Mono currently relies on Cascadia Code (ships with Windows Terminal / VS),
+        fallback Consolas. Swap to JetBrains Mono once the .ttf is bundled.
+
+        Class-selector styles (TextBlock.h1, .body, .num-lg …) live in
+        Styles/Typography.axaml — see Theme.axaml for the merge order.
+    -->
+    <FontFamily x:Key="FontFamilyUi">Inter, Segoe UI, Arial</FontFamily>
+    <FontFamily x:Key="FontFamilyMono">Cascadia Code, Consolas, Courier New</FontFamily>
+
+    <sys:Double x:Key="FontSizeDisplay">28</sys:Double>
+    <sys:Double x:Key="FontSizeH1">22</sys:Double>
+    <sys:Double x:Key="FontSizeH2">18</sys:Double>
+    <sys:Double x:Key="FontSizeH3">15</sys:Double>
+    <sys:Double x:Key="FontSizeBody">14</sys:Double>
+    <sys:Double x:Key="FontSizeBodySm">13</sys:Double>
+    <sys:Double x:Key="FontSizeCaption">11</sys:Double>
+    <sys:Double x:Key="FontSizeNumLg">24</sys:Double>
+    <sys:Double x:Key="FontSizeNumMd">14</sys:Double>
+</ResourceDictionary>

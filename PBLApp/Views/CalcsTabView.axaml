@@ -15,30 +15,30 @@
             <Setter Property="Background" Value="Transparent" />
         </Style>
         <Style Selector="Border.statrow:pointerover">
-            <Setter Property="Background" Value="#2A2A40" />
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
         </Style>
         <Style Selector="Border.statrow.selected">
-            <Setter Property="Background" Value="#45475A" />
+            <Setter Property="Background" Value="{DynamicResource BorderStrongBrush}" />
         </Style>
         <Style Selector="Border.infobox">
-            <Setter Property="Background" Value="#1E1E2E" />
-            <Setter Property="BorderBrush" Value="#45475A" />
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="8,6" />
         </Style>
         <Style Selector="TextBlock.boxheader">
-            <Setter Property="Foreground" Value="#89B4FA" />
+            <Setter Property="Foreground" Value="{DynamicResource AttrIntBrush}" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FontSize" Value="11" />
             <Setter Property="Margin" Value="0,0,0,4" />
         </Style>
         <Style Selector="TextBlock.statlabel">
-            <Setter Property="Foreground" Value="#A6ADC8" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
             <Setter Property="FontSize" Value="11" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
         <Style Selector="TextBlock.statvalue">
-            <Setter Property="Foreground" Value="#A6E3A1" />
+            <Setter Property="Foreground" Value="{DynamicResource AttrDexBrush}" />
             <Setter Property="FontSize" Value="11" />
             <Setter Property="FontFamily" Value="Cascadia Code,Consolas,monospace" />
             <Setter Property="HorizontalAlignment" Value="Right" />
@@ -49,24 +49,24 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Skill selector header -->
-        <Border Grid.Row="0" Background="#181825" Padding="8,6"
-                BorderBrush="#45475A" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="{DynamicResource BgMantleBrush}" Padding="8,6"
+                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                 <TextBlock Text="{loc:Tr Calc_ActiveSkill}" Classes="statlabel" />
                 <ComboBox ItemsSource="{Binding SkillGroups}"
                           SelectedItem="{Binding SelectedSkillGroup}"
                           MinWidth="240"
-                          Background="#313244" Foreground="#CDD6F4"
-                          BorderBrush="#45475A">
+                          Background="{DynamicResource BgRaisedBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
+                          BorderBrush="{DynamicResource BorderStrongBrush}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:SkillGroupDisplayVm">
-                            <TextBlock Text="{Binding DisplayName}" Foreground="#CDD6F4" />
+                            <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource TextPrimaryBrush}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <TextBlock Text="{loc:Tr Calc_NoGroups}"
                            IsVisible="{Binding !SkillGroups.Count}"
-                           Foreground="#585B70" FontSize="11"
+                           Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                            VerticalAlignment="Center" />
 
                 <!-- Active Skill sub-selector (shown when group has multiple active skills) -->
@@ -76,17 +76,17 @@
                           SelectedItem="{Binding SelectedActiveSkill}"
                           IsVisible="{Binding HasMultipleActiveSkills}"
                           MinWidth="180"
-                          Background="#313244" Foreground="#CDD6F4"
-                          BorderBrush="#45475A">
+                          Background="{DynamicResource BgRaisedBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
+                          BorderBrush="{DynamicResource BorderStrongBrush}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ActiveSkillDisplayVm">
-                            <TextBlock Text="{Binding DisplayName}" Foreground="#CDD6F4" />
+                            <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource TextPrimaryBrush}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
                 <!-- DPS summary in header -->
-                <Border Width="1" Background="#45475A" Margin="4,2" />
+                <Border Width="1" Background="{DynamicResource BorderStrongBrush}" Margin="4,2" />
                 <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="{loc:Tr Calc_TotalDPS}" Classes="statlabel" />
@@ -101,7 +101,7 @@
         </Border>
 
         <!-- Main split: stat tree | details panel -->
-        <Grid Grid.Row="1" ColumnDefinitions="280,4,*">
+        <Grid Name="SplitGrid" Grid.Row="1" ColumnDefinitions="280,4,*">
 
             <!-- Left: stat tree -->
             <ScrollViewer Grid.Column="0" Padding="0,4,0,4">
@@ -109,10 +109,10 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:StatSectionViewModel">
                             <StackPanel Margin="0,0,0,4">
-                                <Border Background="#313244" Padding="8,3" Margin="0,0,0,1">
+                                <Border Background="{DynamicResource BgRaisedBrush}" Padding="8,3" Margin="0,0,0,1">
                                     <TextBlock Text="{Binding Label}"
                                                FontWeight="Bold" FontSize="11"
-                                               Foreground="#89B4FA" />
+                                               Foreground="{DynamicResource AttrIntBrush}" />
                                 </Border>
                                 <ItemsControl ItemsSource="{Binding Rows}">
                                     <ItemsControl.ItemTemplate>
@@ -122,11 +122,11 @@
                                                     Padding="8,2" Cursor="Hand">
                                                 <Grid ColumnDefinitions="*,Auto">
                                                     <TextBlock Text="{Binding Label}"
-                                                               Foreground="#CDD6F4" FontSize="11"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11"
                                                                VerticalAlignment="Center" />
                                                     <TextBlock Grid.Column="1"
                                                                Text="{Binding Value}"
-                                                               Foreground="#A6E3A1" FontSize="11"
+                                                               Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
                                                                FontFamily="Cascadia Code,Consolas,monospace"
                                                                HorizontalAlignment="Right"
                                                                VerticalAlignment="Center" />
@@ -144,7 +144,7 @@
             <!-- Splitter -->
             <GridSplitter Grid.Column="1" Width="4"
                           ResizeDirection="Columns"
-                          Background="#45475A" />
+                          Background="{DynamicResource BorderStrongBrush}" />
 
             <!-- Right: skill details + breakdown -->
             <ScrollViewer Grid.Column="2" Padding="8,4,4,8">
@@ -156,41 +156,41 @@
                         <StackPanel Spacing="4">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <TextBlock Text="{loc:Tr Calc_HitDamage}" Classes="boxheader" Margin="0" />
-                                <TextBlock Text="—" Foreground="#585B70" FontSize="11" VerticalAlignment="Center"
+                                <TextBlock Text="—" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center"
                                            IsVisible="{Binding !HasDamageData}" />
                                 <TextBlock Text="{Binding AvgDamageLabel}"
-                                           Foreground="#A6E3A1" FontSize="11"
+                                           Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
                                            FontFamily="Cascadia Code,Consolas,monospace"
                                            VerticalAlignment="Center" />
                                 <TextBlock Text="{loc:Tr Calc_AvgDamage}"
-                                           Foreground="#585B70" FontSize="11"
+                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                            VerticalAlignment="Center" />
                             </StackPanel>
                             <!-- Table header -->
                             <Grid ColumnDefinitions="90,*,*" Margin="0,2,0,0">
                                 <TextBlock Grid.Column="0" Text="{loc:Tr Calc_ColType}"
-                                           Foreground="#585B70" FontSize="10" FontWeight="Bold" />
+                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
                                 <TextBlock Grid.Column="1" Text="{loc:Tr Calc_ColMin}"
-                                           Foreground="#585B70" FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold"
                                            HorizontalAlignment="Right" />
                                 <TextBlock Grid.Column="2" Text="{loc:Tr Calc_ColMax}"
-                                           Foreground="#585B70" FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold"
                                            HorizontalAlignment="Right" />
                             </Grid>
-                            <Rectangle Height="1" Fill="#45475A" />
+                            <Rectangle Height="1" Fill="{DynamicResource BorderStrongBrush}" />
                             <!-- Rows per damage type -->
                             <ItemsControl ItemsSource="{Binding DamageRows}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:DamageTypeRow">
                                         <Grid ColumnDefinitions="90,*,*" Margin="0,1">
                                             <TextBlock Grid.Column="0" Text="{Binding Type}"
-                                                       Foreground="#CDD6F4" FontSize="11" />
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11" />
                                             <TextBlock Grid.Column="1" Text="{Binding Min}"
-                                                       Foreground="#A6E3A1" FontSize="11"
+                                                       Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
                                                        HorizontalAlignment="Right"
                                                        FontFamily="Cascadia Code,Consolas,monospace" />
                                             <TextBlock Grid.Column="2" Text="{Binding Max}"
-                                                       Foreground="#A6E3A1" FontSize="11"
+                                                       Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
                                                        HorizontalAlignment="Right"
                                                        FontFamily="Cascadia Code,Consolas,monospace" />
                                         </Grid>
@@ -247,10 +247,10 @@
                                 IsVisible="{Binding SelectedStat, Converter={x:Static ObjectConverters.IsNotNull}}">
 
                         <!-- Title -->
-                        <Border Background="#313244" Padding="10,6" Margin="0,4,0,0">
+                        <Border Background="{DynamicResource BgRaisedBrush}" Padding="10,6" Margin="0,4,0,0">
                             <TextBlock Text="{Binding BreakdownTitle}"
                                        FontWeight="Bold" FontSize="12"
-                                       Foreground="#CDD6F4" />
+                                       Foreground="{DynamicResource TextPrimaryBrush}" />
                         </Border>
 
                         <StackPanel Spacing="10" Margin="0,6,0,0">
@@ -258,7 +258,7 @@
                             <!-- Calc breakdown lines -->
                             <Border Classes="infobox">
                                 <StackPanel Spacing="0">
-                                    <TextBlock Text="{loc:Tr Calc_Calculation}" Foreground="#89B4FA"
+                                    <TextBlock Text="{loc:Tr Calc_Calculation}" Foreground="{DynamicResource AttrIntBrush}"
                                                FontSize="11" FontWeight="Bold" Margin="0,0,0,4" />
                                     <ItemsControl ItemsSource="{Binding BreakdownLines}">
                                         <ItemsControl.ItemTemplate>
@@ -266,7 +266,7 @@
                                                 <TextBlock Text="{Binding}"
                                                            FontFamily="Cascadia Code,Consolas,monospace"
                                                            FontSize="11"
-                                                           Foreground="#A6ADC8"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                                            Padding="0,1" />
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -278,28 +278,28 @@
                             <Border Classes="infobox"
                                     IsVisible="{Binding HasModifierRows}">
                                 <StackPanel Spacing="0">
-                                    <TextBlock Text="{loc:Tr Calc_ModSources}" Foreground="#89B4FA"
+                                    <TextBlock Text="{loc:Tr Calc_ModSources}" Foreground="{DynamicResource AttrIntBrush}"
                                                FontSize="11" FontWeight="Bold" Margin="0,0,0,4" />
                                     <Grid ColumnDefinitions="60,60,80,*" Margin="0,0,0,2">
-                                        <TextBlock Grid.Column="0" Text="{loc:Tr Calc_ColValue}"  Foreground="#585B70" FontSize="10" FontWeight="Bold" />
-                                        <TextBlock Grid.Column="1" Text="Type"   Foreground="#585B70" FontSize="10" FontWeight="Bold" />
-                                        <TextBlock Grid.Column="2" Text="{loc:Tr Calc_ColSource}" Foreground="#585B70" FontSize="10" FontWeight="Bold" />
-                                        <TextBlock Grid.Column="3" Text="{loc:Tr Calc_ColName}"   Foreground="#585B70" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="0" Text="{loc:Tr Calc_ColValue}"  Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="1" Text="Type"   Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="2" Text="{loc:Tr Calc_ColSource}" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="3" Text="{loc:Tr Calc_ColName}"   Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
                                     </Grid>
-                                    <Rectangle Height="1" Fill="#45475A" Margin="0,0,0,2" />
+                                    <Rectangle Height="1" Fill="{DynamicResource BorderStrongBrush}" Margin="0,0,0,2" />
                                     <ItemsControl ItemsSource="{Binding ModifierRows}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="engine:ModifierEntry">
                                                 <Grid ColumnDefinitions="60,60,80,*" Margin="0,1">
                                                     <TextBlock Grid.Column="0" Text="{Binding Value}"
-                                                               Foreground="#A6E3A1" FontSize="11"
+                                                               Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
                                                                FontFamily="Cascadia Code,Consolas,monospace" />
                                                     <TextBlock Grid.Column="1" Text="{Binding ModType}"
-                                                               Foreground="#FAB387" FontSize="10" />
+                                                               Foreground="{DynamicResource StatArmourBrush}" FontSize="10" />
                                                     <TextBlock Grid.Column="2" Text="{Binding Source}"
-                                                               Foreground="#89B4FA" FontSize="10" />
+                                                               Foreground="{DynamicResource AttrIntBrush}" FontSize="10" />
                                                     <TextBlock Grid.Column="3" Text="{Binding SourceName}"
-                                                               Foreground="#CDD6F4" FontSize="10"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}" FontSize="10"
                                                                TextTrimming="CharacterEllipsis" />
                                                 </Grid>
                                             </DataTemplate>
@@ -314,7 +314,7 @@
                     <!-- Hint when nothing is selected -->
                     <TextBlock Text="{loc:Tr Calc_ClickStat}"
                                IsVisible="{Binding SelectedStat, Converter={x:Static ObjectConverters.IsNull}}"
-                               Foreground="#585B70" FontSize="12"
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="12"
                                HorizontalAlignment="Center"
                                Margin="0,20,0,0" />
 

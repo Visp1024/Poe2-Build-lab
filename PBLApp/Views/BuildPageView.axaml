@@ -6,19 +6,23 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="768"
              x:Class="PBLApp.Views.BuildPageView"
-             x:DataType="vm:BuildPageViewModel">
+             x:DataType="vm:BuildPageViewModel"
+             Background="{DynamicResource BgBaseBrush}">
 
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header bar -->
-        <Border Grid.Row="0" Padding="8,10" Background="#1E1E2E">
+        <Border Grid.Row="0"
+                Padding="{StaticResource PaddingHeaderCompact}"
+                Background="{DynamicResource BgMantleBrush}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
+                BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
                     <Button Content="{loc:Tr Btn_Back}"
                             Command="{Binding BackCommand}" />
                     <TextBlock Text="{Binding BuildName}"
-                               FontSize="18" FontWeight="Bold"
-                               Foreground="#CDD6F4"
+                               Classes="h2"
                                VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
@@ -26,23 +30,19 @@
                     <Button Content="{loc:Tr Tab_Notes}"
                             Click="OpenNotes_Click"
                             IsVisible="{Binding NotesTab, Converter={x:Static ObjectConverters.IsNotNull}}" />
-                    <Button Content="{loc:Tr Tab_Config}"
-                            Click="OpenSettings_Click"
-                            IsVisible="{Binding ConfigTab, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <!-- Tab_Config moved into the tab strip (left side, separated) — see PopOutTab-row below. -->
                     <Button Content="{loc:Tr Tab_ImportExport}"
                             Click="OpenImportExport_Click"
                             IsVisible="{Binding ImportTab, Converter={x:Static ObjectConverters.IsNotNull}}" />
                     <TextBlock Text="{loc:Tr List_Language}"
-                               Foreground="#585B70" FontSize="11"
+                               Classes="caption"
                                VerticalAlignment="Center" />
-                    <ComboBox x:Name="LangCombo"
-                              MinWidth="60"
-                              Background="#313244" Foreground="#CDD6F4"
-                              BorderBrush="#45475A" FontSize="12">
+                    <ComboBox x:Name="LangCombo" MinWidth="60">
                         <ComboBoxItem Content="EN" Tag="en" />
                         <ComboBoxItem Content="RU" Tag="ru" />
                     </ComboBox>
                     <Button Content="{loc:Tr Btn_Save}"
+                            Classes="accent"
                             Command="{Binding SaveBuildCommand}"
                             IsVisible="{Binding Build, Converter={x:Static ObjectConverters.IsNotNull}}" />
                 </StackPanel>
@@ -50,49 +50,53 @@
         </Border>
 
         <!-- Sidebar summary strip (visible when build is loaded) -->
-        <Border Grid.Row="1" Background="#181825" Padding="8,6"
+        <Border Grid.Row="1"
+                Background="{DynamicResource BgSurfaceBrush}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="{StaticResource PaddingSidebar}"
                 IsVisible="{Binding Build, Converter={x:Static ObjectConverters.IsNotNull}}">
             <StackPanel Orientation="Horizontal" Spacing="24">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{loc:Tr Sidebar_DPS}" Foreground="#585B70" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Sidebar_DPS}" Classes="caption" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Build.TotalDps, StringFormat={}{0:N0}}"
-                               Foreground="#F38BA8" FontSize="12" FontWeight="Bold"
-                               FontFamily="Cascadia Code,Consolas,monospace"
+                               Classes="num-md"
+                               Foreground="{DynamicResource StatDpsBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{loc:Tr Sidebar_Life}" Foreground="#585B70" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Sidebar_Life}" Classes="caption" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Build.Life, StringFormat={}{0:N0}}"
-                               Foreground="#A6E3A1" FontSize="12" FontWeight="Bold"
-                               FontFamily="Cascadia Code,Consolas,monospace"
+                               Classes="num-md"
+                               Foreground="{DynamicResource StatLifeBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{loc:Tr Sidebar_ES}" Foreground="#585B70" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Sidebar_ES}" Classes="caption" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Build.EnergyShield, StringFormat={}{0:N0}}"
-                               Foreground="#89DCEB" FontSize="12" FontWeight="Bold"
-                               FontFamily="Cascadia Code,Consolas,monospace"
+                               Classes="num-md"
+                               Foreground="{DynamicResource StatEsBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{loc:Tr Sidebar_Mana}" Foreground="#585B70" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Sidebar_Mana}" Classes="caption" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Build.Mana, StringFormat={}{0:N0}}"
-                               Foreground="#89B4FA" FontSize="12" FontWeight="Bold"
-                               FontFamily="Cascadia Code,Consolas,monospace"
+                               Classes="num-md"
+                               Foreground="{DynamicResource StatManaBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{loc:Tr Sidebar_Armour}" Foreground="#585B70" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Sidebar_Armour}" Classes="caption" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Build.Armour, StringFormat={}{0:N0}}"
-                               Foreground="#FAB387" FontSize="12" FontWeight="Bold"
-                               FontFamily="Cascadia Code,Consolas,monospace"
+                               Classes="num-md"
+                               Foreground="{DynamicResource StatArmourBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{loc:Tr Sidebar_Eva}" Foreground="#585B70" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Sidebar_Eva}" Classes="caption" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Build.Evasion, StringFormat={}{0:N0}}"
-                               Foreground="#CBA6F7" FontSize="12" FontWeight="Bold"
-                               FontFamily="Cascadia Code,Consolas,monospace"
+                               Classes="num-md"
+                               Foreground="{DynamicResource StatEvasionBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
@@ -107,27 +111,70 @@
                         VerticalAlignment="Center"
                         Spacing="12">
                 <ProgressBar IsIndeterminate="True" Width="200" />
-                <TextBlock Text="{loc:Tr Page_Loading}" HorizontalAlignment="Center" />
+                <TextBlock Text="{loc:Tr Page_Loading}" Classes="body" HorizontalAlignment="Center" />
             </StackPanel>
 
             <!-- Error message -->
             <TextBlock IsVisible="{Binding LoadError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                        Text="{Binding LoadError}"
-                       Foreground="Red"
+                       Foreground="{DynamicResource DangerBrush}"
                        Margin="16"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
                        TextWrapping="Wrap" />
 
-            <!-- Tab control (shown when loaded and no error) -->
-            <TabControl IsVisible="{Binding Build, Converter={x:Static ObjectConverters.IsNotNull}}"
-                        SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
-                        Margin="0">
-                <TabControl.Styles>
+            <!-- Tab strip + content. All five buttons (Items/Tree/Skills/Calcs/Настройки)
+                 share the same brand-tinted look; the first four toggle SelectedTabIndex
+                 via RadioButton (IsChecked → bool-tab binding), Настройки opens its own
+                 window on click. -->
+            <DockPanel IsVisible="{Binding Build, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <DockPanel.Styles>
+                    <Style Selector="RadioButton.tab,Button.tab">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0,0,0,2" />
+                        <Setter Property="CornerRadius" Value="0" />
+                        <Setter Property="Padding" Value="14,8" />
+                        <Setter Property="Margin" Value="0,0,2,0" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="VerticalAlignment" Value="Top" />
+                    </Style>
+                    <!-- Hide the default RadioButton radio indicator so it looks like a flat tab button. -->
+                    <Style Selector="RadioButton.tab">
+                        <Setter Property="Template">
+                            <ControlTemplate>
+                                <Border Name="RootBorder"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter Content="{TemplateBinding Content}"
+                                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter>
+                    </Style>
+                    <Style Selector="RadioButton.tab:pointerover /template/ Border#RootBorder">
+                        <Setter Property="Background" Value="{DynamicResource Brand100Brush}" />
+                    </Style>
+                    <Style Selector="RadioButton.tab:pointerover">
+                        <Setter Property="Foreground" Value="{DynamicResource Brand400Brush}" />
+                    </Style>
+                    <Style Selector="RadioButton.tab:checked">
+                        <Setter Property="Foreground" Value="{DynamicResource Brand500Brush}" />
+                        <Setter Property="BorderBrush" Value="{DynamicResource Brand500Brush}" />
+                    </Style>
+                    <Style Selector="Button.tab:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="{DynamicResource Brand100Brush}" />
+                        <Setter Property="Foreground" Value="{DynamicResource Brand400Brush}" />
+                    </Style>
                     <Style Selector="Button.popout">
                         <Setter Property="Background" Value="Transparent" />
                         <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Foreground" Value="#585B70" />
+                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
                         <Setter Property="Padding" Value="4,0" />
                         <Setter Property="MinWidth" Value="0" />
                         <Setter Property="MinHeight" Value="0" />
@@ -136,65 +183,65 @@
                         <Setter Property="VerticalContentAlignment" Value="Center" />
                     </Style>
                     <Style Selector="Button.popout:pointerover /template/ ContentPresenter">
-                        <Setter Property="Background" Value="#313244" />
-                        <Setter Property="Foreground" Value="#89B4FA" />
+                        <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+                        <Setter Property="Foreground" Value="{DynamicResource Brand500Brush}" />
                     </Style>
-                </TabControl.Styles>
+                </DockPanel.Styles>
 
-                <!-- Items tab -->
-                <TabItem IsVisible="{Binding !IsItemsPoppedOut}">
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <TextBlock Text="{loc:Tr Tab_Items}" VerticalAlignment="Center" />
-                            <Button Classes="popout" Content="&#x2197;" Tag="Items"
-                                    Click="PopOutTab_Click"
-                                    ToolTip.Tip="{loc:Tr Tab_PopOut}" />
-                        </StackPanel>
-                    </TabItem.Header>
-                    <ContentControl Content="{Binding ItemsTab}" />
-                </TabItem>
+                <Border DockPanel.Dock="Top"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
+                        BorderThickness="0,0,0,1">
+                    <StackPanel Orientation="Horizontal" Spacing="0">
+                        <RadioButton Classes="tab" GroupName="MainTabs"
+                                     IsChecked="{Binding IsItemsTab, Mode=TwoWay}"
+                                     IsVisible="{Binding !IsItemsPoppedOut}">
+                            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                <TextBlock Text="{loc:Tr Tab_Items}" VerticalAlignment="Center" />
+                                <Button Classes="popout" Content="&#x2197;" Tag="Items"
+                                        Click="PopOutTab_Click"
+                                        ToolTip.Tip="{loc:Tr Tab_PopOut}" />
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Classes="tab" GroupName="MainTabs"
+                                     IsChecked="{Binding IsTreeTab, Mode=TwoWay}"
+                                     IsVisible="{Binding !IsTreePoppedOut}">
+                            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                <TextBlock Text="{loc:Tr Tab_Tree}" VerticalAlignment="Center" />
+                                <Button Classes="popout" Content="&#x2197;" Tag="Tree"
+                                        Click="PopOutTab_Click"
+                                        ToolTip.Tip="{loc:Tr Tab_PopOut}" />
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Classes="tab" GroupName="MainTabs"
+                                     IsChecked="{Binding IsSkillsTab, Mode=TwoWay}"
+                                     IsVisible="{Binding !IsSkillsPoppedOut}">
+                            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                <TextBlock Text="{loc:Tr Tab_Skills}" VerticalAlignment="Center" />
+                                <Button Classes="popout" Content="&#x2197;" Tag="Skills"
+                                        Click="PopOutTab_Click"
+                                        ToolTip.Tip="{loc:Tr Tab_PopOut}" />
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Classes="tab" GroupName="MainTabs"
+                                     IsChecked="{Binding IsCalcsTab, Mode=TwoWay}"
+                                     IsVisible="{Binding !IsCalcsPoppedOut}">
+                            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                <TextBlock Text="{loc:Tr Tab_Calcs}" VerticalAlignment="Center" />
+                                <Button Classes="popout" Content="&#x2197;" Tag="Calcs"
+                                        Click="PopOutTab_Click"
+                                        ToolTip.Tip="{loc:Tr Tab_PopOut}" />
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Classes="tab" GroupName="MainTabs"
+                                     IsChecked="{Binding IsConfigTab, Mode=TwoWay}"
+                                     IsVisible="{Binding ConfigTab, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <TextBlock Text="{loc:Tr Tab_Config}" VerticalAlignment="Center" />
+                        </RadioButton>
+                    </StackPanel>
+                </Border>
 
-                <!-- Tree tab -->
-                <TabItem IsVisible="{Binding !IsTreePoppedOut}">
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <TextBlock Text="{loc:Tr Tab_Tree}" VerticalAlignment="Center" />
-                            <Button Classes="popout" Content="&#x2197;" Tag="Tree"
-                                    Click="PopOutTab_Click"
-                                    ToolTip.Tip="{loc:Tr Tab_PopOut}" />
-                        </StackPanel>
-                    </TabItem.Header>
-                    <ContentControl Content="{Binding TreeTab}" />
-                </TabItem>
-
-                <!-- Skills tab -->
-                <TabItem IsVisible="{Binding !IsSkillsPoppedOut}">
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <TextBlock Text="{loc:Tr Tab_Skills}" VerticalAlignment="Center" />
-                            <Button Classes="popout" Content="&#x2197;" Tag="Skills"
-                                    Click="PopOutTab_Click"
-                                    ToolTip.Tip="{loc:Tr Tab_PopOut}" />
-                        </StackPanel>
-                    </TabItem.Header>
-                    <ContentControl Content="{Binding SkillsTab}" />
-                </TabItem>
-
-                <!-- Calcs tab -->
-                <TabItem IsVisible="{Binding !IsCalcsPoppedOut}">
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <TextBlock Text="{loc:Tr Tab_Calcs}" VerticalAlignment="Center" />
-                            <Button Classes="popout" Content="&#x2197;" Tag="Calcs"
-                                    Click="PopOutTab_Click"
-                                    ToolTip.Tip="{loc:Tr Tab_PopOut}" />
-                        </StackPanel>
-                    </TabItem.Header>
-                    <ContentControl Content="{Binding CalcsTab}" />
-                </TabItem>
-
-                <!-- Config tab -->
-            </TabControl>
+                <ContentControl Content="{Binding CurrentTabContent}" />
+            </DockPanel>
 
         </Grid>
 

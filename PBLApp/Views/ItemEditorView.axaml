@@ -13,44 +13,44 @@
 
         <!-- Tooltip-style frame (matches ItemTooltipView) -->
         <Style Selector="Border.tooltip-frame">
-            <Setter Property="Background" Value="#D90A0A14"/>
-            <Setter Property="BorderBrush" Value="#A8824B"/>
+            <Setter Property="Background" Value="{DynamicResource TooltipBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderGoldBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="CornerRadius" Value="2"/>
             <Setter Property="Padding" Value="14,10"/>
         </Style>
         <Style Selector="Border.tooltip-inset">
-            <Setter Property="BorderBrush" Value="#5A3F1F"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderBrownBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="1"/>
             <Setter Property="Background" Value="Transparent"/>
         </Style>
         <Style Selector="Border.tooltip-sep">
             <Setter Property="Height" Value="1"/>
-            <Setter Property="Background" Value="#5A3F1F"/>
+            <Setter Property="Background" Value="{DynamicResource TooltipBorderBrownBrush}"/>
             <Setter Property="Margin" Value="0,6,0,6"/>
         </Style>
 
         <!-- Rarity toggle button -->
         <Style Selector="Button.rarity-btn">
-            <Setter Property="Background" Value="#181825"/>
-            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#585B70"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
             <Setter Property="Padding" Value="14,5"/>
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
         <Style Selector="Button.rarity-btn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#252537"/>
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
         </Style>
         <Style Selector="Button.rarity-btn.active">
-            <Setter Property="BorderBrush" Value="#89B4FA"/>
-            <Setter Property="Foreground" Value="#CDD6F4"/>
-            <Setter Property="Background" Value="#252537"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AttrIntBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
         </Style>
         <Style Selector="Button.rarity-btn.active /template/ ContentPresenter">
-            <Setter Property="Background" Value="#252537"/>
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
         </Style>
 
         <!-- Flat list item rows -->
@@ -66,15 +66,15 @@
             <Setter Property="Background" Value="Transparent"/>
         </Style>
         <Style Selector="Button.list-btn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#252537"/>
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
         </Style>
         <Style Selector="Button.list-btn.selected /template/ ContentPresenter">
-            <Setter Property="Background" Value="#2A2A45"/>
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}"/>
         </Style>
 
         <!-- Section label -->
         <Style Selector="TextBlock.sec-label">
-            <Setter Property="Foreground" Value="#585B70"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
             <Setter Property="FontSize" Value="9"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
@@ -82,69 +82,69 @@
 
         <!-- Small text input -->
         <Style Selector="TextBox.ed-input">
-            <Setter Property="Background" Value="#11111B"/>
-            <Setter Property="BorderBrush" Value="#45475A"/>
-            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="Background" Value="{DynamicResource BgBaseBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Padding" Value="6,4"/>
         </Style>
         <Style Selector="TextBox.ed-input:focus /template/ Border#PART_BorderElement">
-            <Setter Property="BorderBrush" Value="#89B4FA"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AttrIntBrush}"/>
         </Style>
 
         <!-- ComboBox style -->
         <Style Selector="ComboBox.ed-combo">
-            <Setter Property="Background" Value="#181825"/>
-            <Setter Property="BorderBrush" Value="#45475A"/>
-            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="FontSize" Value="12"/>
         </Style>
 
         <!-- Action button -->
         <Style Selector="Button.action-btn">
-            <Setter Property="Background" Value="#313244"/>
-            <Setter Property="BorderBrush" Value="#89B4FA"/>
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AttrIntBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Padding" Value="14,6"/>
             <Setter Property="FontSize" Value="12"/>
         </Style>
         <Style Selector="Button.action-btn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#3D3F55"/>
+            <Setter Property="Background" Value="{DynamicResource BgOverlayBrush}"/>
         </Style>
 
         <!-- Save button -->
         <Style Selector="Button.save-btn">
-            <Setter Property="Background" Value="#1E3A2F"/>
-            <Setter Property="BorderBrush" Value="#A6E3A1"/>
+            <Setter Property="Background" Value="{DynamicResource ConfirmBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AttrDexBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#A6E3A1"/>
+            <Setter Property="Foreground" Value="{DynamicResource AttrDexBrush}"/>
             <Setter Property="Padding" Value="16,6"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
         <Style Selector="Button.save-btn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#2A4A3A"/>
+            <Setter Property="Background" Value="{DynamicResource ConfirmHoverBrush}"/>
         </Style>
 
         <!-- Danger button (cancel/remove) -->
         <Style Selector="Button.cancel-btn">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#BAC2DE"/>
+            <Setter Property="Foreground" Value="{DynamicResource ModImplicitBrush}"/>
             <Setter Property="Padding" Value="14,6"/>
             <Setter Property="FontSize" Value="12"/>
         </Style>
         <Style Selector="Button.cancel-btn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#252537"/>
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
         </Style>
 
         <!-- Remove mod (×) button -->
         <Style Selector="Button.remove-mod">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#45475A"/>
+            <Setter Property="Foreground" Value="{DynamicResource BorderStrongBrush}"/>
             <Setter Property="Padding" Value="4,1"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -153,24 +153,24 @@
             <Setter Property="Background" Value="Transparent"/>
         </Style>
         <Style Selector="Button.remove-mod:pointerover">
-            <Setter Property="Foreground" Value="#F38BA8"/>
+            <Setter Property="Foreground" Value="{DynamicResource AttrStrBrush}"/>
         </Style>
 
     </UserControl.Styles>
 
-    <DockPanel Background="#1E1E2E">
+    <DockPanel Background="{DynamicResource BgMantleBrush}">
 
         <!-- ── Top bar ──────────────────────────────────────────────────────── -->
         <Border DockPanel.Dock="Top"
-                Background="#181825"
-                BorderBrush="#45475A" BorderThickness="0,0,0,1"
+                Background="{DynamicResource BgMantleBrush}"
+                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,0,1"
                 Padding="12,8">
             <Grid ColumnDefinitions="*,Auto">
 
                 <!-- Title + rarity selector -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
                     <TextBlock Text="{Binding EditorTitle}"
-                               Foreground="#89B4FA" FontSize="13" FontWeight="Bold"
+                               Foreground="{DynamicResource AttrIntBrush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
 
                     <!-- Rarity toggle buttons (hidden when editing an existing item) -->
@@ -199,7 +199,7 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <TextBlock Text="{Binding SaveError}"
                                IsVisible="{Binding SaveError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                               Foreground="#F38BA8" FontSize="11" VerticalAlignment="Center"
+                               Foreground="{DynamicResource AttrStrBrush}" FontSize="11" VerticalAlignment="Center"
                                MaxWidth="200" TextWrapping="Wrap"/>
                     <Button Content="{loc:Tr Editor_BtnSave}"
                             Classes="save-btn"
@@ -208,8 +208,8 @@
                             IsVisible="{Binding CanDelete}"
                             Command="{Binding DeleteCommand}"
                             Background="Transparent"
-                            BorderBrush="#F38BA8" BorderThickness="1"
-                            Foreground="#F38BA8"
+                            BorderBrush="{DynamicResource AttrStrBrush}" BorderThickness="1"
+                            Foreground="{DynamicResource AttrStrBrush}"
                             Padding="12,6" FontSize="12"/>
                     <Button Content="{loc:Tr Editor_BtnClose}"
                             Classes="cancel-btn"
@@ -227,8 +227,8 @@
             <Border Grid.Column="0"
                     Width="280"
                     IsVisible="{Binding !IsEditingExisting}"
-                    Background="#181825"
-                    BorderBrush="#45475A" BorderThickness="0,0,1,0">
+                    Background="{DynamicResource BgMantleBrush}"
+                    BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,1,0">
                 <DockPanel Margin="10,10,10,10">
 
                     <!-- Item level (only for non-unique) -->
@@ -256,8 +256,8 @@
                                  Watermark="🔍 Search bases..."
                                  Margin="0,0,0,4"/>
 
-                        <Border Background="#11111B"
-                                BorderBrush="#45475A" BorderThickness="1"
+                        <Border Background="{DynamicResource BgBaseBrush}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
                                 Height="160">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <ItemsControl ItemsSource="{Binding FilteredBases}">
@@ -267,7 +267,7 @@
                                                     Command="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).SelectBaseCommand}"
                                                     CommandParameter="{Binding}">
                                                 <TextBlock Text="{Binding Name}"
-                                                           Foreground="#CDD6F4" FontSize="11"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11"
                                                            TextTrimming="CharacterEllipsis"/>
                                             </Button>
                                         </DataTemplate>
@@ -287,8 +287,8 @@
                                  Watermark="🔍 Search unique items..."
                                  Margin="0,0,0,4"/>
 
-                        <Border Background="#11111B"
-                                BorderBrush="#45475A" BorderThickness="1"
+                        <Border Background="{DynamicResource BgBaseBrush}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
                                 Height="260">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <ItemsControl ItemsSource="{Binding FilteredUniques}">
@@ -299,10 +299,10 @@
                                                     CommandParameter="{Binding}">
                                                 <StackPanel Spacing="1">
                                                     <TextBlock Text="{Binding Name}"
-                                                               Foreground="#FAB387" FontSize="11"
+                                                               Foreground="{DynamicResource StatArmourBrush}" FontSize="11"
                                                                TextTrimming="CharacterEllipsis"/>
                                                     <TextBlock Text="{Binding BaseName}"
-                                                               Foreground="#585B70" FontSize="10"
+                                                               Foreground="{DynamicResource TextMutedBrush}" FontSize="10"
                                                                TextTrimming="CharacterEllipsis"/>
                                                 </StackPanel>
                                             </Button>
@@ -320,10 +320,10 @@
                     <StackPanel DockPanel.Dock="Top" Margin="0,8,0,0"
                                 IsVisible="{Binding SelectedBase, Converter={x:Static ObjectConverters.IsNotNull}}">
                         <TextBlock Text="{loc:Tr Editor_SelectedBase}" Classes="sec-label"/>
-                        <Border Background="#252537" BorderBrush="#89B4FA" BorderThickness="1"
+                        <Border Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource AttrIntBrush}" BorderThickness="1"
                                 CornerRadius="3" Padding="8,4">
                             <TextBlock Text="{Binding SelectedBase.Name}"
-                                       Foreground="#89B4FA" FontSize="12" FontWeight="SemiBold"/>
+                                       Foreground="{DynamicResource AttrIntBrush}" FontSize="12" FontWeight="SemiBold"/>
                         </Border>
                     </StackPanel>
 
@@ -331,13 +331,13 @@
                     <StackPanel DockPanel.Dock="Top" Margin="0,8,0,0"
                                 IsVisible="{Binding SelectedUnique, Converter={x:Static ObjectConverters.IsNotNull}}">
                         <TextBlock Text="{loc:Tr Editor_SelectedUnique}" Classes="sec-label"/>
-                        <Border Background="#2D1F1A" BorderBrush="#FAB387" BorderThickness="1"
+                        <Border Background="{DynamicResource TooltipStatBoxBgBrush}" BorderBrush="{DynamicResource StatArmourBrush}" BorderThickness="1"
                                 CornerRadius="3" Padding="8,4">
                             <StackPanel Spacing="2">
                                 <TextBlock Text="{Binding SelectedUnique.Name}"
-                                           Foreground="#FAB387" FontSize="12" FontWeight="SemiBold"/>
+                                           Foreground="{DynamicResource StatArmourBrush}" FontSize="12" FontWeight="SemiBold"/>
                                 <TextBlock Text="{Binding SelectedUnique.BaseName}"
-                                           Foreground="#585B70" FontSize="10"/>
+                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="10"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -376,28 +376,28 @@
                 <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="10" Margin="0,2,0,4">
                     <TextBlock Grid.Column="0"
                                Text="{loc:Tr Editor_Quality}"
-                               Foreground="#7F8FA6" FontSize="11"
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                VerticalAlignment="Center"/>
                     <NumericUpDown Grid.Column="1"
                                    Value="{Binding Quality}"
                                    Minimum="0" Maximum="30" Increment="1"
                                    ShowButtonSpinner="True" FormatString="0"
-                                   Background="#11111B" BorderBrush="#45475A"
-                                   Foreground="#F9E2AF" FontSize="12"
+                                   Background="{DynamicResource BgBaseBrush}" BorderBrush="{DynamicResource BorderStrongBrush}"
+                                   Foreground="{DynamicResource Brand400Brush}" FontSize="12"
                                    Padding="6,2" Width="110"
                                    VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="2"
                                Text="%"
-                               Foreground="#7F8FA6" FontSize="11"
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                VerticalAlignment="Center"/>
                     <CheckBox Grid.Column="5"
                               IsChecked="{Binding IsCorrupted}"
-                              Foreground="#F38BA8"
+                              Foreground="{DynamicResource AttrStrBrush}"
                               FontSize="12" FontWeight="SemiBold"
                               VerticalAlignment="Center"
                               ToolTip.Tip="{loc:Tr Editor_CorruptedHint}">
                         <TextBlock Text="{loc:Tr Editor_Corrupted}"
-                                   Foreground="#F38BA8" FontSize="12" FontWeight="SemiBold"/>
+                                   Foreground="{DynamicResource AttrStrBrush}" FontSize="12" FontWeight="SemiBold"/>
                     </CheckBox>
                 </Grid>
                 <Border DockPanel.Dock="Top" Classes="tooltip-sep"/>
@@ -414,71 +414,71 @@
                     <!-- Armour -->
                     <TextBlock Grid.Row="0" Grid.Column="0" IsVisible="{Binding HasArmour}"
                                Text="{loc:Tr Editor_StatArmour}"
-                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="0" Grid.Column="1" IsVisible="{Binding HasArmour}"
                                Text="{Binding EffectiveArmour}"
-                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="0" Grid.Column="2" IsVisible="{Binding HasArmour}"
                                Text="{Binding DefaultArmour, StringFormat='(база: {0})'}"
-                               Foreground="#585B70" FontSize="10"
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="10"
                                VerticalAlignment="Center" Margin="0,0,0,0"/>
 
                     <!-- Evasion -->
                     <TextBlock Grid.Row="1" Grid.Column="0" IsVisible="{Binding HasEvasion}"
                                Text="{loc:Tr Editor_StatEvasion}"
-                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" IsVisible="{Binding HasEvasion}"
                                Text="{Binding EffectiveEvasion}"
-                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="2" IsVisible="{Binding HasEvasion}"
                                Text="{Binding DefaultEvasion, StringFormat='(база: {0})'}"
-                               Foreground="#585B70" FontSize="10"
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="10"
                                VerticalAlignment="Center"/>
 
                     <!-- Energy Shield -->
                     <TextBlock Grid.Row="2" Grid.Column="0" IsVisible="{Binding HasEnergyShield}"
                                Text="{loc:Tr Editor_StatES}"
-                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="2" Grid.Column="1" IsVisible="{Binding HasEnergyShield}"
                                Text="{Binding EffectiveEnergyShield}"
-                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="2" Grid.Column="2" IsVisible="{Binding HasEnergyShield}"
                                Text="{Binding DefaultEnergyShield, StringFormat='(база: {0})'}"
-                               Foreground="#585B70" FontSize="10"
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="10"
                                VerticalAlignment="Center"/>
 
                     <!-- Ward -->
                     <TextBlock Grid.Row="3" Grid.Column="0" IsVisible="{Binding HasWard}"
                                Text="{loc:Tr Editor_StatWard}"
-                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="3" Grid.Column="1" IsVisible="{Binding HasWard}"
                                Text="{Binding EffectiveWard}"
-                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="3" Grid.Column="2" IsVisible="{Binding HasWard}"
                                Text="{Binding DefaultWard, StringFormat='(база: {0})'}"
-                               Foreground="#585B70" FontSize="10"
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="10"
                                VerticalAlignment="Center"/>
 
                     <!-- Spirit -->
                     <TextBlock Grid.Row="4" Grid.Column="0" IsVisible="{Binding HasSpirit}"
                                Text="{loc:Tr Editor_StatSpirit}"
-                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="4" Grid.Column="1" IsVisible="{Binding HasSpirit}"
                                Text="{Binding DefaultSpirit}"
-                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
 
                     <!-- Charm Slots -->
                     <TextBlock Grid.Row="5" Grid.Column="0" IsVisible="{Binding HasCharmSlots}"
                                Text="{loc:Tr Editor_StatCharmSlots}"
-                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="5" Grid.Column="1" IsVisible="{Binding HasCharmSlots}"
                                Text="{Binding DefaultCharmSlots}"
-                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                 </Grid>
                 <Border DockPanel.Dock="Top" Classes="tooltip-sep" IsVisible="{Binding HasAnyBaseStat}"/>
@@ -486,16 +486,16 @@
                 <!-- Toolbar -->
                 <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,6">
                     <TextBlock Grid.Column="0" Text="{loc:Tr Editor_Mods}"
-                               Foreground="#7F8FA6" FontSize="10" FontWeight="Bold"
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold"
                                VerticalAlignment="Center" Margin="0"/>
                     <!-- Prefix/Suffix counter (non-unique only) -->
                     <Border Grid.Column="1"
                             IsVisible="{Binding IsNotUnique}"
-                            Background="#252537" BorderBrush="#45475A" BorderThickness="1"
+                            Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
                             CornerRadius="3" Padding="8,3" Margin="0,0,8,0"
                             VerticalAlignment="Center">
                         <TextBlock Text="{Binding PrefixSuffixLabel}"
-                                   Foreground="#BAC2DE" FontSize="11"/>
+                                   Foreground="{DynamicResource ModImplicitBrush}" FontSize="11"/>
                     </Border>
                     <!-- + Add Mod toggle (non-unique only; disabled when corrupted) -->
                     <Button Grid.Column="2"
@@ -513,8 +513,8 @@
                         IsVisible="{Binding IsAffixPickerOpen}"
                         Height="240"
                         Margin="0,0,0,10"
-                        Background="#181825"
-                        BorderBrush="#45475A" BorderThickness="1"
+                        Background="{DynamicResource BgMantleBrush}"
+                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
                         CornerRadius="3">
                     <DockPanel Margin="8">
                         <!-- Filter row -->
@@ -543,8 +543,8 @@
                                      Margin="8,0,0,0"/>
                         </Grid>
                         <!-- Affix list -->
-                        <Border Background="#11111B"
-                                BorderBrush="#45475A" BorderThickness="1">
+                        <Border Background="{DynamicResource BgBaseBrush}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <ItemsControl ItemsSource="{Binding FilteredAffixes}">
                                     <ItemsControl.ItemTemplate>
@@ -561,13 +561,13 @@
                                                                VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="1"
                                                                Text="{Binding TranslatedStatText}"
-                                                               Foreground="#CDD6F4" FontSize="12"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12"
                                                                FontFamily="Cascadia Code,Consolas,monospace"
                                                                TextTrimming="CharacterEllipsis"
                                                                VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="2"
                                                                Text="{Binding Entry.Level, StringFormat='Lv {0}'}"
-                                                               Foreground="#45475A" FontSize="10"
+                                                               Foreground="{DynamicResource BorderStrongBrush}" FontSize="10"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,4,0"/>
                                                 </Grid>
@@ -584,7 +584,7 @@
                 <Border DockPanel.Dock="Top"
                         IsVisible="{Binding HasRuneSockets}"
                         Background="Transparent"
-                        BorderBrush="#5A3F1F" BorderThickness="0,0,0,1"
+                        BorderBrush="{DynamicResource TooltipBorderBrownBrush}" BorderThickness="0,0,0,1"
                         Padding="0,6,0,8"
                         Margin="0,0,0,4">
                     <StackPanel Spacing="6">
@@ -603,27 +603,27 @@
 
                         <TextBlock IsVisible="{Binding !HasAnyRunes}"
                                    Text="{loc:Tr Editor_NoRunes}"
-                                   Foreground="#585B70" FontSize="11"
+                                   Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                    FontStyle="Italic"/>
 
                         <ItemsControl ItemsSource="{Binding RuneSockets}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="vm:RuneSocketViewModel">
-                                    <Border Background="#11111B"
-                                            BorderBrush="#45475A" BorderThickness="1"
+                                    <Border Background="{DynamicResource BgBaseBrush}"
+                                            BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
                                             Margin="0,3,0,0"
                                             Padding="6,4">
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding Index, StringFormat='#{0}'}"
-                                                       Foreground="#74C7EC" FontSize="11" FontWeight="Bold"
+                                                       Foreground="{DynamicResource ModEnchantBrush}" FontSize="11" FontWeight="Bold"
                                                        VerticalAlignment="Center"
                                                        MinWidth="22"/>
                                             <StackPanel Grid.Column="1" Spacing="2">
                                                 <ComboBox ItemsSource="{Binding AvailableRunes}"
                                                           SelectedItem="{Binding SelectedRune}"
-                                                          Background="#252537" BorderBrush="#45475A"
-                                                          Foreground="#CDD6F4" FontSize="11"
+                                                          Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}"
+                                                          Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11"
                                                           HorizontalAlignment="Stretch"
                                                           IsEnabled="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).CanEditMods}">
                                                     <ComboBox.ItemTemplate>
@@ -636,7 +636,7 @@
                                                 </ComboBox>
                                                 <TextBlock Text="{Binding ModSummary}"
                                                            IsVisible="{Binding !IsEmpty}"
-                                                           Foreground="#8888FF" FontSize="10"
+                                                           Foreground="{DynamicResource RarityMagicBrush}" FontSize="10"
                                                            TextWrapping="Wrap"/>
                                             </StackPanel>
                                             <Button Grid.Column="2"
@@ -664,7 +664,7 @@
                             <!-- Empty state -->
                             <TextBlock IsVisible="{Binding !ExplicitMods.Count, FallbackValue=False}"
                                        Text="{loc:Tr Editor_NoMods}"
-                                       Foreground="#45475A" FontSize="12"
+                                       Foreground="{DynamicResource BorderStrongBrush}" FontSize="12"
                                        HorizontalAlignment="Center"
                                        Padding="12,16"
                                        TextWrapping="Wrap"/>
@@ -673,7 +673,7 @@
                             <ItemsControl ItemsSource="{Binding ExplicitMods}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="vm:ExplicitModViewModel">
-                                        <Border BorderBrush="#3A2A18" BorderThickness="0,0,0,1"
+                                        <Border BorderBrush="{DynamicResource TooltipSeparatorBrush}" BorderThickness="0,0,0,1"
                                                 Padding="0,6,0,6">
                                             <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="8">
 
@@ -692,18 +692,18 @@
                                                     <!-- Plain text -->
                                                     <TextBlock IsVisible="{Binding !HasColoredValue}"
                                                                Text="{Binding TranslatedText}"
-                                                               Foreground="#8888FF" FontSize="13"
+                                                               Foreground="{DynamicResource RarityMagicBrush}" FontSize="13"
                                                                TextWrapping="Wrap"/>
 
                                                     <!-- Split text with colored number -->
                                                     <StackPanel IsVisible="{Binding HasColoredValue}"
                                                                 Orientation="Horizontal" Spacing="0">
                                                         <TextBlock Text="{Binding TranslatedPartBefore}"
-                                                                   Foreground="#8888FF" FontSize="13"/>
+                                                                   Foreground="{DynamicResource RarityMagicBrush}" FontSize="13"/>
                                                         <TextBlock Text="{Binding PartNumber}"
-                                                                   Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"/>
+                                                                   Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"/>
                                                         <TextBlock Text="{Binding TranslatedPartAfter}"
-                                                                   Foreground="#8888FF" FontSize="13"/>
+                                                                   Foreground="{DynamicResource RarityMagicBrush}" FontSize="13"/>
                                                     </StackPanel>
 
                                                     <!-- Slider for numeric ranges -->
@@ -711,7 +711,7 @@
                                                           ColumnDefinitions="Auto,*,Auto">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{Binding SliderMin, StringFormat='{}{0:0.##}'}"
-                                                                   Foreground="#585B70" FontSize="10"
+                                                                   Foreground="{DynamicResource TextMutedBrush}" FontSize="10"
                                                                    VerticalAlignment="Center"
                                                                    Margin="0,0,6,0"/>
                                                         <Slider Grid.Column="1"
@@ -725,7 +725,7 @@
                                                                 VerticalAlignment="Center"/>
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{Binding SliderMax, StringFormat='{}{0:0.##}'}"
-                                                                   Foreground="#585B70" FontSize="10"
+                                                                   Foreground="{DynamicResource TextMutedBrush}" FontSize="10"
                                                                    VerticalAlignment="Center"
                                                                    Margin="6,0,0,0"/>
                                                     </Grid>

@@ -23,14 +23,40 @@ public partial class BuildPageViewModel : ViewModelBase
     /// Two-way bound to the view, also driven by MCP tools for headless testing.
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsItemsTab))]
+    [NotifyPropertyChangedFor(nameof(IsTreeTab))]
+    [NotifyPropertyChangedFor(nameof(IsSkillsTab))]
+    [NotifyPropertyChangedFor(nameof(IsCalcsTab))]
+    [NotifyPropertyChangedFor(nameof(IsConfigTab))]
+    [NotifyPropertyChangedFor(nameof(CurrentTabContent))]
+    [NotifyPropertyChangedFor(nameof(SelectedTabKey))]
     private int _selectedTabIndex = 0;
 
     public static readonly string[] TabKeys =
-        ["Items", "Tree", "Skills", "Calcs"];
+        ["Items", "Tree", "Skills", "Calcs", "Config"];
 
     public string SelectedTabKey =>
         SelectedTabIndex >= 0 && SelectedTabIndex < TabKeys.Length
             ? TabKeys[SelectedTabIndex] : "";
+
+    // Per-tab IsChecked toggles for the RadioButton-style tab strip in BuildPageView.
+    // Setting any to true via RadioButton click routes back through SelectedTabIndex.
+    public bool IsItemsTab  { get => SelectedTabIndex == 0; set { if (value) SelectedTabIndex = 0; } }
+    public bool IsTreeTab   { get => SelectedTabIndex == 1; set { if (value) SelectedTabIndex = 1; } }
+    public bool IsSkillsTab { get => SelectedTabIndex == 2; set { if (value) SelectedTabIndex = 2; } }
+    public bool IsCalcsTab  { get => SelectedTabIndex == 3; set { if (value) SelectedTabIndex = 3; } }
+    public bool IsConfigTab { get => SelectedTabIndex == 4; set { if (value) SelectedTabIndex = 4; } }
+
+    /// <summary>Active tab's content VM, dispatched from <see cref="SelectedTabIndex"/>.</summary>
+    public object? CurrentTabContent => SelectedTabIndex switch
+    {
+        0 => ItemsTab,
+        1 => TreeTab,
+        2 => SkillsTab,
+        3 => CalcsTab,
+        4 => ConfigTab,
+        _ => null,
+    };
 
     // ── Pop-out state: when a tab is shown in its own window, the corresponding
     // TabItem in the main TabControl is hidden until that window closes.
@@ -117,6 +143,7 @@ public partial class BuildPageViewModel : ViewModelBase
             OnPropertyChanged(nameof(NotesTab));
             OnPropertyChanged(nameof(ConfigTab));
             OnPropertyChanged(nameof(ImportTab));
+            OnPropertyChanged(nameof(CurrentTabContent));
         }
         catch (Exception ex)
         {

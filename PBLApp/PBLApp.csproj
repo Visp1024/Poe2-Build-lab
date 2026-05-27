@@ -45,6 +45,8 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <PackageReference Include="Lucide.Avalonia" Version="0.2.0" />
+    <PackageReference Include="SukiUI" Version="7.0.1" />
   </ItemGroup>
 
   <!-- Copy Lua engine files next to the exe on publish only (not during regular build).
@@ -55,8 +57,7 @@
        (~100 MB combined) — end users don't need them. -->
   <Target Name="StripNativeSymbols" AfterTargets="Publish">
     <ItemGroup>
-      <_NativePdbs Include="$(PublishDir)libSkiaSharp.pdb;
-                           $(PublishDir)libHarfBuzzSharp.pdb" />
+      <_NativePdbs Include="$(PublishDir)libSkiaSharp.pdb;&#xD;&#xA;                           $(PublishDir)libHarfBuzzSharp.pdb" />
     </ItemGroup>
     <Delete Files="@(_NativePdbs)" />
   </Target>
@@ -68,22 +69,12 @@
            - .png in src/TreeData/ duplicate Assets/TreeData/ which the C# UI already uses.
            tree.lua / tree.json are kept for ALL versions so the Lua engine can load builds
            that were saved against older tree revisions. -->
-      <_SrcFiles Include="$(MSBuildProjectDirectory)\..\src\**\*"
-                 Exclude="$(MSBuildProjectDirectory)\..\src\TreeData\**\*.dds.zst;
-                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.dds;
-                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.png;
-                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.jpg" />
+      <_SrcFiles Include="$(MSBuildProjectDirectory)\..\src\**\*" Exclude="$(MSBuildProjectDirectory)\..\src\TreeData\**\*.dds.zst;&#xD;&#xA;                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.dds;&#xD;&#xA;                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.png;&#xD;&#xA;                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.jpg" />
       <_RuntimeLuaFiles Include="$(MSBuildProjectDirectory)\..\runtime\lua\**\*" />
       <_TreeAssetFiles Include="$(MSBuildProjectDirectory)\Assets\TreeData\**\*" />
     </ItemGroup>
-    <Copy SourceFiles="@(_SrcFiles)"
-          DestinationFiles="@(_SrcFiles->'$(PublishDir)src\%(RecursiveDir)%(Filename)%(Extension)')"
-          SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(_RuntimeLuaFiles)"
-          DestinationFiles="@(_RuntimeLuaFiles->'$(PublishDir)runtime\lua\%(RecursiveDir)%(Filename)%(Extension)')"
-          SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(_TreeAssetFiles)"
-          DestinationFiles="@(_TreeAssetFiles->'$(PublishDir)Assets\TreeData\%(RecursiveDir)%(Filename)%(Extension)')"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_SrcFiles)" DestinationFiles="@(_SrcFiles->'$(PublishDir)src\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_RuntimeLuaFiles)" DestinationFiles="@(_RuntimeLuaFiles->'$(PublishDir)runtime\lua\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_TreeAssetFiles)" DestinationFiles="@(_TreeAssetFiles->'$(PublishDir)Assets\TreeData\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 </Project>

@@ -6,12 +6,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="768"
              x:Class="PBLApp.Views.BuildListView"
-             x:DataType="vm:BuildListViewModel">
+             x:DataType="vm:BuildListViewModel"
+             Background="{DynamicResource BgBaseBrush}">
 
     <Grid RowDefinitions="Auto,*,Auto">
 
         <!-- Header -->
-        <Border Grid.Row="0" Padding="16,12" Background="#1E1E2E">
+        <Border Grid.Row="0"
+                Padding="{StaticResource PaddingHeader}"
+                Background="{DynamicResource BgMantleBrush}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
+                BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Image Grid.Column="0"
                        Source="/Assets/icon.png"
@@ -21,20 +26,17 @@
                        Stretch="Uniform" />
                 <TextBlock Grid.Column="1"
                            Text="{loc:Tr List_Title}"
-                           FontSize="20" FontWeight="Bold"
-                           Foreground="#CDD6F4"
+                           Classes="h1"
                            VerticalAlignment="Center" />
 
                 <!-- Language selector -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6"
                             VerticalAlignment="Center">
                     <TextBlock Text="{loc:Tr List_Language}"
-                               Foreground="#585B70" FontSize="11"
+                               Classes="caption"
                                VerticalAlignment="Center" />
                     <ComboBox x:Name="LangCombo"
-                              MinWidth="60"
-                              Background="#313244" Foreground="#CDD6F4"
-                              BorderBrush="#45475A" FontSize="12">
+                              MinWidth="60">
                         <ComboBoxItem Content="EN" Tag="en" />
                         <ComboBoxItem Content="RU" Tag="ru" />
                     </ComboBox>
@@ -48,8 +50,7 @@
                    Text="{loc:Tr List_Empty}"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Foreground="#6C7086"
-                   FontSize="14" />
+                   Classes="body-sm" />
 
         <!-- Build tree -->
         <TreeView Grid.Row="1"
@@ -57,11 +58,12 @@
                   IsVisible="{Binding !IsEmpty}"
                   ItemsSource="{Binding Builds}"
                   SelectedItem="{Binding SelectedBuild}"
+                  Background="Transparent"
                   Margin="8">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate DataType="{x:Type vm:BuildEntryViewModel}"
-                                          ItemsSource="{Binding Children}">
-                    <TextBlock Text="{Binding Name}" />
+                                  ItemsSource="{Binding Children}">
+                    <TextBlock Text="{Binding Name}" Classes="body" />
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
             <TreeView.Styles>
@@ -76,7 +78,8 @@
                     Margin="8,4,8,8">
             <TextBlock Text="{Binding StatusMessage}"
                        IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                       Foreground="#F38BA8" FontSize="12"
+                       Foreground="{DynamicResource DangerBrush}"
+                       Classes="body-sm"
                        TextWrapping="Wrap" />
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="{loc:Tr Btn_OpenBuild}"

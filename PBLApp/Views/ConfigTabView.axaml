@@ -16,33 +16,33 @@
     <UserControl.Styles>
         <!-- Bordered group box (mimics PoB's section panels) -->
         <Style Selector="Border.group-box">
-            <Setter Property="Background" Value="#181825" />
-            <Setter Property="BorderBrush" Value="#45475A" />
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="3" />
             <Setter Property="Padding" Value="10,18,10,10" />
             <Setter Property="Margin" Value="0,0,0,12" />
         </Style>
         <Style Selector="Button.section-title">
-            <Setter Property="Background" Value="#181825" />
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="6,1" />
             <Setter Property="MinHeight" Value="0" />
-            <Setter Property="Foreground" Value="#CDD6F4" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="Cursor" Value="Hand" />
         </Style>
         <Style Selector="Button.section-title /template/ ContentPresenter">
-            <Setter Property="Background" Value="#181825" />
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
             <Setter Property="CornerRadius" Value="0" />
         </Style>
         <Style Selector="Button.section-title:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#1E1E2E" />
-            <Setter Property="Foreground" Value="#89B4FA" />
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AttrIntBrush}" />
         </Style>
         <Style Selector="TextBlock.opt-label">
-            <Setter Property="Foreground" Value="#CDD6F4" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="TextWrapping" Value="Wrap" />

@@ -5,7 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="650"
         x:Class="PBLApp.Views.TabWindow"
         Width="900" Height="650"
-        Background="#11111B"
+        Background="{DynamicResource BgBaseBrush}"
         WindowStartupLocation="CenterOwner">
 
     <ContentControl x:CompileBindings="False" Content="{Binding}" />

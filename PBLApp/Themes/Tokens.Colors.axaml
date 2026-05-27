@@ -1,0 +1,251 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        PBL design tokens — color layer.
+
+        Hybrid palette:  cool neutral dark base + PoE2 gold brand accent.
+        PoE rarities baked in as canonical tokens so tooltip + slot figures
+        match in-game colors.
+
+        Naming:  <Token>      (Color)
+                 <Token>Brush (SolidColorBrush) — bind via DynamicResource.
+        Both Dark and Light variants expose the exact same key set so any
+        consumer just uses the brush name and follows the active variant.
+    -->
+    <ResourceDictionary.ThemeDictionaries>
+
+        <ResourceDictionary x:Key="Dark">
+            <!-- Surfaces -->
+            <Color x:Key="BgBase">#0E0F13</Color>
+            <Color x:Key="BgMantle">#15171D</Color>
+            <Color x:Key="BgSurface">#1C1F27</Color>
+            <Color x:Key="BgRaised">#262A35</Color>
+            <Color x:Key="BgOverlay">#353A48</Color>
+            <Color x:Key="BorderSubtle">#2A2E3A</Color>
+            <Color x:Key="BorderStrong">#3E4456</Color>
+
+            <!-- Text -->
+            <Color x:Key="TextPrimary">#E4E7EE</Color>
+            <Color x:Key="TextSecondary">#A8B0BD</Color>
+            <Color x:Key="TextMuted">#6E7689</Color>
+            <Color x:Key="TextDisabled">#4A5161</Color>
+            <Color x:Key="TextOnBrand">#1A1408</Color>
+
+            <!-- Brand: PoE gold -->
+            <Color x:Key="Brand100">#2D2415</Color>
+            <Color x:Key="Brand400">#D9B670</Color>
+            <Color x:Key="Brand500">#C9A24E</Color>
+            <Color x:Key="Brand600">#A8842E</Color>
+
+            <!-- Semantic -->
+            <Color x:Key="Info">#6FA8DC</Color>
+            <Color x:Key="Success">#7FC78A</Color>
+            <Color x:Key="Warning">#E8B763</Color>
+            <Color x:Key="Danger">#D87171</Color>
+
+            <!-- PoE2 item rarities (canonical) -->
+            <Color x:Key="RarityNormal">#C8C8C8</Color>
+            <Color x:Key="RarityMagic">#8888FF</Color>
+            <Color x:Key="RarityRare">#FFFF77</Color>
+            <Color x:Key="RarityUnique">#AF6025</Color>
+            <Color x:Key="RarityRelic">#82AD6A</Color>
+
+            <!-- Stat semantics (CalcsTab, sidebar cards) -->
+            <Color x:Key="StatDps">#E07A8E</Color>
+            <Color x:Key="StatLife">#7FC78A</Color>
+            <Color x:Key="StatEs">#6FA8DC</Color>
+            <Color x:Key="StatMana">#8AA6F5</Color>
+            <Color x:Key="StatArmour">#E8B763</Color>
+            <Color x:Key="StatEvasion">#B69CE8</Color>
+
+            <!-- Gem attribute colors (Str / Dex / Int) — already used in code -->
+            <Color x:Key="AttrStr">#F38BA8</Color>
+            <Color x:Key="AttrDex">#A6E3A1</Color>
+            <Color x:Key="AttrInt">#89B4FA</Color>
+
+            <!-- Tooltip line kinds (existing tooltip parser uses these semantics) -->
+            <Color x:Key="ModEnchant">#74C7EC</Color>
+            <Color x:Key="ModImplicit">#BAC2DE</Color>
+            <Color x:Key="ModExplicit">#CDD6F4</Color>
+
+            <!-- PoE in-game item-tooltip frame palette (always dark; matches game look) -->
+            <Color x:Key="TooltipBg">#D90A0A14</Color>
+            <Color x:Key="TooltipBorderGold">#A8824B</Color>
+            <Color x:Key="TooltipBorderBrown">#5A3F1F</Color>
+            <Color x:Key="TooltipSeparator">#3A2A18</Color>
+            <Color x:Key="TooltipStatBoxBg">#2D1F1A</Color>
+
+            <!-- Positive-action (save/confirm) button fills — dark green pair -->
+            <Color x:Key="ConfirmBg">#1E3A2F</Color>
+            <Color x:Key="ConfirmHover">#2A4A3A</Color>
+
+            <!-- Brushes (same names + "Brush" suffix) -->
+            <SolidColorBrush x:Key="BgBaseBrush" Color="{StaticResource BgBase}" />
+            <SolidColorBrush x:Key="BgMantleBrush" Color="{StaticResource BgMantle}" />
+            <SolidColorBrush x:Key="BgSurfaceBrush" Color="{StaticResource BgSurface}" />
+            <SolidColorBrush x:Key="BgRaisedBrush" Color="{StaticResource BgRaised}" />
+            <SolidColorBrush x:Key="BgOverlayBrush" Color="{StaticResource BgOverlay}" />
+            <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource BorderSubtle}" />
+            <SolidColorBrush x:Key="BorderStrongBrush" Color="{StaticResource BorderStrong}" />
+
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}" />
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMuted}" />
+            <SolidColorBrush x:Key="TextDisabledBrush" Color="{StaticResource TextDisabled}" />
+            <SolidColorBrush x:Key="TextOnBrandBrush" Color="{StaticResource TextOnBrand}" />
+
+            <SolidColorBrush x:Key="Brand100Brush" Color="{StaticResource Brand100}" />
+            <SolidColorBrush x:Key="Brand400Brush" Color="{StaticResource Brand400}" />
+            <SolidColorBrush x:Key="Brand500Brush" Color="{StaticResource Brand500}" />
+            <SolidColorBrush x:Key="Brand600Brush" Color="{StaticResource Brand600}" />
+
+            <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource Info}" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource Success}" />
+            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource Warning}" />
+            <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource Danger}" />
+
+            <SolidColorBrush x:Key="RarityNormalBrush" Color="{StaticResource RarityNormal}" />
+            <SolidColorBrush x:Key="RarityMagicBrush" Color="{StaticResource RarityMagic}" />
+            <SolidColorBrush x:Key="RarityRareBrush" Color="{StaticResource RarityRare}" />
+            <SolidColorBrush x:Key="RarityUniqueBrush" Color="{StaticResource RarityUnique}" />
+            <SolidColorBrush x:Key="RarityRelicBrush" Color="{StaticResource RarityRelic}" />
+
+            <SolidColorBrush x:Key="StatDpsBrush" Color="{StaticResource StatDps}" />
+            <SolidColorBrush x:Key="StatLifeBrush" Color="{StaticResource StatLife}" />
+            <SolidColorBrush x:Key="StatEsBrush" Color="{StaticResource StatEs}" />
+            <SolidColorBrush x:Key="StatManaBrush" Color="{StaticResource StatMana}" />
+            <SolidColorBrush x:Key="StatArmourBrush" Color="{StaticResource StatArmour}" />
+            <SolidColorBrush x:Key="StatEvasionBrush" Color="{StaticResource StatEvasion}" />
+
+            <SolidColorBrush x:Key="AttrStrBrush" Color="{StaticResource AttrStr}" />
+            <SolidColorBrush x:Key="AttrDexBrush" Color="{StaticResource AttrDex}" />
+            <SolidColorBrush x:Key="AttrIntBrush" Color="{StaticResource AttrInt}" />
+
+            <SolidColorBrush x:Key="ModEnchantBrush" Color="{StaticResource ModEnchant}" />
+            <SolidColorBrush x:Key="ModImplicitBrush" Color="{StaticResource ModImplicit}" />
+            <SolidColorBrush x:Key="ModExplicitBrush" Color="{StaticResource ModExplicit}" />
+
+            <SolidColorBrush x:Key="TooltipBgBrush" Color="{StaticResource TooltipBg}" />
+            <SolidColorBrush x:Key="TooltipBorderGoldBrush" Color="{StaticResource TooltipBorderGold}" />
+            <SolidColorBrush x:Key="TooltipBorderBrownBrush" Color="{StaticResource TooltipBorderBrown}" />
+            <SolidColorBrush x:Key="TooltipSeparatorBrush" Color="{StaticResource TooltipSeparator}" />
+            <SolidColorBrush x:Key="TooltipStatBoxBgBrush" Color="{StaticResource TooltipStatBoxBg}" />
+
+            <SolidColorBrush x:Key="ConfirmBgBrush" Color="{StaticResource ConfirmBg}" />
+            <SolidColorBrush x:Key="ConfirmHoverBrush" Color="{StaticResource ConfirmHover}" />
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Light">
+            <!-- Surfaces (cool neutral light) -->
+            <Color x:Key="BgBase">#F5F6F8</Color>
+            <Color x:Key="BgMantle">#FFFFFF</Color>
+            <Color x:Key="BgSurface">#FAFBFC</Color>
+            <Color x:Key="BgRaised">#EEF0F4</Color>
+            <Color x:Key="BgOverlay">#FFFFFF</Color>
+            <Color x:Key="BorderSubtle">#E1E4EA</Color>
+            <Color x:Key="BorderStrong">#C7CCD6</Color>
+
+            <Color x:Key="TextPrimary">#1A1D24</Color>
+            <Color x:Key="TextSecondary">#4A5161</Color>
+            <Color x:Key="TextMuted">#6E7689</Color>
+            <Color x:Key="TextDisabled">#A8B0BD</Color>
+            <Color x:Key="TextOnBrand">#1A1408</Color>
+
+            <Color x:Key="Brand100">#F5EAD0</Color>
+            <Color x:Key="Brand400">#C9A24E</Color>
+            <Color x:Key="Brand500">#A8842E</Color>
+            <Color x:Key="Brand600">#7A5F1F</Color>
+
+            <Color x:Key="Info">#2D7AB8</Color>
+            <Color x:Key="Success">#2F8B45</Color>
+            <Color x:Key="Warning">#B07C1A</Color>
+            <Color x:Key="Danger">#B23A48</Color>
+
+            <Color x:Key="RarityNormal">#5C5C5C</Color>
+            <Color x:Key="RarityMagic">#3F3FB3</Color>
+            <Color x:Key="RarityRare">#8C8800</Color>
+            <Color x:Key="RarityUnique">#8C4B1D</Color>
+            <Color x:Key="RarityRelic">#4F7A3C</Color>
+
+            <Color x:Key="StatDps">#B23A48</Color>
+            <Color x:Key="StatLife">#3F8C4F</Color>
+            <Color x:Key="StatEs">#2D7AB8</Color>
+            <Color x:Key="StatMana">#3D5BB8</Color>
+            <Color x:Key="StatArmour">#B07C1A</Color>
+            <Color x:Key="StatEvasion">#7E5FB8</Color>
+
+            <Color x:Key="AttrStr">#B23A48</Color>
+            <Color x:Key="AttrDex">#3F8C4F</Color>
+            <Color x:Key="AttrInt">#3D5BB8</Color>
+
+            <Color x:Key="ModEnchant">#1F88BD</Color>
+            <Color x:Key="ModImplicit">#4A5161</Color>
+            <Color x:Key="ModExplicit">#1A1D24</Color>
+
+            <!-- Tooltip frame stays game-dark in both themes for in-game look -->
+            <Color x:Key="TooltipBg">#D90A0A14</Color>
+            <Color x:Key="TooltipBorderGold">#A8824B</Color>
+            <Color x:Key="TooltipBorderBrown">#5A3F1F</Color>
+            <Color x:Key="TooltipSeparator">#3A2A18</Color>
+            <Color x:Key="TooltipStatBoxBg">#2D1F1A</Color>
+
+            <Color x:Key="ConfirmBg">#1E3A2F</Color>
+            <Color x:Key="ConfirmHover">#2A4A3A</Color>
+
+            <SolidColorBrush x:Key="BgBaseBrush" Color="{StaticResource BgBase}" />
+            <SolidColorBrush x:Key="BgMantleBrush" Color="{StaticResource BgMantle}" />
+            <SolidColorBrush x:Key="BgSurfaceBrush" Color="{StaticResource BgSurface}" />
+            <SolidColorBrush x:Key="BgRaisedBrush" Color="{StaticResource BgRaised}" />
+            <SolidColorBrush x:Key="BgOverlayBrush" Color="{StaticResource BgOverlay}" />
+            <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource BorderSubtle}" />
+            <SolidColorBrush x:Key="BorderStrongBrush" Color="{StaticResource BorderStrong}" />
+
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}" />
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMuted}" />
+            <SolidColorBrush x:Key="TextDisabledBrush" Color="{StaticResource TextDisabled}" />
+            <SolidColorBrush x:Key="TextOnBrandBrush" Color="{StaticResource TextOnBrand}" />
+
+            <SolidColorBrush x:Key="Brand100Brush" Color="{StaticResource Brand100}" />
+            <SolidColorBrush x:Key="Brand400Brush" Color="{StaticResource Brand400}" />
+            <SolidColorBrush x:Key="Brand500Brush" Color="{StaticResource Brand500}" />
+            <SolidColorBrush x:Key="Brand600Brush" Color="{StaticResource Brand600}" />
+
+            <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource Info}" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource Success}" />
+            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource Warning}" />
+            <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource Danger}" />
+
+            <SolidColorBrush x:Key="RarityNormalBrush" Color="{StaticResource RarityNormal}" />
+            <SolidColorBrush x:Key="RarityMagicBrush" Color="{StaticResource RarityMagic}" />
+            <SolidColorBrush x:Key="RarityRareBrush" Color="{StaticResource RarityRare}" />
+            <SolidColorBrush x:Key="RarityUniqueBrush" Color="{StaticResource RarityUnique}" />
+            <SolidColorBrush x:Key="RarityRelicBrush" Color="{StaticResource RarityRelic}" />
+
+            <SolidColorBrush x:Key="StatDpsBrush" Color="{StaticResource StatDps}" />
+            <SolidColorBrush x:Key="StatLifeBrush" Color="{StaticResource StatLife}" />
+            <SolidColorBrush x:Key="StatEsBrush" Color="{StaticResource StatEs}" />
+            <SolidColorBrush x:Key="StatManaBrush" Color="{StaticResource StatMana}" />
+            <SolidColorBrush x:Key="StatArmourBrush" Color="{StaticResource StatArmour}" />
+            <SolidColorBrush x:Key="StatEvasionBrush" Color="{StaticResource StatEvasion}" />
+
+            <SolidColorBrush x:Key="AttrStrBrush" Color="{StaticResource AttrStr}" />
+            <SolidColorBrush x:Key="AttrDexBrush" Color="{StaticResource AttrDex}" />
+            <SolidColorBrush x:Key="AttrIntBrush" Color="{StaticResource AttrInt}" />
+
+            <SolidColorBrush x:Key="ModEnchantBrush" Color="{StaticResource ModEnchant}" />
+            <SolidColorBrush x:Key="ModImplicitBrush" Color="{StaticResource ModImplicit}" />
+            <SolidColorBrush x:Key="ModExplicitBrush" Color="{StaticResource ModExplicit}" />
+
+            <SolidColorBrush x:Key="TooltipBgBrush" Color="{StaticResource TooltipBg}" />
+            <SolidColorBrush x:Key="TooltipBorderGoldBrush" Color="{StaticResource TooltipBorderGold}" />
+            <SolidColorBrush x:Key="TooltipBorderBrownBrush" Color="{StaticResource TooltipBorderBrown}" />
+            <SolidColorBrush x:Key="TooltipSeparatorBrush" Color="{StaticResource TooltipSeparator}" />
+            <SolidColorBrush x:Key="TooltipStatBoxBgBrush" Color="{StaticResource TooltipStatBoxBg}" />
+
+            <SolidColorBrush x:Key="ConfirmBgBrush" Color="{StaticResource ConfirmBg}" />
+            <SolidColorBrush x:Key="ConfirmHoverBrush" Color="{StaticResource ConfirmHover}" />
+        </ResourceDictionary>
+
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

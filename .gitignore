@@ -45,3 +45,14 @@ runtime/imgui.ini
 
 
 src/poe_api_response.json
+
+# .NET build outputs
+**/bin/
+**/obj/
+publish/
+*.user
+
+# Item icon cache — downloaded from cdn.poe2db.tw, regeneratable via tools/download_icons.mjs
+PBLExport/icons/cache/
+PBLExport/icons/icon_map.preliminary.json
+PBLExport/icons/missing.json

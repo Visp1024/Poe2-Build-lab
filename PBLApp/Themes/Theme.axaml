@@ -1,0 +1,21 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        PBL theme root.
+
+        Order matters: tokens first (colors / sizes / typography values), then
+        style classes that reference them. App.axaml merges this single file
+        into Application.Styles after the SukiTheme.
+    -->
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://PBLApp/Themes/Tokens.Colors.axaml" />
+                <ResourceInclude Source="avares://PBLApp/Themes/Tokens.Sizes.axaml" />
+                <ResourceInclude Source="avares://PBLApp/Themes/Tokens.Typography.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <StyleInclude Source="avares://PBLApp/Themes/Styles/Typography.axaml" />
+</Styles>

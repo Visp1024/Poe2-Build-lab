@@ -17,12 +17,12 @@
                  FontFamily="Cascadia Code,Consolas,Courier New,monospace"
                  FontSize="13"
                  Margin="8"
-                 Background="#1E1E2E"
-                 Foreground="#CDD6F4"
-                 BorderBrush="#45475A"
+                 Background="{DynamicResource BgMantleBrush}"
+                 Foreground="{DynamicResource TextPrimaryBrush}"
+                 BorderBrush="{DynamicResource BorderStrongBrush}"
                  VerticalAlignment="Stretch" />
 
-        <Border Grid.Row="1" Padding="8,6" Background="#181825">
+        <Border Grid.Row="1" Padding="8,6" Background="{DynamicResource BgMantleBrush}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                 <Button Content="{loc:Tr Btn_SaveNotes}"
                         Command="{Binding SaveCommand}" />
