@@ -1,0 +1,636 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using PBLApp.Core.Localization;
+using PBLEngine;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+namespace PBLApp.ViewModels;
+
+// ── GemNameItem ───────────────────────────────────────────────────────────────
+
+/// <summary>Item shown in a gem name dropdown. ToString() returns Name so the
+/// editable ComboBox text is set correctly when the user selects an entry.</summary>
+public sealed class GemNameItem
+{
+    public string Name        { get; }
+    public string DisplayName => GameTranslationService.TGem(Name);
+    public string Color       { get; }
+
+    // Lazy tooltip: loaded on first access, cached afterwards.
+    private readonly Func<string, IReadOnlyList<GemTooltipEntry>?>? _tooltipLoader;
+    private IReadOnlyList<GemTooltipEntry>? _tooltipEntries;
+    private bool _tooltipLoaded;
+
+    public IReadOnlyList<GemTooltipEntry>? TooltipEntries
+    {
+        get
+        {
+            if (!_tooltipLoaded)
+            {
+                _tooltipLoaded  = true;
+                _tooltipEntries = _tooltipLoader?.Invoke(Name);
+            }
+            return _tooltipEntries;
+        }
+    }
+
+    public GemNameItem(string name, string color,
+        Func<string, IReadOnlyList<GemTooltipEntry>?>? tooltipLoader = null)
+    {
+        Name            = name;
+        Color           = color;
+        _tooltipLoader  = tooltipLoader;
+    }
+
+    public override string ToString() => Name;
+}
+
+// ── GemViewModel ─────────────────────────────────────────────────────────────
+
+public partial class GemViewModel : ObservableObject
+{
+    private readonly SkillsTabViewModel _parent;
+    private bool _syncing;
+    private string _committedName = "";
+
+    public int GroupIndex { get; set; }
+    public int GemIndex   { get; set; }
+
+    public bool IsEmpty => GemIndex == 0;
+
+    // Text currently shown in the ComboBox (updated on every keystroke).
+    // Drives filtering; NOT the committed/saved value.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FilteredGemNames))]
+    [NotifyPropertyChangedFor(nameof(DisplayText))]
+    private string _searchText = "";
+
+    [ObservableProperty]
+    private decimal _level = 20;
+
+    [ObservableProperty]
+    private decimal _quality = 0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NameForeground))]
+    private bool _isEnabled = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AvailableGemNameItems))]
+    [NotifyPropertyChangedFor(nameof(FilteredGemNames))]
+    private bool _isSupport = false;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NameForeground))]
+    private string _color = "#CDD6F4";
+
+    public string NameForeground => IsEnabled ? _color : "#585B70";
+
+    [ObservableProperty]
+    private IReadOnlyList<GemTooltipEntry>? _tooltipEntries;
+
+    public void RefreshTooltip()
+    {
+        if (GroupIndex <= 0 || GemIndex <= 0) { TooltipEntries = null; return; }
+        var raw = _parent.GetGemTooltipLines(GroupIndex, GemIndex);
+        if (raw.Count == 0) { TooltipEntries = null; return; }
+
+        TooltipEntries = SkillsTabViewModel.ProcessTooltipLines(raw, hasStats: true,
+            describeStats: stats => StatDescriptionEngine.Instance.Describe(stats));
+    }
+
+    // Translated display text for the ComboBox. When the gem is committed (not being
+    // typed), shows the Russian name. While the user is actively typing, shows the
+    // raw input so filtering works. The setter forwards to SearchText.
+    public string DisplayText
+    {
+        get => !string.IsNullOrEmpty(_committedName) && _searchText == _committedName
+            ? GameTranslationService.TGem(_committedName)
+            : _searchText;
+        set => SearchText = value;
+    }
+
+    // Full list for the current gem type (active or support)
+    public IReadOnlyList<GemNameItem> AvailableGemNameItems =>
+        IsSupport ? _parent.SupportGemNameItems : _parent.ActiveGemNameItems;
+
+    // Filtered subset shown in the dropdown while the user types.
+    // When SearchText equals the committed name (field just displaying saved value),
+    // show the full list so clicking the arrow always opens a full dropdown.
+    // Supports filtering by both English name and translated display name.
+    public IReadOnlyList<GemNameItem> FilteredGemNames
+    {
+        get
+        {
+            var all = AvailableGemNameItems;
+            if (string.IsNullOrEmpty(_searchText) || _searchText == _committedName)
+                return all;
+            return all.Where(g =>
+                g.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+                g.DisplayName.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+    }
+
+    // Kept for backward compat (CanExecute, etc.)
+    public IRelayCommand RemoveCommand { get; }
+
+    public GemViewModel(SkillsTabViewModel parent, int groupIndex, int gemIndex, GemEntry e)
+    {
+        _parent        = parent;
+        GroupIndex     = groupIndex;
+        GemIndex       = gemIndex;
+        _syncing       = true;
+        _searchText    = e.Name;
+        _committedName = e.Name;
+        _level         = e.Level;
+        _quality       = e.Quality;
+        _isEnabled     = e.IsEnabled;
+        _isSupport     = e.IsSupport;
+        _color         = e.Color;
+        _syncing       = false;
+        RemoveCommand  = new RelayCommand(
+            () => _parent.RemoveGem(GroupIndex, GemIndex),
+            () => !IsEmpty);
+        RefreshTooltip();
+    }
+
+    public void UpdateFrom(GemEntry e, int gemIndex)
+    {
+        GemIndex = gemIndex;
+        _syncing = true;
+        _searchText    = e.Name;
+        _committedName = e.Name;
+        _level         = e.Level;
+        _quality       = e.Quality;
+        _isEnabled     = e.IsEnabled;
+        _isSupport     = e.IsSupport;
+        _color         = e.Color;
+        _syncing = false;
+        OnPropertyChanged(nameof(SearchText));
+        OnPropertyChanged(nameof(DisplayText));
+        OnPropertyChanged(nameof(Level));
+        OnPropertyChanged(nameof(Quality));
+        OnPropertyChanged(nameof(IsEnabled));
+        OnPropertyChanged(nameof(IsSupport));
+        OnPropertyChanged(nameof(Color));
+        OnPropertyChanged(nameof(NameForeground));
+        OnPropertyChanged(nameof(AvailableGemNameItems));
+        OnPropertyChanged(nameof(FilteredGemNames));
+        OnPropertyChanged(nameof(IsEmpty));
+        ((RelayCommand)RemoveCommand).NotifyCanExecuteChanged();
+        RefreshTooltip();
+    }
+
+    /// <summary>Called by code-behind on selection or Enter key.
+    /// Validates the typed text; resets to previous name if invalid.</summary>
+    public void CommitName()
+    {
+        if (_syncing) return;
+        var text = _searchText.Trim();
+
+        if (IsEmpty && string.IsNullOrWhiteSpace(text)) return;
+
+        // Validate against the full available list (case-insensitive)
+        var allNames = IsSupport ? _parent.SupportGemNames : _parent.ActiveGemNames;
+        var exact = allNames.FirstOrDefault(n => string.Equals(n, text, StringComparison.OrdinalIgnoreCase));
+
+        if (exact == null)
+        {
+            // Unknown name — reset to the last committed value
+            SearchText = _committedName;
+            return;
+        }
+
+        // Normalise casing to canonical name
+        if (text != exact) SearchText = exact;
+
+        _committedName = exact;
+        OnPropertyChanged(nameof(DisplayText));
+        RefreshTooltip();
+        _parent.CommitGemName(GroupIndex, GemIndex, exact);
+    }
+
+    partial void OnLevelChanged(decimal value)
+    {
+        if (_syncing || IsEmpty) return;
+        _parent.SyncGemLevel(GroupIndex, GemIndex, (int)Math.Max(1, value));
+    }
+
+    partial void OnQualityChanged(decimal value)
+    {
+        if (_syncing || IsEmpty) return;
+        _parent.SyncGemQuality(GroupIndex, GemIndex, (int)Math.Max(0, value));
+    }
+
+    partial void OnIsEnabledChanged(bool value)
+    {
+        if (_syncing || IsEmpty) return;
+        _parent.SyncGemEnabled(GroupIndex, GemIndex, value);
+    }
+}
+
+// ── SkillGroupViewModel ───────────────────────────────────────────────────────
+
+public partial class SkillGroupViewModel : ObservableObject
+{
+    private readonly SkillsTabViewModel _parent;
+    private bool _syncing;
+
+    public int Index { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ListItemColor))]
+    private bool _isEnabled = true;
+
+    [ObservableProperty] private bool _isMain;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ActiveGemName))]
+    [NotifyPropertyChangedFor(nameof(ActiveGemColor))]
+    [NotifyPropertyChangedFor(nameof(ListItemColor))]
+    private GemViewModel? _activeGem;
+
+    public string ActiveGemName  => _activeGem != null
+        ? GameTranslationService.TGem(_activeGem.SearchText)
+        : "(empty)";
+    public string ActiveGemColor => _activeGem?.Color ?? "#585B70";
+    public string ListItemColor  => IsEnabled ? ActiveGemColor : "#585B70";
+
+    public ObservableCollection<GemViewModel> SupportSlots { get; } = [];
+
+    public IRelayCommand AddGemCommand     { get; }
+    public IRelayCommand RemoveGroupCommand { get; }
+
+    public SkillGroupViewModel(SkillsTabViewModel parent, SkillGroupEntry entry, bool isMain,
+                               IEnumerable<GemEntry> gems)
+    {
+        _parent  = parent;
+        Index    = entry.Index;
+        _syncing = true;
+        _isMain    = isMain;
+        _isEnabled = entry.IsEnabled;
+        _syncing = false;
+
+        AddGemCommand      = new RelayCommand(() => _parent.AddGem(Index));
+        RemoveGroupCommand = new RelayCommand(() => _parent.RemoveGroup(Index));
+
+        RebuildGems(gems);
+    }
+
+    partial void OnIsEnabledChanged(bool value)
+    {
+        if (_syncing) return;
+        _parent.SyncGroupEnabled(Index, value);
+    }
+
+    public void RebuildGems(IEnumerable<GemEntry> gems)
+    {
+        var list = gems.ToList();
+
+        // First non-support gem is the active skill shown in the header
+        GemEntry? activeEntry = null;
+        int       activeIdx   = 0;
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (!list[i].IsSupport) { activeEntry = list[i]; activeIdx = i + 1; break; }
+        }
+
+        if (activeEntry != null)
+        {
+            if (ActiveGem == null)
+                ActiveGem = new GemViewModel(_parent, Index, activeIdx, activeEntry);
+            else
+                ActiveGem.UpdateFrom(activeEntry, activeIdx);
+        }
+        else
+        {
+            ActiveGem = null;
+        }
+
+        // Rebuild support slots.
+        // For CastOn groups, gems 2+ are active (isSupport=false) — include them too.
+        // GemViewModel.FilteredGemNames uses AvailableGemNameItems which auto-switches
+        // to ActiveGemNameItems when IsSupport=false, so dropdowns show the right list.
+        SupportSlots.Clear();
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (i + 1 == activeIdx) continue; // skip the main active gem
+            SupportSlots.Add(new GemViewModel(_parent, Index, i + 1, list[i]));
+        }
+        while (SupportSlots.Count < 5)
+            SupportSlots.Add(MakeEmptySlot());
+    }
+
+    private GemViewModel MakeEmptySlot() =>
+        new(_parent, Index, 0, new GemEntry("", 20, 0, true, true));
+}
+
+// ── SkillsTabViewModel ────────────────────────────────────────────────────────
+
+public partial class SkillsTabViewModel : ViewModelBase
+{
+    private readonly LuaHost    _host;
+    private readonly BuildModel _build;
+    private readonly Action?    _onStatsChanged;
+    private readonly Action?    _onGroupsChanged;
+
+    // Cache: gem name → processed tooltip entries (null = no tooltip)
+    private Dictionary<string, IReadOnlyList<GemTooltipEntry>?> _gemNameTooltipCache = new();
+
+    // Full name+color lists (for dropdown items)
+    public IReadOnlyList<GemNameItem> ActiveGemNameItems  { get; private set; }
+    public IReadOnlyList<GemNameItem> SupportGemNameItems { get; private set; }
+
+    // Plain string lists (for validation)
+    public IReadOnlyList<string> ActiveGemNames  { get; }
+    public IReadOnlyList<string> SupportGemNames { get; }
+
+    public ObservableCollection<SkillGroupViewModel> Groups { get; } = [];
+
+    [ObservableProperty] private SkillGroupViewModel? _selectedGroup;
+    [ObservableProperty] private string _newGroupGemName = "";
+
+    public SkillsTabViewModel(LuaHost host, BuildModel build,
+        Action? onStatsChanged  = null,
+        Action? onGroupsChanged = null)
+    {
+        _host            = host;
+        _build           = build;
+        _onStatsChanged  = onStatsChanged;
+        _onGroupsChanged = onGroupsChanged;
+
+        var (activeNames, supportNames) = host.GetAvailableGemNames();
+        var colors = host.GetGemColors();
+
+        ActiveGemNames  = activeNames;
+        SupportGemNames = supportNames;
+        ActiveGemNameItems  = BuildGemNameItems(activeNames,  colors);
+        SupportGemNameItems = BuildGemNameItems(supportNames, colors);
+
+        LocalizationService.Instance.LanguageChanged += (_, _) =>
+        {
+            // Clear tooltip cache so translated strings are regenerated on next hover
+            _gemNameTooltipCache = new();
+            ActiveGemNameItems  = BuildGemNameItems(ActiveGemNames,  colors);
+            SupportGemNameItems = BuildGemNameItems(SupportGemNames, colors);
+            OnPropertyChanged(nameof(ActiveGemNameItems));
+            OnPropertyChanged(nameof(SupportGemNameItems));
+            Refresh();
+        };
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        var mainIdx = _host.GetMainSkillGroupIndex();
+        var prevIdx = SelectedGroup?.Index;
+        Groups.Clear();
+        foreach (var g in _host.GetSkillGroups())
+        {
+            var gems = _host.GetGemsInGroup(g.Index);
+            Groups.Add(new SkillGroupViewModel(this, g, g.Index == mainIdx, gems));
+        }
+        SelectedGroup = Groups.FirstOrDefault(g => g.Index == prevIdx)
+                     ?? Groups.FirstOrDefault(g => g.IsMain)
+                     ?? Groups.FirstOrDefault();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSetAsMain))]
+    private void SetAsMain()
+    {
+        if (SelectedGroup is null) return;
+        _host.SetActiveSkillGroup(SelectedGroup.Index);
+        _build.Refresh();
+        var mainIdx = SelectedGroup.Index;
+        foreach (var g in Groups)
+            g.IsMain = g.Index == mainIdx;
+        _onGroupsChanged?.Invoke();
+    }
+
+    private bool CanSetAsMain() => SelectedGroup is not null;
+
+    partial void OnSelectedGroupChanged(SkillGroupViewModel? value)
+        => SetAsMainCommand.NotifyCanExecuteChanged();
+
+    [RelayCommand]
+    private void AddGroup()
+    {
+        var name = NewGroupGemName.Trim();
+        if (!string.IsNullOrEmpty(name))
+            _host.AddSkillGroupWithGem(name);
+        else
+            _host.AddSkillGroup();
+
+        Refresh();
+        SelectedGroup = Groups.LastOrDefault();
+        _onGroupsChanged?.Invoke();
+    }
+
+    // ── Called by SkillGroupViewModel ──────────────────────────────────────
+
+    public void RemoveGroup(int groupIdx)
+    {
+        _host.RemoveSkillGroup(groupIdx);
+        _build.Refresh();
+        Refresh();
+        _onGroupsChanged?.Invoke();
+    }
+
+    public void AddGem(int groupIdx)
+    {
+        _host.AddGemToGroup(groupIdx);
+        RebuildGroupGems(groupIdx);
+        AfterModify();
+    }
+
+    // ── Called by GemViewModel ─────────────────────────────────────────────
+
+    public void RemoveGem(int groupIdx, int gemIdx)
+    {
+        _host.RemoveGemFromGroup(groupIdx, gemIdx);
+        RebuildGroupGems(groupIdx);
+        AfterModify();
+    }
+
+    public void SyncGemLevel(int groupIdx, int gemIdx, int level)
+    {
+        _host.SetGemLevel(groupIdx, gemIdx, level);
+        AfterModify();
+    }
+
+    public void SyncGemQuality(int groupIdx, int gemIdx, int quality)
+    {
+        _host.SetGemQuality(groupIdx, gemIdx, quality);
+        AfterModify();
+    }
+
+    public void SyncGemEnabled(int groupIdx, int gemIdx, bool enabled)
+    {
+        _host.SetGemEnabled(groupIdx, gemIdx, enabled);
+        AfterModify();
+    }
+
+    public void CommitGemName(int groupIdx, int gemIdx, string name)
+    {
+        if (gemIdx == 0)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return;
+            _host.AddGemToGroup(groupIdx);
+            var allGems = _host.GetGemsInGroup(groupIdx);
+            gemIdx = allGems.Count;
+        }
+        _host.SetGemName(groupIdx, gemIdx, name);
+        RebuildGroupGems(groupIdx);
+        AfterModify();
+    }
+
+    public void SyncGroupEnabled(int groupIdx, bool enabled)
+    {
+        _host.SetGroupEnabled(groupIdx, enabled);
+        AfterModify();
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    private void RebuildGroupGems(int groupIdx)
+    {
+        var group = Groups.FirstOrDefault(g => g.Index == groupIdx);
+        if (group == null) return;
+        group.RebuildGems(_host.GetGemsInGroup(groupIdx));
+    }
+
+    public IReadOnlyList<GemTooltipLine> GetGemTooltipLines(int groupIdx, int gemIdx) =>
+        _host.GetGemTooltip(groupIdx, gemIdx);
+
+    // ── Dropdown tooltip helpers ───────────────────────────────────────────
+
+    private IReadOnlyList<GemNameItem> BuildGemNameItems(
+        IReadOnlyList<string> names, Dictionary<string, string> colors) =>
+        names.Select(n => new GemNameItem(n, colors.GetValueOrDefault(n, "#CDD6F4"),
+            GetTooltipEntriesForGemName)).ToList();
+
+    /// <summary>Lazy tooltip loader for dropdown <see cref="GemNameItem"/>s.
+    /// Results are cached per gem name; cache is invalidated on language change.</summary>
+    public IReadOnlyList<GemTooltipEntry>? GetTooltipEntriesForGemName(string gemName)
+    {
+        if (_gemNameTooltipCache.TryGetValue(gemName, out var cached)) return cached;
+        var raw = _host.GetGemTooltipByName(gemName);
+        var result = raw.Count == 0 ? null : ProcessTooltipLines(raw, hasStats: false);
+        _gemNameTooltipCache[gemName] = result;
+        return result;
+    }
+
+    /// <summary>Shared tooltip-line processing (used by <see cref="GemViewModel.RefreshTooltip"/>
+    /// and the dropdown tooltip loader). When <paramref name="hasStats"/> is false,
+    /// raw_stats lines are omitted since there is no live calcLib context.</summary>
+    internal static IReadOnlyList<GemTooltipEntry>? ProcessTooltipLines(
+        IReadOnlyList<GemTooltipLine> raw, bool hasStats = true,
+        Func<Dictionary<string, double>, List<string>>? describeStats = null)
+    {
+        var entries = new List<GemTooltipEntry>();
+        bool skipStats = false;
+
+        for (int i = 0; i < raw.Count; i++)
+        {
+            var l = raw[i];
+            switch (l.Kind)
+            {
+                case "raw_stats":
+                    if (!hasStats) break; // skip stat block entirely in dropdown mode
+                    if (describeStats != null)
+                    {
+                        // parse and render localised stats
+                        var parts = l.Text.Split('|');
+                        var dict = new Dictionary<string, double>(StringComparer.Ordinal);
+                        for (int p = 1; p < parts.Length; p++)
+                        {
+                            var eq = parts[p].IndexOf('=');
+                            if (eq <= 0) continue;
+                            if (double.TryParse(parts[p][(eq+1)..],
+                                System.Globalization.NumberStyles.Float,
+                                System.Globalization.CultureInfo.InvariantCulture, out var d))
+                                dict[parts[p][..eq]] = d;
+                        }
+                        var ruLines = describeStats(dict);
+                        if (ruLines.Count > 0)
+                        {
+                            foreach (var line in ruLines)
+                                entries.Add(MakeEntry(line, "#89B4FA"));
+                            skipStats = true;
+                        }
+                        else skipStats = false;
+                    }
+                    break;
+
+                case "stat":
+                    if (!skipStats)
+                        entries.Add(MakeEntry(l.Text, "#89B4FA"));
+                    break;
+
+                case "sep":
+                    if (skipStats && i > 0 && raw[i-1].Kind != "raw_stats") skipStats = false;
+                    entries.Add(new GemTooltipEntry("", "#313244", IsSep: true));
+                    break;
+
+                case "name":
+                    entries.Add(MakeEntry(GameTranslationService.TGem(l.Text), "#CDD6F4", highlight: false));
+                    break;
+                case "tag":
+                    entries.Add(MakeEntry(GameTranslationService.TGemTagLine(l.Text), "#585B70", highlight: false));
+                    break;
+                case "meta":
+                    entries.Add(MakeEntry(GameTranslationService.TGemMetaLine(l.Text), "#A6ADC8"));
+                    break;
+                case "desc":
+                    entries.Add(MakeEntry(GameTranslationService.TSkillDescription(l.Text), "#F9E2AF", highlight: false));
+                    break;
+                default:
+                    entries.Add(MakeEntry(l.Text, "#CDD6F4"));
+                    break;
+            }
+        }
+
+        return entries.Count > 0 ? entries : null;
+    }
+
+    // Numeric tokens (integers, decimals, percentages, signed) highlighted in a contrasting colour.
+    private const string NumberHighlightColor = "#FAB387";
+    private static readonly System.Text.RegularExpressions.Regex NumberRegex =
+        new(@"[+\-]?\d+(?:[.,]\d+)?%?", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static GemTooltipEntry MakeEntry(string text, string baseColor, bool highlight = true)
+    {
+        if (string.IsNullOrEmpty(text))
+            return new GemTooltipEntry(text, baseColor,
+                Segments: new[] { new TooltipTextSegment(text, baseColor) });
+
+        var matches = highlight ? NumberRegex.Matches(text) : null;
+        if (matches == null || matches.Count == 0)
+            return new GemTooltipEntry(text, baseColor,
+                Segments: new[] { new TooltipTextSegment(text, baseColor) });
+
+        var segs = new List<TooltipTextSegment>(matches.Count * 2 + 1);
+        int pos = 0;
+        foreach (System.Text.RegularExpressions.Match m in matches)
+        {
+            if (m.Index > pos)
+                segs.Add(new TooltipTextSegment(text[pos..m.Index], baseColor));
+            segs.Add(new TooltipTextSegment(m.Value, NumberHighlightColor));
+            pos = m.Index + m.Length;
+        }
+        if (pos < text.Length)
+            segs.Add(new TooltipTextSegment(text[pos..], baseColor));
+
+        return new GemTooltipEntry(text, baseColor, Segments: segs);
+    }
+
+    private void AfterModify()
+    {
+        _build.Refresh();
+        _onStatsChanged?.Invoke();
+    }
+}

@@ -1,0 +1,89 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <!-- SkiaSharp / HarfBuzzSharp NuGet packages ship 100 MB of native .pdb
+         symbols. Excluding them shrinks the publish output by ~46%. -->
+    <CopyDebugSymbolFilesFromPackages>false</CopyDebugSymbolFilesFromPackages>
+    <CopyDocumentationFilesFromPackages>false</CopyDocumentationFilesFromPackages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Brand icons / logo: kept as avares:// resources (referenced by URI from XAML). -->
+    <AvaloniaResource Include="Assets\*.png" />
+    <AvaloniaResource Include="Assets\*.ico" />
+    <!-- Passive tree sprite sheets: loaded by TreeAssetStore via Path.Combine + new Bitmap(fullPath),
+         not through avares://. Bundling them as AvaloniaResource embedded ~217 MB of PNGs into the
+         managed DLL for nothing. Ship them as plain files next to the exe.
+         The Avalonia SDK implicitly registers Assets/** as None (and sometimes Content);
+         Remove them first so the explicit Content entry below is the only owner — otherwise the
+         single-file publisher silently drops large BC7/BC1 PNGs because of duplicate item IDs. -->
+    <None Remove="Assets\TreeData\**\*" />
+    <Content Remove="Assets\TreeData\**\*" />
+    <Content Include="Assets\TreeData\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PBLEngine\PBLEngine.csproj" />
+    <ProjectReference Include="..\PBLApp.Core\PBLApp.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.0.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.3" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+  </ItemGroup>
+
+  <!-- Copy Lua engine files next to the exe on publish only (not during regular build).
+       Also re-copies Assets/TreeData unconditionally because the SDK publish pipeline
+       silently drops some large BC7/BC1 PNGs when resolving Content for self-contained
+       single-file publish (root cause TBD). -->
+  <!-- Strip native PDB symbols shipped by SkiaSharp / HarfBuzzSharp NuGet packages
+       (~100 MB combined) — end users don't need them. -->
+  <Target Name="StripNativeSymbols" AfterTargets="Publish">
+    <ItemGroup>
+      <_NativePdbs Include="$(PublishDir)libSkiaSharp.pdb;
+                           $(PublishDir)libHarfBuzzSharp.pdb" />
+    </ItemGroup>
+    <Delete Files="@(_NativePdbs)" />
+  </Target>
+
+  <Target Name="CopyEngineFiles" AfterTargets="Publish">
+    <ItemGroup>
+      <!-- Skip src/TreeData/**/*.dds.zst and *.png on publish:
+           - .dds.zst are for the original C++/DirectX PoB renderer (we don't ship it).
+           - .png in src/TreeData/ duplicate Assets/TreeData/ which the C# UI already uses.
+           tree.lua / tree.json are kept for ALL versions so the Lua engine can load builds
+           that were saved against older tree revisions. -->
+      <_SrcFiles Include="$(MSBuildProjectDirectory)\..\src\**\*"
+                 Exclude="$(MSBuildProjectDirectory)\..\src\TreeData\**\*.dds.zst;
+                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.dds;
+                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.png;
+                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.jpg" />
+      <_RuntimeLuaFiles Include="$(MSBuildProjectDirectory)\..\runtime\lua\**\*" />
+      <_TreeAssetFiles Include="$(MSBuildProjectDirectory)\Assets\TreeData\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_SrcFiles)"
+          DestinationFiles="@(_SrcFiles->'$(PublishDir)src\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_RuntimeLuaFiles)"
+          DestinationFiles="@(_RuntimeLuaFiles->'$(PublishDir)runtime\lua\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_TreeAssetFiles)"
+          DestinationFiles="@(_TreeAssetFiles->'$(PublishDir)Assets\TreeData\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

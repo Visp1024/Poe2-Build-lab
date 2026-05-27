@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PBLApp.ViewModels"
+        xmlns:v="using:PBLApp.Views"
+        xmlns:loc="using:PBLApp.Localization"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="500"
+        x:Class="PBLApp.Views.NotesWindow"
+        x:DataType="vm:NotesTabViewModel"
+        Title="{loc:Tr Tab_Notes}"
+        Width="700" Height="500"
+        Background="#11111B"
+        WindowStartupLocation="CenterOwner">
+
+    <v:NotesTabView />
+
+</Window>

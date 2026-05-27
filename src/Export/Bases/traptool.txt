@@ -1,0 +1,6 @@
+-- Item data (c) Grinding Gear Games
+local itemBases = ...
+
+#type TrapTool
+
+#baseMatch BaseType Metadata/Items/TrapTools/AbstractTrapTool

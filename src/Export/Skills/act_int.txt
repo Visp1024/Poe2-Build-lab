@@ -1,0 +1,1496 @@
+-- Path of Building
+--
+-- Active Intelligence skill gems
+-- Skill data (c) Grinding Gear Games
+--
+local skills, mod, flag, skill = ...
+
+#skill ArcPlayer
+#set ArcPlayer
+#flags spell chaining projectile
+statMap = {
+	["arc_damage_+%_final_for_each_remaining_chain"] = {
+		mod("Damage", "MORE", nil, 0, 0, { type = "PerStat", stat = "ChainRemaining" }),
+	},
+	["quality_display_arc_is_gem"] = {
+		-- Display only
+	},
+},
+#mods
+#skillEnd
+
+#skill ArchmagePlayer
+#set ArchmagePlayer
+#flags
+statMap = {
+	["archmage_max_mana_permyriad_to_add_to_non_channelled_spell_mana_cost"] = {
+		mod("ManaCostNoMult", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" }, { type = "SkillType", skillType = SkillType.Channel, neg = true }, { type = "SkillType", skillType = SkillType.Spell }, { type = "PercentStat", stat = "Mana", percent = 1 }),
+		div = 100,
+	},
+	["archmage_all_damage_%_to_gain_as_lightning_to_grant_to_non_channelling_spells_per_100_max_mana"] = {
+		mod("DamageGainAsLightning", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" }, { type = "SkillType", skillType = SkillType.Channel, neg = true }, { type = "SkillType", skillType = SkillType.Spell }, { type = "PerStat", stat = "Mana", div = 100 }),
+	},
+},
+#mods
+#skillEnd
+
+#skill ArcticArmourPlayer
+#set ArcticArmourPlayer
+#flags spell
+#mods
+#skillEnd
+
+#skill BallLightningPlayer
+#set BallLightningPlayer
+#flags spell area projectile
+statMap = {
+	["ball_lightning_base_hit_frequency_ms"] = {
+		skill("hitTimeOverride", nil),
+		div = 1000,
+	},
+},
+#mods
+#set BallLightningInfusedExplosionPlayer
+#flags spell area projectile
+#mods
+#set BallLightningIgnitedGround
+#flags spell area projectile duration
+#mods
+#skillEnd
+
+#skill MetaBarrierInvocationPlayer
+#set MetaBarrierInvocationPlayer
+#flags
+#mods
+#skillEnd
+
+#skill SupportBarrierInvocationPlayer
+#set SupportBarrierInvocationPlayer
+#flags
+#mods
+#skillEnd
+
+#skill BlasphemyPlayer
+#set BlasphemyPlayer
+#flags area
+statMap = {
+	["blasphemy_base_spirit_reservation_per_socketed_curse"] = {
+		mod("SkillData", "LIST", { key = "blasphemyReservationFlatSpirit", value = nil })
+	},
+},
+#mods
+#skillEnd
+
+#skill SupportBlasphemyPlayer
+#set SupportBlasphemyPlayer
+#flags area
+statMap = {
+	["support_blasphemy_curse_effect_+%_final"] = {
+		mod("CurseEffect", "MORE", nil),
+	},
+	["active_skill_base_area_of_effect_radius"] = {
+		skill("radiusExtra", nil),
+	},
+},
+#mods
+#skillEnd
+
+#skill BlinkReservationPlayer
+#set BlinkReservationPlayer
+#flags spell
+#mods
+#skillEnd
+
+#skill BlinkPlayer
+#set BlinkPlayer
+#flags
+#mods
+#skillEnd
+
+#from item
+#skill BoneBlastPlayer
+#set BoneBlastPlayer
+#flags spell duration area
+#mods
+#skillEnd
+
+#skill BoneCagePlayer
+#set BoneCagePlayer
+#flags area duration spell
+#mods
+#skillEnd
+
+#skill BoneOfferingPlayer
+#set BoneOfferingPlayer
+#flags area duration
+#mods
+#skillEnd
+
+#skill BonestormPlayer
+preDamageFunc = function(activeSkill, output)
+	activeSkill.skillData.hitTimeMultiplier = math.ceil(activeSkill.skillModList:Sum("BASE", activeSkill.skillCfg, "Multiplier:BonestormStage") / output.ProjectileCount or 1)
+	activeSkill.skillData.channelTimeMultiplier = math.ceil(activeSkill.skillModList:Sum("BASE", activeSkill.skillCfg, "Multiplier:BonestormStage") / output.ProjectileCount or 1)
+	activeSkill.skillData.dpsMultiplier = activeSkill.skillModList:Sum("BASE", activeSkill.skillCfg, "Multiplier:BonestormStage")
+end,
+#set BonestormPlayer
+#flags spell projectile channelRelease
+statMap = {
+	["base_number_of_allowed_bone_storm_projectiles"] = {
+		mod("Multiplier:BonestormMaxStages", "BASE", nil),
+	},
+},
+#mods
+#set BonestormExplosionPlayer
+#flags spell area projectile channelRelease
+statMap = {
+	["bone_spear_power_charged_aoe_+%_final_per_additional_power_charge"] = {
+		mod("AreaOfEffect", "MORE", nil, 0, 0, { type = "Multiplier", var = "RemovablePowerCharge" }),
+	},
+	["bone_spear_power_charged_aoe_+"] = {
+		skill("radiusExtra", nil, { type = "MultiplierThreshold", var = "RemovablePowerCharge", threshold = 1 }),
+	},
+	["base_number_of_allowed_bone_storm_projectiles"] = {
+		mod("Multiplier:BonestormMaxStages", "BASE", nil),
+	},
+},
+#mods
+#skillEnd
+
+#skill MetaCastOnCritPlayer
+#set MetaCastOnCritPlayer
+#flags
+#mods
+#skillEnd
+
+#skill SupportMetaCastOnCritPlayer
+#set SupportMetaCastOnCritPlayer
+#flags
+#mods
+#skillEnd
+
+#skill MetaCastOnDodgePlayer
+#set MetaCastOnDodgePlayer
+#flags
+#mods
+#skillEnd
+
+#skill SupportMetaCastOnDodgePlayer
+#set SupportMetaCastOnDodgePlayer
+#flags
+#mods
+#skillEnd
+
+#skill MetaCastOnElementalAilmentPlayer
+#set MetaCastOnElementalAilmentPlayer
+#flags
+#mods
+#skillEnd
+
+#skill SupportMetaCastOnElementalAilmentPlayer
+#set SupportMetaCastOnElementalAilmentPlayer
+#flags
+#mods
+#skillEnd
+
+#skill MetaCastOnMinionDeathPlayer
+#set MetaCastOnMinionDeathPlayer
+#flags
+#mods
+#skillEnd
+
+#skill SupportMetaCastOnMinionDeathPlayer
+#set SupportMetaCastOnMinionDeathPlayer
+#flags
+#mods
+#skillEnd
+
+#from item
+#skill WeaponGrantedChaosboltPlayer
+#set WeaponGrantedChaosboltPlayer
+#flags spell projectile
+#mods
+#skillEnd
+
+#skill ChargeRegulationPlayer
+#set ChargeRegulationPlayer
+statMap = {
+	["charge_mastery_skill_speed_+%_with_frenzy_charges"] = {
+		mod("Speed", "INC", nil, 0, 0, { type = "StatThreshold", stat = "FrenzyCharges", threshold = 1 }, { type = "GlobalEffect", effectType = "Buff", effectName = "Charge Infusion" }),
+		mod("WarcrySpeed", "INC", nil, 0, KeywordFlag.Warcry, { type = "StatThreshold", stat = "FrenzyCharges", threshold = 1 }, { type = "GlobalEffect", effectType = "Buff", effectName = "Charge Infusion" }),
+		mod("TotemPlacementSpeed", "INC", nil, 0, 0, { type = "StatThreshold", stat = "FrenzyCharges", threshold = 1 }, { type = "GlobalEffect", effectType = "Buff", effectName = "Charge Infusion" }),
+	},
+	["charge_mastery_crit_chance_+%_final_with_power_charges"] = {
+		mod("CritChance", "MORE", nil, 0, 0, { type = "StatThreshold", stat = "PowerCharges", threshold = 1 }, { type = "GlobalEffect", effectType = "Buff", effectName = "Charge Infusion" }),
+	},
+	["charge_mastery_defences_+%_final_with_endurance_charges"] = {
+		mod("Defences", "MORE", nil, 0, 0, { type = "StatThreshold", stat = "EnduranceCharges", threshold = 1 }, { type = "GlobalEffect", effectType = "Buff", effectName = "Charge Infusion" }),
+	},
+},
+#flags
+#mods
+#skillEnd
+
+#skill ChargedStaffPlayer
+#set ChargedStaffPlayer
+statMap = {
+	["charged_staff_attack_minimum_added_lightning_damage_per_stack"] = {
+		mod("LightningMin", "BASE", nil, 0, 0, { type = "Multiplier", var = "RemovablePowerCharge" }, { type = "GlobalEffect", effectType = "Buff", effectName = "Charged Staff", effectCond = "UsePowerCharges" }),
+	},
+	["charged_staff_attack_maximum_added_lightning_damage_per_stack"] = {
+		mod("LightningMax", "BASE", nil, 0, 0, { type = "Multiplier", var = "RemovablePowerCharge" }, { type = "GlobalEffect", effectType = "Buff", effectName = "Charged Staff", effectCond = "UsePowerCharges" }),
+	},
+	["charged_staff_buff_duration_per_stack_ms"] = {
+		mod("ChargedStaffBuffDuration", "BASE", nil, 0, 0, { type = "Multiplier", var = "RemovablePowerCharge" }, { type = "GlobalEffect", effectType = "Buff", effectName = "Charged Staff", effectCond = "UsePowerCharges" }),
+	},
+},
+#flags attack area duration
+#mods
+#skillEnd
+
+#skill ChargedStaffShockwavePlayer
+#set ChargedStaffShockwavePlayer
+#flags attack area
+#mods
+#skillEnd
+
+#skill CometPlayer
+#set CometPlayer
+#flags area spell
+#mods
+#set CometFireInfusionPlayer
+#flags area spell
+#mods
+#skillEnd
+
+#skill ConductivityPlayer
+#set ConductivityPlayer
+#flags spell curse area duration
+statMap = {
+	["base_skill_buff_lightning_damage_resistance_%_to_apply"] = {
+		mod("LightningResist", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill ContagionPlayer
+#set ContagionPlayer
+#flags area duration spell
+#baseMod skill("debuff", true)
+#mods
+#skillEnd
+
+#skill ConvalescencePlayer
+#set ConvalescencePlayer
+#flags
+#mods
+#skillEnd
+
+#skill ConvalescenceActivePlayer
+#set ConvalescenceActivePlayer
+#flags duration
+#mods
+#skillEnd
+
+#from item
+#skill CracklingPalmPlayer
+#set CracklingPalmPlayer
+#flags
+#mods
+#set CracklingPalmBoltPlayer
+#flags attack unarmed area
+#mods
+#skillEnd
+
+#from item
+#skill MetaCastCurseOnBlockPlayer
+#set MetaCastCurseOnBlockPlayer
+#flags
+#mods
+#skillEnd
+
+#from item
+#skill SupportMetaCastCurseOnBlockPlayer
+#set SupportMetaCastCurseOnBlockPlayer
+#mods
+#skillEnd
+
+#skill DarkEffigyPlayer
+#set DarkEffigyPlayer
+#flags area spell totem duration
+#mods
+#skillEnd
+
+#skill DarkEffigyProjectilePlayer
+#set DarkEffigyProjectilePlayer
+#flags spell area projectile totem
+#mods
+#skillEnd
+
+#from item
+#skill CorpseCloudPlayer
+#set CorpseCloudPlayer
+#flags area duration
+#baseMod mod("PoisonChance", "BASE", 100)
+#baseMod skill("explodeCorpse", true)
+#baseMod skill("corpseExplosionDamageType", "Chaos")
+statMap = {
+	["corpse_explosion_monster_life_permillage_chaos"] = {
+		skill("corpseExplosionLifeMultiplier", nil),
+		div = 1000,
+	},
+},
+#mods
+#set CorpseCloudExplosionPlayer
+#flags spell area
+#mods
+#skillEnd
+
+#skill DespairPlayer
+#set DespairPlayer
+#flags spell curse area duration
+statMap = {
+	["base_skill_buff_chaos_damage_resistance_%_to_apply"] = {
+		mod("ChaosResist", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill DetonateDeadPlayer
+#set DetonateDeadPlayer
+#flags area spell
+#baseMod skill("explodeCorpse", true)
+#mods
+#skillEnd
+
+#from item
+#skill DisciplinePlayer
+#set DisciplinePlayer
+#flags
+statMap = {
+	["base_skill_buff_total_maximum_energy_shield_+_to_apply"] = {
+		mod("EnergyShieldTotal", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Aura" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill ElementalConfluxPlayer
+#set ElementalConfluxPlayer
+#flags duration
+#mods
+#skillEnd
+
+#skill MetaElementalInvocationPlayer
+#set MetaElementalInvocationPlayer
+#flags
+#mods
+#skillEnd
+
+#skill SupportElementalInvocationPlayer
+#set SupportElementalInvocationPlayer
+#flags
+#mods
+#skillEnd
+
+#skill ElementalWeaknessPlayer
+#set ElementalWeaknessPlayer
+#flags area spell duration
+statMap = {
+	["base_skill_buff_all_elements_resistance_%_to_apply"] = {
+		mod("ElementalResist", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill EmberFusilladePlayer
+#set EmberFusilladePlayer
+#flags spell duration projectile
+#mods
+#set EmberFusilladeExplosionPlayer
+#flags spell area projectile
+#mods
+#set EmberFusilladeBeamPlayer
+#flags spell projectile
+#mods
+#skillEnd
+
+#skill EnfeeblePlayer
+#set EnfeeblePlayer
+#flags area spell duration
+statMap = {
+	["base_skill_buff_damage_+%_final_to_apply"] = {
+		mod("Damage", "MORE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }, { type = "Condition", var = "Unique", neg = true }),
+	},
+	["base_skill_buff_damage_+%_final_vs_unique_to_apply"] = {
+		mod("Damage", "MORE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }, { type = "Condition", var = "Unique" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill EssenceDrainPlayer
+#set EssenceDrainPlayer
+#flags spell projectile
+#mods
+#set EssenceDrainDotPlayer
+#flags spell projectile duration
+#baseMod skill("debuff", true)
+#mods
+#skillEnd
+
+#from item
+#skill ExsanguinatePlayer
+#set ExsanguinatePlayer
+#flags spell duration chaining
+#mods
+#set ExsanguinateDotPlayer
+#flags spell duration chaining
+#mods
+#skillEnd
+
+#skill EyeOfWinterPlayer
+#set EyeOfWinterPlayer
+#flags spell projectile
+#mods
+#skillEnd
+
+#skill FallingThunderPlayer
+#set FallingThunderPlayer
+#flags attack area melee
+#mods
+#set FallingThunderProjectilePlayer
+#flags attack projectile
+statMap = {
+	["lightning_strike_damage_+%_final_per_power_charge"] = {
+		mod("Damage", "MORE", nil, ModFlag.Projectile, 0, { type = "Multiplier", var = "RemovablePowerCharge" }),
+	},
+	["lightning_strike_damage_+%_final_when_charged"] = {
+		mod("Damage", "MORE", nil, ModFlag.Projectile, 0, { type = "MultiplierThreshold", var = "RemovablePowerCharge", threshold = 1 }),
+	},
+	["lightning_strike_base_number_of_projectiles_per_power_charge"] = {
+		mod("ProjectileCount", "BASE", nil, 0, 0, { type = "Multiplier", var = "RemovablePowerCharge", base = -1 }),
+	},
+},
+#mods
+#skillEnd
+
+#from item
+#skill FeastOfFleshPlayer
+#set FeastOfFleshPlayer
+#flags
+#mods
+#skillEnd
+
+#skill FireballPlayer
+#set FireballPlayer
+#flags spell projectile
+#mods
+#set FireballExplosionPlayer
+#flags spell area projectile
+#mods
+#set FireballSecondaryProjectilePlayer
+#flags spell projectile
+#mods
+#skillEnd
+
+#from item
+#skill FireboltPlayer
+#set FireboltPlayer
+#flags spell projectile
+#mods
+#set FireboltExplosionPlayer
+#flags spell area projectile
+#mods
+#skillEnd
+
+#skill FirestormPlayer
+#set FirestormPlayer
+#flags spell area duration
+statMap = {
+	["fire_storm_fireball_delay_ms"] = {
+		skill("hitTimeOverride", nil),
+		div = 1000,
+	},
+	["rain_hit_delay_ms"] = {
+		skill("maxHitRatePerEnemy", nil),
+		div = 1000,
+	},
+},
+#mods
+#set FirestormColdInfusionPlayer
+#flags spell area duration
+statMap = {
+	["fire_storm_fireball_delay_ms"] = {
+		skill("hitTimeOverride", nil),
+		div = 1000,
+	},
+	["rain_hit_delay_ms"] = {
+		skill("maxHitRatePerEnemy", nil),
+		div = 1000,
+	},
+},
+#mods
+#set FirestormLightningInfusionPlayer
+#flags spell area duration
+statMap = {
+	["fire_storm_fireball_delay_ms"] = {
+		skill("hitTimeOverride", nil),
+		div = 1000,
+	},
+	["rain_hit_delay_ms"] = {
+		skill("maxHitRatePerEnemy", nil),
+		div = 1000,
+	},
+},
+#mods
+#skillEnd
+
+#skill FlameWallPlayer
+#set FlameWallPlayer
+#flags
+statMap = {
+	["flame_wall_minimum_added_fire_damage"] = {
+		mod("FireMin", "BASE", nil, ModFlag.Projectile, 0, { type = "GlobalEffect", effectType = "Buff", effectName = "Flame Wall", effectCond = "FlameWallAddedDamage" }),
+	},
+	["flame_wall_maximum_added_fire_damage"] = {
+		mod("FireMax", "BASE", nil, ModFlag.Projectile, 0, { type = "GlobalEffect", effectType = "Buff", effectName = "Flame Wall", effectCond = "FlameWallAddedDamage" }),
+	},
+},
+#mods
+#set FlameWallProjectileBuffPlayer
+#flags
+#mods
+#skillEnd
+
+#skill FlameblastPlayer
+preDamageFunc = function(activeSkill, output)
+	activeSkill.skillData.channelTimeMultiplier = activeSkill.skillModList:Sum("BASE", activeSkill.skillCfg, "Multiplier:FlameblastStage")
+end,
+#set FlameblastPlayer
+#flags spell area channelRelease
+statMap = {
+	["charged_blast_spell_damage_+%_final_per_stack"] = {
+		mod("Damage", "MORE", nil, ModFlag.Spell, 0, { type = "Multiplier", var = "FlameblastStage" }),
+	},
+	["vaal_flameblast_radius_+_per_stage"] = {
+		skill("radiusExtra", nil, { type = "Multiplier", var = "FlameblastStage" }),
+	},
+	["flameblast_maximum_stages"] = {
+		mod("Multiplier:FlameblastMaxStages", "BASE", nil),
+	},
+},
+#mods
+#skillEnd
+
+#skill FlammabilityPlayer
+#set FlammabilityPlayer
+#flags spell curse area duration
+statMap = {
+	["base_skill_buff_fire_damage_resistance_%_to_apply"] = {
+		mod("FireResist", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill FlickerStrikePlayer
+#set FlickerStrikePlayer
+#flags attack melee area
+#mods
+#skillEnd
+
+#skill FreezingMarkPlayer
+#set FreezingMarkPlayer
+#flags area duration
+statMap = {
+	["active_skill_show_freeze_range_from_freezing_mark"] = {
+		mod("Dummy", "INC", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }),
+	},
+	["freezing_mark_damage_buff_damage_%_to_gain_as_cold"] = {
+		mod("DamageGainAsCold", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" }),
+	},
+	["freezing_mark_hit_damage_freeze_multiplier_+%_final"] = {
+		mod("FreezeBuildup", "MORE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }),
+	},
+},
+#mods
+#skillEnd
+
+#from item
+#skill FreezingShardsPlayer
+#set FreezingShardsPlayer
+#flags spell projectile
+#mods
+#skillEnd
+
+#skill FrostBombPlayer
+#set FrostBombPlayer
+#flags spell area duration
+statMap = {
+	['skill_cold_exposure_magnitude'] = {
+		mod("ColdExposure", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Debuff" }),
+		mult = -1
+	},
+},
+#mods
+#skillEnd
+
+#skill FrostDartsPlayer
+#set FrostDartsPlayer
+#flags spell projectile
+#mods
+#set FrostDartsExplodePlayer
+#flags spell projectile area
+#mods
+#set FrostDartsIceMortarPlayer
+#flags spell projectile area
+#mods
+#skillEnd
+
+#skill FrostWallPlayer
+#set FrostWallPlayer
+#flags spell area duration
+#mods
+#set FrostWallInfusedPlayer
+#flags spell area duration
+#mods
+#skillEnd
+
+#skill FrostboltPlayer
+#set FrostboltPlayer
+#flags spell area duration projectile
+#mods
+#set FrostboltExplosionPlayer
+#flags spell area projectile
+#mods
+#skillEnd
+
+#skill FrozenLocusPlayer
+#set FrozenLocusPlayer
+#flags duration
+statMap = {
+	["frozen_locus_crystal_display_stat"] = {
+		-- Display Only
+	},
+},
+#mods
+#set FrozenLocusExplodePlayer
+#flags attack area
+#mods
+#skillEnd
+
+#from item
+#skill FulminationPlayer
+#set FulminationPlayer
+#flags
+#mods
+#skillEnd
+
+#from item
+#skill GalvanicFieldBuffPlayer
+#set GalvanicFieldBuffPlayer
+#flags area duration chaining
+statMap = {
+	["galvanic_field_shock_chance_+%_final"] = {
+		mod("EnemyShockChance", "MORE", nil, 0, 0, { type = "GlobalEffect", effectType = "Aura", effectName = "Galvanic Field" }),
+	},
+},
+#mods
+#set GalvanicFieldOrbPlayer
+#flags spell duration
+statMap = {
+	["base_galvanic_field_beam_delay_ms"] = {
+		skill("hitTimeOverride", nil),
+		div = 1000,
+	},
+},
+#mods
+#skillEnd
+
+#skill GatheringStormPlayer
+preDamageFunc = function(activeSkill, output)
+	activeSkill.skillData.hitTimeMultiplier = activeSkill.skillData.channelPercentOfAttackTime
+	activeSkill.skillData.channelTimeMultiplier = activeSkill.skillData.channelPercentOfAttackTime
+end,
+#set GatheringStormPlayer
+#flags attack area melee channelRelease
+#mods
+#set GatheringStormPerfectPlayer
+#flags attack area melee channelRelease
+#mods
+#set GatheringStormExplodePlayer
+#flags attack area melee channelRelease duration
+#mods
+#skillEnd
+
+#skill GhostDancePlayer
+#set GhostDancePlayer
+#flags duration
+#mods
+#skillEnd
+
+#skill GlacialCascadePlayer
+#set GlacialCascadePlayer
+#flags attack area
+#mods
+#set GlacialCascadeLastSpikePlayer
+#flags attack area
+statMap = {
+	["active_skill_consume_enemy_freeze_to_gain_damage_against_non_unique_+%_final"] = {
+		mod("Damage", "MORE", nil, 0, 0, { type = "ActorCondition", actor = "enemy", var = "Frozen" }, { type = "ActorCondition", actor = "enemy", var = "Unique", neg = true })
+	},
+	["active_skill_consume_enemy_freeze_to_gain_damage_against_unique_+%_final"] = {
+		mod("Damage", "MORE", nil, 0, 0, { type = "ActorCondition", actor = "enemy", var = "Frozen" }, { type = "ActorCondition", actor = "enemy", var = "Unique" })
+	},
+},
+#mods
+#skillEnd
+
+#skill GrimFeastPlayer
+#set GrimFeastPlayer
+#flags
+#mods
+#skillEnd
+
+#skill GrimFeastResummonPlayer
+#set GrimFeastResummonPlayer
+#flags
+#mods
+#skillEnd
+
+#skill HandOfChayulaPlayer
+#set HandOfChayulaPlayer
+#flags attack melee area
+#mods
+#skillEnd
+
+#skill SupportHandOfChayulaPlayer
+#set SupportHandOfChayulaPlayer
+#flags
+#mods
+#skillEnd
+
+#from item
+#skill HeartOfIcePlayer
+#set HeartOfIcePlayer
+#flags buff aura
+#mods
+#skillEnd
+
+#skill HeraldOfIcePlayer
+#set HeraldOfIcePlayer
+#flags
+statMap = {
+	["display_herald_of_ice_behaviour"] = {
+		flag("Condition:EnemiesExplode", { type = "GlobalEffect", effectType = "Buff", effectName = "Herald of Ice" }),
+	},
+},
+#mods
+#set HeraldOfIceOnKillPlayer
+#flags attack area
+#mods
+#skillEnd
+
+#skill HexblastPlayer
+#set HexblastPlayer
+#flags spell area
+#mods
+#skillEnd
+
+#from item
+#skill HisFoulEmergencePlayer
+#set HisFoulEmergencePlayer
+#flags spell area duration
+#mods
+#skillEnd
+
+#from item
+#skill ScatteringCalamityPlayer
+#set ScatteringCalamityPlayer
+#flags spell projectile
+#mods
+#set ScatteringCalamityExplosionPlayer
+#flags spell area projectile
+#mods
+#skillEnd
+
+#from item
+#skill VileDisruptionPlayer
+#set VileDisruptionPlayer
+#flags spell area duration
+#baseMod skill("debuff", true)
+#mods
+#skillEnd
+
+#from item
+#skill HisWinnowingFlamePlayer
+#set HisWinnowingFlamePlayer
+#flags spell area
+#mods
+#skillEnd
+
+#from item
+#skill TriggeredHisWinnowingFlamePillarPlayer
+#set TriggeredHisWinnowingFlamePillarPlayer
+#flags hit area
+#mods
+#skillEnd
+
+#skill HypothermiaPlayer
+#set HypothermiaPlayer
+#flags spell curse area duration
+statMap = {
+	["base_skill_buff_cold_damage_resistance_%_to_apply"] = {
+		mod("ColdResist", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill IceNovaPlayer
+#set IceNovaPlayer
+#flags spell area
+#mods
+#set IceNovaColdInfusedPlayer
+#flags spell area
+#mods
+#skillEnd
+
+#skill IceStrikePlayer
+#set IceStrikePlayer
+#flags attack area melee
+#mods
+#set IceStrikeThirdAttackPlayer
+#flags attack area melee
+#mods
+#skillEnd
+
+#from item
+#skill IcestormPlayer
+#set IcestormPlayer
+#flags spell area duration
+statMap = {
+	["fire_storm_fireball_delay_ms"] = {
+		skill("hitTimeOverride", nil),
+		div = 1000,
+	},
+	["rain_hit_delay_ms"] = {
+		skill("maxHitRatePerEnemy", nil),
+		div = 1000,
+	},
+},
+#mods
+#set IcestormEmpoweredPlayer
+#flags spell area duration
+statMap = {
+	["rain_hit_delay_ms"] = {
+		skill("maxHitRatePerEnemy", nil),
+		div = 1000,
+	},
+},
+#mods
+#skillEnd
+
+#from item
+#skill ImpurityPlayer
+#set ImpurityPlayer
+#flags spell aura area
+statMap = {
+	["base_skill_buff_chaos_damage_resistance_%_to_apply"] = {
+		mod("ChaosResist", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Aura" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill IncineratePlayer
+preDamageFunc = function(activeSkill, output)
+	activeSkill.skillData.channelTimeMultiplier = activeSkill.skillModList:Sum("BASE", activeSkill.skillCfg, "Multiplier:IncinerateStage")
+end,
+#set IncineratePlayer
+#flags spell area duration channelRelease
+statMap = {
+	["incinerate_damage_+%_final_per_stage"] = {
+		mod("Damage", "MORE", nil, 0, 0, { type = "Multiplier", var = "IncinerateStage" }),
+	},
+	["incinerate_maximum_stages"] = {
+		mod("Multiplier:IncinerateMaxStages", "BASE", nil),
+	},
+	["incinerate_gain_stage_every_x_ms"] = {
+		skill("channelTimeOverride", nil),
+		div = 1000,
+	},
+},
+#mods
+#set IncinerateGroundPlayer
+#flags spell area duration
+#mods
+#skillEnd
+
+#skill KillingPalmPlayer
+#set KillingPalmPlayer
+#flags attack area melee
+#mods
+#skillEnd
+
+#from item
+#skill LightningBoltPlayer
+#set LightningBoltPlayer
+#flags spell area
+#mods
+#skillEnd
+
+#from item
+#skill UniqueBreachLightningBoltPlayer
+#set UniqueBreachLightningBoltPlayer
+#flags spell area
+#mods
+#skillEnd
+
+#skill LightningConduitPlayer
+#set LightningConduitPlayer
+#flags spell
+statMap = {
+	["lightning_conduit_damage_+%_final_per_5%_increased_damage_taken_from_shock"] = {
+		mod("Damage", "MORE", nil, 0, KeywordFlag.Hit, { type = "Multiplier", var = "ShockEffect", div = 5, actor = "enemy" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill LightningWarpPlayer
+#set LightningWarpPlayer
+#flags spell area duration
+#mods
+#skillEnd
+
+#skill LingeringIllusionPlayer
+#set LingeringIllusionPlayer
+#flags
+#mods
+#skillEnd
+
+#skill LingeringIllusionSpawnPlayer
+#set LingeringIllusionSpawnPlayer
+#flags duration
+#mods
+#skillEnd
+
+#from item
+#skill LivingBombPlayer
+#set LivingBombPlayer
+#flags spell area duration
+#mods
+#skillEnd
+
+#from item
+#skill MalicePlayer
+#set MalicePlayer
+#flags area
+statMap = {
+	["critical_chance_against_aura_apply_brittle_every_x_ms"] = {
+		flag("ApplyCriticalWeakness"),
+	},
+},
+#mods
+#skillEnd
+
+#from item
+#skill ManaDrainPlayer
+#set ManaDrainPlayer
+#flags
+#mods
+#skillEnd
+
+#skill ManaRemnantsPlayer
+#set ManaRemnantsPlayer
+#flags
+#mods
+#skillEnd
+
+#skill ManaTempestPlayer
+#set ManaTempestPlayer
+#flags
+#baseMod mod("Empowered", "FLAG", true, ModFlag.Spell, 0, { type = "GlobalEffect", effectType = "Buff" }, { type = "StatThreshold", stat = "ManaCost", threshold = 1 })
+#mods
+#skillEnd
+
+#skill MantraOfDestructionPlayer
+#set MantraOfDestructionPlayer
+#flags duration
+#mods
+#skillEnd
+
+#from Item
+#skill MirrorOfRefractionPlayer
+#set MirrorOfRefractionPlayer
+#flags duration
+#mods
+#skillEnd
+
+#skill OrbOfStormsPlayer
+#set OrbOfStormsPlayer
+#flags spell chaining
+#mods
+#skillEnd
+
+#skill PainOfferingPlayer
+#set PainOfferingPlayer
+#flags
+statMap = {
+	["pain_offering_attack_and_cast_speed_+%"] = {
+		mod("Speed", "INC", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" }),
+	},
+	["pain_offering_damage_+%"] = {
+		mod("Damage", "INC", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" }),
+	},
+},
+#baseMod skill("buffMinions", true)
+#baseMod skill("buffNotPlayer", true)
+#mods
+#skillEnd
+
+#from item
+#skill PowerSiphonPlayer
+#set PowerSiphonPlayer
+#flags spell
+#mods
+#skillEnd
+
+#skill ProfaneRitualPlayer
+#set ProfaneRitualPlayer
+#flags spell area
+#mods
+#skillEnd
+
+#from item
+#skill PurityOfFirePlayer
+#set PurityOfFirePlayer
+#flags spell aura area
+statMap = {
+	["base_skill_buff_fire_damage_resistance_%_to_apply"] = {
+		mod("FireResist", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Aura" }),
+	},
+},
+#mods
+#skillEnd
+
+#from item
+#skill PurityOfIcePlayer
+#set PurityOfIcePlayer
+#flags spell aura area
+statMap = {
+	["base_skill_buff_cold_damage_resistance_%_to_apply"] = {
+		mod("ColdResist", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Aura" }),
+	},
+},
+#mods
+#skillEnd
+
+#from item
+#skill PurityOfLightningPlayer
+#set PurityOfLightningPlayer
+#flags spell aura area
+statMap = {
+	["base_skill_buff_lightning_damage_resistance_%_to_apply"] = {
+		mod("LightningResist", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Aura" }),
+	},
+},
+#mods
+#skillEnd
+
+#minionList SummonedRagingSpirit
+#skill RagingSpiritsPlayer
+#set RagingSpiritsPlayer
+#flags spell minion
+#mods
+#skillEnd
+
+#minionList RaisedZombie
+#skill RaiseZombiePlayer
+#set RaiseZombiePlayer
+#flags spell minion
+#mods
+#skillEnd
+
+#minionList RavenousSwarm
+#skill RavenousSwarmPlayer
+#set RavenousSwarmPlayer
+#flags spell minion
+#mods
+#skillEnd
+
+#from item
+#skill ReapPlayer
+#set ReapPlayer
+#flags spell area
+#mods
+#skillEnd
+
+#skill MetaReapersInvocationPlayer
+#set MetaReapersInvocationPlayer
+#flags
+#mods
+#skillEnd
+
+#skill SupportReapersInvocationPlayer
+#set SupportReapersInvocationPlayer
+#flags
+#mods
+#skillEnd
+
+#skill SacrificePlayer
+#set SacrificePlayer
+#flags minion
+statMap = {
+	["harvester_minion_resummon_speed_+%_final"] = {
+		mod("MinionRevivalSpeed", "MORE", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff" } ),
+	},
+},
+#mods
+#skillEnd
+
+#skill ShatteringPalmPlayer
+#set ShatteringPalmPlayer
+#flags attack area melee
+#mods
+#skillEnd
+
+#skill ShatteringPalmExplosionPlayer
+#set ShatteringPalmExplosionPlayer
+#flags area nonWeaponAttack hit unarmed
+#mods
+#skillEnd
+
+#from item
+#skill SigilOfPowerPlayer
+#set SigilOfPowerPlayer
+#flags spell area duration
+statMap = {
+	["circle_of_power_max_stages"] = {
+		mod("Multiplier:SigilOfPowerMaxStages", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Buff", unscalable = true }),
+	},
+	["circle_of_power_spell_damage_+%_final_per_stage"] = {
+		mod("Damage", "MORE", nil, ModFlag.Spell, 0, { type = "GlobalEffect", effectType = "Buff" }, { type = "Multiplier", var = "SigilOfPowerStage", limitVar = "SigilOfPowerMaxStages" } ),
+	},
+},
+#mods
+#skillEnd
+
+#skill SiphonElementsPlayer
+#set SiphonElementsPlayer
+#flags
+#mods
+#skillEnd
+
+#skill SiphoningStrikePlayer
+#set SiphoningStrikePlayer
+#flags attack area melee
+#mods
+#set SiphoningStrikePulsePlayer
+#flags attack area
+#mods
+#skillEnd
+
+#minionList RaisedSkeletonArsonist
+#skill SummonSkeletalArsonistsPlayer
+#set SummonSkeletalArsonistsPlayer
+#flags spell minion duration
+#mods
+#skillEnd
+
+#minionList RaisedSkeletonBrute
+#skill SummonSkeletalBrutesPlayer
+#set SummonSkeletalBrutesPlayer
+#flags spell minion duration
+#mods
+#skillEnd
+
+#minionList RaisedSkeletonCleric
+#skill SummonSkeletalClericsPlayer
+#set SummonSkeletalClericsPlayer
+#flags spell minion duration
+#mods
+#skillEnd
+
+#minionList RaisedSkeletonFrostMage
+#skill SummonSkeletalFrostMagesPlayer
+#set SummonSkeletalFrostMagesPlayer
+#flags spell minion duration
+#mods
+#skillEnd
+
+#minionList RaisedSkeletonReaver
+#skill SummonSkeletalReaversPlayer
+#set SummonSkeletalReaversPlayer
+#flags spell minion duration
+#mods
+#skillEnd
+
+#minionList RaisedSkeletonSniper
+#skill SummonSkeletalSnipersPlayer
+#set SummonSkeletalSnipersPlayer
+#flags spell minion duration
+#mods
+#skillEnd
+
+#minionList RaisedSkeletonStormMage
+#skill SummonSkeletalStormMagesPlayer
+#set SummonSkeletalStormMagesPlayer
+#flags spell minion duration
+#mods
+#skillEnd
+
+#from item
+#minionList RaisedSkeletonWarriors
+#skill SummonSkeletalWarriorsPlayer
+#set SummonSkeletalWarriorsPlayer
+#flags spell minion duration
+#mods
+#skillEnd
+
+#skill SnapPlayer
+#set SnapColdPlayer
+#flags area spell
+statMap = {
+	["snap_damage_+%_final_if_created_from_unique"] = {
+		mod("Damage", "MORE", nil, 0, 0, { type = "ActorCondition", actor = "enemy", var = "Unique" }),
+	},
+},
+#mods
+#set SnapLightningPlayer
+#flags area spell
+#mods
+#set SnapFirePlayer
+#flags area spell
+#mods
+#skillEnd
+
+#skill SolarOrbPlayer
+#set SolarOrbPlayer
+#flags spell area duration
+statMap = {
+	["solar_orb_base_pulse_frequency_ms"] = {
+		skill("hitTimeOverride", nil),
+		div = 1000,
+	},
+},
+#mods
+#set SolarOrbAuraPlayer
+#flags spell area
+#mods
+#skillEnd
+
+#skill SoulOfferingPlayer
+#set SoulOfferingPlayer
+#flags duration
+statMap = {
+	["power_offering_buff_spell_damage_+%"] = {
+		mod("Damage", "INC", nil, ModFlag.Spell, 0, { type = "GlobalEffect", effectType = "Buff" }),
+	},
+},
+#mods
+#skillEnd
+
+#from item
+#skill SoulrendPlayer
+#set SoulrendPlayer
+#flags spell projectile
+#mods
+#set SoulrendDotPlayer
+#flags spell duration
+#baseMod skill("debuff", true)
+#mods
+#skillEnd
+
+#skill SparkPlayer
+#set SparkPlayer
+#flags spell projectile duration
+#mods
+#set SparkColdInfusedPlayer
+#flags spell projectile duration
+#mods
+#skillEnd
+
+#minionList
+#skill SummonSpectrePlayer
+#set SummonSpectrePlayer
+#flags spell minion spectre duration
+#baseMod mod("MinionModifier", "LIST", { mod = mod("Damage", "MORE", 25) }), --Server side damage mod added in 0.3
+#mods
+#skillEnd
+
+#from item
+#skill MetaSpellslingerPlayer
+#set MetaSpellslingerPlayer
+#flags
+#mods
+#skillEnd
+
+#from item
+#skill SupportSpellslingerPlayer
+#set SupportSpellslingerPlayer
+#mods
+#skillEnd
+
+#skill StaggeringPalmPlayer
+#set StaggeringPalmPlayer
+#flags attack area melee
+#mods
+#skillEnd
+
+#skill StaggeringPalmProjectilePlayer
+#set StaggeringPalmProjectilePlayer
+#flags attack projectile
+#mods
+#skillEnd
+
+#skill StormWavePlayer
+#set StormWavePlayer
+#flags attack melee area
+#mods
+#skillEnd
+
+#skill TempestBellPlayer
+#set TempestBellPlayer
+#flags attack area melee duration
+#mods
+#set TempestBellSlamPlayer
+#flags attack area melee
+#mods
+#set TempestBellShockwavePlayer
+#flags attack area melee
+#mods
+#skillEnd
+
+#skill TempestFlurryPlayer
+#set TempestFlurryPlayer
+#flags attack area melee
+#mods
+#set TempestFlurryPlayerThirdStrike
+#flags attack melee
+#mods
+#set TempestFlurryPlayerFinalStrike
+#flags attack melee
+#mods
+#skillEnd
+
+#skill TemporalChainsPlayer
+#set TemporalChainsPlayer
+#flags area duration
+statMap = {
+	["base_skill_debuff_action_speed_+%_final_to_inflict"] = {
+		mod("TemporalChainsActionSpeed", "INC", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" })
+	},
+	["base_temporal_chains_other_buff_time_passed_+%_to_apply"] = {
+		mod("BuffExpireFaster", "MORE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill TrinityPlayer
+#set TrinityPlayer
+#flags buff duration
+statMap = {
+	["trinity_damage_+%_final_to_grant_per_50_resonance"] = {
+		mod("ElementalDamage", "MORE", nil, 0, 0, { type = "Multiplier", var = "ResonanceCount", div = 30 },{ type = "GlobalEffect", effectType = "Buff", effectName = "Trinity" }),
+	},
+	["trinity_skill_speed_+%_while_all_resonance_is_at_least_250_to_grant"] = {
+		mod("Speed", "INC", nil, 0, 0, { type = "MultiplierThreshold", var = "ResonanceCount", threshold = 250 },{ type = "GlobalEffect", effectType = "Buff", effectName = "Trinity" }),
+		mod("WarcrySpeed", "INC", nil, 0, KeywordFlag.Warcry, { type = "MultiplierThreshold", var = "ResonanceCount", threshold = 250 },{ type = "GlobalEffect", effectType = "Buff", effectName = "Trinity" }),
+		mod("TotemPlacementSpeed", "INC", nil, 0, 0, { type = "MultiplierThreshold", var = "ResonanceCount", threshold = 250 },{ type = "GlobalEffect", effectType = "Buff", effectName = "Trinity" }),
+	},
+	["quality_display_trinity_is_gem"] = {
+		-- Display only
+	},
+	["trinity_loss_per_hit"] = {
+		-- Display only
+	},
+},
+#mods
+#skillEnd
+
+#minionList UnearthBoneConstruct
+#skill UnearthPlayer
+#set UnearthPlayer
+#flags spell area minion
+#mods
+#skillEnd
+
+#from item
+#skill UnleashPlayer
+#set UnleashPlayer
+#flags
+#baseMod mod("Empowered", "FLAG", true, ModFlag.Spell, 0, { type = "GlobalEffect", effectType = "Buff" })
+#mods
+#skillEnd
+
+#skill VaultingImpactPlayer
+#set VaultingImpactPlayer
+#flags attack area melee
+#mods
+#set VaultingImpactDazedPlayer
+#flags attack area melee
+#mods
+#skillEnd
+
+#from item
+#skill VolatileDeadPlayer
+#set VolatileDeadPlayer
+#flags spell area
+#mods
+#set VolatileDeadIgniteAuraPlayer
+#flags spell area
+#mods
+#skillEnd
+
+#skill VulnerabilityPlayer
+#set VulnerabilityPlayer
+#flags area duration
+statMap = {
+	["base_skill_buff_total_armour_-_to_grant"] = {
+		mod("IgnoreArmour", "BASE", nil, 0, 0, { type = "GlobalEffect", effectType = "Curse" }),
+	},
+},
+#mods
+#skillEnd
+
+#skill WaveOfFrostPlayer
+#set WaveOfFrostPlayer
+#flags attack area melee
+#mods
+#skillEnd
+
+#skill WhirlingAssaultPlayer
+#set WhirlingAssaultPlayer
+#flags attack area melee
+statMap = {
+	["area_of_effect_+%_final_from_whirling_assault_level"] = {
+		mod("AreaOfEffect", "MORE", nil),
+	},
+},
+#mods
+#skillEnd
+
+#skill GaleStrikePlayer
+#set GaleStrikePlayer
+#flags attack area melee
+#mods
+#skillEnd
+
+#from item
+#skill WitherPlayer
+#set WitherPlayer
+#flags spell area duration
+#mods
+#skillEnd
+
+#skill WitheringPresencePlayer
+#set WitheringPresencePlayer
+#flags duration
+#mods
+#skillEnd

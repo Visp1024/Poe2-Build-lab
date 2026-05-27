@@ -1,0 +1,8 @@
+-- Path of Building
+--
+-- Glove enchantment skills
+-- Skill data (c) Grinding Gear Games
+--
+local skills, mod, flag, skill = ...
+
+

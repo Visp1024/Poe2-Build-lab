@@ -1,0 +1,761 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:eng="using:PBLEngine"
+             xmlns:loc="using:PBLApp.Localization"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="700"
+             x:Class="PBLApp.Views.ItemEditorView"
+             x:DataType="vm:ItemEditorViewModel">
+
+    <UserControl.Styles>
+
+        <!-- Tooltip-style frame (matches ItemTooltipView) -->
+        <Style Selector="Border.tooltip-frame">
+            <Setter Property="Background" Value="#D90A0A14"/>
+            <Setter Property="BorderBrush" Value="#A8824B"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Padding" Value="14,10"/>
+        </Style>
+        <Style Selector="Border.tooltip-inset">
+            <Setter Property="BorderBrush" Value="#5A3F1F"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="1"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border.tooltip-sep">
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Background" Value="#5A3F1F"/>
+            <Setter Property="Margin" Value="0,6,0,6"/>
+        </Style>
+
+        <!-- Rarity toggle button -->
+        <Style Selector="Button.rarity-btn">
+            <Setter Property="Background" Value="#181825"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#585B70"/>
+            <Setter Property="Padding" Value="14,5"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="Button.rarity-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#252537"/>
+        </Style>
+        <Style Selector="Button.rarity-btn.active">
+            <Setter Property="BorderBrush" Value="#89B4FA"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="Background" Value="#252537"/>
+        </Style>
+        <Style Selector="Button.rarity-btn.active /template/ ContentPresenter">
+            <Setter Property="Background" Value="#252537"/>
+        </Style>
+
+        <!-- Flat list item rows -->
+        <Style Selector="Button.list-btn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+        <Style Selector="Button.list-btn /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Button.list-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#252537"/>
+        </Style>
+        <Style Selector="Button.list-btn.selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2A2A45"/>
+        </Style>
+
+        <!-- Section label -->
+        <Style Selector="TextBlock.sec-label">
+            <Setter Property="Foreground" Value="#585B70"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Small text input -->
+        <Style Selector="TextBox.ed-input">
+            <Setter Property="Background" Value="#11111B"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="6,4"/>
+        </Style>
+        <Style Selector="TextBox.ed-input:focus /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="#89B4FA"/>
+        </Style>
+
+        <!-- ComboBox style -->
+        <Style Selector="ComboBox.ed-combo">
+            <Setter Property="Background" Value="#181825"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <!-- Action button -->
+        <Style Selector="Button.action-btn">
+            <Setter Property="Background" Value="#313244"/>
+            <Setter Property="BorderBrush" Value="#89B4FA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="Button.action-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3D3F55"/>
+        </Style>
+
+        <!-- Save button -->
+        <Style Selector="Button.save-btn">
+            <Setter Property="Background" Value="#1E3A2F"/>
+            <Setter Property="BorderBrush" Value="#A6E3A1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#A6E3A1"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="Button.save-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2A4A3A"/>
+        </Style>
+
+        <!-- Danger button (cancel/remove) -->
+        <Style Selector="Button.cancel-btn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#BAC2DE"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="Button.cancel-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#252537"/>
+        </Style>
+
+        <!-- Remove mod (×) button -->
+        <Style Selector="Button.remove-mod">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#45475A"/>
+            <Setter Property="Padding" Value="4,1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.remove-mod:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Button.remove-mod:pointerover">
+            <Setter Property="Foreground" Value="#F38BA8"/>
+        </Style>
+
+    </UserControl.Styles>
+
+    <DockPanel Background="#1E1E2E">
+
+        <!-- ── Top bar ──────────────────────────────────────────────────────── -->
+        <Border DockPanel.Dock="Top"
+                Background="#181825"
+                BorderBrush="#45475A" BorderThickness="0,0,0,1"
+                Padding="12,8">
+            <Grid ColumnDefinitions="*,Auto">
+
+                <!-- Title + rarity selector -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding EditorTitle}"
+                               Foreground="#89B4FA" FontSize="13" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Rarity toggle buttons (hidden when editing an existing item) -->
+                    <StackPanel Orientation="Horizontal" Spacing="1" VerticalAlignment="Center"
+                                IsVisible="{Binding !IsEditingExisting}">
+                        <Button Content="{loc:Tr Editor_RarityNormal}"
+                                Classes="rarity-btn"
+                                Classes.active="{Binding IsNormal}"
+                                Command="{Binding SetNormalCommand}"/>
+                        <Button Content="{loc:Tr Editor_RarityMagic}"
+                                Classes="rarity-btn"
+                                Classes.active="{Binding IsMagic}"
+                                Command="{Binding SetMagicCommand}"/>
+                        <Button Content="{loc:Tr Editor_RarityRare}"
+                                Classes="rarity-btn"
+                                Classes.active="{Binding IsRare}"
+                                Command="{Binding SetRareCommand}"/>
+                        <Button Content="{loc:Tr Editor_RarityUnique}"
+                                Classes="rarity-btn"
+                                Classes.active="{Binding IsUnique}"
+                                Command="{Binding SetUniqueCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Save / Delete / Cancel -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SaveError}"
+                               IsVisible="{Binding SaveError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Foreground="#F38BA8" FontSize="11" VerticalAlignment="Center"
+                               MaxWidth="200" TextWrapping="Wrap"/>
+                    <Button Content="{loc:Tr Editor_BtnSave}"
+                            Classes="save-btn"
+                            Command="{Binding SaveCommand}"/>
+                    <Button Content="{loc:Tr Editor_BtnDelete}"
+                            IsVisible="{Binding CanDelete}"
+                            Command="{Binding DeleteCommand}"
+                            Background="Transparent"
+                            BorderBrush="#F38BA8" BorderThickness="1"
+                            Foreground="#F38BA8"
+                            Padding="12,6" FontSize="12"/>
+                    <Button Content="{loc:Tr Editor_BtnClose}"
+                            Classes="cancel-btn"
+                            Command="{Binding CancelCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ── Main area: Left | Right ─────────────────────────────────────── -->
+        <!-- Left column is Auto so it collapses to 0 when the left panel is hidden (IsEditingExisting) -->
+        <Grid ColumnDefinitions="Auto,*">
+
+            <!-- ── LEFT: Base selector / Unique selector ─────────────────── -->
+            <!-- Hidden when editing an existing item — only mod list shown then -->
+            <Border Grid.Column="0"
+                    Width="280"
+                    IsVisible="{Binding !IsEditingExisting}"
+                    Background="#181825"
+                    BorderBrush="#45475A" BorderThickness="0,0,1,0">
+                <DockPanel Margin="10,10,10,10">
+
+                    <!-- Item level (only for non-unique) -->
+                    <StackPanel DockPanel.Dock="Top" Spacing="3" Margin="0,0,0,10"
+                                IsVisible="{Binding IsNotUnique}">
+                        <TextBlock Text="{loc:Tr Editor_ItemLevel}" Classes="sec-label"/>
+                        <TextBox Text="{Binding ItemLevel}" Classes="ed-input"
+                                 Watermark="80" Width="80" HorizontalAlignment="Left"/>
+                    </StackPanel>
+
+
+                    <!-- NON-UNIQUE: Category + base picker -->
+                    <StackPanel DockPanel.Dock="Top" Spacing="0" IsVisible="{Binding IsNotUnique}">
+
+                        <TextBlock Text="{loc:Tr Editor_Category}" Classes="sec-label"/>
+                        <ComboBox ItemsSource="{Binding Categories}"
+                                  SelectedItem="{Binding SelectedCategory}"
+                                  Classes="ed-combo"
+                                  HorizontalAlignment="Stretch"
+                                  Margin="0,0,0,8"/>
+
+                        <TextBlock Text="{loc:Tr Editor_BaseItem}" Classes="sec-label"/>
+                        <TextBox Text="{Binding BaseSearch}"
+                                 Classes="ed-input"
+                                 Watermark="🔍 Search bases..."
+                                 Margin="0,0,0,4"/>
+
+                        <Border Background="#11111B"
+                                BorderBrush="#45475A" BorderThickness="1"
+                                Height="160">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding FilteredBases}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="eng:BaseItemEntry">
+                                            <Button Classes="list-btn"
+                                                    Command="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).SelectBaseCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <TextBlock Text="{Binding Name}"
+                                                           Foreground="#CDD6F4" FontSize="11"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Border>
+
+                    </StackPanel>
+
+                    <!-- UNIQUE: unique search + list -->
+                    <StackPanel DockPanel.Dock="Top" Spacing="0" IsVisible="{Binding IsUnique}">
+
+                        <TextBlock Text="{loc:Tr Editor_UniqueItem}" Classes="sec-label"/>
+                        <TextBox Text="{Binding UniqueSearch}"
+                                 Classes="ed-input"
+                                 Watermark="🔍 Search unique items..."
+                                 Margin="0,0,0,4"/>
+
+                        <Border Background="#11111B"
+                                BorderBrush="#45475A" BorderThickness="1"
+                                Height="260">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding FilteredUniques}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="eng:UniqueItemEntry">
+                                            <Button Classes="list-btn"
+                                                    Command="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).SelectUniqueCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <StackPanel Spacing="1">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               Foreground="#FAB387" FontSize="11"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding BaseName}"
+                                                               Foreground="#585B70" FontSize="10"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Border>
+
+                    </StackPanel>
+
+                    <!-- (Implicits moved to the right-panel mod list for visual unification) -->
+
+                    <!-- Selected base indicator -->
+                    <StackPanel DockPanel.Dock="Top" Margin="0,8,0,0"
+                                IsVisible="{Binding SelectedBase, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <TextBlock Text="{loc:Tr Editor_SelectedBase}" Classes="sec-label"/>
+                        <Border Background="#252537" BorderBrush="#89B4FA" BorderThickness="1"
+                                CornerRadius="3" Padding="8,4">
+                            <TextBlock Text="{Binding SelectedBase.Name}"
+                                       Foreground="#89B4FA" FontSize="12" FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Selected unique indicator -->
+                    <StackPanel DockPanel.Dock="Top" Margin="0,8,0,0"
+                                IsVisible="{Binding SelectedUnique, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <TextBlock Text="{loc:Tr Editor_SelectedUnique}" Classes="sec-label"/>
+                        <Border Background="#2D1F1A" BorderBrush="#FAB387" BorderThickness="1"
+                                CornerRadius="3" Padding="8,4">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="{Binding SelectedUnique.Name}"
+                                           Foreground="#FAB387" FontSize="12" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding SelectedUnique.BaseName}"
+                                           Foreground="#585B70" FontSize="10"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <Panel/><!-- fill -->
+                </DockPanel>
+            </Border>
+
+            <!-- ── RIGHT: Tooltip-style editor pane ─────────────────────── -->
+            <ScrollViewer Grid.Column="1" Padding="12,12"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <Border Classes="tooltip-frame" MaxWidth="640" HorizontalAlignment="Stretch">
+                    <Border Classes="tooltip-inset" Padding="8,6">
+                        <DockPanel>
+
+                <!-- ── Header: item name + base, centred and rarity-coloured ── -->
+                <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,4">
+                    <TextBlock Text="{Binding DisplayName}"
+                               Foreground="{Binding RarityColor}"
+                               FontSize="18" FontWeight="Bold"
+                               TextAlignment="Center"
+                               HorizontalAlignment="Center"
+                               TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding DisplayBaseName}"
+                               IsVisible="{Binding IsUnique}"
+                               Foreground="{Binding RarityColor}"
+                               FontSize="13"
+                               TextAlignment="Center"
+                               HorizontalAlignment="Center"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+                <Border DockPanel.Dock="Top" Classes="tooltip-sep"/>
+
+                <!-- ── Item meta strip: Item Level / Quality / Corrupted ── -->
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="10" Margin="0,2,0,4">
+                    <TextBlock Grid.Column="0"
+                               Text="{loc:Tr Editor_Quality}"
+                               Foreground="#7F8FA6" FontSize="11"
+                               VerticalAlignment="Center"/>
+                    <NumericUpDown Grid.Column="1"
+                                   Value="{Binding Quality}"
+                                   Minimum="0" Maximum="30" Increment="1"
+                                   ShowButtonSpinner="True" FormatString="0"
+                                   Background="#11111B" BorderBrush="#45475A"
+                                   Foreground="#F9E2AF" FontSize="12"
+                                   Padding="6,2" Width="110"
+                                   VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2"
+                               Text="%"
+                               Foreground="#7F8FA6" FontSize="11"
+                               VerticalAlignment="Center"/>
+                    <CheckBox Grid.Column="5"
+                              IsChecked="{Binding IsCorrupted}"
+                              Foreground="#F38BA8"
+                              FontSize="12" FontWeight="SemiBold"
+                              VerticalAlignment="Center"
+                              ToolTip.Tip="{loc:Tr Editor_CorruptedHint}">
+                        <TextBlock Text="{loc:Tr Editor_Corrupted}"
+                                   Foreground="#F38BA8" FontSize="12" FontWeight="SemiBold"/>
+                    </CheckBox>
+                </Grid>
+                <Border DockPanel.Dock="Top" Classes="tooltip-sep"/>
+
+                <!-- ── Base stats (Armour / Evasion / ES / Ward / Spirit / Charm Slots) ──
+                     Read-only: each row shows the computed effective value (base
+                     scaled by base.quality + user Quality + % increased mods),
+                     with the intrinsic base value as a grey hint to the right. -->
+                <Grid DockPanel.Dock="Top"
+                      IsVisible="{Binding HasAnyBaseStat}"
+                      ColumnDefinitions="120,80,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                      Margin="0,2,0,4">
+
+                    <!-- Armour -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" IsVisible="{Binding HasArmour}"
+                               Text="{loc:Tr Editor_StatArmour}"
+                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" IsVisible="{Binding HasArmour}"
+                               Text="{Binding EffectiveArmour}"
+                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" IsVisible="{Binding HasArmour}"
+                               Text="{Binding DefaultArmour, StringFormat='(база: {0})'}"
+                               Foreground="#585B70" FontSize="10"
+                               VerticalAlignment="Center" Margin="0,0,0,0"/>
+
+                    <!-- Evasion -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" IsVisible="{Binding HasEvasion}"
+                               Text="{loc:Tr Editor_StatEvasion}"
+                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" IsVisible="{Binding HasEvasion}"
+                               Text="{Binding EffectiveEvasion}"
+                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" IsVisible="{Binding HasEvasion}"
+                               Text="{Binding DefaultEvasion, StringFormat='(база: {0})'}"
+                               Foreground="#585B70" FontSize="10"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Energy Shield -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" IsVisible="{Binding HasEnergyShield}"
+                               Text="{loc:Tr Editor_StatES}"
+                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" IsVisible="{Binding HasEnergyShield}"
+                               Text="{Binding EffectiveEnergyShield}"
+                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="2" IsVisible="{Binding HasEnergyShield}"
+                               Text="{Binding DefaultEnergyShield, StringFormat='(база: {0})'}"
+                               Foreground="#585B70" FontSize="10"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Ward -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" IsVisible="{Binding HasWard}"
+                               Text="{loc:Tr Editor_StatWard}"
+                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" IsVisible="{Binding HasWard}"
+                               Text="{Binding EffectiveWard}"
+                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" Grid.Column="2" IsVisible="{Binding HasWard}"
+                               Text="{Binding DefaultWard, StringFormat='(база: {0})'}"
+                               Foreground="#585B70" FontSize="10"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Spirit -->
+                    <TextBlock Grid.Row="4" Grid.Column="0" IsVisible="{Binding HasSpirit}"
+                               Text="{loc:Tr Editor_StatSpirit}"
+                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" IsVisible="{Binding HasSpirit}"
+                               Text="{Binding DefaultSpirit}"
+                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Charm Slots -->
+                    <TextBlock Grid.Row="5" Grid.Column="0" IsVisible="{Binding HasCharmSlots}"
+                               Text="{loc:Tr Editor_StatCharmSlots}"
+                               Foreground="#7F8FA6" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" IsVisible="{Binding HasCharmSlots}"
+                               Text="{Binding DefaultCharmSlots}"
+                               Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                </Grid>
+                <Border DockPanel.Dock="Top" Classes="tooltip-sep" IsVisible="{Binding HasAnyBaseStat}"/>
+
+                <!-- Toolbar -->
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,6">
+                    <TextBlock Grid.Column="0" Text="{loc:Tr Editor_Mods}"
+                               Foreground="#7F8FA6" FontSize="10" FontWeight="Bold"
+                               VerticalAlignment="Center" Margin="0"/>
+                    <!-- Prefix/Suffix counter (non-unique only) -->
+                    <Border Grid.Column="1"
+                            IsVisible="{Binding IsNotUnique}"
+                            Background="#252537" BorderBrush="#45475A" BorderThickness="1"
+                            CornerRadius="3" Padding="8,3" Margin="0,0,8,0"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="{Binding PrefixSuffixLabel}"
+                                   Foreground="#BAC2DE" FontSize="11"/>
+                    </Border>
+                    <!-- + Add Mod toggle (non-unique only; disabled when corrupted) -->
+                    <Button Grid.Column="2"
+                            IsVisible="{Binding IsNotUnique}"
+                            IsEnabled="{Binding CanEditMods}"
+                            Content="+ Add Mod"
+                            Command="{Binding ToggleAffixPickerCommand}"
+                            Classes="rarity-btn"
+                            Classes.active="{Binding IsAffixPickerOpen}"
+                            Padding="12,4" FontSize="11"/>
+                </Grid>
+
+                <!-- Affix picker (collapsible, non-unique only) -->
+                <Border DockPanel.Dock="Top"
+                        IsVisible="{Binding IsAffixPickerOpen}"
+                        Height="240"
+                        Margin="0,0,0,10"
+                        Background="#181825"
+                        BorderBrush="#45475A" BorderThickness="1"
+                        CornerRadius="3">
+                    <DockPanel Margin="8">
+                        <!-- Filter row -->
+                        <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" Margin="0,0,0,6">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="1">
+                                <Button Content="{loc:Tr Editor_FilterAll}"
+                                        Classes="rarity-btn"
+                                        Classes.active="{Binding IsFilterAll}"
+                                        Command="{Binding SetFilterAllCommand}"
+                                        Padding="10,3" FontSize="11"/>
+                                <Button Content="{loc:Tr Editor_FilterPrefix}"
+                                        Classes="rarity-btn"
+                                        Classes.active="{Binding IsFilterPrefix}"
+                                        Command="{Binding SetFilterPrefixCommand}"
+                                        Padding="10,3" FontSize="11"/>
+                                <Button Content="{loc:Tr Editor_FilterSuffix}"
+                                        Classes="rarity-btn"
+                                        Classes.active="{Binding IsFilterSuffix}"
+                                        Command="{Binding SetFilterSuffixCommand}"
+                                        Padding="10,3" FontSize="11"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding ModSearch}"
+                                     Classes="ed-input"
+                                     Watermark="🔍 Search mods..."
+                                     Margin="8,0,0,0"/>
+                        </Grid>
+                        <!-- Affix list -->
+                        <Border Background="#11111B"
+                                BorderBrush="#45475A" BorderThickness="1">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding FilteredAffixes}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="vm:AffixEntryViewModel">
+                                            <Button Classes="list-btn"
+                                                    Command="{Binding AddCommand}"
+                                                    ToolTip.Tip="{Binding Entry.AffixName}">
+                                                <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="6">
+                                                    <TextBlock Grid.Column="0"
+                                                               Text="{Binding TypeLabel}"
+                                                               Foreground="{Binding TypeColor}"
+                                                               FontSize="11" FontWeight="Bold"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding TranslatedStatText}"
+                                                               Foreground="#CDD6F4" FontSize="12"
+                                                               FontFamily="Cascadia Code,Consolas,monospace"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="2"
+                                                               Text="{Binding Entry.Level, StringFormat='Lv {0}'}"
+                                                               Foreground="#45475A" FontSize="10"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,4,0"/>
+                                                </Grid>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Border>
+                    </DockPanel>
+                </Border>
+
+                <!-- Runes / Idols section — visible if the base has rune sockets -->
+                <Border DockPanel.Dock="Top"
+                        IsVisible="{Binding HasRuneSockets}"
+                        Background="Transparent"
+                        BorderBrush="#5A3F1F" BorderThickness="0,0,0,1"
+                        Padding="0,6,0,8"
+                        Margin="0,0,0,4">
+                    <StackPanel Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0"
+                                       Text="{loc:Tr Editor_Runes}"
+                                       Classes="sec-label"
+                                       VerticalAlignment="Center" Margin="0"/>
+                            <Button Grid.Column="1"
+                                    Content="{loc:Tr Editor_AddRune}"
+                                    Command="{Binding AddRuneSocketCommand}"
+                                    IsEnabled="{Binding CanAddRune}"
+                                    Classes="rarity-btn"
+                                    Padding="10,3" FontSize="11"/>
+                        </Grid>
+
+                        <TextBlock IsVisible="{Binding !HasAnyRunes}"
+                                   Text="{loc:Tr Editor_NoRunes}"
+                                   Foreground="#585B70" FontSize="11"
+                                   FontStyle="Italic"/>
+
+                        <ItemsControl ItemsSource="{Binding RuneSockets}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:RuneSocketViewModel">
+                                    <Border Background="#11111B"
+                                            BorderBrush="#45475A" BorderThickness="1"
+                                            Margin="0,3,0,0"
+                                            Padding="6,4">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Index, StringFormat='#{0}'}"
+                                                       Foreground="#74C7EC" FontSize="11" FontWeight="Bold"
+                                                       VerticalAlignment="Center"
+                                                       MinWidth="22"/>
+                                            <StackPanel Grid.Column="1" Spacing="2">
+                                                <ComboBox ItemsSource="{Binding AvailableRunes}"
+                                                          SelectedItem="{Binding SelectedRune}"
+                                                          Background="#252537" BorderBrush="#45475A"
+                                                          Foreground="#CDD6F4" FontSize="11"
+                                                          HorizontalAlignment="Stretch"
+                                                          IsEnabled="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).CanEditMods}">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate DataType="eng:RuneEntry">
+                                                            <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.TranslateRune}}"
+                                                                       FontSize="11"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                                <TextBlock Text="{Binding ModSummary}"
+                                                           IsVisible="{Binding !IsEmpty}"
+                                                           Foreground="#8888FF" FontSize="10"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <Button Grid.Column="2"
+                                                    Content="✕"
+                                                    Classes="remove-mod"
+                                                    Command="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).RemoveRuneSocketCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).CanEditMods}"
+                                                    VerticalAlignment="Top"
+                                                    Margin="0,2,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Mods list: implicits (read-only) + explicits (unified template) -->
+                <Border Background="Transparent"
+                        BorderBrush="Transparent" BorderThickness="0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+
+                            <!-- Empty state -->
+                            <TextBlock IsVisible="{Binding !ExplicitMods.Count, FallbackValue=False}"
+                                       Text="{loc:Tr Editor_NoMods}"
+                                       Foreground="#45475A" FontSize="12"
+                                       HorizontalAlignment="Center"
+                                       Padding="12,16"
+                                       TextWrapping="Wrap"/>
+
+                            <!-- Implicit + explicit mods (all rendered through ExplicitMods with IsImplicit flag) -->
+                            <ItemsControl ItemsSource="{Binding ExplicitMods}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:ExplicitModViewModel">
+                                        <Border BorderBrush="#3A2A18" BorderThickness="0,0,0,1"
+                                                Padding="0,6,0,6">
+                                            <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="8">
+
+                                                <!-- Type badge (P / S / I / empty) -->
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding TypeBadgeLabel}"
+                                                           Foreground="{Binding TypeBadgeColor}"
+                                                           FontSize="12" FontWeight="Bold"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Top"
+                                                           Margin="0,2,0,0"/>
+
+                                                <!-- Mod text + slider -->
+                                                <StackPanel Grid.Column="1" Spacing="5">
+
+                                                    <!-- Plain text -->
+                                                    <TextBlock IsVisible="{Binding !HasColoredValue}"
+                                                               Text="{Binding TranslatedText}"
+                                                               Foreground="#8888FF" FontSize="13"
+                                                               TextWrapping="Wrap"/>
+
+                                                    <!-- Split text with colored number -->
+                                                    <StackPanel IsVisible="{Binding HasColoredValue}"
+                                                                Orientation="Horizontal" Spacing="0">
+                                                        <TextBlock Text="{Binding TranslatedPartBefore}"
+                                                                   Foreground="#8888FF" FontSize="13"/>
+                                                        <TextBlock Text="{Binding PartNumber}"
+                                                                   Foreground="#F9E2AF" FontSize="13" FontWeight="Bold"/>
+                                                        <TextBlock Text="{Binding TranslatedPartAfter}"
+                                                                   Foreground="#8888FF" FontSize="13"/>
+                                                    </StackPanel>
+
+                                                    <!-- Slider for numeric ranges -->
+                                                    <Grid IsVisible="{Binding HasSlider}"
+                                                          ColumnDefinitions="Auto,*,Auto">
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{Binding SliderMin, StringFormat='{}{0:0.##}'}"
+                                                                   Foreground="#585B70" FontSize="10"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,6,0"/>
+                                                        <Slider Grid.Column="1"
+                                                                Minimum="{Binding SliderMin}"
+                                                                Maximum="{Binding SliderMax}"
+                                                                Value="{Binding SliderValue}"
+                                                                TickFrequency="1"
+                                                                IsSnapToTickEnabled="True"
+                                                                MinWidth="200"
+                                                                Height="22"
+                                                                VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{Binding SliderMax, StringFormat='{}{0:0.##}'}"
+                                                                   Foreground="#585B70" FontSize="10"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="6,0,0,0"/>
+                                                    </Grid>
+                                                </StackPanel>
+
+                                                <!-- × Remove (only for removable mods) -->
+                                                <Button Grid.Column="2"
+                                                        IsVisible="{Binding IsRemovable}"
+                                                        Content="✕"
+                                                        Classes="remove-mod"
+                                                        Command="{Binding RemoveCommand}"
+                                                        VerticalAlignment="Top"
+                                                        Margin="0,2,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                        </DockPanel>
+                    </Border>
+                </Border>
+            </ScrollViewer>
+
+        </Grid>
+
+    </DockPanel>
+
+</UserControl>

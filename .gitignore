@@ -1,0 +1,47 @@
+# Development tools
+.idea/
+.vs/
+.vscode/
+*.code-workspace
+inspect.lua
+
+# Development files
+*.lnk
+
+# Application files
+Builds/
+*.cfg
+Settings.xml
+
+# Testing
+luajit/
+spec/test_results.log
+spec/test_generation.log
+src/luacov.stats.out
+
+# Release
+manifest-updated.xml
+
+# GGPK Export
+src/Export/ggpk/metadata/
+src/Export/ggpk/data/
+src/Export/ggpk/art/
+src/Export/ggpk/*.exe
+src/Export/ggpk/*.dll
+
+#tree data
+src/TreeData/**/*.scm
+src/TreeData/**/*.txt
+src/TreeData/**/*.bat
+ 
+# PoB Trader
+*_currency_values.json
+
+# Timeless Jewels
+src/Data/TimelessJewelData/*.bin
+
+# Simplegraphic Debugging
+runtime/imgui.ini
+
+
+src/poe_api_response.json

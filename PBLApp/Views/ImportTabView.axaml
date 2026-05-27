@@ -1,0 +1,73 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             xmlns:loc="using:PBLApp.Localization"
+             x:Class="PBLApp.Views.ImportTabView"
+             x:DataType="vm:ImportTabViewModel">
+
+    <ScrollViewer>
+        <StackPanel Margin="16" Spacing="16">
+
+            <!-- Import section -->
+            <Border Background="#313244" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{loc:Tr Import_Title}" FontWeight="Bold" FontSize="14" Foreground="#CDD6F4" />
+                    <TextBlock Text="{loc:Tr Import_Desc}"
+                               Foreground="#A6ADC8" FontSize="12" />
+                    <TextBox Text="{Binding ImportCode}"
+                             PlaceholderText="{loc:Tr Import_Placeholder}"
+                             AcceptsReturn="False"
+                             FontFamily="Cascadia Code,Consolas,monospace"
+                             FontSize="12"
+                             Background="#1E1E2E"
+                             Foreground="#CDD6F4"
+                             BorderBrush="#45475A" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="{loc:Tr Btn_Import}"
+                                Command="{Binding ImportCommand}"
+                                IsEnabled="{Binding !IsWorking}" />
+                        <ProgressBar IsIndeterminate="True"
+                                     IsVisible="{Binding IsWorking}"
+                                     Width="120" Height="20"
+                                     VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Export section -->
+            <Border Background="#313244" Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{loc:Tr Export_Title}" FontWeight="Bold" FontSize="14" Foreground="#CDD6F4" />
+                    <TextBlock Text="{loc:Tr Export_Desc}"
+                               Foreground="#A6ADC8" FontSize="12" />
+                    <Button Content="{loc:Tr Btn_GenerateCode}"
+                            Command="{Binding GenerateCodeCommand}" />
+                    <TextBox Text="{Binding ExportCode}"
+                             IsReadOnly="True"
+                             FontFamily="Cascadia Code,Consolas,monospace"
+                             FontSize="11"
+                             Background="#181825"
+                             Foreground="#A6ADC8"
+                             BorderBrush="#45475A"
+                             MaxHeight="120"
+                             TextWrapping="Wrap"
+                             IsVisible="{Binding ExportCode, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    <Button Content="{loc:Tr Btn_CopyClipboard}"
+                            Command="{Binding CopyCodeCommand}"
+                            IsVisible="{Binding ExportCode, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Status -->
+            <TextBlock Text="{Binding StatusMessage}"
+                       IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                       Foreground="#A6E3A1"
+                       FontSize="13" />
+
+        </StackPanel>
+    </ScrollViewer>
+
+</UserControl>

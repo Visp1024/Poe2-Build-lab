@@ -1,0 +1,102 @@
+-- Path of Building
+--
+-- Minion Data
+-- Monster data (c) Grinding Gear Games
+--
+local minions, mod = ...
+
+#monster Metadata/Monsters/Zombies/PlayerSummoned/PlayerSummonedZombie_ RaisedZombie
+#limit ActiveZombieLimit
+#emit
+
+#monster Metadata/Monsters/RagingSpirit/RagingSpiritPlayerSummoned SummonedRagingSpirit
+#limit ActiveRagingSpiritLimit
+#emit
+
+#monster Metadata/Monsters/Skeletons/PlayerSummoned/SkeletonArcherPlayerSummoned RaisedSkeletonSniper
+#limit ActiveSkeletonLimit
+#emit
+
+#monster Metadata/Monsters/Skeletons/PlayerSummoned/SkeletonBrutePlayerSummoned_ RaisedSkeletonBrute
+#limit ActiveSkeletonLimit
+#emit
+
+#monster Metadata/Monsters/Skeletons/PlayerSummoned/SkeletonStormMagePlayerSummoned_ RaisedSkeletonStormMage
+#limit ActiveSkeletonLimit
+#emit
+
+#monster Metadata/Monsters/Skeletons/PlayerSummoned/SkeletonFrostMagePlayerSummoned RaisedSkeletonFrostMage
+#limit ActiveSkeletonLimit
+#emit
+
+#monster Metadata/Monsters/Skeletons/PlayerSummoned/SkeletonClericPlayerSummoned_ RaisedSkeletonCleric
+#limit ActiveSkeletonLimit
+#emit
+
+#monster Metadata/Monsters/Skeletons/PlayerSummoned/SkeletonArsonistPlayerSummoned RaisedSkeletonArsonist
+#limit ActiveSkeletonLimit
+#emit
+
+#monster Metadata/Monsters/Skeletons/PlayerSummoned/SkeletonReaverPlayerSummoned RaisedSkeletonReaver
+#limit ActiveSkeletonLimit
+#emit
+
+#monster Metadata/Monsters/Skeletons/PlayerSummoned/SkeletonWarriorPlayerSummoned RaisedSkeletonWarriors
+#limit ActiveSkeletonLimit
+#emit
+
+#monster Metadata/Monsters/Hellhound/HellhoundPlayerSummoned SummonedHellhound
+#emit
+
+#monster Metadata/Monsters/LeagueAncestral/AncestralTurtleTotemSpirit AncestralSpiritTurtle
+#emit
+
+#monster Metadata/Monsters/LeagueAncestral/AncestralJadeHulkTotemSpirit AncestralSpiritHulk
+#emit
+
+#monster Metadata/Monsters/LeagueAncestral/AncestralSpiritCasterTotemSpirit AncestralSpiritCaster
+#emit
+
+#monster Metadata/Monsters/LeagueAncestral/AncestralKaruiHornTotemSpirit AncestralSpiritWarhorn
+#emit
+
+#monster Metadata/Monsters/SkeletalConstruct/BoneConstructPlayerSummoned UnearthBoneConstruct
+#limit ActiveUnearthBoneConstructLimit
+#emit
+
+#monster Metadata/Monsters/RhoaPlayerSummoned/RhoaPlayerSummoned SummonedRhoa
+#emit
+
+#monster Metadata/Monsters/AnimatedItem/AnimatedWeaponPlayerSummoned ManifestWeapon
+#emit
+
+#monster Metadata/Monsters/Daemon/RavenousSwarmPlayer/RavenousSwarmPlayerSummoned RavenousSwarm
+#emit
+
+#monster Metadata/Monsters/Monsters/LivingLightningPlayerSummoned LivingLightning
+#limit ActiveLivingLightningLimit
+#emit
+
+#monster Metadata/Monsters/Daemon/ArtilleryPlayer/SummonArtilleryDaemon TacticianMinion
+#emit
+
+#monster Metadata/Monsters/HyenaMonster/HyenaCompanionPlayerSummoned HyenaMinion
+#limit HyenaLimit
+#emit
+
+#monster Metadata/Monsters/Wolves/WolfCompanionPlayerSummoned WolfMinion
+#limit WolfLimit
+#emit
+
+#monster Metadata/Monsters/Monsters/CorpseBeetlePlayerSummoned BeetleMinion
+#limit BeetleLimit
+#emit
+
+#monster Metadata/Monsters/MarakethWaterDjinn/WaterDjinn WaterDjinn
+#emit
+
+#monster Metadata/Monsters/MarakethTimeDjinn/FireDjinn FireDjinn
+#emit
+
+#monster Metadata/Monsters/MarakethSamdDjinn/SandDjinn SandDjinn
+#emit

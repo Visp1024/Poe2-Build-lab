@@ -1,0 +1,13 @@
+D:\Work\PathBuildLab\PBLEngine\bin\Debug\net9.0\lua\compat.lua
+D:\Work\PathBuildLab\PBLEngine\bin\Debug\net9.0\PBLEngine.deps.json
+D:\Work\PathBuildLab\PBLEngine\bin\Debug\net9.0\PBLEngine.dll
+D:\Work\PathBuildLab\PBLEngine\bin\Debug\net9.0\PBLEngine.pdb
+D:\Work\PathBuildLab\PBLEngine\obj\Debug\net9.0\PBLEngine.csproj.AssemblyReference.cache
+D:\Work\PathBuildLab\PBLEngine\obj\Debug\net9.0\PBLEngine.GeneratedMSBuildEditorConfig.editorconfig
+D:\Work\PathBuildLab\PBLEngine\obj\Debug\net9.0\PBLEngine.AssemblyInfoInputs.cache
+D:\Work\PathBuildLab\PBLEngine\obj\Debug\net9.0\PBLEngine.AssemblyInfo.cs
+D:\Work\PathBuildLab\PBLEngine\obj\Debug\net9.0\PBLEngine.csproj.CoreCompileInputs.cache
+D:\Work\PathBuildLab\PBLEngine\obj\Debug\net9.0\PBLEngine.dll
+D:\Work\PathBuildLab\PBLEngine\obj\Debug\net9.0\refint\PBLEngine.dll
+D:\Work\PathBuildLab\PBLEngine\obj\Debug\net9.0\PBLEngine.pdb
+D:\Work\PathBuildLab\PBLEngine\obj\Debug\net9.0\ref\PBLEngine.dll

@@ -1,0 +1,814 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+             xmlns:loc="using:PBLApp.Localization"
+             x:Class="PBLApp.Views.ItemsTabView"
+             x:DataType="vm:ItemsTabViewModel">
+
+    <UserControl.Styles>
+
+        <!-- Slot cell (figure layout) — proportional rectangle, colored by rarity -->
+        <Style Selector="Button.slot-cell">
+            <Setter Property="Background" Value="#15151F"/>
+            <Setter Property="BorderBrush" Value="#313244"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <!-- Enable drag-and-drop target. PointerPressed/Moved start a drag from this slot;
+                 Drop equips a pool item or swaps from another slot. -->
+            <Setter Property="DragDrop.AllowDrop" Value="True"/>
+        </Style>
+        <Style Selector="Button.pool-btn">
+            <Setter Property="DragDrop.AllowDrop" Value="True"/>
+        </Style>
+        <Style Selector="Button.slot-cell /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Button.slot-cell:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#1F1F30"/>
+        </Style>
+        <Style Selector="Button.slot-cell.selected">
+            <Setter Property="Background" Value="#252537"/>
+        </Style>
+
+        <!-- Weapon swap button (I / II) -->
+        <Style Selector="Button.swap-btn">
+            <Setter Property="Background" Value="#181825"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#585B70"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.swap-btn.active">
+            <Setter Property="Background" Value="#313244"/>
+            <Setter Property="BorderBrush" Value="#89B4FA"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+        </Style>
+        <Style Selector="Button.swap-btn /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <!-- Slot label (small gray text above item name) -->
+        <Style Selector="TextBlock.slot-label">
+            <Setter Property="Foreground" Value="#585B70"/>
+            <Setter Property="FontSize" Value="8"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Item name inside slot -->
+        <Style Selector="TextBlock.slot-name">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Pool list item row -->
+        <Style Selector="Button.pool-btn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#252537"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="8,7"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+        <Style Selector="Button.pool-btn /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Button.pool-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#252537"/>
+        </Style>
+        <Style Selector="Button.pool-btn.selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2A2A45"/>
+        </Style>
+        <Style Selector="Button.pool-btn.selected">
+            <Setter Property="BorderBrush" Value="#89B4FA"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        </Style>
+
+        <!-- Section header label -->
+        <Style Selector="TextBlock.section-header">
+            <Setter Property="Foreground" Value="#585B70"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+        </Style>
+
+        <!-- Danger/delete button -->
+        <Style Selector="Button.danger">
+            <Setter Property="Foreground" Value="#F38BA8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#F38BA8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+
+        <!-- Icon-style small button -->
+        <Style Selector="Button.icon-btn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+        <Style Selector="Button.icon-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#252537"/>
+        </Style>
+
+        <!-- Import textarea -->
+        <Style Selector="TextBox.import-box">
+            <Setter Property="Background" Value="#11111B"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="Foreground" Value="#BAC2DE"/>
+            <Setter Property="FontFamily" Value="Cascadia Code,Consolas,monospace"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="8"/>
+        </Style>
+
+    </UserControl.Styles>
+
+    <!-- Root: left panel | right panel -->
+    <Grid ColumnDefinitions="540,*">
+
+        <!-- ── Left panel ──────────────────────────────────────────────────── -->
+        <Border Grid.Column="0"
+                Background="#181825"
+                BorderBrush="#45475A" BorderThickness="0,0,1,0">
+
+            <DockPanel>
+
+                <!-- ── Import panel (collapsible, DockPanel.Top) ─────────── -->
+                <Border DockPanel.Dock="Top"
+                        IsVisible="{Binding IsImportPanelOpen}"
+                        Background="#1E1E2E"
+                        BorderBrush="#45475A" BorderThickness="0,0,0,1"
+                        Padding="8,8,8,10">
+                    <StackPanel Spacing="6">
+
+                        <!-- Header row -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0"
+                                       Text="{loc:Tr ItemImport_Header}"
+                                       Foreground="#585B70" FontSize="10" FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
+                            <Button Grid.Column="1"
+                                    Content="✕"
+                                    Command="{Binding CloseImportPanelCommand}"
+                                    Classes="icon-btn"
+                                    Foreground="#585B70" FontSize="10"/>
+                        </Grid>
+
+                        <!-- Paste hint -->
+                        <TextBlock Text="{loc:Tr ItemImport_Hint}"
+                                   Foreground="#585B70" FontSize="10" TextWrapping="Wrap"/>
+
+                        <!-- Text area -->
+                        <TextBox Text="{Binding ImportItemText}"
+                                 Classes="import-box"
+                                 AcceptsReturn="True"
+                                 AcceptsTab="False"
+                                 Height="160"
+                                 Watermark="Rarity: Rare&#10;Item Name&#10;Base Type&#10;--------&#10;+80 to maximum Life&#10;..."/>
+
+                        <!-- Error -->
+                        <TextBlock Text="{Binding ImportError}"
+                                   IsVisible="{Binding ImportError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   Foreground="#F38BA8" FontSize="10" TextWrapping="Wrap"/>
+
+                        <!-- Add button -->
+                        <Button Content="{loc:Tr ItemImport_AddBtn}"
+                                Command="{Binding ConfirmImportCommand}"
+                                Background="#313244"
+                                BorderBrush="#89B4FA" BorderThickness="1"
+                                Foreground="#CDD6F4"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                FontSize="11" Padding="0,6"/>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- ── Slots + Pool scroll area ──────────────────────────── -->
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="8,12,8,12" Spacing="0">
+
+                        <!-- EQUIPPED ITEMS label -->
+                        <TextBlock Text="{loc:Tr Item_EquippedHeader}" Classes="section-header" Margin="0,0,0,6"/>
+
+                        <!-- ═══════════════════════════════════════════════════════════
+                             Character figure: absolute layout on Canvas (500 × 620).
+                             Slot sizes mimic in-game proportions (weapons tall, body
+                             large, rings small, belt long, flasks tall, charms small).
+                             All slot bounding boxes have ≥5px clearance — no overlap.
+                             ═══════════════════════════════════════════════════════════ -->
+                        <!-- ═══════════════════════════════════════════════════════════
+                             Character figure: canvas 500 × 590, centred on x=250.
+                             Symmetric body column (BodyArmour 135) with weapons in
+                             outer columns, rings filling the gap between body and
+                             weapons below the body block. Charms occupy the central
+                             column between Flask1 and Flask2 in the bottom row.
+                             Sizes preserved from previous layout; only positions
+                             changed for alignment.
+                             ═══════════════════════════════════════════════════════════ -->
+                        <Border Width="500" Height="590" HorizontalAlignment="Center">
+                            <Canvas Width="500" Height="590">
+
+                                <!-- ── Character silhouette (behind slots) ─────────── -->
+                                <Canvas Opacity="0.35">
+                                    <Ellipse Canvas.Left="235" Canvas.Top="10" Width="30" Height="32"
+                                             Stroke="#2A2A40" StrokeThickness="1" Fill="#191926"/>
+                                    <Path Stroke="#2A2A40" StrokeThickness="1" Fill="#191926"
+                                          Data="M 212,55 C 197,75 192,120 197,200 C 199,260 207,315 212,380 L 288,380 C 293,315 301,260 303,200 C 308,120 303,75 288,55 Z"/>
+                                    <Path Stroke="#2A2A40" StrokeThickness="1" Fill="#191926"
+                                          Data="M 222,380 L 225,565 L 245,565 L 247,385 L 253,385 L 255,565 L 275,565 L 278,380 Z"/>
+                                </Canvas>
+
+                                <!-- ── Weapon-Set toggle (I/II) — centred above Weapon1 column (centre x=59) ─ -->
+                                <StackPanel Canvas.Left="36" Canvas.Top="55" Orientation="Horizontal" Spacing="2">
+                                    <Button Classes="swap-btn"
+                                            Classes.active="{Binding IsWeaponSet1Active}"
+                                            Command="{Binding SelectWeaponSet1Command}"
+                                            Content="I"/>
+                                    <Button Classes="swap-btn"
+                                            Classes.active="{Binding IsWeaponSet2Active}"
+                                            Command="{Binding SelectWeaponSet2Command}"
+                                            Content="II"/>
+                                </StackPanel>
+
+                                <!-- ── Weapon-Set toggle — centred above Weapon2 column (centre x=439) ─ -->
+                                <StackPanel Canvas.Left="417" Canvas.Top="55" Orientation="Horizontal" Spacing="2">
+                                    <Button Classes="swap-btn"
+                                            Classes.active="{Binding IsWeaponSet1Active}"
+                                            Command="{Binding SelectWeaponSet1Command}"
+                                            Content="I"/>
+                                    <Button Classes="swap-btn"
+                                            Classes.active="{Binding IsWeaponSet2Active}"
+                                            Command="{Binding SelectWeaponSet2Command}"
+                                            Content="II"/>
+                                </StackPanel>
+
+                                <!-- ── Helmet (top, centred in body column) ──────── -->
+                                <Button Canvas.Left="202" Canvas.Top="5" Width="95" Height="75"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Helmet.IsSelected}"
+                                        BorderBrush="{Binding Helmet.NameColor}"
+                                        Command="{Binding Helmet.SelectCommand}"
+                                        Tag="slot:Helmet">
+                                    <Grid>
+                                        <TextBlock Text="{loc:Tr Slot_Helmet}" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding Helmet.LeftDisplayName}"
+                                                   Foreground="{Binding Helmet.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Amulet (right of helmet, aligned with its bottom) ─ -->
+                                <Button Canvas.Left="302" Canvas.Top="35" Width="80" Height="45"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Amulet.IsSelected}"
+                                        BorderBrush="{Binding Amulet.NameColor}"
+                                        Command="{Binding Amulet.SelectCommand}"
+                                        Tag="slot:Amulet">
+                                    <TextBlock Text="{Binding Amulet.LeftDisplayName, FallbackValue='Amu'}"
+                                               Foreground="{Binding Amulet.NameColor}"
+                                               FontSize="9" TextWrapping="Wrap" TextAlignment="Center"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+
+                                <!-- ── Weapon 1 (left, tall) — primary set ─────────── -->
+                                <Button Canvas.Left="7" Canvas.Top="85" Width="105" Height="220"
+                                        IsVisible="{Binding IsWeaponSet1Active}"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Weapon1.IsSelected}"
+                                        BorderBrush="{Binding Weapon1.NameColor}"
+                                        Command="{Binding Weapon1.SelectCommand}"
+                                        Tag="slot:Weapon 1">
+                                    <Grid>
+                                        <TextBlock Text="{loc:Tr Slot_Weapon1}" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding Weapon1.LeftDisplayName}"
+                                                   Foreground="{Binding Weapon1.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Weapon 1 Swap (secondary set) ───────────────── -->
+                                <Button Canvas.Left="7" Canvas.Top="85" Width="105" Height="220"
+                                        IsVisible="{Binding IsWeaponSet2Active}"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Weapon1Swap.IsSelected}"
+                                        BorderBrush="{Binding Weapon1Swap.NameColor}"
+                                        Command="{Binding Weapon1Swap.SelectCommand}"
+                                        Tag="slot:Weapon 1 Swap">
+                                    <Grid>
+                                        <TextBlock Text="W1 (II)" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding Weapon1Swap.LeftDisplayName}"
+                                                   Foreground="{Binding Weapon1Swap.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Body Armour (centre, large) ─────────────────── -->
+                                <Button Canvas.Left="182" Canvas.Top="85" Width="135" Height="165"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding BodyArmour.IsSelected}"
+                                        BorderBrush="{Binding BodyArmour.NameColor}"
+                                        Command="{Binding BodyArmour.SelectCommand}"
+                                        Tag="slot:Body Armour">
+                                    <Grid>
+                                        <TextBlock Text="{loc:Tr Slot_BodyArmour}" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding BodyArmour.LeftDisplayName}"
+                                                   Foreground="{Binding BodyArmour.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Weapon 2 (right, tall) — primary set ────────── -->
+                                <Button Canvas.Left="387" Canvas.Top="85" Width="105" Height="220"
+                                        IsVisible="{Binding IsWeaponSet1Active}"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Weapon2.IsSelected}"
+                                        BorderBrush="{Binding Weapon2.NameColor}"
+                                        Command="{Binding Weapon2.SelectCommand}"
+                                        Tag="slot:Weapon 2">
+                                    <Grid>
+                                        <TextBlock Text="{loc:Tr Slot_Weapon2}" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding Weapon2.LeftDisplayName}"
+                                                   Foreground="{Binding Weapon2.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Weapon 2 Swap (secondary set) ───────────────── -->
+                                <Button Canvas.Left="387" Canvas.Top="85" Width="105" Height="220"
+                                        IsVisible="{Binding IsWeaponSet2Active}"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Weapon2Swap.IsSelected}"
+                                        BorderBrush="{Binding Weapon2Swap.NameColor}"
+                                        Command="{Binding Weapon2Swap.SelectCommand}"
+                                        Tag="slot:Weapon 2 Swap">
+                                    <Grid>
+                                        <TextBlock Text="W2 (II)" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding Weapon2Swap.LeftDisplayName}"
+                                                   Foreground="{Binding Weapon2Swap.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Ring 1 (in left channel, expanded) ────────── -->
+                                <Button Canvas.Left="115" Canvas.Top="260" Width="66" Height="55"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Ring1.IsSelected}"
+                                        BorderBrush="{Binding Ring1.NameColor}"
+                                        Command="{Binding Ring1.SelectCommand}"
+                                        Tag="slot:Ring 1">
+                                    <TextBlock Text="{Binding Ring1.LeftDisplayName, FallbackValue='R1'}"
+                                               Foreground="{Binding Ring1.NameColor}"
+                                               FontSize="10" TextWrapping="Wrap" TextAlignment="Center"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+
+                                <!-- ── Ring 2 (in right channel, expanded) ─────────── -->
+                                <Button Canvas.Left="319" Canvas.Top="260" Width="66" Height="55"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Ring2.IsSelected}"
+                                        BorderBrush="{Binding Ring2.NameColor}"
+                                        Command="{Binding Ring2.SelectCommand}"
+                                        Tag="slot:Ring 2">
+                                    <TextBlock Text="{Binding Ring2.LeftDisplayName, FallbackValue='R2'}"
+                                               Foreground="{Binding Ring2.NameColor}"
+                                               FontSize="10" TextWrapping="Wrap" TextAlignment="Center"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+
+                                <!-- ── Belt (full body column width, below rings) ─── -->
+                                <Button Canvas.Left="182" Canvas.Top="325" Width="135" Height="55"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Belt.IsSelected}"
+                                        BorderBrush="{Binding Belt.NameColor}"
+                                        Command="{Binding Belt.SelectCommand}"
+                                        Tag="slot:Belt">
+                                    <TextBlock Text="{Binding Belt.LeftDisplayName, FallbackValue='Belt'}"
+                                               Foreground="{Binding Belt.NameColor}"
+                                               FontSize="10" TextWrapping="Wrap" TextAlignment="Center"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+
+                                <!-- ── Gloves (left, under Weapon1) ────────────────── -->
+                                <Button Canvas.Left="7" Canvas.Top="315" Width="105" Height="115"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Gloves.IsSelected}"
+                                        BorderBrush="{Binding Gloves.NameColor}"
+                                        Command="{Binding Gloves.SelectCommand}"
+                                        Tag="slot:Gloves">
+                                    <Grid>
+                                        <TextBlock Text="{loc:Tr Slot_Gloves}" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding Gloves.LeftDisplayName}"
+                                                   Foreground="{Binding Gloves.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Boots (right, under Weapon2) ────────────────── -->
+                                <Button Canvas.Left="387" Canvas.Top="315" Width="105" Height="115"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Boots.IsSelected}"
+                                        BorderBrush="{Binding Boots.NameColor}"
+                                        Command="{Binding Boots.SelectCommand}"
+                                        Tag="slot:Boots">
+                                    <Grid>
+                                        <TextBlock Text="{loc:Tr Slot_Boots}" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding Boots.LeftDisplayName}"
+                                                   Foreground="{Binding Boots.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Flask 1 (bottom left, tall) ─────────────────── -->
+                                <Button Canvas.Left="7" Canvas.Top="435" Width="105" Height="145"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Flask1.IsSelected}"
+                                        BorderBrush="{Binding Flask1.NameColor}"
+                                        Command="{Binding Flask1.SelectCommand}"
+                                        Tag="slot:Flask 1">
+                                    <Grid>
+                                        <TextBlock Text="{loc:Tr Slot_Flask1}" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding Flask1.LeftDisplayName}"
+                                                   Foreground="{Binding Flask1.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Flask 2 (bottom right, tall) ────────────────── -->
+                                <Button Canvas.Left="387" Canvas.Top="435" Width="105" Height="145"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Flask2.IsSelected}"
+                                        BorderBrush="{Binding Flask2.NameColor}"
+                                        Command="{Binding Flask2.SelectCommand}"
+                                        Tag="slot:Flask 2">
+                                    <Grid>
+                                        <TextBlock Text="{loc:Tr Slot_Flask2}" Classes="slot-label" VerticalAlignment="Top"/>
+                                        <TextBlock Text="{Binding Flask2.LeftDisplayName}"
+                                                   Foreground="{Binding Flask2.NameColor}" Classes="slot-name"/>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Charms (centre column, between Flask1 and Flask2) ─ -->
+                                <Button Canvas.Left="182" Canvas.Top="435" Width="135" Height="42"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Charm1.IsSelected}"
+                                        BorderBrush="{Binding Charm1.NameColor}"
+                                        Command="{Binding Charm1.SelectCommand}"
+                                        Tag="slot:Charm 1">
+                                    <TextBlock Text="{Binding Charm1.LeftDisplayName, FallbackValue='C1'}"
+                                               Foreground="{Binding Charm1.NameColor}"
+                                               FontSize="9" TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button Canvas.Left="182" Canvas.Top="486" Width="135" Height="42"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Charm2.IsSelected}"
+                                        BorderBrush="{Binding Charm2.NameColor}"
+                                        Command="{Binding Charm2.SelectCommand}"
+                                        Tag="slot:Charm 2">
+                                    <TextBlock Text="{Binding Charm2.LeftDisplayName, FallbackValue='C2'}"
+                                               Foreground="{Binding Charm2.NameColor}"
+                                               FontSize="9" TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button Canvas.Left="182" Canvas.Top="537" Width="135" Height="42"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Charm3.IsSelected}"
+                                        BorderBrush="{Binding Charm3.NameColor}"
+                                        Command="{Binding Charm3.SelectCommand}"
+                                        Tag="slot:Charm 3">
+                                    <TextBlock Text="{Binding Charm3.LeftDisplayName, FallbackValue='C3'}"
+                                               Foreground="{Binding Charm3.NameColor}"
+                                               FontSize="9" TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+
+                            </Canvas>
+                        </Border>
+
+                        <!-- ── BASE JEWELS strip (jewel sockets on tree) ────────── -->
+                        <StackPanel IsVisible="{Binding JewelSlots.Count}" Margin="0,4,0,0" Spacing="4">
+                            <TextBlock Text="{loc:Tr Item_BaseJewelsHeader}" Classes="section-header"/>
+                            <ItemsControl ItemsSource="{Binding JewelSlots}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:JewelSocketSlotViewModel">
+                                        <Button Width="58" Height="58" Margin="2"
+                                                Classes="slot-cell"
+                                                Classes.selected="{Binding IsSelected}"
+                                                BorderBrush="{Binding NameColor}"
+                                                Command="{Binding SelectCommand}">
+                                            <TextBlock Text="{Binding LeftDisplayName}"
+                                                       Foreground="{Binding NameColor}"
+                                                       FontSize="9" TextWrapping="Wrap"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       TextAlignment="Center"
+                                                       MaxHeight="50"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <!-- ── EXTRA SLOTS (Ring3 / Arm1-2 / Leg1-2) — only if any non-empty ── -->
+                        <StackPanel IsVisible="{Binding HasExtraSlots}" Margin="0,8,0,0" Spacing="4">
+                            <TextBlock Text="{loc:Tr Item_ExtraSlotsHeader}" Classes="section-header"/>
+                            <WrapPanel Orientation="Horizontal">
+                                <Button IsVisible="{Binding !Ring3.IsEmpty}"
+                                        Width="58" Height="40" Margin="2"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Ring3.IsSelected}"
+                                        BorderBrush="{Binding Ring3.NameColor}"
+                                        Command="{Binding Ring3.SelectCommand}">
+                                    <TextBlock Text="{Binding Ring3.LeftDisplayName}"
+                                               Foreground="{Binding Ring3.NameColor}"
+                                               FontSize="9" TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button IsVisible="{Binding !Arm1.IsEmpty}"
+                                        Width="58" Height="40" Margin="2"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Arm1.IsSelected}"
+                                        BorderBrush="{Binding Arm1.NameColor}"
+                                        Command="{Binding Arm1.SelectCommand}">
+                                    <TextBlock Text="{Binding Arm1.LeftDisplayName}"
+                                               Foreground="{Binding Arm1.NameColor}"
+                                               FontSize="9" TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button IsVisible="{Binding !Arm2.IsEmpty}"
+                                        Width="58" Height="40" Margin="2"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Arm2.IsSelected}"
+                                        BorderBrush="{Binding Arm2.NameColor}"
+                                        Command="{Binding Arm2.SelectCommand}">
+                                    <TextBlock Text="{Binding Arm2.LeftDisplayName}"
+                                               Foreground="{Binding Arm2.NameColor}"
+                                               FontSize="9" TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button IsVisible="{Binding !Leg1.IsEmpty}"
+                                        Width="58" Height="40" Margin="2"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Leg1.IsSelected}"
+                                        BorderBrush="{Binding Leg1.NameColor}"
+                                        Command="{Binding Leg1.SelectCommand}">
+                                    <TextBlock Text="{Binding Leg1.LeftDisplayName}"
+                                               Foreground="{Binding Leg1.NameColor}"
+                                               FontSize="9" TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button IsVisible="{Binding !Leg2.IsEmpty}"
+                                        Width="58" Height="40" Margin="2"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Leg2.IsSelected}"
+                                        BorderBrush="{Binding Leg2.NameColor}"
+                                        Command="{Binding Leg2.SelectCommand}">
+                                    <TextBlock Text="{Binding Leg2.LeftDisplayName}"
+                                               Foreground="{Binding Leg2.NameColor}"
+                                               FontSize="9" TextTrimming="CharacterEllipsis"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </WrapPanel>
+                        </StackPanel>
+
+
+                        <!-- ── ITEM POOL section ─────────────────────────── -->
+                        <Border Margin="0,12,0,0" BorderBrush="#45475A" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <StackPanel Spacing="4">
+
+                                <!-- Pool header -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{loc:Tr Item_PoolHeader}"
+                                               Classes="section-header"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                        <Button Content="{loc:Tr Item_PoolCreate}"
+                                                Command="{Binding OpenNewItemEditorCommand}"
+                                                Classes="icon-btn"
+                                                Foreground="#89B4FA"
+                                                BorderBrush="#89B4FA"
+                                                FontSize="10"
+                                                Padding="6,2"/>
+                                        <Button Content="{loc:Tr Item_PoolImport}"
+                                                Command="{Binding OpenImportPanelCommand}"
+                                                Classes="icon-btn"
+                                                Foreground="#A6E3A1"
+                                                BorderBrush="#A6E3A1"
+                                                FontSize="10"
+                                                Padding="6,2"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Search box -->
+                                <TextBox Text="{Binding PoolSearchText}"
+                                         Watermark="{loc:Tr Item_PoolSearch}"
+                                         Background="#11111B"
+                                         BorderBrush="#45475A"
+                                         Foreground="#BAC2DE"
+                                         FontSize="11"
+                                         Padding="6,4"
+                                         Margin="0,2,0,0"/>
+
+                                <!-- Pool list (also serves as a drop target — drag a slot's item here to unequip) -->
+                                <Border Background="#11111B"
+                                        BorderBrush="#45475A" BorderThickness="1"
+                                        MinHeight="60" MaxHeight="380"
+                                        Tag="unequip"
+                                        DragDrop.AllowDrop="True">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding FilteredPool}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="vm:ItemPoolEntryViewModel">
+                                                    <Button Classes="pool-btn"
+                                                            Classes.selected="{Binding IsSelected}"
+                                                            Command="{Binding SelectCommand}"
+                                                            Tag="{Binding ItemId, StringFormat='pool:{0}'}">
+                                                        <Grid ColumnDefinitions="*,Auto,Auto">
+
+                                                            <!-- Item name + base (rarity-coloured for legibility) -->
+                                                            <StackPanel Grid.Column="0" Spacing="1"
+                                                                        VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding PoolTopName}"
+                                                                           IsVisible="{Binding HasTopName}"
+                                                                           Foreground="{Binding NameColor}"
+                                                                           FontSize="13"
+                                                                           FontWeight="SemiBold"
+                                                                           TextTrimming="CharacterEllipsis"/>
+                                                                <TextBlock Text="{Binding PoolBaseName}"
+                                                                           Foreground="{Binding NameColor}"
+                                                                           FontSize="12"
+                                                                           Opacity="0.85"
+                                                                           TextTrimming="CharacterEllipsis"/>
+                                                            </StackPanel>
+
+                                                            <!-- Equipped slot badge -->
+                                                            <Border Grid.Column="1"
+                                                                    IsVisible="{Binding IsEquipped}"
+                                                                    Background="#252537"
+                                                                    BorderBrush="#89B4FA" BorderThickness="1"
+                                                                    CornerRadius="2"
+                                                                    Padding="6,2"
+                                                                    Margin="6,0"
+                                                                    VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding EquippedSlot}"
+                                                                           Foreground="#89B4FA"
+                                                                           FontSize="10" FontWeight="SemiBold"/>
+                                                            </Border>
+
+                                                            <!-- iLvl -->
+                                                            <TextBlock Grid.Column="1"
+                                                                       IsVisible="{Binding !IsEquipped}"
+                                                                       Text="{Binding ItemLevel, StringFormat='iLvl {0}'}"
+                                                                       Foreground="#7F8FA6"
+                                                                       FontSize="10"
+                                                                       Margin="6,0"
+                                                                       VerticalAlignment="Center"/>
+
+                                                            <!-- Delete button -->
+                                                            <Button Grid.Column="2"
+                                                                    Content="✕"
+                                                                    Command="{Binding DeleteCommand}"
+                                                                    Background="Transparent"
+                                                                    BorderThickness="0"
+                                                                    Foreground="#7F8FA6"
+                                                                    FontSize="12"
+                                                                    Padding="6,0"
+                                                                    VerticalAlignment="Center"/>
+                                                        </Grid>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Border>
+
+                                <!-- Empty state -->
+                                <TextBlock Text="{loc:Tr Item_PoolEmpty}"
+                                           IsVisible="{Binding !HasSelectedPoolItem}"
+                                           Foreground="#45475A" FontSize="10"
+                                           TextAlignment="Center" Margin="0,4,0,0"
+                                           TextWrapping="Wrap"/>
+
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+            </DockPanel>
+        </Border>
+
+        <!-- ── Right panel ─────────────────────────────────────────────────── -->
+        <Panel Grid.Column="1">
+
+            <!-- ── (A) Nothing selected ──────────────────────────────────── -->
+            <StackPanel IsVisible="{Binding IsRightPaneEmpty}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="14">
+                <TextBlock Text="{loc:Tr Item_PlaceholderEdit}"
+                           Foreground="#585B70" FontSize="12"
+                           HorizontalAlignment="Center"/>
+                <Button Content="{loc:Tr Item_CreateNew}"
+                        Command="{Binding OpenNewItemEditorCommand}"
+                        Background="#252537"
+                        BorderBrush="#A6E3A1" BorderThickness="1"
+                        Foreground="#A6E3A1"
+                        FontSize="12" Padding="16,7"
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- ── (B0) Styled display tooltip + Edit button ─────────────────── -->
+            <DockPanel IsVisible="{Binding IsTooltipMode}" LastChildFill="True">
+                <Border DockPanel.Dock="Top"
+                        Background="#181825"
+                        BorderBrush="#45475A" BorderThickness="0,0,0,1"
+                        Padding="10,6">
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                        <Button Content="Edit"
+                                Command="{Binding EditCurrentItemCommand}"
+                                Background="#252537"
+                                BorderBrush="#F9E2AF" BorderThickness="1"
+                                Foreground="#F9E2AF"
+                                FontSize="12" Padding="14,4"/>
+                    </StackPanel>
+                </Border>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto"
+                              Padding="14">
+                    <ContentControl Content="{Binding ItemTooltip}"/>
+                </ScrollViewer>
+            </DockPanel>
+
+            <!-- ── (B) Editor with optional equip strip ─────────────────────── -->
+            <DockPanel IsVisible="{Binding IsEditorOpen}" LastChildFill="True">
+
+                <!-- Equip strip — pool items only -->
+                <Border DockPanel.Dock="Top"
+                        IsVisible="{Binding IsEquipStripVisible}"
+                        Background="#181825"
+                        BorderBrush="#45475A" BorderThickness="0,0,0,1"
+                        Padding="10,6">
+                    <Grid ColumnDefinitions="Auto,*,8,Auto,8,Auto,8,Auto">
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding PoolItemName}"
+                                   Foreground="{Binding PoolItemNameColor}"
+                                   FontWeight="SemiBold" FontSize="12"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding CompatibleSlots}"
+                                  SelectedItem="{Binding SelectedEquipSlot}"
+                                  Background="#252537" BorderBrush="#45475A"
+                                  Foreground="#CDD6F4" FontSize="12"
+                                  HorizontalAlignment="Stretch"/>
+                        <Button Grid.Column="3"
+                                Content="{loc:Tr Item_Equip}"
+                                Command="{Binding EquipPoolItemCommand}"
+                                Background="#313244"
+                                BorderBrush="#A6E3A1" BorderThickness="1"
+                                Foreground="#A6E3A1" FontSize="12" Padding="10,4"/>
+                        <Button Grid.Column="5"
+                                Content="{loc:Tr Item_Unequip}"
+                                IsVisible="{Binding PoolItemIsEquipped}"
+                                Command="{Binding UnequipPoolItemCommand}"
+                                Classes="danger" FontSize="12"/>
+                        <Border Grid.Column="7"
+                                IsVisible="{Binding PoolItemIsEquipped}"
+                                Background="#252537" BorderBrush="#89B4FA" BorderThickness="1"
+                                CornerRadius="3" Padding="8,3" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding PoolItemEquippedSlot, StringFormat='✔ {0}'}"
+                                       Foreground="#89B4FA" FontSize="10"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Inline editor -->
+                <ContentControl Content="{Binding ItemEditor}"/>
+
+            </DockPanel>
+
+        </Panel>
+
+    </Grid>
+
+</UserControl>

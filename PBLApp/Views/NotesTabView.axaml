@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             xmlns:loc="using:PBLApp.Localization"
+             x:Class="PBLApp.Views.NotesTabView"
+             x:DataType="vm:NotesTabViewModel">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <TextBox Grid.Row="0"
+                 Text="{Binding Notes}"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 FontFamily="Cascadia Code,Consolas,Courier New,monospace"
+                 FontSize="13"
+                 Margin="8"
+                 Background="#1E1E2E"
+                 Foreground="#CDD6F4"
+                 BorderBrush="#45475A"
+                 VerticalAlignment="Stretch" />
+
+        <Border Grid.Row="1" Padding="8,6" Background="#181825">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button Content="{loc:Tr Btn_SaveNotes}"
+                        Command="{Binding SaveCommand}" />
+            </StackPanel>
+        </Border>
+
+    </Grid>
+
+</UserControl>

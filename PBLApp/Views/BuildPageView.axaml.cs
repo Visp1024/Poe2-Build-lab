@@ -1,0 +1,169 @@
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
+using PBLApp.Core.Localization;
+using PBLApp.ViewModels;
+using System;
+using System.Collections.Generic;
+
+namespace PBLApp.Views;
+
+public partial class BuildPageView : UserControl
+{
+    private EventHandler? _langChangedHandler;
+    private NotesWindow? _notesWindow;
+    private SettingsWindow? _settingsWindow;
+    private ImportExportWindow? _importExportWindow;
+    private readonly Dictionary<string, TabWindow> _tabWindows = new();
+
+    public BuildPageView()
+    {
+        InitializeComponent();
+
+        Loaded   += OnLoaded;
+        Unloaded += OnUnloaded;
+    }
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        LangCombo.DropDownClosed += LangCombo_DropDownClosed;
+
+        Dispatcher.UIThread.Post(SyncLangCombo, DispatcherPriority.Render);
+
+        _langChangedHandler = (_, _) => Dispatcher.UIThread.Post(SyncLangCombo, DispatcherPriority.Render);
+        LocalizationService.Instance.LanguageChanged += _langChangedHandler;
+    }
+
+    private void OnUnloaded(object? sender, RoutedEventArgs e)
+    {
+        LangCombo.DropDownClosed -= LangCombo_DropDownClosed;
+
+        if (_langChangedHandler is not null)
+        {
+            LocalizationService.Instance.LanguageChanged -= _langChangedHandler;
+            _langChangedHandler = null;
+        }
+    }
+
+    private void SyncLangCombo()
+    {
+        if (LangCombo is null) return;
+        var lang = LocalizationService.Instance.CurrentLanguage;
+        for (int i = 0; i < LangCombo.ItemCount; i++)
+        {
+            if (LangCombo.Items[i] is ComboBoxItem { Tag: string tag } && tag == lang)
+            {
+                LangCombo.SelectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    private void LangCombo_DropDownClosed(object? sender, EventArgs e)
+    {
+        if (sender is ComboBox { SelectedItem: ComboBoxItem { Tag: string tag } })
+            LocalizationService.Instance.SetLanguage(tag);
+    }
+
+    private void PopOutTab_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string key }) return;
+        if (DataContext is not BuildPageViewModel vm) return;
+
+        object? content = key switch
+        {
+            "Items"  => vm.ItemsTab,
+            "Tree"   => vm.TreeTab,
+            "Skills" => vm.SkillsTab,
+            "Calcs"  => vm.CalcsTab,
+            _        => null,
+        };
+        if (content is null) return;
+
+        string title = LocalizationService.Get("Tab_" + key);
+
+        if (_tabWindows.TryGetValue(key, out var existing))
+        {
+            try { existing.Activate(); return; }
+            catch { _tabWindows.Remove(key); }
+        }
+
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        var win = new TabWindow { DataContext = content, Title = title };
+        _tabWindows[key] = win;
+
+        // Hide the tab in the main TabControl while it lives in its own window.
+        vm.SetTabPoppedOut(key, true);
+
+        // If the popped-out tab was the active one, switch to the next visible tab.
+        int hiddenIdx = Array.IndexOf(BuildPageViewModel.TabKeys, key);
+        if (hiddenIdx == vm.SelectedTabIndex)
+        {
+            int next = vm.FirstVisibleTabIndex();
+            if (next >= 0) vm.SelectedTabIndex = next;
+        }
+
+        win.Closed += (_, _) =>
+        {
+            _tabWindows.Remove(key);
+            vm.SetTabPoppedOut(key, false);
+        };
+
+        if (owner is not null) win.Show(owner);
+        else win.Show();
+    }
+
+    private void OpenSettings_Click(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not BuildPageViewModel vm || vm.ConfigTab is null) return;
+
+        if (_settingsWindow is not null)
+        {
+            try { _settingsWindow.Activate(); return; }
+            catch { _settingsWindow = null; }
+        }
+
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        _settingsWindow = new SettingsWindow { DataContext = vm.ConfigTab };
+        _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+        if (owner is not null) _settingsWindow.Show(owner);
+        else _settingsWindow.Show();
+    }
+
+    private void OpenImportExport_Click(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not BuildPageViewModel vm || vm.ImportTab is null) return;
+
+        if (_importExportWindow is not null)
+        {
+            try { _importExportWindow.Activate(); return; }
+            catch { _importExportWindow = null; }
+        }
+
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        _importExportWindow = new ImportExportWindow { DataContext = vm.ImportTab };
+        _importExportWindow.Closed += (_, _) => _importExportWindow = null;
+        if (owner is not null) _importExportWindow.Show(owner);
+        else _importExportWindow.Show();
+    }
+
+    private void OpenNotes_Click(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not BuildPageViewModel vm || vm.NotesTab is null) return;
+
+        // Focus existing window if already open
+        if (_notesWindow is not null)
+        {
+            try { _notesWindow.Activate(); return; }
+            catch { _notesWindow = null; }
+        }
+
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        _notesWindow = new NotesWindow { DataContext = vm.NotesTab };
+        _notesWindow.Closed += (_, _) => _notesWindow = null;
+        if (owner is not null)
+            _notesWindow.Show(owner);
+        else
+            _notesWindow.Show();
+    }
+}

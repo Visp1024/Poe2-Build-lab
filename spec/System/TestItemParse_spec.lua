@@ -1,0 +1,422 @@
+describe("TestItemParse", function()
+	local function raw(s, base)
+		base = base or "Arcane Raiment"
+		return "Rarity: Rare\nName\n"..base.."\n"..s
+	end
+
+	it("Rarity", function()
+		local item = new("Item", "Rarity: Normal\nRing")
+		assert.are.equals("NORMAL", item.rarity)
+		item = new("Item", "Rarity: Magic\nRing")
+		assert.are.equals("MAGIC", item.rarity)
+		item = new("Item", "Rarity: Rare\nName\nRing")
+		assert.are.equals("RARE", item.rarity)
+		item = new("Item", "Rarity: Unique\nName\nRing")
+		assert.are.equals("UNIQUE", item.rarity)
+	end)
+
+	--it("Defence", function()
+	--	local item = new("Item", raw("Armour: 25"))
+	--	assert.are.equals(25, item.armourData.Armour)
+	--	item = new("Item", raw("Evasion Rating: 35", "Shabby Jerkin"))
+	--	assert.are.equals(35, item.armourData.Evasion)
+	--	item = new("Item", raw("Energy Shield: 15", "Simple Robe"))
+	--	assert.are.equals(15, item.armourData.EnergyShield)
+	--	item = new("Item", raw("Ward: 180", "Runic Crown"))
+	--	assert.are.equals(180, item.armourData.Ward)
+	--end)
+
+	it("Title", function()
+		local item = new("Item", [[
+			Rarity: Rare
+			Phoenix Paw
+			Furtive Wraps
+		]])
+		assert.are.equal("Phoenix Paw", item.title)
+		assert.are.equal("Furtive Wraps", item.baseName)
+		assert.are.equal("Phoenix Paw, Furtive Wraps", item.name)
+	end)
+
+	it("Unique ID", function()
+		local item = new("Item", raw("Unique ID: 40f9711d5bd7ad2bcbddaf71c705607aef0eecd3dcadaafec6c0192f79b82863"))
+		assert.are.equals("40f9711d5bd7ad2bcbddaf71c705607aef0eecd3dcadaafec6c0192f79b82863", item.uniqueID)
+	end)
+
+	it("Item Level", function()
+		local item = new("Item", raw("Item Level: 10"))
+		assert.are.equals(10, item.itemLevel)
+	end)
+
+	it("Quality", function()
+		local item = new("Item", raw("Quality: 10"))
+		assert.are.equals(10, item.quality)
+		item = new("Item", raw("Quality: +12% (augmented)"))
+		assert.are.equals(12, item.quality)
+	end)
+
+	--TODO: impl sockets for POB2
+	--it("Sockets", function()
+	--end)
+
+	--TODO: impl jewels for POB2
+	--it("Jewel", function()
+	--end)
+
+	--TODO: Variants for POB2?
+	--it("Variant name", function()
+	--end)
+
+	--it("variant", function()
+	--end)
+	
+	--TODO: Alt variants for POB2
+	--it("Alt Variant", function()
+	--end)
+
+	it("Requires Level", function()
+		local item = new("Item", raw("Requires Level 10"))
+		assert.are.equals(10, item.requirements.level)
+		item = new("Item", raw("Level: 10"))
+		assert.are.equals(10, item.requirements.level)
+		item = new("Item", raw("LevelReq: 10"))
+		assert.are.equals(10, item.requirements.level)
+	end)
+
+	it("Prefix/Suffix", function()
+		local item = new("Item", raw([[
+			Prefix: {range:0.1}IncreasedLife1
+			Suffix: {range:0.2}ColdResist1
+			]]))
+		assert.are.equals("IncreasedLife1", item.prefixes[1].modId)
+		assert.are.equals(0.1, item.prefixes[1].range)
+		assert.are.equals("ColdResist1", item.suffixes[1].modId)
+		assert.are.equals(0.2, item.suffixes[1].range)
+	end)
+
+	it("Implicits", function()
+		local item = new("Item", raw([[
+			Implicits: 2
+			+8 to Strength
+			+10 to Intelligence
+			+12 to Dexterity
+			]]))
+		assert.are.equals(2, #item.implicitModLines)
+		assert.are.equals("+8 to Strength", item.implicitModLines[1].line)
+		assert.are.equals("+10 to Intelligence", item.implicitModLines[2].line)
+		assert.are.equals(1, #item.explicitModLines)
+		assert.are.equals("+12 to Dexterity", item.explicitModLines[1].line)
+	end)
+
+	it("Pasted separated base granted skills stay implicit", function()
+		local item = new("Item", [[
+			Item Class: Spears
+			Rarity: Rare
+			Brood Edge
+			Jagged Spear
+			--------
+			Physical Damage: 33-61
+			Elemental Damage: 39-62 (fire), 9-14 (cold)
+			Critical Hit Chance: 8.70% (augmented)
+			Attacks per Second: 1.74 (augmented)
+			--------
+			Requires: Level 59, 33 Str, 81 (unmet) Dex
+			--------
+			Item Level: 76
+			--------
+			Bleeding you inflict deals Damage 11% faster (implicit)
+			--------
+			Grants Skill: Spear Throw
+			--------
+			Adds 39 to 62 Fire Damage
+			Adds 9 to 14 Cold Damage
+			+2.7% to Critical Hit Chance
+			16% increased Attack Speed
+			+22 to Dexterity
+		]])
+
+		assert.are.equals(2, #item.implicitModLines)
+		assert.are.equals("Bleeding you inflict deals Damage 11% faster", item.implicitModLines[1].line)
+		assert.are.equals("Grants Skill: Spear Throw", item.implicitModLines[2].line)
+		assert.are.equals(1, #item.grantedSkills)
+		assert.are.equals("SpearThrowPlayer", item.grantedSkills[1].skillId)
+		assert.are.equals("Adds 39 to 62 Fire Damage", item.explicitModLines[1].line)
+
+		assert.are.equals("Grants Skill: Level (1-20) Volatile Dead", data.itemBases["Volatile Wand"].implicit)
+
+		item = new("Item", [[
+			Item Class: Wands
+			Rarity: Rare
+			Temp Wand
+			Volatile Wand
+			--------
+			Physical Damage: 10-18
+			Critical Hit Chance: 7.00%
+			Attacks per Second: 1.45
+			--------
+			Requires: Level 45, 104 Int
+			--------
+			Item Level: 60
+			--------
+			Grants Skill: Level 11 Volatile Dead
+			--------
+			10% increased Spell Damage
+		]])
+
+		assert.are.equals(1, #item.implicitModLines)
+		assert.are.equals("Grants Skill: Level 11 Volatile Dead", item.implicitModLines[1].line)
+		assert.are.equals(1, #item.grantedSkills)
+		assert.are.equals("VolatileDeadPlayer", item.grantedSkills[1].skillId)
+		assert.are.equals("10% increased Spell Damage", item.explicitModLines[1].line)
+	end)
+
+	it("Crafted base granted skill ranges stay implicit", function()
+		local base = data.itemBases["Volatile Wand"]
+		local item = new("Item")
+		item.name = "Volatile Wand"
+		item.base = base
+		item.baseName = "Volatile Wand"
+		item.rarity = "RARE"
+		item.title = "New Item"
+		item.crafted = true
+		item.prefixes = { }
+		item.suffixes = { }
+		item.buffModLines = { }
+		item.enchantModLines = { }
+		item.runeModLines = { }
+		item.classRequirementModLines = { }
+		item.implicitModLines = {
+			{ line = base.implicit }
+		}
+		item.explicitModLines = { }
+		item.sockets = { }
+		item.runes = { }
+
+		item:NormaliseQuality()
+		item:BuildAndParseRaw()
+
+		assert.are.equals(1, #item.implicitModLines)
+		assert.are.equals("Grants Skill: Level (1-20) Volatile Dead", item.implicitModLines[1].line)
+		assert.are.equals(1, #item.grantedSkills)
+		assert.are.equals("VolatileDeadPlayer", item.grantedSkills[1].skillId)
+	end)
+
+	--TODO: POB2 Leagues?
+	--it("League", function()
+	--end)
+
+	it("Source", function()
+		local item = new("Item", raw("Source: No longer obtainable"))
+		assert.are.equals("No longer obtainable", item.source)
+	end)
+
+	it("Note", function()
+		local item = new("Item", raw("Note: ~price 1 chaos"))
+		assert.are.equals("~price 1 chaos", item.note)
+	end)
+
+	it("Attribute Requirements", function()
+		local item = new("Item", raw("Dex: 100"))
+		assert.are.equals(100, item.requirements.dex)
+		item = new("Item", raw("Int: 101"))
+		assert.are.equals(101, item.requirements.int)
+		item = new("Item", raw("Str: 102"))
+		assert.are.equals(102, item.requirements.str)
+	end)
+
+	it("Requires Class", function()
+		local item = new("Item", raw("Requires Class Witch"))
+		assert.are.equals("Witch", item.classRestriction)
+		item = new("Item", raw("Class:: Witch"))
+		assert.are.equals("Witch", item.classRestriction)
+	end)
+
+	--TODO: POB2 class locked variants?
+	--it("Requires Class variant", function()
+	--end)
+
+	it("short flags", function()
+		item = new("Item", raw("Mirrored"))
+		assert.truthy(item.mirrored)
+		item = new("Item", raw("Corrupted"))
+		assert.truthy(item.corrupted)
+		item = new("Item", raw("Leech 6.61% of Physical Attack Damage as Mana (fractured)"))
+		assert.truthy(item.fractured)
+		item = new("Item", raw("Adds 36 to 48 Fire Damage (desecrated)"))
+		assert.truthy(item.desecrated)
+		item = new("Item", raw("Crafted: true"))
+		assert.truthy(item.crafted)
+		item = new("Item", raw("Unreleased: true"))
+		assert.truthy(item.unreleased)
+	end)
+
+	it("long flags", function()
+		local item = new("Item", raw("This item can be anointed by Cassia"))
+		assert.truthy(item.canBeAnointed)
+		item = new("Item", raw("Can have 1 additional Instilled Modifier"))
+		assert.truthy(item.canHaveTwoEnchants)
+		item = new("Item", raw("Can have an additional Instilled Modifier"))
+		assert.truthy(item.canHaveTwoEnchants)
+		item = new("Item", raw("Can have 2 additional Instilled Modifiers"))
+		assert.truthy(item.canHaveTwoEnchants)
+		assert.truthy(item.canHaveThreeEnchants)
+		item = new("Item", raw("Can have 3 additional Instilled Modifiers"))
+		assert.truthy(item.canHaveTwoEnchants)
+		assert.truthy(item.canHaveThreeEnchants)
+		assert.truthy(item.canHaveFourEnchants)
+	end)
+	
+	it("tags", function()
+		local item = new("Item", raw("{tags:life,physical_damage}+8 to Strength"))
+		assert.are.same({ "life", "physical_damage" }, item.explicitModLines[1].modTags)
+	end)
+
+	it("range", function()
+		local item = new("Item", raw("{range:0.8}+(8-12) to Strength"))
+		assert.are.equals(0.8, item.explicitModLines[1].range)
+		assert.are.equals(11, item.baseModList[1].value) -- range 0.8 of (8-12) = 11
+	end)
+
+	it("custom", function()
+		local item = new("Item", raw("{custom}+8 to Strength"))
+		assert.truthy(item.explicitModLines[1].custom)
+	end)
+
+	it("enchant", function()
+		local item = new("Item", raw("+8 to Strength (enchant)"))
+		assert.are.equals(1, #item.enchantModLines)
+		-- enchant also sets enchant and implicit
+		assert.truthy(item.enchantModLines[1].enchant)
+		assert.truthy(item.enchantModLines[1].implicit)
+	end)
+	
+	it("fractured", function()
+		local item = new("Item", raw("{fractured}+8 to Strength"))
+		assert.truthy(item.explicitModLines[1].fractured)
+		item = new("Item", raw("+8 to Strength (fractured)"))
+		assert.truthy(item.explicitModLines[1].fractured)
+	end)
+
+	it("implicit", function()
+		local item = new("Item", raw("+8 to Strength (implicit)"))
+		assert.truthy(item.implicitModLines[1].implicit)
+	end)
+
+	--TODO: POB2 multi-base items
+	--it("multiple bases", function()
+	--end)
+
+	it("parses text without armour value then changes quality and has correct final armour", function()
+		local item = new("Item", [[
+				Armour Gloves
+				Rope Cuffs
+				Quality: 0
+			]])
+
+		local original = item.armourData.Armour
+		item.quality = 20
+		item:BuildAndParseRaw()
+		assert.are.equals(round(original * 1.2), item.armourData.Armour)
+	end)
+
+	it("magic item", function()
+		local item = new("Item", [[
+				Rarity: MAGIC
+				Name Prefix Rope Cuffs -> +50 ignite chance
+				+50% chance to Ignite
+			]])
+
+		assert.are.equals("Name Prefix ", item.namePrefix)
+		assert.are.equals(" -> +50 ignite chance", item.nameSuffix)
+		assert.are.equals("Rope Cuffs", item.baseName)
+		assert.are.equals(1, #item.explicitModLines)
+		assert.are.equals("+50% chance to Ignite", item.explicitModLines[1].line)
+	end)
+
+	it("attribute converted", function()
+		local item = new("Item", [[
+			Test Item
+			Aegis Quarterstaff
+			Quality: 20
+			Sockets: S S S
+			Rune: Soul Core of Cholotl
+			Rune: Soul Core of Zantipi
+			Rune: Soul Core of Atmohua
+			LevelReq: 79
+			Implicits: 4
+			{enchant}{rune}Convert 20% of Requirements to Dexterity
+			{enchant}{rune}Convert 20% of Requirements to Intelligence
+			{enchant}{rune}Convert 20% of Requirements to Strength
+			{tags:block}{range:1}+(10-15)% to Block chance
+			Corrupted
+			]])
+		item:BuildAndParseRaw()
+		assert.are.equals(35, item.requirements.strMod)
+		assert.are.equals(86, item.requirements.dexMod)
+		assert.are.equals(55, item.requirements.intMod)	
+		
+	end)
+
+
+	it("infers pasted multi-value rune lines as whole runes", function()
+		local item = new("Item", [[
+			Rarity: Rare
+			Onslaught Relic
+			Warmonger Bow
+			--------
+			Quality: +20% (augmented)
+			Physical Damage: 91-161 (augmented)
+			Elemental Damage: 57-98 (fire), 58-98 (cold)
+			Critical Hit Chance: 11.00%
+			Attacks per Second: 1.50 (augmented)
+			--------
+			Requires: Level 67, 86 Str, 65 Int
+			--------
+			Sockets: S S S
+			--------
+			Item Level: 81
+			--------
+			Adds 9 to 15 Cold Damage (rune)
+			Leeches 3% of Physical Damage as Life (rune)
+			Bonded: 5% increased maximum Life (rune)
+			Bonded: 30% increased Freeze Buildup (rune)
+			--------
+			Adds 16 to 35 Physical Damage
+			Adds 49 to 83 Cold Damage
+			20% increased Attack Speed
+			+31 to Strength
+			Adds 57 to 98 Fire Damage (desecrated)
+			--------
+			Corrupted
+		]])
+
+		assert.are.equals(3, item.itemSocketCount)
+		assert.are.same({ "Greater Glacial Rune", "Greater Body Rune" }, item.runes)
+		assert.are.equals(1, item.runeModLines[1].runeCount)
+		assert.are.equals(1, item.runeModLines[2].runeCount)
+		assert.is_nil(item.runeModLines[3].runeCount)
+		assert.is_nil(item.runeModLines[4].runeCount)
+		for _, rune in ipairs(item.runes) do
+			assert.are_not.equals("Lesser Glacial Rune", rune)
+		end
+	end)
+
+	it("multi-line rune mod", function()
+		-- Thruldana is Bow-only as well
+		local item = new("Item", [[
+			Test Item
+			Crude Bow
+			Quality: 20
+			Sockets: S S
+			Rune: Talisman of Thruldana
+			Rune: Talisman of Thruldana
+			Implicits: 2
+			{enchant}{rune}50% reduced Poison Duration
+			{enchant}{rune}Targets can be affected by +2 of your Poisons at the same time
+		]])
+		item:BuildAndParseRaw()
+		
+		assert.are.equals(2, #item.sockets)
+		assert.are.equals(2, #item.runeModLines)
+		
+	end)
+end)

@@ -1,0 +1,29 @@
+-- Item data (c) Grinding Gear Games
+local itemBases = ...
+
+#type Boots
+#socketLimit 3
+
+#subType Armour
+#baseMatch Metadata/Items/Armours/Boots/FourBootsStr%d+
+
+#subType Evasion
+#baseMatch Metadata/Items/Armours/Boots/FourBootsDex%d+
+
+#subType Energy Shield
+#baseMatch Metadata/Items/Armours/Boots/FourBootsInt%d+
+
+#subType Armour/Evasion
+#baseMatch Metadata/Items/Armours/Boots/FourBootsStrDex%d+
+
+#subType Armour/Energy Shield
+#baseMatch Metadata/Items/Armours/Boots/FourBootsStrInt%d+
+
+#subType Evasion/Energy Shield
+#baseMatch Metadata/Items/Armours/Boots/FourBootsDexInt%d+
+
+#subType Armour/Evasion/Energy Shield
+#baseMatch Metadata/Items/Armours/Boots/FourBootsStrDexInt%d+
+
+#subType
+#base Metadata/Items/Armours/Boots/BootsDemigods1

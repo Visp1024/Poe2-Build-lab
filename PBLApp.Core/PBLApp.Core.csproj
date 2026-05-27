@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>PBLApp.ViewModels</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PBLEngine\PBLEngine.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\Strings.ru.resx">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Translations\gems_ru.json" />
+    <EmbeddedResource Include="Translations\items_ru.json" />
+    <EmbeddedResource Include="Translations\unique_names_ru.json" />
+    <EmbeddedResource Include="Translations\magic_affixes_ru.json" />
+    <EmbeddedResource Include="Translations\runes_ru.json" />
+    <EmbeddedResource Include="Translations\passive_nodes_ru.json" />
+    <EmbeddedResource Include="Translations\passive_names_ru.json" />
+    <EmbeddedResource Include="Translations\gem_meta_ru.json" />
+    <EmbeddedResource Include="Translations\gem_tags_ru.json" />
+    <EmbeddedResource Include="Translations\gem_stats_templates.json" />
+    <EmbeddedResource Include="Translations\skill_descriptions_ru.json" />
+    <EmbeddedResource Include="Translations\config_sections_ru.json" />
+    <EmbeddedResource Include="Translations\config_labels_ru.json" />
+  </ItemGroup>
+</Project>

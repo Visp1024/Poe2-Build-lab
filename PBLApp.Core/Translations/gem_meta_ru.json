@@ -1,0 +1,20 @@
+{
+  "Level": "Уровень",
+  "Cost Multiplier": "Множитель стоимости",
+  "Reservation Multiplier": "Множитель резерва",
+  "Reservation": "Резерв",
+  "Cost": "Стоимость",
+  "Cooldown Time": "Перезарядка",
+  "Attack Speed": "Скорость атаки",
+  "Attack Damage": "Урон от атаки",
+  "Cast Time": "Время применения",
+  "Critical Hit Chance": "Шанс крит. удара",
+  "Instant": "Мгновенное",
+  "Max": "Макс",
+  "sec": "сек",
+  "Mana": "Маны",
+  "Life": "Жизни",
+  "Energy Shield": "Щита энергии",
+  "Spirit": "Духа",
+  "of base": "от базовой"
+}

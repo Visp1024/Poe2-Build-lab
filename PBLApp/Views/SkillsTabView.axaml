@@ -1,0 +1,433 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             xmlns:loc="using:PBLApp.Localization"
+             xmlns:ctl="using:PBLApp.Controls"
+             x:Class="PBLApp.Views.SkillsTabView"
+             x:DataType="vm:SkillsTabViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#45475A" />
+        </Style>
+        <Style Selector="TextBlock.col-header">
+            <Setter Property="Foreground" Value="#585B70" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="ComboBox.gem-combo">
+            <Setter Property="Background" Value="#1E1E2E" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="BorderBrush" Value="#313244" />
+            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="ComboBox.gem-combo /template/ ContentPresenter#ContentPresenter">
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="ComboBox.gem-combo TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+        <Style Selector="ComboBox.gem-combo:focus">
+            <Setter Property="BorderBrush" Value="#89B4FA" />
+        </Style>
+        <Style Selector="NumericUpDown.gem-spin">
+            <Setter Property="Background" Value="#1E1E2E" />
+            <Setter Property="Foreground" Value="#CDD6F4" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#313244" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontFamily" Value="Cascadia Code,Consolas,monospace" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="MinWidth" Value="0" />
+        </Style>
+        <Style Selector="Button.icon-btn">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#585B70" />
+            <Setter Property="Padding" Value="2,0" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.icon-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#F38BA8" />
+        </Style>
+
+        <!-- Gem tooltip panel style -->
+        <Style Selector="ToolTip.gem-tip">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+    </UserControl.Styles>
+
+
+    <Grid ColumnDefinitions="260,*">
+
+        <!-- ── Left: active-gem list ──────────────────────────────────────── -->
+        <Border Grid.Column="0" Background="#181825"
+                BorderBrush="#45475A" BorderThickness="0,0,1,0">
+            <DockPanel>
+
+                <!-- Header: new-skill dropdown + New + Delete -->
+                <Border DockPanel.Dock="Top" Background="#1E1E2E" Padding="6,6"
+                        BorderBrush="#45475A" BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="Auto,5,*,Auto,Auto">
+                        <TextBlock Grid.Column="0"
+                                   Text="{loc:Tr Skill_Header}" FontWeight="Bold"
+                                   Foreground="#89B4FA" FontSize="12"
+                                   VerticalAlignment="Center" />
+
+                        <Border Grid.Column="1" Width="1" Background="#45475A" Margin="0,3" />
+
+                        <ComboBox Grid.Column="2"
+                                  Classes="gem-combo"
+                                  IsEditable="True"
+                                  HorizontalAlignment="Stretch"
+                                  Text="{Binding NewGroupGemName, Mode=TwoWay}"
+                                  MaxDropDownHeight="300"
+                                  Margin="4,0"
+                                  ToolTip.Tip="{loc:Tr Skill_AddTip}">
+                            <ComboBox.ItemsSource>
+                                <Binding Path="ActiveGemNameItems" />
+                            </ComboBox.ItemsSource>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:GemNameItem">
+                                    <Border HorizontalAlignment="Stretch" Background="Transparent"
+                                            ToolTip.ShowDelay="500">
+                                        <ToolTip.Tip>
+                                            <ToolTip x:CompileBindings="False" Padding="0"
+                                                     Background="Transparent" BorderThickness="0">
+                                                <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
+                                                        Padding="10,8" CornerRadius="4" MaxWidth="360"
+                                                        IsVisible="{Binding TooltipEntries, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                    <ItemsControl ItemsSource="{Binding TooltipEntries}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Panel>
+                                                                    <Border IsVisible="{Binding IsSep}" Height="1"
+                                                                            Background="#313244" Margin="0,3"/>
+                                                                    <TextBlock IsVisible="{Binding !IsSep}"
+                                                                               ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
+                                                                               FontFamily="Cascadia Code,Consolas,monospace"
+                                                                               FontSize="11" TextWrapping="Wrap" MaxWidth="340"/>
+                                                                </Panel>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </Border>
+                                            </ToolTip>
+                                        </ToolTip.Tip>
+                                        <TextBlock Text="{Binding DisplayName}" Foreground="{Binding Color}" FontSize="14" VerticalAlignment="Center" />
+                                    </Border>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <Button Grid.Column="3"
+                                Content="{loc:Tr Btn_New}"
+                                Command="{Binding AddGroupCommand}"
+                                Padding="7,2" FontSize="11" Margin="2,0" />
+
+                        <Button Grid.Column="4"
+                                Content="{loc:Tr Btn_Delete}"
+                                Command="{Binding SelectedGroup.RemoveGroupCommand}"
+                                Padding="7,2" FontSize="11" Margin="2,0,0,0"
+                                IsEnabled="{Binding SelectedGroup, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    </Grid>
+                </Border>
+
+                <!-- Group list — shows active gem name coloured by attribute -->
+                <ListBox ItemsSource="{Binding Groups}"
+                         SelectedItem="{Binding SelectedGroup}"
+                         Background="Transparent"
+                         BorderThickness="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SkillGroupViewModel">
+                            <Border HorizontalAlignment="Stretch" Background="Transparent"
+                                    ToolTip.ShowDelay="400">
+                                <ToolTip.Tip>
+                                    <ToolTip x:CompileBindings="False" Padding="0"
+                                             Background="Transparent" BorderThickness="0">
+                                        <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
+                                                Padding="10,8" CornerRadius="4" MaxWidth="360"
+                                                IsVisible="{Binding ActiveGem.TooltipEntries, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                            <ItemsControl ItemsSource="{Binding ActiveGem.TooltipEntries}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Panel>
+                                                            <Border IsVisible="{Binding IsSep}" Height="1"
+                                                                    Background="#313244" Margin="0,3"/>
+                                                            <TextBlock IsVisible="{Binding !IsSep}"
+                                                                       ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
+                                                                       FontFamily="Cascadia Code,Consolas,monospace"
+                                                                       FontSize="11" TextWrapping="Wrap" MaxWidth="340"/>
+                                                        </Panel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Border>
+                                    </ToolTip>
+                                </ToolTip.Tip>
+                                <Grid ColumnDefinitions="16,*,Auto" Height="24">
+                                    <TextBlock Grid.Column="0" Text="★"
+                                               Foreground="#F9E2AF"
+                                               IsVisible="{Binding IsMain}"
+                                               FontSize="10" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding ActiveGemName}"
+                                               Foreground="{Binding ListItemColor}"
+                                               FontSize="12" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Text="{loc:Tr Skill_Main}"
+                                               Foreground="#A6E3A1" FontSize="10"
+                                               IsVisible="{Binding IsMain}"
+                                               VerticalAlignment="Center" Margin="4,0,0,0" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+            </DockPanel>
+        </Border>
+
+        <!-- ── Right: group editor ────────────────────────────────────────── -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
+
+            <TextBlock Grid.Row="0" Grid.RowSpan="3"
+                       Text="{loc:Tr Skill_NoSelection}"
+                       IsVisible="{Binding !Groups.Count}"
+                       Foreground="#585B70" FontSize="12"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+            <!-- ── Active gem editor (header row) ── -->
+            <Border Grid.Row="0" Background="#1E1E2E" Padding="8,7"
+                    BorderBrush="#45475A" BorderThickness="0,0,0,1"
+                    IsVisible="{Binding SelectedGroup, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Grid ColumnDefinitions="*,Auto,88,Auto,88,Auto,Auto">
+
+                    <!-- Active gem name — read-only display (cannot be re-selected here;
+                         use the support-row slot or the "New skill" dropdown to change it) -->
+                    <Border Grid.Column="0" Background="Transparent"
+                            VerticalAlignment="Center" Padding="2,0"
+                            ToolTip.ShowDelay="400">
+                        <ToolTip.Tip>
+                            <ToolTip x:CompileBindings="False" Padding="0"
+                                     Background="Transparent" BorderThickness="0">
+                                <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
+                                        Padding="10,8" CornerRadius="4" MaxWidth="360"
+                                        IsVisible="{Binding SelectedGroup.ActiveGem.TooltipEntries, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <ItemsControl ItemsSource="{Binding SelectedGroup.ActiveGem.TooltipEntries}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Panel>
+                                                    <Border IsVisible="{Binding IsSep}" Height="1"
+                                                            Background="#313244" Margin="0,3"/>
+                                                    <TextBlock IsVisible="{Binding !IsSep}"
+                                                               ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
+                                                               FontFamily="Cascadia Code,Consolas,monospace"
+                                                               FontSize="11" TextWrapping="Wrap" MaxWidth="340"/>
+                                                </Panel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                            </ToolTip>
+                        </ToolTip.Tip>
+                        <TextBlock Text="{Binding SelectedGroup.ActiveGemName, FallbackValue=''}"
+                                   Foreground="{Binding SelectedGroup.ActiveGemColor, FallbackValue='#CDD6F4'}"
+                                   FontSize="15" FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Border>
+
+                    <!-- Level -->
+                    <TextBlock Grid.Column="1" Text="{loc:Tr Skill_ColLevel}"
+                               Classes="col-header" Margin="10,0,4,0" />
+                    <NumericUpDown Grid.Column="2"
+                                   Classes="gem-spin"
+                                   Value="{Binding SelectedGroup.ActiveGem.Level, Mode=TwoWay, FallbackValue=20}"
+                                   Minimum="1" Maximum="40" Increment="1"
+                                   FormatString="0" ShowButtonSpinner="True"
+                                   Width="86" Height="28" />
+
+                    <!-- Quality -->
+                    <TextBlock Grid.Column="3" Text="{loc:Tr Skill_ColQuality}"
+                               Classes="col-header" Margin="10,0,4,0" />
+                    <NumericUpDown Grid.Column="4"
+                                   Classes="gem-spin"
+                                   Value="{Binding SelectedGroup.ActiveGem.Quality, Mode=TwoWay, FallbackValue=0}"
+                                   Minimum="0" Maximum="30" Increment="5"
+                                   FormatString="0" ShowButtonSpinner="True"
+                                   Width="86" Height="28" />
+
+                    <!-- Group Enabled + Set as Main -->
+                    <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="4" Margin="10,0,4,0">
+                        <TextBlock Text="{loc:Tr Skill_LblOn}" Foreground="#A6ADC8" FontSize="12"
+                                   VerticalAlignment="Center" />
+                        <CheckBox IsChecked="{Binding SelectedGroup.IsEnabled, Mode=TwoWay, FallbackValue=True}"
+                                  VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <Button Grid.Column="6"
+                            Content="{loc:Tr Btn_StarMain}"
+                            Command="{Binding SetAsMainCommand}"
+                            Background="#313244" Foreground="#A6E3A1"
+                            Padding="8,4" FontSize="12" />
+                </Grid>
+            </Border>
+
+            <!-- ── Support gem column headers ── -->
+            <Border Grid.Row="1" Background="#13131D" Padding="4,3"
+                    BorderBrush="#45475A" BorderThickness="0,0,0,1"
+                    IsVisible="{Binding SelectedGroup, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Grid ColumnDefinitions="26,*,90,90,28">
+                    <TextBlock Grid.Column="1" Text="{loc:Tr Skill_ColSupport}" Classes="col-header" Margin="2,0" />
+                    <TextBlock Grid.Column="2" Text="{loc:Tr Skill_ColLevel}"   Classes="col-header" HorizontalAlignment="Center" />
+                    <TextBlock Grid.Column="3" Text="{loc:Tr Skill_ColQuality}" Classes="col-header" HorizontalAlignment="Center" />
+                    <TextBlock Grid.Column="4" Text="{loc:Tr Skill_ColOn}"      Classes="col-header" HorizontalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <!-- ── Support gem slots (always 5) ── -->
+            <ScrollViewer Grid.Row="2"
+                          IsVisible="{Binding SelectedGroup, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <ItemsControl ItemsSource="{Binding SelectedGroup.SupportSlots}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:GemViewModel">
+                            <Border Padding="4,3"
+                                    BorderBrush="#2A2A3E" BorderThickness="0,0,0,1"
+                                    Background="Transparent"
+                                    ToolTip.ShowDelay="400">
+                                <ToolTip.Tip>
+                                    <ToolTip x:CompileBindings="False" Padding="0"
+                                             Background="Transparent" BorderThickness="0">
+                                        <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
+                                                Padding="10,8" CornerRadius="4" MaxWidth="360"
+                                                IsVisible="{Binding !IsEmpty}">
+                                            <ItemsControl ItemsSource="{Binding TooltipEntries}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Panel>
+                                                            <Border IsVisible="{Binding IsSep}" Height="1"
+                                                                    Background="#313244" Margin="0,3"/>
+                                                            <TextBlock IsVisible="{Binding !IsSep}"
+                                                                       ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
+                                                                       FontFamily="Cascadia Code,Consolas,monospace"
+                                                                       FontSize="11" TextWrapping="Wrap" MaxWidth="340"/>
+                                                        </Panel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Border>
+                                    </ToolTip>
+                                </ToolTip.Tip>
+                                <Grid ColumnDefinitions="26,*,90,90,28" VerticalAlignment="Center">
+
+                                    <!-- Remove (hidden for empty slots) -->
+                                    <Button Grid.Column="0"
+                                            Classes="icon-btn"
+                                            Command="{Binding RemoveCommand}"
+                                            Content="✕"
+                                            IsVisible="{Binding !IsEmpty}"
+                                            Width="22" Height="22"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center" />
+
+                                    <!-- Support gem name: filtered + coloured items -->
+                                    <ComboBox Grid.Column="1"
+                                              Classes="gem-combo"
+                                              IsEditable="True"
+                                              HorizontalAlignment="Stretch"
+                                              Text="{Binding DisplayText, Mode=TwoWay}"
+                                              ItemsSource="{Binding FilteredGemNames}"
+                                              Foreground="{Binding NameForeground}"
+                                              SelectionChanged="SupportGemNameBox_SelectionChanged"
+                                              KeyDown="SupportGemNameBox_KeyDown"
+                                              LostFocus="GemNameBox_LostFocus"
+                                              MaxDropDownHeight="300">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:GemNameItem">
+                                                <Border HorizontalAlignment="Stretch" Background="Transparent"
+                                                        ToolTip.ShowDelay="500">
+                                                    <ToolTip.Tip>
+                                                        <ToolTip x:CompileBindings="False" Padding="0"
+                                                                 Background="Transparent" BorderThickness="0">
+                                                            <Border Background="#13131D" BorderBrush="#313244" BorderThickness="1"
+                                                                    Padding="10,8" CornerRadius="4" MaxWidth="360"
+                                                                    IsVisible="{Binding TooltipEntries, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                                <ItemsControl ItemsSource="{Binding TooltipEntries}">
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <Panel>
+                                                                                <Border IsVisible="{Binding IsSep}" Height="1"
+                                                                                        Background="#313244" Margin="0,3"/>
+                                                                                <TextBlock IsVisible="{Binding !IsSep}"
+                                                                                           ctl:InlinesHelper.Segments="{Binding Segments}" Foreground="{Binding Color}"
+                                                                                           FontFamily="Cascadia Code,Consolas,monospace"
+                                                                                           FontSize="11" TextWrapping="Wrap" MaxWidth="340"/>
+                                                                            </Panel>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                            </Border>
+                                                        </ToolTip>
+                                                    </ToolTip.Tip>
+                                                    <TextBlock Text="{Binding DisplayName}" Foreground="{Binding Color}" FontSize="14" VerticalAlignment="Center" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <!-- Level -->
+                                    <NumericUpDown Grid.Column="2"
+                                                   Classes="gem-spin"
+                                                   Value="{Binding Level, Mode=TwoWay}"
+                                                   IsEnabled="{Binding !IsEmpty}"
+                                                   Minimum="1" Maximum="40" Increment="1"
+                                                   FormatString="0" ShowButtonSpinner="True"
+                                                   Width="88" Height="28" />
+
+                                    <!-- Quality -->
+                                    <NumericUpDown Grid.Column="3"
+                                                   Classes="gem-spin"
+                                                   Value="{Binding Quality, Mode=TwoWay}"
+                                                   IsEnabled="{Binding !IsEmpty}"
+                                                   Minimum="0" Maximum="30" Increment="5"
+                                                   FormatString="0" ShowButtonSpinner="True"
+                                                   Width="88" Height="28" />
+
+                                    <!-- Enabled -->
+                                    <CheckBox Grid.Column="4"
+                                              IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                              IsEnabled="{Binding !IsEmpty}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+        </Grid>
+    </Grid>
+</UserControl>
