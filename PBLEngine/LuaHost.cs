@@ -1367,24 +1367,40 @@ public sealed class LuaHost : IDisposable
                 table.insert(stub.lines, { kind='text', size=14, text='^xFF5555Tooltip error: '..tostring(err),
                     center=0, block=1, font='' })
             end
-            return stub.lines
+            -- Serialize to a single string to dodge NLua LuaTable iteration quirks
+            -- (observed: long tooltip arrays drop entries when read field-by-field).
+            -- Format per line: kind|size|center|block|font|text — '\\x1F' (US) row delim.
+            local parts = {}
+            for _, l in ipairs(stub.lines) do
+                local kind = l.kind or 'text'
+                local size = tostring(l.size or 14)
+                local center = tostring(l.center or 0)
+                local block = tostring(l.block or 1)
+                local font = l.font or ''
+                local text = l.text or ''
+                -- Replace any inline tabs in text with spaces (none expected, defensive).
+                text = text:gsub('\t', ' ')
+                table.insert(parts, kind..'\t'..size..'\t'..center..'\t'..block..'\t'..font..'\t'..text)
+            end
+            return table.concat(parts, '\x1F')
         ");
         State["_ttItemId"]   = null;
         State["_ttSlotName"] = null;
 
-        if (result is { Length: > 0 } && result[0] is LuaTable tbl)
+        if (result is { Length: > 0 } && result[0] is string serialized && serialized.Length > 0)
         {
-            foreach (var k in tbl.Keys)
+            foreach (var row in serialized.Split('\x1F'))
             {
-                if (tbl[k] is not LuaTable row) continue;
-                var kind     = row["kind"]   as string ?? "text";
-                var size     = row["size"]   is long sz ? (int)sz : 14;
-                var text     = row["text"]   as string ?? "";
-                var centered = row["center"] is long c  && c == 1L;
-                var block    = row["block"]  is long bl ? (int)bl : 1;
-                var font     = row["font"]   as string;
-                lines.Add(new ItemTooltipLine(kind, size, text, centered, block,
-                    string.IsNullOrEmpty(font) ? null : font));
+                if (string.IsNullOrEmpty(row)) continue;
+                var parts = row.Split('\t', 6);
+                if (parts.Length < 6) continue;
+                var kind     = parts[0];
+                var size     = int.TryParse(parts[1], out var sz) ? sz : 14;
+                var centered = parts[2] == "1";
+                var block    = int.TryParse(parts[3], out var bl) ? bl : 1;
+                var font     = string.IsNullOrEmpty(parts[4]) ? null : parts[4];
+                var text     = parts[5];
+                lines.Add(new ItemTooltipLine(kind, size, text, centered, block, font));
             }
         }
         return lines;
@@ -1804,8 +1820,63 @@ public sealed class LuaHost : IDisposable
                 stage('parse', function() newItem = new('Item', sanitiseText(_updRaw)) end)
                 if not newItem then error('new returned nil') end
                 if not newItem.base then error('no .base on parsed item ('..tostring(newItem.baseName)..')') end
+                -- Editor's BuildRawText omits Variant: / Selected Variant: lines, so a
+                -- parsed unique loses its variant context. Without self.variant the
+                -- BuildModList path filters {variant:N}-tagged mods (CheckModLineVariant)
+                -- and the tooltip drops them. Fall back to the source unique's metadata.
+                if newItem.rarity == 'UNIQUE' and not newItem.variant and main and main.uniqueDB and main.uniqueDB.list then
+                    local key = (newItem.title or newItem.name)..', '..(newItem.baseName or '')
+                    local src = main.uniqueDB.list[key]
+                    if src and src.variantList then
+                        newItem.variantList     = src.variantList
+                        newItem.variant         = src.variant
+                        newItem.hasAltVariant   = src.hasAltVariant
+                        newItem.variantAlt      = src.variantAlt
+                        newItem.hasAltVariant2  = src.hasAltVariant2
+                        newItem.variantAlt2     = src.variantAlt2
+                        newItem.hasAltVariant3  = src.hasAltVariant3
+                        newItem.variantAlt3     = src.variantAlt3
+                        newItem.hasAltVariant4  = src.hasAltVariant4
+                        newItem.variantAlt4     = src.variantAlt4
+                        newItem.hasAltVariant5  = src.hasAltVariant5
+                        newItem.variantAlt5     = src.variantAlt5
+                        -- Restore variant-locked mod lines that the editor dropped because
+                        -- they weren't part of the current-variant view. Pull from the
+                        -- source unique's explicits and merge any not already present.
+                        if src.explicitModLines then
+                            local seen = {}
+                            for _, ml in ipairs(newItem.explicitModLines or {}) do seen[ml.line] = true end
+                            for _, ml in ipairs(src.explicitModLines) do
+                                if not seen[ml.line] then
+                                    -- shallow copy so mutations don't bleed into source DB
+                                    local copy = {}
+                                    for k, v in pairs(ml) do copy[k] = v end
+                                    table.insert(newItem.explicitModLines, copy)
+                                end
+                            end
+                        end
+                    end
+                end
                 -- Build the new item's own mod list first (validates the parsed state).
                 stage('newItem.BuildModList', function() newItem:BuildModList() end)
+                -- Rune mod lines aren't auto-derived from `Rune:` lines during ParseRaw —
+                -- the editor's emitted raw has no {rune}+... lines, so without this Bones
+                -- of Ullr loses its +10% to all elemental resistances rune-implicit on save.
+                -- Done AFTER BuildModList so the regenerated runeModLines are picked up by
+                -- the next BuildModList call (we do another below).
+                if newItem.UpdateRunes and newItem.runes and #newItem.runes > 0 then
+                    pcall(function() newItem:UpdateRunes() end)
+                    -- UpdateRunes builds rune mods without .modList / .extra; downstream
+                    -- (BuildModList, AddItemTooltip) does `modLine.modList[1]` which crashes
+                    -- on nil. Try to parse the line into a real modList, fall back to {}.
+                    for _, modLine in ipairs(newItem.runeModLines or {}) do
+                        if modLine.modList == nil then
+                            local list = modLib and modLib.parseMod and modLib.parseMod(modLine.line)
+                            modLine.modList = list or {}
+                        end
+                    end
+                    pcall(function() newItem:BuildModList() end)
+                end
                 -- Replace the existing item in the items table outright, preserving id.
                 stage('install', function()
                     newItem.id = existing.id
