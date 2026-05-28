@@ -604,6 +604,63 @@
                         </DockPanel>
                     </Border>
 
+                    <!-- ── Dedicated CORRUPTION picker (separate from the affix picker) ──
+                         Crimson-tinted shell so the user can see at a glance that this is
+                         the dangerous pipeline; uses CorruptionSearch + FilteredCorruptionAffixes. -->
+                    <Border Grid.Row="1"
+                            IsVisible="{Binding IsCorruptionPickerOpen}"
+                            Height="240"
+                            Margin="0,0,0,10"
+                            Background="#1A0A10"
+                            BorderBrush="#DD0022" BorderThickness="1"
+                            CornerRadius="3">
+                        <DockPanel Margin="8">
+                            <TextBlock DockPanel.Dock="Top"
+                                       Text="{loc:Tr Editor_CorruptionPickerHeader}"
+                                       Foreground="#DD0022" FontSize="12" FontWeight="Bold"
+                                       Margin="0,0,0,6"/>
+                            <TextBox DockPanel.Dock="Top"
+                                     Text="{Binding CorruptionSearch}"
+                                     Classes="ed-input"
+                                     Watermark="🔍 Search corruption..."
+                                     Margin="0,0,0,6"/>
+                            <Border Background="{DynamicResource BgBaseBrush}"
+                                    BorderBrush="#DD0022" BorderThickness="1">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding FilteredCorruptionAffixes}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="vm:AffixEntryViewModel">
+                                                <Button Classes="list-btn"
+                                                        Command="{Binding AddCommand}"
+                                                        ToolTip.Tip="{Binding Entry.AffixName}">
+                                                    <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="6">
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="C"
+                                                                   Foreground="#DD0022"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding TranslatedStatText}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}" FontSize="14"
+                                                                   FontFamily="Cascadia Code,Consolas,monospace"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{Binding Entry.Level, StringFormat='Lv {0}'}"
+                                                                   Foreground="{DynamicResource BorderStrongBrush}" FontSize="14"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,4,0"/>
+                                                    </Grid>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
+                        </DockPanel>
+                    </Border>
+
                     <!-- Mods list — Grid.Row=2 fills the remaining height in the left column. -->
                     <Border Grid.Row="2"
                             Padding="0,0,8,0"
