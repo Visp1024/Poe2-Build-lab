@@ -46,6 +46,21 @@ public sealed class TreeAssetStore : IDisposable
     /// Try to load the manifest for the given tree version.
     /// Returns null if assets are not yet converted (run tools/convert_tree_to_webp.py).
     /// </summary>
+    // Shared instance for non-tree consumers (e.g. ascendancy icons on the
+    // build-list grid). Lazily loaded; null if the asset bundle is missing.
+    private static TreeAssetStore? _default;
+    private static bool _defaultTried;
+    public static TreeAssetStore? Default
+    {
+        get
+        {
+            if (_default is not null || _defaultTried) return _default;
+            _defaultTried = true;
+            _default = TryLoad(AppContext.BaseDirectory);
+            return _default;
+        }
+    }
+
     public static TreeAssetStore? TryLoad(string repoRoot, string version = "0_4")
     {
         // Preferred path: assets copied next to the exe via <Content> (Assets/TreeData/<ver>/).

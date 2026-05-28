@@ -1,9 +1,11 @@
+using System;
+using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using PBLApp.Core.Localization;
 using PBLApp.ViewModels;
-using System;
 
 namespace PBLApp.Views;
 
@@ -14,23 +16,32 @@ public partial class BuildListView : UserControl
     public BuildListView()
     {
         InitializeComponent();
-
-        BuildTree.DoubleTapped += (_, _) =>
-        {
-            if (DataContext is BuildListViewModel vm)
-                vm.OpenBuildCommand.Execute(null);
-        };
-
+        DataContextChanged += OnDataContextChanged;
         Loaded   += OnLoaded;
         Unloaded += OnUnloaded;
+    }
+
+    private void OnDataContextChanged(object? sender, EventArgs e)
+    {
+        // Wire the VM's delete-confirmation hook to a real Avalonia modal.
+        if (DataContext is BuildListViewModel vm)
+            vm.ConfirmDeleteAsync = ConfirmDeleteAsync;
+    }
+
+    private async Task<bool> ConfirmDeleteAsync(string name)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        if (owner is null) return true;
+
+        var title = LocalizationService.Get("Dlg_DeleteTitle");
+        var fmt   = LocalizationService.Get("Dlg_DeleteBuildMsg");
+        var msg   = string.Format(fmt, name);
+        return await ConfirmDialog.ShowAsync(owner, title, msg);
     }
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
         LangCombo.DropDownClosed += LangCombo_DropDownClosed;
-
-        // Defer sync to after Avalonia's rendering pass — setting SelectedIndex
-        // synchronously in Loaded is reset by Avalonia on first render.
         Dispatcher.UIThread.Post(SyncLangCombo, DispatcherPriority.Render);
 
         _langChangedHandler = (_, _) => Dispatcher.UIThread.Post(SyncLangCombo, DispatcherPriority.Render);
@@ -65,5 +76,29 @@ public partial class BuildListView : UserControl
     {
         if (sender is ComboBox { SelectedItem: ComboBoxItem { Tag: string tag } })
             LocalizationService.Instance.SetLanguage(tag);
+    }
+
+    // ── Card click routing ────────────────────────────────────────────────
+
+    private void Card_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Only react to a primary-button release within the card itself.
+        if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
+        if (sender is not Border { Tag: BuildEntryViewModel entry }) return;
+        if (DataContext is not BuildListViewModel vm) return;
+
+        vm.OpenItemCommand.Execute(entry);
+        e.Handled = true;
+    }
+
+    private void DeleteCard_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
+        if (sender is not Border { Tag: BuildEntryViewModel entry }) return;
+        if (DataContext is not BuildListViewModel vm) return;
+
+        // Stop the press from bubbling up to Card_PointerPressed and re-opening the build.
+        e.Handled = true;
+        _ = vm.DeleteEntryCommand.ExecuteAsync(entry);
     }
 }

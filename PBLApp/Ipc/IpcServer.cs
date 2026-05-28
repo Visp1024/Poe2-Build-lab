@@ -210,8 +210,8 @@ public sealed class IpcServer
             {
                 language = lang,
                 page     = "BuildList",
-                buildCount = bl.Builds.Count,
-                selectedBuild = bl.SelectedBuild?.Name,
+                buildCount = EnumerateAllBuildFiles().Count(),
+                selectedBuild = (string?)null,
                 window = new { width = size.Item1, height = size.Item2 },
             },
             BuildPageViewModel bp => new
@@ -266,21 +266,23 @@ public sealed class IpcServer
 
     private static object ListBuilds()
     {
-        if (GetMainVm()?.CurrentPage is not BuildListViewModel bl)
+        if (GetMainVm()?.CurrentPage is not BuildListViewModel)
             return new { error = "Not on BuildList page." };
-        var flat = FlattenBuilds(bl.Builds);
-        return new { builds = flat.Select(b => new { name = b.Name, isFolder = b.IsFolder }).ToArray() };
+        var builds = EnumerateAllBuildFiles()
+            .Select(f => new { name = System.IO.Path.GetFileNameWithoutExtension(f), isFolder = false })
+            .ToArray();
+        return new { builds };
     }
 
-    private static List<BuildEntryViewModel> FlattenBuilds(IEnumerable<BuildEntryViewModel> items)
+    /// <summary>Recursively list all *.xml build files under the Builds root.</summary>
+    private static IEnumerable<string> EnumerateAllBuildFiles()
     {
-        var result = new List<BuildEntryViewModel>();
-        foreach (var it in items)
-        {
-            result.Add(it);
-            if (it.IsFolder) result.AddRange(FlattenBuilds(it.Children));
-        }
-        return result;
+        var root = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "PathOfBuilding2", "Builds");
+        if (!System.IO.Directory.Exists(root)) yield break;
+        foreach (var f in System.IO.Directory.EnumerateFiles(root, "*.xml", System.IO.SearchOption.AllDirectories))
+            yield return f;
     }
 
     private static object OpenBuild(string body)
@@ -291,17 +293,19 @@ public sealed class IpcServer
         if (!req.TryGetValue("name", out var name) || string.IsNullOrWhiteSpace(name))
             return new { error = "Missing 'name'." };
 
-        var match = FlattenBuilds(bl.Builds).Where(e => !e.IsFolder)
-            .FirstOrDefault(e =>
-                e.Name.Equals(name, StringComparison.OrdinalIgnoreCase) ||
-                e.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+        var match = EnumerateAllBuildFiles()
+            .FirstOrDefault(f =>
+            {
+                var n = System.IO.Path.GetFileNameWithoutExtension(f);
+                return n.Equals(name, StringComparison.OrdinalIgnoreCase)
+                    || n.Contains(name, StringComparison.OrdinalIgnoreCase);
+            });
         if (match is null) return new { error = $"Build '{name}' not found." };
 
-        bl.SelectedBuild = match;
-        if (!bl.OpenBuildCommand.CanExecute(null))
-            return new { error = "OpenBuildCommand cannot execute." };
-        bl.OpenBuildCommand.Execute(null);
-        return new { ok = true, opened = match.Name };
+        var entry = new BuildEntryViewModel(
+            System.IO.Path.GetFileNameWithoutExtension(match)!, match, BuildEntryKind.Build);
+        bl.OpenItemCommand.Execute(entry);
+        return new { ok = true, opened = entry.Name };
     }
 
     private static object GoBack()

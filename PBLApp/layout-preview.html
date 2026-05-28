@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Items layout preview — Canvas style</title>
+<style>
+    :root {
+        --bg-base:    #11111b;
+        --bg-mantle:  #181825;
+        --bg-surf:    #313244;
+        --bg-raised:  #45475a;
+        --border:     #585b70;
+        --text:       #cdd6f4;
+        --muted:      #6c7086;
+        --gold:       #f9e2af;
+        --orange:     #fab387;
+        --magic:      #89b4fa;
+    }
+    body { background: var(--bg-base); color: var(--text); font-family: Segoe UI, sans-serif; margin: 24px; }
+    h1 { color: var(--gold); }
+    h2 { color: var(--gold); margin: 32px 0 8px; border-bottom: 1px solid var(--bg-raised); padding-bottom: 4px; }
+    p { color: #a6adc8; line-height: 1.5; }
+    .row { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+
+    .canvas {
+        position: relative;
+        background: var(--bg-mantle);
+        border: 1px solid var(--bg-raised);
+        border-radius: 8px;
+    }
+    .slot {
+        position: absolute;
+        background: var(--bg-surf);
+        border: 2px solid var(--bg-raised);
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        color: var(--muted);
+    }
+    .slot img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .slot .lbl { text-transform: uppercase; opacity: 0.6; font-weight: 600; padding: 3px; text-align: center; }
+    .rare   { border-color: var(--gold); }
+    .uniq   { border-color: var(--orange); }
+    .magic  { border-color: var(--magic); }
+</style>
+</head>
+<body>
+
+<h1>Canvas-стиль: предметы на своих позициях, без сетки</h1>
+<p>Слоты — фиксированные пиксельные прямоугольники <b>игровых размеров</b>, расположены свободно с естественными промежутками. Никакого "вытягивания" под клетки.<br>
+Game cell unit = 50 dip. Helmet 2×2 = 100×100, Body 2×3 = 100×150, Weapon 2×4 = 100×200, Belt 2×1 = 100×50, Amulet/Ring/Charm 1×1 = 50×50, Flask 1×2 = 50×100, Gloves/Boots 2×2 = 100×100.</p>
+
+<div class="row">
+
+<!-- ────────────────────── Variant A: GAME-FAITHFUL ────────────────────── -->
+<div>
+    <h2>A. Игровая раскладка PoE2 (Belt+Ring между телом и сапогами)</h2>
+    <p>Близко к игровому инвентарю: пояс между кольцами в одной строке под телом, гантели/сапоги ниже.</p>
+    <div class="canvas" style="width: 500px; height: 540px;">
+        <!-- Weapon1 -->
+        <div class="slot uniq"  style="left:10px; top:10px; width:100px; height:200px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Weapons/TwoHandWeapons/Bows/Basetypes/Bow01.webp"></div>
+        <!-- Helmet (centre top) -->
+        <div class="slot rare"  style="left:170px; top:10px; width:100px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Armours/Helmets/Uniques/AlphasHowl.webp"></div>
+        <!-- Amulet -->
+        <div class="slot magic" style="left:280px; top:35px; width:50px; height:50px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Amulets/Basetypes/AzureAmulet.webp"></div>
+        <!-- Weapon2 -->
+        <div class="slot uniq"  style="left:390px; top:10px; width:100px; height:200px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Weapons/TwoHandWeapons/Bows/Basetypes/Bow02.webp"></div>
+        <!-- Body -->
+        <div class="slot rare"  style="left:170px; top:120px; width:100px; height:150px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Armours/BodyArmours/Basetypes/BodyIntStr01.webp"></div>
+        <!-- Ring1 + Belt + Ring2 in a row -->
+        <div class="slot magic" style="left:115px; top:280px; width:50px; height:50px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Rings/Basetypes/GoldRing.webp"></div>
+        <div class="slot"       style="left:175px; top:280px; width:100px; height:50px;"><span class="lbl">Пояс</span></div>
+        <div class="slot magic" style="left:285px; top:280px; width:50px; height:50px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Rings/Uniques/DemigodsBand.webp"></div>
+        <!-- Gloves / Boots -->
+        <div class="slot"       style="left:10px;  top:340px; width:100px; height:100px;"><span class="lbl">Перчатки</span></div>
+        <div class="slot"       style="left:390px; top:340px; width:100px; height:100px;"><span class="lbl">Сапоги</span></div>
+        <!-- Charms row (3) -->
+        <div class="slot magic" style="left:155px; top:340px; width:50px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Charms/Basetypes/AmethystCharm.webp"></div>
+        <div class="slot magic" style="left:215px; top:340px; width:50px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Charms/Basetypes/AntidoteCharm.webp"></div>
+        <div class="slot magic" style="left:275px; top:340px; width:50px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Charms/Basetypes/DousingCharm.webp"></div>
+        <!-- Flasks row -->
+        <div class="slot magic" style="left:155px; top:450px; width:50px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Flasks/Basetypes/FlaskLife01.webp"></div>
+        <div class="slot magic" style="left:275px; top:450px; width:50px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Flasks/Basetypes/FlaskLife02.webp"></div>
+    </div>
+</div>
+
+<!-- ────────────────────── Variant B: USER SPEC ────────────────────── -->
+<div>
+    <h2>B. Твоё ТЗ (Belt под телом, кольца у тела)</h2>
+    <p>Кольца сидят прямо у боков тела, не на уровне пояса. Пояс — под телом. Амулет в верхнем-правом углу.</p>
+    <div class="canvas" style="width: 500px; height: 580px;">
+        <!-- Weapon1 -->
+        <div class="slot uniq"  style="left:10px; top:10px; width:100px; height:260px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Weapons/TwoHandWeapons/Bows/Basetypes/Bow01.webp"></div>
+        <!-- Helmet + Amulet at top -->
+        <div class="slot rare"  style="left:170px; top:10px; width:100px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Armours/Helmets/Uniques/AlphasHowl.webp"></div>
+        <div class="slot magic" style="left:300px; top:30px; width:50px; height:50px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Amulets/Basetypes/AzureAmulet.webp"></div>
+        <!-- Weapon2 -->
+        <div class="slot uniq"  style="left:390px; top:10px; width:100px; height:260px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Weapons/TwoHandWeapons/Bows/Basetypes/Bow02.webp"></div>
+        <!-- Body -->
+        <div class="slot rare"  style="left:170px; top:120px; width:100px; height:150px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Armours/BodyArmours/Basetypes/BodyIntStr01.webp"></div>
+        <!-- Rings flanking body -->
+        <div class="slot magic" style="left:115px; top:160px; width:50px; height:60px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Rings/Basetypes/GoldRing.webp"></div>
+        <div class="slot magic" style="left:275px; top:160px; width:50px; height:60px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Rings/Uniques/DemigodsBand.webp"></div>
+        <!-- Belt under body -->
+        <div class="slot"       style="left:170px; top:280px; width:100px; height:50px;"><span class="lbl">Пояс</span></div>
+        <!-- Gloves / Boots -->
+        <div class="slot"       style="left:10px;  top:340px; width:100px; height:100px;"><span class="lbl">Перчатки</span></div>
+        <div class="slot"       style="left:390px; top:340px; width:100px; height:100px;"><span class="lbl">Сапоги</span></div>
+        <!-- Charms row centred -->
+        <div class="slot magic" style="left:155px; top:340px; width:60px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Charms/Basetypes/AmethystCharm.webp"></div>
+        <div class="slot magic" style="left:220px; top:340px; width:60px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Charms/Basetypes/AntidoteCharm.webp"></div>
+        <div class="slot magic" style="left:285px; top:340px; width:60px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Charms/Basetypes/DousingCharm.webp"></div>
+        <!-- Flasks bottom -->
+        <div class="slot magic" style="left:170px; top:460px; width:50px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Flasks/Basetypes/FlaskLife01.webp"></div>
+        <div class="slot magic" style="left:225px; top:460px; width:50px; height:100px;"><img src="file:///D:/Work/PathBuildLab/PBLExport/icons/cache/Art/2DItems/Flasks/Basetypes/FlaskLife02.webp"></div>
+    </div>
+</div>
+
+</div>
+
+<h2>Главные отличия от прошлой реализации</h2>
+<ul style="line-height:1.7">
+    <li>Никаких <code>Grid</code> — переход на <code>Canvas</code> с <code>Canvas.Left</code>/<code>Canvas.Top</code>/<code>Width</code>/<code>Height</code></li>
+    <li>Предметы не "вытягиваются" под клетки — у каждого слота своё фиксированное соотношение сторон</li>
+    <li>Между группами слотов — естественные промежутки (40-60 dip), не равномерная решётка</li>
+    <li>Drag-drop по-прежнему через Tag на Border'ах</li>
+</ul>
+
+<p style="color:var(--muted); font-size:11px;">Открой в браузере. Скажи какой из A/B брать (или что в нём подправить — двинуть слот, поменять размер).</p>
+
+</body>
+</html>
