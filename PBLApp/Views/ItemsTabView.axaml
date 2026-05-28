@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
              xmlns:loc="using:PBLApp.Localization"
+             xmlns:ctl="using:PBLApp.Controls"
              x:Class="PBLApp.Views.ItemsTabView"
              x:DataType="vm:ItemsTabViewModel">
 
@@ -207,11 +208,15 @@
 
     </UserControl.Styles>
 
-    <!-- Root: left panel | splitter | right panel -->
-    <Grid ColumnDefinitions="540,5,*">
+    <!-- Root: left panel | splitter | right panel
+         Default 50/50 split (resizable via the GridSplitter). The slot canvas is
+         a fixed 540×530 pixel layout, so we set MinWidth on the left container to
+         that width — shrinking below would clip Canvas-positioned slots. -->
+    <Grid ColumnDefinitions="*,5,*">
 
         <!-- ── Left panel ──────────────────────────────────────────────────── -->
         <Border Grid.Column="0"
+                MinWidth="540"
                 Background="{DynamicResource BgMantleBrush}"
                 BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,1,0">
 
@@ -314,7 +319,7 @@
                                 <Border Canvas.Left="197" Canvas.Top="15" Width="145" Height="115" Classes="slot-cell"
                                         Classes.selected="{Binding Helmet.IsSelected}"
                                         BorderBrush="{Binding Helmet.NameColor}"
-                                        Tag="slot:Helmet" ToolTip.Tip="{Binding Helmet.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Helmet" ctl:StyledHoverTooltip.Source="{Binding Helmet.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Helmet.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -333,7 +338,7 @@
                                 <Border Canvas.Left="348" Canvas.Top="60" Width="70" Height="70" Classes="slot-cell"
                                         Classes.selected="{Binding Amulet.IsSelected}"
                                         BorderBrush="{Binding Amulet.NameColor}"
-                                        Tag="slot:Amulet" ToolTip.Tip="{Binding Amulet.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Amulet" ctl:StyledHoverTooltip.Source="{Binding Amulet.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Amulet.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -353,7 +358,7 @@
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon1.IsSelected}"
                                         BorderBrush="{Binding Weapon1.NameColor}"
-                                        Tag="slot:Weapon 1" ToolTip.Tip="{Binding Weapon1.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Weapon 1" ctl:StyledHoverTooltip.Source="{Binding Weapon1.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Weapon1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -373,7 +378,7 @@
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon1Swap.IsSelected}"
                                         BorderBrush="{Binding Weapon1Swap.NameColor}"
-                                        Tag="slot:Weapon 1 Swap" ToolTip.Tip="{Binding Weapon1Swap.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Weapon 1 Swap" ctl:StyledHoverTooltip.Source="{Binding Weapon1Swap.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Weapon1Swap.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -392,7 +397,7 @@
                                 <Border Canvas.Left="197" Canvas.Top="140" Width="145" Height="175" Classes="slot-cell"
                                         Classes.selected="{Binding BodyArmour.IsSelected}"
                                         BorderBrush="{Binding BodyArmour.NameColor}"
-                                        Tag="slot:Body Armour" ToolTip.Tip="{Binding BodyArmour.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Body Armour" ctl:StyledHoverTooltip.Source="{Binding BodyArmour.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding BodyArmour.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -411,7 +416,7 @@
                                 <Border Canvas.Left="122" Canvas.Top="147" Width="70" Height="70" Classes="slot-cell"
                                         Classes.selected="{Binding Ring1.IsSelected}"
                                         BorderBrush="{Binding Ring1.NameColor}"
-                                        Tag="slot:Ring 1" ToolTip.Tip="{Binding Ring1.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Ring 1" ctl:StyledHoverTooltip.Source="{Binding Ring1.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Ring1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -430,7 +435,7 @@
                                 <Border Canvas.Left="348" Canvas.Top="147" Width="70" Height="70" Classes="slot-cell"
                                         Classes.selected="{Binding Ring2.IsSelected}"
                                         BorderBrush="{Binding Ring2.NameColor}"
-                                        Tag="slot:Ring 2" ToolTip.Tip="{Binding Ring2.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Ring 2" ctl:StyledHoverTooltip.Source="{Binding Ring2.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Ring2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -450,7 +455,7 @@
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon2.IsSelected}"
                                         BorderBrush="{Binding Weapon2.NameColor}"
-                                        Tag="slot:Weapon 2" ToolTip.Tip="{Binding Weapon2.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Weapon 2" ctl:StyledHoverTooltip.Source="{Binding Weapon2.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Weapon2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -470,7 +475,7 @@
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon2Swap.IsSelected}"
                                         BorderBrush="{Binding Weapon2Swap.NameColor}"
-                                        Tag="slot:Weapon 2 Swap" ToolTip.Tip="{Binding Weapon2Swap.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Weapon 2 Swap" ctl:StyledHoverTooltip.Source="{Binding Weapon2Swap.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Weapon2Swap.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -489,7 +494,7 @@
                                 <Border Canvas.Left="197" Canvas.Top="325" Width="145" Height="60" Classes="slot-cell"
                                         Classes.selected="{Binding Belt.IsSelected}"
                                         BorderBrush="{Binding Belt.NameColor}"
-                                        Tag="slot:Belt" ToolTip.Tip="{Binding Belt.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Belt" ctl:StyledHoverTooltip.Source="{Binding Belt.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Belt.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -508,7 +513,7 @@
                                 <Border Canvas.Left="60" Canvas.Top="259" Width="132" Height="126" Classes="slot-cell"
                                         Classes.selected="{Binding Gloves.IsSelected}"
                                         BorderBrush="{Binding Gloves.NameColor}"
-                                        Tag="slot:Gloves" ToolTip.Tip="{Binding Gloves.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Gloves" ctl:StyledHoverTooltip.Source="{Binding Gloves.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Gloves.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -527,7 +532,7 @@
                                 <Border Canvas.Left="348" Canvas.Top="259" Width="132" Height="126" Classes="slot-cell"
                                         Classes.selected="{Binding Boots.IsSelected}"
                                         BorderBrush="{Binding Boots.NameColor}"
-                                        Tag="slot:Boots" ToolTip.Tip="{Binding Boots.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Boots" ctl:StyledHoverTooltip.Source="{Binding Boots.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Boots.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -546,7 +551,7 @@
                                 <Border Canvas.Left="190" Canvas.Top="405" Width="50" Height="100" Classes="slot-cell"
                                         Classes.selected="{Binding Charm1.IsSelected}"
                                         BorderBrush="{Binding Charm1.NameColor}"
-                                        Tag="slot:Charm 1" ToolTip.Tip="{Binding Charm1.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Charm 1" ctl:StyledHoverTooltip.Source="{Binding Charm1.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Charm1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -563,7 +568,7 @@
                                 <Border Canvas.Left="245" Canvas.Top="405" Width="50" Height="100" Classes="slot-cell"
                                         Classes.selected="{Binding Charm2.IsSelected}"
                                         BorderBrush="{Binding Charm2.NameColor}"
-                                        Tag="slot:Charm 2" ToolTip.Tip="{Binding Charm2.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Charm 2" ctl:StyledHoverTooltip.Source="{Binding Charm2.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Charm2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -580,7 +585,7 @@
                                 <Border Canvas.Left="300" Canvas.Top="405" Width="50" Height="100" Classes="slot-cell"
                                         Classes.selected="{Binding Charm3.IsSelected}"
                                         BorderBrush="{Binding Charm3.NameColor}"
-                                        Tag="slot:Charm 3" ToolTip.Tip="{Binding Charm3.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Charm 3" ctl:StyledHoverTooltip.Source="{Binding Charm3.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Charm3.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -599,7 +604,7 @@
                                 <Border Canvas.Left="95" Canvas.Top="395" Width="60" Height="120" Classes="slot-cell"
                                         Classes.selected="{Binding Flask1.IsSelected}"
                                         BorderBrush="{Binding Flask1.NameColor}"
-                                        Tag="slot:Flask 1" ToolTip.Tip="{Binding Flask1.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Flask 1" ctl:StyledHoverTooltip.Source="{Binding Flask1.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Flask1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -618,7 +623,7 @@
                                 <Border Canvas.Left="390" Canvas.Top="395" Width="60" Height="120" Classes="slot-cell"
                                         Classes.selected="{Binding Flask2.IsSelected}"
                                         BorderBrush="{Binding Flask2.NameColor}"
-                                        Tag="slot:Flask 2" ToolTip.Tip="{Binding Flask2.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                                        Tag="slot:Flask 2" ctl:StyledHoverTooltip.Source="{Binding Flask2.HoverTooltip}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Flask2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -786,7 +791,7 @@
                                                     <Button Classes="pool-btn"
                                                             Classes.selected="{Binding IsSelected}"
                                                             Tag="{Binding ItemId, StringFormat='pool:{0}'}"
-                                                            ToolTip.Tip="{Binding HoverTooltipText}"
+                                                            ctl:StyledHoverTooltip.Source="{Binding HoverTooltip}"
                                                             ToolTip.ShowDelay="400"
                                                             ToolTip.Placement="Pointer">
                                                         <Grid ColumnDefinitions="Auto,*,Auto,Auto">
