@@ -924,53 +924,10 @@
                 </ScrollViewer>
             </DockPanel>
 
-            <!-- ── (B) Editor with optional equip strip ─────────────────────── -->
-            <DockPanel IsVisible="{Binding IsEditorOpen}" LastChildFill="True">
-
-                <!-- Equip strip — pool items only -->
-                <Border DockPanel.Dock="Top"
-                        IsVisible="{Binding IsEquipStripVisible}"
-                        Background="{DynamicResource BgMantleBrush}"
-                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,0,1"
-                        Padding="10,6">
-                    <Grid ColumnDefinitions="Auto,*,8,Auto,8,Auto,8,Auto">
-                        <TextBlock Grid.Column="0"
-                                   Text="{Binding PoolItemName}"
-                                   Foreground="{Binding PoolItemNameColor}"
-                                   FontWeight="SemiBold" FontSize="12"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"/>
-                        <ComboBox Grid.Column="1"
-                                  ItemsSource="{Binding CompatibleSlots}"
-                                  SelectedItem="{Binding SelectedEquipSlot}"
-                                  Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}"
-                                  Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12"
-                                  HorizontalAlignment="Stretch"/>
-                        <Button Grid.Column="3"
-                                Content="{loc:Tr Item_Equip}"
-                                Command="{Binding EquipPoolItemCommand}"
-                                Background="{DynamicResource BgRaisedBrush}"
-                                BorderBrush="{DynamicResource AttrDexBrush}" BorderThickness="1"
-                                Foreground="{DynamicResource AttrDexBrush}" FontSize="12" Padding="10,4"/>
-                        <Button Grid.Column="5"
-                                Content="{loc:Tr Item_Unequip}"
-                                IsVisible="{Binding PoolItemIsEquipped}"
-                                Command="{Binding UnequipPoolItemCommand}"
-                                Classes="danger" FontSize="12"/>
-                        <Border Grid.Column="7"
-                                IsVisible="{Binding PoolItemIsEquipped}"
-                                Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource AttrIntBrush}" BorderThickness="1"
-                                CornerRadius="3" Padding="8,3" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding PoolItemEquippedSlot, StringFormat='✔ {0}'}"
-                                       Foreground="{DynamicResource AttrIntBrush}" FontSize="10"/>
-                        </Border>
-                    </Grid>
-                </Border>
-
-                <!-- Inline editor -->
-                <ContentControl Content="{Binding ItemEditor}"/>
-
-            </DockPanel>
+            <!-- ── (B) Editor — equip strip removed; equip/unequip live on the
+                 pool entries themselves. -->
+            <ContentControl IsVisible="{Binding IsEditorOpen}"
+                            Content="{Binding ItemEditor}"/>
 
         </Panel>
 
