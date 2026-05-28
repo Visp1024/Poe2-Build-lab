@@ -49,14 +49,16 @@
             </Grid>
         </Border>
 
-        <!-- Sidebar summary strip (visible when build is loaded) -->
+        <!-- Sidebar summary strip + unified main-skill selector (visible when build is loaded).
+             Stats on the left, vertical divider, then main-skill selector. Replaces the
+             per-tab selector in CalcsTabView and the "Set as Main" button in SkillsTabView. -->
         <Border Grid.Row="1"
                 Background="{DynamicResource BgSurfaceBrush}"
                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="0,0,0,1"
                 Padding="{StaticResource PaddingSidebar}"
                 IsVisible="{Binding Build, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <StackPanel Orientation="Horizontal" Spacing="24">
+            <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <TextBlock Text="{loc:Tr Sidebar_DPS}" Classes="caption" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Build.TotalDps, StringFormat={}{0:N0}}"
@@ -98,6 +100,41 @@
                                Classes="num-md"
                                Foreground="{DynamicResource StatEvasionBrush}"
                                VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Divider between stats and main-skill selector -->
+                <Border Width="1"
+                        Background="{DynamicResource BorderStrongBrush}"
+                        Margin="4,2"
+                        IsVisible="{Binding CalcsTab, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+                <!-- Unified main-skill selector. Binds to CalcsTab's SkillGroups/SelectedSkillGroup,
+                     which drives main skill via OnSelectedSkillGroupChanged → SetActiveSkillGroup. -->
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"
+                            IsVisible="{Binding CalcsTab, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <TextBlock Text="&#x2605;"
+                               Foreground="{DynamicResource Brand400Brush}"
+                               FontSize="14"
+                               VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding CalcsTab.SkillGroups}"
+                              SelectedItem="{Binding CalcsTab.SelectedSkillGroup}"
+                              MinWidth="240">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SkillGroupDisplayVm">
+                                <TextBlock Text="{Binding DisplayName}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <ComboBox ItemsSource="{Binding CalcsTab.ActiveSkills}"
+                              SelectedItem="{Binding CalcsTab.SelectedActiveSkill}"
+                              IsVisible="{Binding CalcsTab.HasMultipleActiveSkills}"
+                              MinWidth="180">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ActiveSkillDisplayVm">
+                                <TextBlock Text="{Binding DisplayName}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </StackPanel>
             </StackPanel>
         </Border>

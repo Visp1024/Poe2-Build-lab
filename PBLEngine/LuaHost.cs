@@ -371,11 +371,16 @@ public sealed class LuaHost : IDisposable
             local out = {}
             for i, skill in ipairs(dsl) do
                 local name = ''
+                local isTrig = false
                 if skill.activeEffect and skill.activeEffect.grantedEffect then
                     name = strip(skill.activeEffect.grantedEffect.name or '')
+                    local types = skill.activeEffect.grantedEffect.skillTypes
+                    if types and (types[32] or types[122]) then  -- Triggers / Meta
+                        isTrig = true
+                    end
                 end
                 if name == '' then name = string.format('Skill %d', i) end
-                table.insert(out, { i, name })
+                table.insert(out, { i, name, isTrig and 1 or 0 })
             end
             return out
         ");
@@ -387,7 +392,10 @@ public sealed class LuaHost : IDisposable
                 if (tbl[k] is not NLua.LuaTable row) continue;
                 var idx  = row[1L] is long l ? (int)l : 0;
                 var name = row[2L] as string ?? $"Skill {idx}";
-                skills.Add(new ActiveSkillEntry(idx, name));
+                // Lua bools occasionally round-trip oddly through NLua; using 0/1 makes the
+                // boundary explicit.
+                var isTrig = row[3L] is long t && t != 0;
+                skills.Add(new ActiveSkillEntry(idx, name, isTrig));
             }
         }
         return skills;
@@ -425,6 +433,21 @@ public sealed class LuaHost : IDisposable
     {
         var result = State.DoString("return (build and build.mainSocketGroup) or 0");
         return result is { Length: > 0 } && result[0] is long l ? (int)l : 0;
+    }
+
+    /// <summary>Returns the currently chosen active-skill index inside a socket group
+    /// (1-based, matches GetActiveSkillsInGroup ordering). Falls back to 1.</summary>
+    public int GetMainActiveSkillIndex(int groupIndex)
+    {
+        State["_grpIdx"] = (long)groupIndex;
+        var result = State.DoString(@"
+            if not (build and build.skillsTab) then return 1 end
+            local group = build.skillsTab.socketGroupList[_grpIdx]
+            if not group then return 1 end
+            return group.mainActiveSkill or 1
+        ");
+        State["_grpIdx"] = null;
+        return result is { Length: > 0 } && result[0] is long l ? (int)l : 1;
     }
 
     public List<GemEntry> GetGemsInGroup(int groupIndex)

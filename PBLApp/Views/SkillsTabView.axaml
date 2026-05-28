@@ -246,7 +246,7 @@
                                         </Border>
                                     </ToolTip>
                                 </ToolTip.Tip>
-                                <Grid ColumnDefinitions="18,*,Auto" Height="30">
+                                <Grid ColumnDefinitions="18,*" Height="30">
                                     <TextBlock Grid.Column="0" Text="★"
                                                Foreground="{DynamicResource Brand400Brush}"
                                                IsVisible="{Binding IsMain}"
@@ -257,10 +257,6 @@
                                                FontSize="14" FontWeight="Medium"
                                                VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Grid.Column="2" Text="{loc:Tr Skill_Main}"
-                                               Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
-                                               IsVisible="{Binding IsMain}"
-                                               VerticalAlignment="Center" Margin="4,0,0,0" />
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -283,7 +279,7 @@
             <Border Grid.Row="0" Background="{DynamicResource BgMantleBrush}" Padding="8,7"
                     BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,0,1"
                     IsVisible="{Binding SelectedGroup, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <Grid ColumnDefinitions="*,Auto,88,Auto,88,Auto,Auto">
+                <Grid ColumnDefinitions="*,Auto,88,Auto,88,Auto">
 
                     <!-- Active gem name — read-only display (cannot be re-selected here;
                          use the support-row slot or the "New skill" dropdown to change it) -->
@@ -340,19 +336,13 @@
                                    FormatString="0" ShowButtonSpinner="True"
                                    Width="86" Height="28" />
 
-                    <!-- Group Enabled + Set as Main -->
+                    <!-- Group Enabled (main-skill toggle moved to unified top selector) -->
                     <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="4" Margin="10,0,4,0">
                         <TextBlock Text="{loc:Tr Skill_LblOn}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
                                    VerticalAlignment="Center" />
                         <CheckBox IsChecked="{Binding SelectedGroup.IsEnabled, Mode=TwoWay, FallbackValue=True}"
                                   VerticalAlignment="Center" />
                     </StackPanel>
-
-                    <Button Grid.Column="6"
-                            Content="{loc:Tr Btn_StarMain}"
-                            Command="{Binding SetAsMainCommand}"
-                            Background="{DynamicResource BgRaisedBrush}" Foreground="{DynamicResource AttrDexBrush}"
-                            Padding="8,4" FontSize="12" />
                 </Grid>
             </Border>
 

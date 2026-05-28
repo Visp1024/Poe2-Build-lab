@@ -13,7 +13,7 @@ public record ConfigListItem(string Val, string Label);
 
 public record SkillGroupEntry(int Index, string Name, string Label = "", bool IsEnabled = true, bool IsTrigger = false);
 
-public record ActiveSkillEntry(int Index, string Name);
+public record ActiveSkillEntry(int Index, string Name, bool IsTrigger = false);
 
 public record ModifierEntry(string Value, string ModType, string Source, string SourceName);
 

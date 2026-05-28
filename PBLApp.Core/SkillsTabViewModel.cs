@@ -499,6 +499,22 @@ public partial class SkillsTabViewModel : ViewModelBase
 
     private bool CanSetAsMain() => SelectedGroup is not null;
 
+    /// <summary>Refresh IsMain flags and sync SelectedGroup to the new main when the
+    /// main skill is changed from outside (e.g. the unified top selector in BuildPageView).
+    /// Avoids the heavy full Refresh().</summary>
+    public void RefreshMainFlag()
+    {
+        var mainIdx = _host.GetMainSkillGroupIndex();
+        SkillGroupViewModel? newMain = null;
+        foreach (var g in Groups)
+        {
+            g.IsMain = g.Index == mainIdx;
+            if (g.IsMain) newMain = g;
+        }
+        if (newMain is not null && !ReferenceEquals(SelectedGroup, newMain))
+            SelectedGroup = newMain;
+    }
+
     partial void OnSelectedGroupChanged(SkillGroupViewModel? value)
         => SetAsMainCommand.NotifyCanExecuteChanged();
 

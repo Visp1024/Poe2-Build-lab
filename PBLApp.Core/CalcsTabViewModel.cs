@@ -93,6 +93,7 @@ public partial class CalcsTabViewModel : ViewModelBase
     [ObservableProperty] private string _combinedDpsText = "—";
 
     private bool _suppressSkillChange;
+    private readonly Action? _onMainGroupChanged;
 
     // Layout: (sectionKey, [(rowKey, statKey, suffix)])
     private static readonly (string SectionKey, (string RowKey, string StatKey, string Suffix)[] Rows)[] Layout =
@@ -220,10 +221,11 @@ public partial class CalcsTabViewModel : ViewModelBase
         ]),
     ];
 
-    public CalcsTabViewModel(LuaHost host, BuildModel build)
+    public CalcsTabViewModel(LuaHost host, BuildModel build, Action? onMainGroupChanged = null)
     {
         _host = host;
         _build = build;
+        _onMainGroupChanged = onMainGroupChanged;
 
         foreach (var (sectionKey, rows) in Layout)
         {
@@ -245,7 +247,9 @@ public partial class CalcsTabViewModel : ViewModelBase
         SkillGroups.Clear();
         foreach (var g in _host.GetSkillGroups())
             SkillGroups.Add(new SkillGroupDisplayVm(g));
-        SelectedSkillGroup = SkillGroups.FirstOrDefault();
+        var mainIdx = _host.GetMainSkillGroupIndex();
+        SelectedSkillGroup = SkillGroups.FirstOrDefault(g => g.Index == mainIdx)
+                          ?? SkillGroups.FirstOrDefault();
         _suppressSkillChange = false;
         RefreshActiveSkills();
     }
@@ -260,8 +264,39 @@ public partial class CalcsTabViewModel : ViewModelBase
                 ActiveSkills.Add(new ActiveSkillDisplayVm(s));
         }
         HasMultipleActiveSkills = ActiveSkills.Count > 1;
-        SelectedActiveSkill = ActiveSkills.FirstOrDefault();
+        var savedIdx = 0;
+        if (SelectedSkillGroup is { } g && ActiveSkills.Count > 0)
+        {
+            savedIdx = _host.GetMainActiveSkillIndex(g.Index);
+            var saved = ActiveSkills.FirstOrDefault(s => s.Index == savedIdx);
+            // Default override for CastOn / trigger groups: when nothing is explicitly
+            // saved (or the saved choice points at the trigger gem itself) and there's
+            // a non-trigger active skill in the group, prefer that. Falls through to
+            // the trigger gem when the group has no other active skills.
+            if (saved is null || saved.Entry.IsTrigger)
+            {
+                var firstNonTrigger = ActiveSkills.FirstOrDefault(s => !s.Entry.IsTrigger);
+                SelectedActiveSkill = firstNonTrigger ?? saved ?? ActiveSkills.FirstOrDefault();
+            }
+            else
+            {
+                SelectedActiveSkill = saved;
+            }
+        }
+        else
+        {
+            SelectedActiveSkill = ActiveSkills.FirstOrDefault();
+        }
         _suppressSkillChange = false;
+
+        // If the default override picked a different index than what's currently set
+        // in Lua, push it down so the engine actually recomputes DPS for that skill.
+        if (SelectedSkillGroup is { } applyGrp && SelectedActiveSkill is { } sel && sel.Index != savedIdx)
+        {
+            _host.SetActiveSkillGroup(applyGrp.Index, sel.Index);
+            _build.Refresh();
+            Refresh();
+        }
     }
 
     public void Refresh()
@@ -331,6 +366,7 @@ public partial class CalcsTabViewModel : ViewModelBase
         _build.Refresh();
         RefreshActiveSkills();
         Refresh();
+        _onMainGroupChanged?.Invoke();
     }
 
     partial void OnSelectedActiveSkillChanged(ActiveSkillDisplayVm? value)
@@ -339,6 +375,7 @@ public partial class CalcsTabViewModel : ViewModelBase
         _host.SetActiveSkillGroup(SelectedSkillGroup.Index, value.Index);
         _build.Refresh();
         Refresh();
+        _onMainGroupChanged?.Invoke();
     }
 
     [RelayCommand]
