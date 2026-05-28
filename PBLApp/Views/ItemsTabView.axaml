@@ -307,6 +307,9 @@
                                         <StackPanel Classes="slot-fallback"
                                                     IsVisible="{Binding !Amulet.HasIcon}">
                                             <TextBlock Text="{loc:Tr Slot_Amulet}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Amulet.LeftDisplayName}"
+                                                       Foreground="{Binding Amulet.NameColor}"
+                                                       Classes="slot-fallback-name"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -382,6 +385,9 @@
                                         <StackPanel Classes="slot-fallback"
                                                     IsVisible="{Binding !Ring1.HasIcon}">
                                             <TextBlock Text="{loc:Tr Slot_Ring1}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Ring1.LeftDisplayName}"
+                                                       Foreground="{Binding Ring1.NameColor}"
+                                                       Classes="slot-fallback-name"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -398,6 +404,9 @@
                                         <StackPanel Classes="slot-fallback"
                                                     IsVisible="{Binding !Ring2.HasIcon}">
                                             <TextBlock Text="{loc:Tr Slot_Ring2}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Ring2.LeftDisplayName}"
+                                                       Foreground="{Binding Ring2.NameColor}"
+                                                       Classes="slot-fallback-name"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -511,6 +520,9 @@
                                         <StackPanel Classes="slot-fallback"
                                                     IsVisible="{Binding !Charm1.HasIcon}">
                                             <TextBlock Text="{loc:Tr Slot_Charm1}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Charm1.LeftDisplayName}"
+                                                       Foreground="{Binding Charm1.NameColor}"
+                                                       Classes="slot-fallback-name"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -525,6 +537,9 @@
                                         <StackPanel Classes="slot-fallback"
                                                     IsVisible="{Binding !Charm2.HasIcon}">
                                             <TextBlock Text="{loc:Tr Slot_Charm2}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Charm2.LeftDisplayName}"
+                                                       Foreground="{Binding Charm2.NameColor}"
+                                                       Classes="slot-fallback-name"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -539,6 +554,9 @@
                                         <StackPanel Classes="slot-fallback"
                                                     IsVisible="{Binding !Charm3.HasIcon}">
                                             <TextBlock Text="{loc:Tr Slot_Charm3}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Charm3.LeftDisplayName}"
+                                                       Foreground="{Binding Charm3.NameColor}"
+                                                       Classes="slot-fallback-name"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -600,14 +618,20 @@
                                                 Classes.selected="{Binding IsSelected}"
                                                 BorderBrush="{Binding NameColor}"
                                                 Tag="{Binding SlotName, StringFormat='slot:{0}'}">
-                                            <TextBlock Text="{Binding LeftDisplayName}"
-                                                       Foreground="{Binding NameColor}"
-                                                       FontSize="9" TextWrapping="Wrap"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       TextAlignment="Center"
-                                                       MaxHeight="50"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
+                                            <Grid>
+                                                <Image Classes="slot-icon"
+                                                       Source="{Binding IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                                       IsVisible="{Binding HasIcon}"/>
+                                                <TextBlock Text="{Binding LeftDisplayName}"
+                                                           IsVisible="{Binding !HasIcon}"
+                                                           Foreground="{Binding NameColor}"
+                                                           FontSize="9" TextWrapping="Wrap"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextAlignment="Center"
+                                                           MaxHeight="50"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
