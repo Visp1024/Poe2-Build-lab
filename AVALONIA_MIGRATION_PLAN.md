@@ -337,23 +337,65 @@ Pass over the Skills tab and the overall tabbing UX based on direct user feedbac
 - On `Opened`: read `%LOCALAPPDATA%\PathOfBuilding\window_state.json` (key = `GetType().Name`). If a saved entry exists, restore `Position`, `Width`, `Height`, and `WindowState=Maximized`; size is clamped to `WorkingArea / Scaling` and position is clamped so the window stays on-screen (handles disconnected monitors). If no entry: apply Full-HD default (1920×1080 in DIPs), clamped — XAML's `WindowStartupLocation` handles initial position (`CenterScreen` on `MainWindow`, `CenterOwner` on the rest).
 - On `Closing`: each window writes its current rect + maximised flag back to the JSON map (best-effort, errors swallowed).
 
+### Phase 16 — Tree perf overhaul + items polish + tooltip with stat diff ✅ DONE
+
+**Passive tree — per-click latency 208 ms → ≈ 0.1 ms (≈ 2000× on the hot path)**:
+
+- *Deferred recalc + debounce* (`LuaHost.cs`, `TreeTabViewModel.cs`): `AllocNode` / `DeallocNode` gained a `deferRecalc=true` argument that skips `runCallback('OnFrame')` and `Calcs.buildOutput`; the caller schedules a debounced `RecalcStats()` 120 ms later via `System.Timers.Timer`. Burst-click latency 847 ms → 664 ms initially.
+- *canAlloc cache* (`TreeCanvas.cs`): the "can allocate" `HashSet<int>` recomputed every paint (≈ 10-30 ms on the full tree) now only refreshes when `AllocatedIds` or `Nodes` reference changes — pan/zoom/hover repaints reuse the cached set.
+- *Batched IPC* (`LuaHost.GetAllocatedAndEmitters`): single `DoString` returns both alloc IDs and radius emitters, halving NLua marshalling per click.
+- *Layered rendering* (`TreeCanvas.EnsureStaticLayer`): the ~5000 neutral-pen connection lines now bake into a `RenderTargetBitmap` at a `refScale` clamped to `min(max(_scale × 1.2, 0.15), 4000 / maxWorld)` so the bitmap fits within `RenderTargetBitmap`'s 4096 px limit even with PoE2's 32k × 33k world. Render does one `DrawImage` for static edges, overlays only the alloc / canAlloc connections per frame. Nodes still render per-frame (an earlier node-bake pass was reverted because small unallocated icons lost detail under bilinear downscale).
+- *Delta-update `node.path`* (`LuaHost.AllocNode` fast path): the dominant cost inside `spec:AllocNode` (40-180 ms) was `BuildAllDependsAndPaths`. The new fast path walks `node.path`, marks each `alloc=true`, runs an incremental BFS that only relaxes shortest paths in the affected neighbourhood, and sets `spec._fastAllocDirty=true`. `DeallocNode` and `RecalcStats` flush the dirty flag (one full rebuild per burst, not per click). Falls back to upstream `spec:AllocNode` for any risky case (Keystone / Socket / containJewelSocket / intuitive-leap / multi-choice / unlockConstraint / conqueredBy on the target or any path node). Verified byte-identical stat snapshots between fast and full paths over a 10-click burst.
+
+**Modern tree node hover tooltip** (`TreeCanvas.DrawHoverInfo`, `NodeHoverInfo.cs`, `LuaHost.GetNodeHoverInfo`):
+- New `LuaHost.GetNodeHoverInfo(nodeId)` returns a `NodeHoverInfo` packet: node name + type + ascendancy + alloc state + path distance + mod text + stat diff (via `build.calcsTab:GetMiscCalculator(build)` → `calcFunc({addNodes={[node]=true}})` walked against `build.displayStats`) + per-point delta when path length > 1. Flushes `_fastAllocDirty` first so depends/paths are consistent.
+- `TreeCanvas.HoverInfoProvider` StyledProperty wired by `TreeTabView.axaml.cs` from `TreeTabViewModel.GetNodeHoverInfo`. Result cached per-node; cache invalidated when `AllocatedIds` reference changes.
+- Render redesigned with design-token brushes (`BgMantle` background, `BorderStrong` 6-dip rounded border, Inter typography). Title coloured by node type (Notable / AscendStart → Brand400 gold, Keystone → Warning gold, Socket → Info blue, Mastery → AttrInt purple, Normal → TextPrimary / Success when alloc'd). Mod lines highlight every numeric token in Brand400. Stat-diff lines: value in Success/Danger, label in TextPrimary, percent in TextSecondary, per-point bracket in TextMuted.
+- Position: tooltip placed beside the hovered node (right of icon at `nx + nodeR + 18`, flips to left if it would overflow the canvas, vertically centred on node Y, clamped to bounds).
+- Empty-diff hint: "No measurable change for current build" when the node has mods but no `displayStats` are affected (skill-specialised nodes for skills the player isn't using).
+
+**Localisation of the tooltip** (`calc_labels_ru.json`, `Strings.resx`):
+- New `PBLApp.Core/Translations/calc_labels_ru.json` with ~130 stat label translations (`Total Life` → `Жизнь`, `Average Damage` → `Сред. урон`, `Fire Resistance` → `Сопр. огню`, …) covering the full `BuildDisplayStats` set.
+- `GameTranslationService.CalcLabel` + static `TCalcLabel` load on language change. Embedded in `PBLApp.Core.csproj`.
+- `Tree_Tip_*` keys in `Strings.resx` / `Strings.ru.resx` for the four diff headers (alloc / unalloc / path-alloc / path-unalloc), the per-point suffix, the "no measurable change" note, and the points-to-allocate footer.
+- Lua side returns header *keys* (`alloc` / `unalloc` / `pathAlloc` / `pathUnalloc`) and a raw per-point value; C# wraps with the localised `[value за очко]` bracket.
+
+**Cast-on triggers fix** (`SkillsTabViewModel`, `LuaHost.GetSkillGroups`, `ConfigOptionDto.SkillGroupEntry`):
+- `GetSkillGroups` now emits an `IsTrigger` flag — true when the first non-support gem on the group has `SkillType.Triggers` (32) or `SkillType.Meta` (122) on `skillTypes`.
+- `SkillGroupViewModel.IsTrigger`, `SkillsTabViewModel.TriggerSlotGemNameItems` (active ⊕ support combined), `IsTriggerGroup(groupIdx)` helper.
+- Empty support slots under a trigger group now offer triggered active spell gems (`Cast on Crit` / `Cast on Shock` / `Cast on Block` / `Cast on Minion Death` / etc.).
+- `RebuildGroupGems` re-fetches `IsTrigger` after the active gem changes so the flag flips on the same click that pastes a meta gem name.
+
+**Items tab polish**:
+- *Hover tooltips* on every slot-cell `Border` and pool `Button` — plain-text packet (`ItemSlotViewModel.HoverTooltipText` / `ItemsTabViewModel.GetPoolHoverTooltipText`) pulls full mod text via `LuaHost.GetItemTooltipLines`, strips inline `^x` colour codes and `{range:0}`/`{crafted}` template placeholders. `ToolTip.ShowDelay=400`, `Placement=Pointer`.
+- *Tighter ellipsis* for narrow / 1×1 slots — `slot-fallback-name-compact` style (font 9, line-height 10) on Amulet, Ring1, Ring2, Belt, Charm1/2/3 so item names fit without clipping at default zoom.
+- *Magic-item base parser boundary fix* (`GameTranslationService.TryTranslateMagicName`): replaced `' '` boundary check with `IsWordChar` (letter / digit / apostrophe). Now `Ring` doesn't match inside `Ringmaster`, and bases adjacent to punctuation match correctly. The longest-match preference is preserved (`Heavy Belt` still beats `Belt`).
+
+**Localisation — quick wins**:
+- `CalcsTabView.axaml` final hardcoded `Text="Type"` replaced with `{loc:Tr Calc_ColType}` (P1.2 closed).
+- `BuildPageView.axaml` sidebar DPS/Life/ES/Mana/Armour/Eva already localised in an earlier session (P1.1 confirmed closed).
+
+**Item icons — 44 of 47 missing uniques recovered** (`tools/fetch_missing_uniques.mjs`):
+- `cdn.poe2db.tw/gen/image/<path>.webp` returns 403 for some uniques (Queen of the Forest, Headhunter, Kalandra's Touch, Ming's Heart, etc.). Each poe2db item page however embeds the signed GGG CDN URL — `web.poecdn.com/gen/image/<base64>/<hash>/<file>.png`.
+- New scraper slugifies each missing unique name, GETs the poe2db item page, extracts the signed URL with regex, downloads the PNG into the cache under the same DDS-mirrored path, and updates `icon_map.json`. 44/47 ok; three Sekhema's Resolve variants need a different slug pattern.
+- `PBLApp.csproj` Content / `CopyEngineFiles` globs widened from `**/*.webp` to `**/*.*` so the new PNG files travel into the publish output. Avalonia `Bitmap` sniffs format by magic bytes, so `.png` content saved with `.png` extension loads in the slot grid like any other cached icon.
+
 ---
 
 ## Backlog (deferred / future work)
 
-### Bugs
-- [ ] **Cast-on triggers: список доступных гемов слишком узкий.** В `SkillsTab` для триггер-скиллов вида `Cast on Critical`, `Cast on Shock`, `Cast on Freeze`, `Cast on Minion Death` и т.п. в выпадающем списке поддерживаемых гемов сейчас показываются только пассивные/spirit-гемы, тогда как в самой игре в эти триггеры можно вставлять обычные активные скиллы (любой spell, попадающий под фильтр триггера). Скорее всего проблема в фильтре поддерживаемых гемов — `SkillsTabViewModel.GetSupportedGems` (или эквивалент в Lua `Modules/Build` / `Classes/SkillsTab`) для триггер-родителей применяет тег `support`/`passive` вместо триггер-специфичного `trigger_target` фильтра. Проверить: (1) определение этих скиллов в `src/Data/Skills/*.lua` — какие теги выставлены у самого триггера; (2) ветвление по типу parent-скилла при построении списка кандидатов; (3) сверить с поведением PoB-PoE2 upstream — возможно регрессия от наших правок. Воспроизведение: создать build, в Skills добавить `Cast on Crit` → выпадающий список «активный скилл» должен содержать spell-скиллы (Spark, Fireball, …), а не только passives.
-
 ### Items / display
-- [ ] **Hover-tooltip on slot figure + pool items** (was #15). Attach `ToolTip.Tip` with `ItemTooltipView` to every slot button and pool list item; ShowDelay ≈ 400 ms, Placement = Pointer; lazy-bind VM.
 - [ ] **Phase 10 #4 — Item search** in the pool by stat / mod text.
 - [ ] **Phase 10 #6 — Item sets** (PoB's `itemSets` — save multiple equipment configurations, switch between them).
 - [ ] Unique flavour text translation (`unique_flavour_ru.json`) — generate from GGPK `Words.datc64` when schema becomes available, or hand-edit per unique.
+- [ ] Three Sekhema's Resolve element variants — slug mismatch on poe2db, need manual URL mapping.
+- [ ] Upgrade plain-text hover tooltips on slots / pool items to the full styled `ItemTooltipView` content (lazy-build VM on `ToolTip.Opening`).
 
 ### Localisation depth
 - [ ] Extend `unique_names_ru.json` beyond the ~75 hand-translated PoE2 uniques to full coverage (~600+).
 - [ ] Extend `magic_affixes_ru.json` — current ~80 prefixes / ~70 suffixes is best-effort. Need to enumerate every PoE2 magic affix from GGPK or community translation set.
 - [ ] Generate `gem_descriptions_ru.json` (flavour) from GGPK when accessible.
+- [ ] Extend `calc_labels_ru.json` — current ~130 entries cover the main `BuildDisplayStats` set; add minion-side labels and rarer secondary stats as users report English bleed-through.
 - [ ] **Jewel mod sliders** — PoB strips `(N-M)` templates from jewel raw lines after rolling (only concrete values remain, e.g. `5%`). `modLine.range` is preserved but `modList[i].min/max` is not directly accessible for `JewelFunc`-type radius mods. Need a Lua helper that walks `explicitModLines[k].modList` per-stat, looks up affix min/max from `data.itemMods.Jewel` (or equivalent), and reconstructs `(min-max)` templates so `ParseUniqueRaw` / `ExplicitModViewModel.ParseSingleIntRange` can detect ranges and render sliders. Complex because radius/threshold jewels use wrapper mod types.
 
 ### Large features
@@ -362,15 +404,13 @@ Pass over the Skills tab and the overall tabbing UX based on direct user feedbac
 - [ ] **Build comparison** — сравнение текущего билда с другим выбранным (вторым из BuildList). UX: кнопка `Сравнить с…` в `BuildPageView` header → диалог выбора второго билда из дерева → раскрывается правая панель с двумя колонками (`Текущий` / `Сравнение`) и колонкой дельт. Что сравнивать: (1) все ключевые stat'ы (Life/ES/Mana, Armour/Evasion/Block, все DPS-варианты, resists, ailment-thresholds) с цветом дельты (зелёный/красный); (2) пассивные ноды — diff множеств `allocNodes` с группировкой "только в A" / "только в B" / "общие"; (3) экипировка по слотам — список различий (mod-уровни, базы, уники); (4) активные скиллы / поддержки; (5) Config-инпуты. Реализация: загружать второй билд во второй `LuaHost` (или последовательно в текущий — но дороже), снимать snapshot всех `Calcs.buildOutput` + spec + items, диффить в C# (`BuildComparisonService`). Без правок второго билда (read-only). Опция: «Применить из B в текущий» для отдельных частей (скиллы, дерево, предмет в слот).
 
 ### Passive tree
-- [ ] **Path preview on hover** — при наведении курсора на неаллоцированную ноду подсветить кратчайший путь от ближайшей аллоцированной ноды к hover-таргету: рёбра пути рисуются пунктиром поверх обычных connections, промежуточные ноды подсвечиваются (полу-яркая обводка, отличная от `canAlloc`-ring). BFS по `node.linked` из множества `allocNodes`, кэш результата на (allocSet-hash, hoverNodeId). Снимать подсветку при уходе курсора или клике.
-- [ ] **Stat diff on hover** — при наведении на неаллоцированную ноду (или путь к ней) показывать дельту по ключевым статам относительно текущей аллокации: рядом с info-панелью или в сайдбаре блок вида `Life: 4200 → 4280 (+80)`, `Total DPS: 125k → 132k (+7k, +5.6%)`. Алгоритм: (1) собрать кандидатный набор нод (hover-нода + промежуточные с path-preview); (2) временно добавить их в `build.spec.allocNodes`, прогнать `Calcs.buildOutput`, сохранить snapshot статов; (3) откатить и сравнить с базовым snapshot. Кэш по `(allocSet-hash, candidateSet-hash)`. Считать асинхронно с дебаунсом 150–200 ms, чтобы быстрое движение мыши не дёргало пересчёт. Список отслеживаемых статов вынести в `TreeHoverStats.cs` (Life/ES/Mana, Armour/Evasion, Total DPS, основные resist'ы).
-- [ ] **Click latency** — после клика на ноду заметная пауза (вероятно `Calcs.buildOutput` + полный пересчёт `canAlloc` для всех нод + перерисовка спрайтов). План: (1) измерить через `Stopwatch` в `TreeTabViewModel.ToggleNode` и `TreePageView.Render` — где именно секунды; (2) пересчёт `canAlloc` ограничить дельта-обновлением (ноды на расстоянии ≤2 от изменённой); (3) Lua-side `SelectClass`/`BuildAllDependsAndPaths` гонять только если изменился класс/ascendancy; (4) дебаунс `BuildOutput` (UI пересчёт статов вешать на 50–100 ms таймер, чтобы серия кликов не триггерила N полных пересчётов); (5) проверить, не пересоздаём ли `Bitmap`/`Pen` каждый кадр в `TreePageView.Render` — пены и кисти должны жить как поля.
+- [ ] **Path preview on hover** — при наведении курсора на неаллоцированную ноду подсветить кратчайший путь от ближайшей аллоцированной ноды к hover-таргету: рёбра пути рисуются пунктиром поверх обычных connections, промежуточные ноды подсвечиваются (полу-яркая обводка, отличная от `canAlloc`-ring). BFS по `node.linked` из множества `allocNodes`, кэш результата на `(allocSet-hash, hoverNodeId)`. Снимать подсветку при уходе курсора или клике.
+- [ ] **Async optimistic alloc** — `spec:AllocNode` всё ещё 40-180 ms (intrinsic). Поднять отзывчивость можно оптимистичным UI: помечать ноду alloc на C#-стороне *до* Lua-вызова, перерисовать, затем гонять Lua в `Task.Run` (с `SemaphoreSlim` для сериализации NLua). Главная сложность — путь allocate-нод может включать промежуточные, которые мы не знаем заранее в C#; нужен read-only снимок `node.path` с предыдущего refresh. Опционально показать spinner поверх ноды на время Lua-операции.
+- [ ] **Tree-view node bake**: вторая попытка запекать ноды в `static layer`. Прошлая (commit d119426 → revert) портила мелкие unalloc-иконки через bilinear downscale. Идея: запекать на ≥ 2 LOD-уровнях (`refScale × 1`, `refScale × 2`) и переключать по zoom, либо запекать только frame-сприты, иконки оставлять live.
 
 ### UI polish
 - [ ] HiDPI / DPI scaling pass.
 - [ ] Dark / light theme switch.
-- [ ] Tighter ellipsis behaviour on small slot labels (Ring/Belt/Charm names get clipped — could two-line, smaller font, or tooltip on hover).
-- [ ] Magic-item full name parser currently relies on the longest-known-base substring; very short bases (`Ring`, `Belt`) inside longer names may mis-match. Add boundary heuristic + per-rarity fallback.
 
 ### Infrastructure
 - [ ] GitHub Actions CI — publish workflow + xUnit run.
@@ -389,7 +429,10 @@ Pass over the Skills tab and the overall tabbing UX based on direct user feedbac
 | Per-type Min/Max | CalcOffence writes them only in CALCS mode; `GetAllStats()` merges calcsOutput + mainOutput |
 | Gem color | `gemData.reqStr/Dex/Int` dominance: Str=#F38BA8, Dex=#A6E3A1, Int=#89B4FA |
 | `gem.grantedEffect` | nil for name-spec gems; use `gem.gemData.grantedEffect` |
-| CastOn groups | No special flag; IsSupport=false gems appear in support slots automatically |
+| CastOn groups | `LuaHost.GetSkillGroups` reports an `IsTrigger` flag — first non-support gem with `SkillType.Triggers` (32) OR `SkillType.Meta` (122) on its `skillTypes`. Empty support slots in trigger groups offer combined active+support list via `SkillsTabViewModel.TriggerSlotGemNameItems`. |
+| Tree fast alloc | `LuaHost.AllocNode(id, deferRecalc=true)` skips `BuildAllDependsAndPaths` (40-180 ms saved per click); does incremental BFS over `node.path` then sets `spec._fastAllocDirty`. `RecalcStats` and `DeallocNode` flush the dirty flag before reading depends. Falls back to upstream `spec:AllocNode` when target or any path node has intuitive-leap / multi-choice / Keystone / Socket / containJewelSocket / unlockConstraint / conqueredBy. |
+| Tree static layer | `TreeCanvas.EnsureStaticLayer` bakes connections into a `RenderTargetBitmap` at `refScale = min(max(_scale × 1.2, 0.15), 4000 / max(worldW, worldH))`. The 4000 cap keeps PoE2's 32 k × 33 k tree inside Avalonia's 4096-px `RenderTargetBitmap` limit. Re-bake triggered by `Nodes` ref, `AscendancyFilter` change, or `_scale` past 1.5 × `refScale`. Node bake was tried and reverted — small unallocated icons lost detail when the bitmap was downscaled. |
+| Tree hover tooltip | `LuaHost.GetNodeHoverInfo(nodeId)` → `NodeHoverInfo` packet (mods + stat diff via `build.calcsTab:GetMiscCalculator` + path distance). `TreeCanvas.HoverInfoProvider` callback set by view; per-node cache invalidated on `AllocatedIds` ref change. Header strings returned as keys (`alloc` / `unalloc` / `pathAlloc` / `pathUnalloc`) so C# resolves via `Strings.resx`. Stat labels translated via `calc_labels_ru.json` (`GameTranslationService.TCalcLabel`). |
 | `item:BuildRaw()` format | PoB internal format uses `Implicits: N` (no `--------` separators). After `Implicits: N`, exactly N lines are implicits; rest are explicits. Mod lines may have `{range:X}`, `{implicit}`, `{crafted}` prefixes — strip with `^(\{[^}]+\})+`. |
 | Item editor mod types | `GetItemAffixes(baseName)` returns affix list after `TrySelectBase`. Match loaded mod text to affixes via exact match then skeleton match (strip `\(?\d+(?:[.-]\d+)?\)?`). |
 | Item editor auto-open | `OnSelectedSlotNameChanged` / `OnSelectedPoolItemIdChanged` create `ItemEditorViewModel` directly; no separate edit button. `IsEditingExisting=true` hides base/rarity pickers. |
