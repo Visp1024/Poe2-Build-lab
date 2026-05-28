@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace PBLApp.ViewModels;
 
@@ -114,6 +115,17 @@ public partial class TreeTabViewModel : ViewModelBase
     private ClassDisplayVm? _lastAppliedClass;
     private bool _suppressClassChangeCheck;
 
+    // ── Stat-refresh debounce ──────────────────────────────────────────────
+    // Allocating / deallocating a node fires Calcs.buildOutput on the Lua side
+    // (heavy) AND a downstream model.Refresh + CalcsTab.Refresh on the C# side
+    // (also heavy because it rebuilds VMs). Spamming clicks on the tree paid
+    // that cost N times. Debounce the downstream stats refresh so a burst of
+    // clicks pays it once, ~120 ms after the last click. The tree's own
+    // "allocated" colouring updates immediately — only the sidebar / Calcs
+    // tab numbers lag by the debounce window.
+    private readonly System.Timers.Timer _statsDebounce = new(120) { AutoReset = false };
+    private System.Action? _statsDispatcher;
+
     // ── Constructor ────────────────────────────────────────────────────────
 
     public TreeTabViewModel(LuaHost host, Action? onStatsChanged = null)
@@ -121,6 +133,16 @@ public partial class TreeTabViewModel : ViewModelBase
         _host           = host;
         _onStatsChanged = onStatsChanged;
         RepoRoot        = host.RepoRoot;
+
+        _statsDebounce.Elapsed += (_, _) =>
+        {
+            // Heavy recalc runs once after the burst settles. Note that
+            // RecalcStats is also dispatched back to the UI thread because
+            // many model/Calcs queries touch ObservableCollection in CalcsTab.
+            var d = _statsDispatcher;
+            if (d != null) d();
+            else { _host.RecalcStats(); _onStatsChanged?.Invoke(); }
+        };
 
         var (nodes, allocated) = host.GetTreeData();
         _nodes          = nodes;
@@ -247,24 +269,24 @@ public partial class TreeTabViewModel : ViewModelBase
             }
             else
             {
-                result = _host.AllocNode(nodeId);
+                result = _host.AllocNode(nodeId, deferRecalc: true);
             }
 
             if (result != 0)
             {
                 if (fullRefresh) RefreshNodes(); else RefreshAllocated();
-                _onStatsChanged?.Invoke();
+                ScheduleStatsRefresh();
             }
         }
     }
 
     private Task DeallocNodeAsync(int nodeId, CancellationToken ct = default)
     {
-        int result = _host.DeallocNode(nodeId);
+        int result = _host.DeallocNode(nodeId, deferRecalc: true);
         if (result != 0)
         {
             RefreshAllocated();
-            _onStatsChanged?.Invoke();
+            ScheduleStatsRefresh();
         }
         return Task.CompletedTask;
     }
@@ -279,6 +301,23 @@ public partial class TreeTabViewModel : ViewModelBase
         OnPropertyChanged(nameof(NodesLabel));
         OnPropertyChanged(nameof(AllocatedCount));
         OnPropertyChanged(nameof(AllocatedLabel));
+    }
+
+    /// <summary>Captures the current synchronization context (UI thread) on first
+    /// call so the debounce timer callback (which fires on a thread-pool thread)
+    /// re-enters the UI dispatcher when invoking <see cref="_onStatsChanged"/>.</summary>
+    private void ScheduleStatsRefresh()
+    {
+        if (_onStatsChanged == null) return;
+        if (_statsDispatcher == null)
+        {
+            var ctx = SynchronizationContext.Current;
+            _statsDispatcher = ctx != null
+                ? () => ctx.Post(_ => { _host.RecalcStats(); _onStatsChanged(); }, null)
+                : () => { _host.RecalcStats(); _onStatsChanged(); };
+        }
+        _statsDebounce.Stop();
+        _statsDebounce.Start();
     }
 
     private void RefreshAllocated()

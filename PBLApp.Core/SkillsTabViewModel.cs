@@ -131,9 +131,19 @@ public partial class GemViewModel : ObservableObject
         }
     }
 
-    // Full list for the current gem type (active or support)
-    public IReadOnlyList<GemNameItem> AvailableGemNameItems =>
-        IsSupport ? _parent.SupportGemNameItems : _parent.ActiveGemNameItems;
+    // Full list for the current gem type (active or support).
+    // In trigger / meta groups (Cast on Crit, Cast on Shock, …), the support
+    // dropdown also surfaces active spell gems so the user can pick the
+    // triggered skill (which lives at gemList[2+] as isSupport=false).
+    public IReadOnlyList<GemNameItem> AvailableGemNameItems
+    {
+        get
+        {
+            if (IsSupport && _parent.IsTriggerGroup(GroupIndex))
+                return _parent.TriggerSlotGemNameItems;
+            return IsSupport ? _parent.SupportGemNameItems : _parent.ActiveGemNameItems;
+        }
+    }
 
     // Filtered subset shown in the dropdown while the user types.
     // When SearchText equals the committed name (field just displaying saved value),
@@ -213,7 +223,9 @@ public partial class GemViewModel : ObservableObject
         if (IsEmpty && string.IsNullOrWhiteSpace(text)) return;
 
         // Validate against the full available list (case-insensitive)
-        var allNames = IsSupport ? _parent.SupportGemNames : _parent.ActiveGemNames;
+        var allNames = (IsSupport && _parent.IsTriggerGroup(GroupIndex))
+            ? _parent.TriggerSlotGemNames
+            : (IsSupport ? _parent.SupportGemNames : _parent.ActiveGemNames);
         var exact = allNames.FirstOrDefault(n => string.Equals(n, text, StringComparison.OrdinalIgnoreCase));
 
         if (exact == null)
@@ -266,6 +278,12 @@ public partial class SkillGroupViewModel : ObservableObject
 
     [ObservableProperty] private bool _isMain;
 
+    /// <summary>True when the group's active gem is a Meta / Trigger skill
+    /// (Cast on Crit / Cast on Shock / Cast on Block / Cast on Minion Death, etc.).
+    /// In trigger groups, the dropdown for "support" slots also surfaces active
+    /// spell gems so the user can pick the triggered skill.</summary>
+    [ObservableProperty] private bool _isTrigger;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ActiveGemName))]
     [NotifyPropertyChangedFor(nameof(ActiveGemColor))]
@@ -291,6 +309,7 @@ public partial class SkillGroupViewModel : ObservableObject
         _syncing = true;
         _isMain    = isMain;
         _isEnabled = entry.IsEnabled;
+        _isTrigger = entry.IsTrigger;
         _syncing = false;
 
         AddGemCommand      = new RelayCommand(() => _parent.AddGem(Index));
@@ -363,9 +382,23 @@ public partial class SkillsTabViewModel : ViewModelBase
     public IReadOnlyList<GemNameItem> ActiveGemNameItems  { get; private set; }
     public IReadOnlyList<GemNameItem> SupportGemNameItems { get; private set; }
 
+    // Combined list (actives first, then supports) shown in "support" slot
+    // dropdowns when the group is a trigger / meta group.
+    public IReadOnlyList<GemNameItem> TriggerSlotGemNameItems { get; private set; }
+
     // Plain string lists (for validation)
     public IReadOnlyList<string> ActiveGemNames  { get; }
     public IReadOnlyList<string> SupportGemNames { get; }
+    public IReadOnlyList<string> TriggerSlotGemNames { get; }
+
+    /// <summary>True if the group at <paramref name="groupIdx"/> is a trigger /
+    /// meta group whose support slots may host an active spell gem.</summary>
+    public bool IsTriggerGroup(int groupIdx)
+    {
+        foreach (var g in Groups)
+            if (g.Index == groupIdx) return g.IsTrigger;
+        return false;
+    }
 
     public ObservableCollection<SkillGroupViewModel> Groups { get; } = [];
 
@@ -417,8 +450,10 @@ public partial class SkillsTabViewModel : ViewModelBase
 
         ActiveGemNames  = activeNames;
         SupportGemNames = supportNames;
+        TriggerSlotGemNames = activeNames.Concat(supportNames).ToList();
         ActiveGemNameItems  = BuildGemNameItems(activeNames,  colors);
         SupportGemNameItems = BuildGemNameItems(supportNames, colors);
+        TriggerSlotGemNameItems = ActiveGemNameItems.Concat(SupportGemNameItems).ToList();
 
         LocalizationService.Instance.LanguageChanged += (_, _) =>
         {
@@ -426,8 +461,10 @@ public partial class SkillsTabViewModel : ViewModelBase
             _gemNameTooltipCache = new();
             ActiveGemNameItems  = BuildGemNameItems(ActiveGemNames,  colors);
             SupportGemNameItems = BuildGemNameItems(SupportGemNames, colors);
+            TriggerSlotGemNameItems = ActiveGemNameItems.Concat(SupportGemNameItems).ToList();
             OnPropertyChanged(nameof(ActiveGemNameItems));
             OnPropertyChanged(nameof(SupportGemNameItems));
+            OnPropertyChanged(nameof(TriggerSlotGemNameItems));
             Refresh();
         };
         Refresh();
@@ -549,6 +586,11 @@ public partial class SkillsTabViewModel : ViewModelBase
     {
         var group = Groups.FirstOrDefault(g => g.Index == groupIdx);
         if (group == null) return;
+        // Re-derive IsTrigger from Lua because the user might have just typed
+        // a meta gem name into the active slot — its skillTypes appear only
+        // after ProcessSocketGroup runs in LuaHost.SetGemName.
+        foreach (var entry in _host.GetSkillGroups())
+            if (entry.Index == groupIdx) { group.IsTrigger = entry.IsTrigger; break; }
         group.RebuildGems(_host.GetGemsInGroup(groupIdx));
     }
 
