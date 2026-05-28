@@ -20,8 +20,9 @@ public partial class ItemsTabView : UserControl
     {
         InitializeComponent();
 
-        AddHandler(PointerPressedEvent,    OnPointerPressed, RoutingStrategies.Tunnel);
-        AddHandler(PointerMovedEvent,      OnPointerMoved,   RoutingStrategies.Tunnel);
+        AddHandler(PointerPressedEvent,    OnPointerPressed,  RoutingStrategies.Tunnel);
+        AddHandler(PointerMovedEvent,      OnPointerMoved,    RoutingStrategies.Tunnel);
+        AddHandler(PointerReleasedEvent,   OnPointerReleased, RoutingStrategies.Tunnel);
         AddHandler(DragDrop.DragOverEvent, OnDragOver);
         AddHandler(DragDrop.DropEvent,     OnDrop);
         AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
@@ -48,6 +49,22 @@ public partial class ItemsTabView : UserControl
         _pressOrigin    = e.GetPosition(this);
         _pendingPayload = tag;
         _pressEvent     = e;
+    }
+
+    // A press that never escalates into a drag (pointer didn't move >6px) is a
+    // click — dispatch selection to the VM. Slot cells are Borders now (Button
+    // would have used Command, but Border has no Command — and Border was chosen
+    // specifically because the Suki Button template fights custom layouts).
+    private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        var payload = _pendingPayload;
+        _pendingPayload = null;
+        _pressEvent     = null;
+        if (payload is null || DataContext is not ItemsTabViewModel vm) return;
+        if (payload.StartsWith("slot:"))
+            vm.SelectSlot(payload[5..]);
+        else if (payload.StartsWith("pool:") && int.TryParse(payload[5..], out var id))
+            vm.SelectPoolItem(id);
     }
 
     private async void OnPointerMoved(object? sender, PointerEventArgs e)
@@ -187,26 +204,26 @@ public partial class ItemsTabView : UserControl
             if (v is not Control c || c.Tag is not string t || t.Length == 0) continue;
             if (t == sourceTag) continue;
 
-            if (c is Button btn && btn.Classes.Contains("slot-cell") && t.StartsWith("slot:"))
+            if (c is Border slotBr && slotBr.Classes.Contains("slot-cell") && t.StartsWith("slot:"))
             {
-                _origOpacity[btn] = btn.Opacity;
+                _origOpacity[slotBr] = slotBr.Opacity;
                 bool isCompatible = allowedSlots.Contains(t[5..]);
                 if (isCompatible)
                 {
-                    btn.Background = DropReadyBrush;
-                    _compatibleSlots.Add(btn);
+                    slotBr.Background = DropReadyBrush;
+                    _compatibleSlots.Add(slotBr);
                 }
                 else
                 {
-                    btn.Opacity = 0.35;
+                    slotBr.Opacity = 0.35;
                 }
-                touched.Add(btn);
+                touched.Add(slotBr);
             }
-            else if (c is Border br && t == "unequip" && sourceTag.StartsWith("slot:"))
+            else if (c is Border unBr && t == "unequip" && sourceTag.StartsWith("slot:"))
             {
-                _origOpacity[br] = br.Opacity;
-                br.Background = DropReadyBrush;
-                touched.Add(br);
+                _origOpacity[unBr] = unBr.Opacity;
+                unBr.Background = DropReadyBrush;
+                touched.Add(unBr);
             }
         }
         return touched;
@@ -219,7 +236,8 @@ public partial class ItemsTabView : UserControl
             // Background was set as a local value — clearing it lets the Style /
             // base value take over again. BorderBrush is left untouched (binding
             // remains intact). Opacity is restored from the snapshot.
-            c.ClearValue(Avalonia.Controls.Primitives.TemplatedControl.BackgroundProperty);
+            if (c is Border br) br.ClearValue(Border.BackgroundProperty);
+            else c.ClearValue(Avalonia.Controls.Primitives.TemplatedControl.BackgroundProperty);
             if (_origOpacity.TryGetValue(c, out var op)) c.Opacity = op;
         }
         _origOpacity.Clear();
@@ -229,11 +247,11 @@ public partial class ItemsTabView : UserControl
     private void SetHoverTarget(Control? c)
     {
         if (ReferenceEquals(_hoverTarget, c)) return;
-        if (_hoverTarget is Button oldBtn && _compatibleSlots.Contains(oldBtn))
-            oldBtn.Background = DropReadyBrush;
+        if (_hoverTarget is Border oldBr && _compatibleSlots.Contains(oldBr))
+            oldBr.Background = DropReadyBrush;
         _hoverTarget = c;
-        if (_hoverTarget is Button newBtn && _compatibleSlots.Contains(newBtn))
-            newBtn.Background = DropHoverBrush;
+        if (_hoverTarget is Border newBr && _compatibleSlots.Contains(newBr))
+            newBr.Background = DropHoverBrush;
     }
 
     /// <summary>Walks up from the e.Source until we find the slot Button or unequip Border.</summary>

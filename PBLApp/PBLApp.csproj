@@ -30,6 +30,24 @@
     </Content>
   </ItemGroup>
 
+  <!-- Item icons (.webp) and the manifest. Optional: if PBLExport/icons/ has not
+       been populated by tools/download_icons.mjs, the build skips these and the
+       app falls back to text-only slot rendering ("light" build). -->
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)..\PBLExport\icons\icon_map.json')">
+    <Content Include="..\PBLExport\icons\icon_map.json">
+      <Link>ItemIcons\icon_map.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)..\PBLExport\icons\cache')">
+    <Content Include="..\PBLExport\icons\cache\**\*.webp">
+      <Link>ItemIcons\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\PBLEngine\PBLEngine.csproj" />
     <ProjectReference Include="..\PBLApp.Core\PBLApp.Core.csproj" />
