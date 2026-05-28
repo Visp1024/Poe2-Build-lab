@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PBLApp.Core.Items;
 using PBLApp.Core.Localization;
 using PBLEngine;
 using System;
@@ -40,6 +41,8 @@ public partial class ItemSlotViewModel : ObservableObject
 
     public string TranslatedDisplayName { get; private set; } = "(empty)";
     public string TranslatedBaseName    { get; private set; } = "";
+    /// <summary>Absolute path to the .webp icon for this item, or null when no icon is available.</summary>
+    public string? IconPath { get; private set; }
 
     /// <summary>
     /// Name shown on the equipment figure / pool list. PoE convention:
@@ -97,6 +100,7 @@ public partial class ItemSlotViewModel : ObservableObject
             Enchants              = [];
             Implicits             = [];
             Explicits             = [];
+            IconPath              = null;
         }
         else
         {
@@ -111,6 +115,10 @@ public partial class ItemSlotViewModel : ObservableObject
             Enchants              = item.Enchants;
             Implicits             = item.Implicits;
             Explicits             = item.Explicits;
+            // Uniques/relics are matched on the unique name (first segment of
+            // "Bramblejack, Plate Vest"); other rarities fall back to the base.
+            var unique = item.Rarity is "UNIQUE" or "RELIC" ? item.Name : null;
+            IconPath              = ItemIconService.Instance.Resolve(item.BaseName, unique);
         }
         OnPropertyChanged(nameof(IsEmpty));
         OnPropertyChanged(nameof(DisplayName));
@@ -124,7 +132,11 @@ public partial class ItemSlotViewModel : ObservableObject
         OnPropertyChanged(nameof(Enchants));
         OnPropertyChanged(nameof(Implicits));
         OnPropertyChanged(nameof(Explicits));
+        OnPropertyChanged(nameof(IconPath));
+        OnPropertyChanged(nameof(HasIcon));
     }
+
+    public bool HasIcon => !string.IsNullOrEmpty(IconPath);
 
     public void NotifySelectionChanged() => OnPropertyChanged(nameof(IsSelected));
 
@@ -153,6 +165,8 @@ public sealed class JewelSocketSlotViewModel : ObservableObject
     public string Rarity      { get; }
     /// <summary>Name shown in the figure — base name only for non-uniques, full name for uniques.</summary>
     public string LeftDisplayName { get; }
+    public string? IconPath { get; }
+    public bool   HasIcon   => !string.IsNullOrEmpty(IconPath);
 
     public bool   IsSelected  => _parent.SelectedSlotName == SlotName;
 
@@ -171,6 +185,8 @@ public sealed class JewelSocketSlotViewModel : ObservableObject
             Rarity          = it.Rarity;
             NameColor       = ItemSlotViewModel.RarityToColor(it.Rarity);
             LeftDisplayName = BuildLeftName(it);
+            var unique      = it.Rarity is "UNIQUE" or "RELIC" ? it.Name : null;
+            IconPath        = ItemIconService.Instance.Resolve(it.BaseName, unique);
         }
         else
         {
@@ -179,6 +195,7 @@ public sealed class JewelSocketSlotViewModel : ObservableObject
             Rarity          = "";
             NameColor       = "#3D3F55";
             LeftDisplayName = DisplayName;
+            IconPath        = null;
         }
         SelectCommand = new RelayCommand(() => _parent.SelectSlot(SlotName));
     }
@@ -219,6 +236,8 @@ public sealed class ItemPoolEntryViewModel : ObservableObject
     /// <summary>Pool-list bottom line: localised base name (always present).</summary>
     public string PoolBaseName { get; }
     public bool   HasTopName   => !string.IsNullOrEmpty(PoolTopName);
+    public string? IconPath    { get; }
+    public bool   HasIcon      => !string.IsNullOrEmpty(IconPath);
 
     public bool   IsEquipped  => !string.IsNullOrEmpty(EquippedSlot);
     public bool   IsSelected  => _parent.SelectedPoolItemId == ItemId;
@@ -238,16 +257,19 @@ public sealed class ItemPoolEntryViewModel : ObservableObject
         EquippedSlot = entry.EquippedSlot;
         NameColor    = ItemSlotViewModel.RarityToColor(entry.Rarity);
         PoolBaseName = GameTranslationService.TItem(entry.BaseName);
+        string? uniqueForIcon = null;
         if (entry.Rarity is "UNIQUE" or "RELIC")
         {
             PoolTopName     = GameTranslationService.Instance.Unique(SplitUnique(entry.Name));
             LeftDisplayName = PoolTopName + ", " + PoolBaseName;
+            uniqueForIcon   = entry.Name;
         }
         else
         {
             PoolTopName     = "";
             LeftDisplayName = PoolBaseName;
         }
+        IconPath = ItemIconService.Instance.Resolve(entry.BaseName, uniqueForIcon);
         SelectCommand = new RelayCommand(() => _parent.SelectPoolItem(ItemId));
         DeleteCommand = new RelayCommand(() => _parent.DeletePoolItem(ItemId));
     }

@@ -36,6 +36,26 @@
         "ShortDescription",
         "StatDescription"
       ]
+    },
+    {
+      "name": "BaseItemTypes",
+      "columns": ["Id", "Name", "ItemClass", "ItemVisualIdentity", "Width", "Height"]
+    },
+    {
+      "name": "ItemClasses",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "ItemVisualIdentity",
+      "columns": ["Id", "DDSFile"]
+    },
+    {
+      "name": "UniqueStashLayout",
+      "columns": ["WordsKey", "ItemVisualIdentityKey", "IsAlternateArt"]
+    },
+    {
+      "name": "Words",
+      "columns": ["Text", "Text2"]
     }
   ]
 }

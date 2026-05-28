@@ -1,0 +1,572 @@
+[
+  {
+    "_index": 0,
+    "Id": "LifeFlask",
+    "Name": "Флаконы жизни"
+  },
+  {
+    "_index": 1,
+    "Id": "ManaFlask",
+    "Name": "Флаконы маны"
+  },
+  {
+    "_index": 2,
+    "Id": "DONOTUSE5",
+    "Name": ""
+  },
+  {
+    "_index": 3,
+    "Id": "Currency",
+    "Name": "Вещи на обмен"
+  },
+  {
+    "_index": 4,
+    "Id": "Amulet",
+    "Name": "Амулеты"
+  },
+  {
+    "_index": 5,
+    "Id": "Ring",
+    "Name": "Кольца"
+  },
+  {
+    "_index": 6,
+    "Id": "Claw",
+    "Name": "Когти"
+  },
+  {
+    "_index": 7,
+    "Id": "Dagger",
+    "Name": "Кинжалы"
+  },
+  {
+    "_index": 8,
+    "Id": "Wand",
+    "Name": "Жезлы"
+  },
+  {
+    "_index": 9,
+    "Id": "One Hand Sword",
+    "Name": "Одноручные мечи"
+  },
+  {
+    "_index": 10,
+    "Id": "DONOTUSE6",
+    "Name": ""
+  },
+  {
+    "_index": 11,
+    "Id": "One Hand Axe",
+    "Name": "Одноручные топоры"
+  },
+  {
+    "_index": 12,
+    "Id": "One Hand Mace",
+    "Name": "Одноручные булавы"
+  },
+  {
+    "_index": 13,
+    "Id": "Bow",
+    "Name": "Луки"
+  },
+  {
+    "_index": 14,
+    "Id": "Staff",
+    "Name": "Посохи"
+  },
+  {
+    "_index": 15,
+    "Id": "Two Hand Sword",
+    "Name": "Двуручные мечи"
+  },
+  {
+    "_index": 16,
+    "Id": "Two Hand Axe",
+    "Name": "Двуручные топоры"
+  },
+  {
+    "_index": 17,
+    "Id": "Two Hand Mace",
+    "Name": "Двуручные булавы"
+  },
+  {
+    "_index": 18,
+    "Id": "Active Skill Gem",
+    "Name": "Камни умений"
+  },
+  {
+    "_index": 19,
+    "Id": "Support Skill Gem",
+    "Name": "Камни поддержки"
+  },
+  {
+    "_index": 20,
+    "Id": "Quiver",
+    "Name": "Колчаны"
+  },
+  {
+    "_index": 21,
+    "Id": "Belt",
+    "Name": "Пояса"
+  },
+  {
+    "_index": 22,
+    "Id": "Gloves",
+    "Name": "Перчатки"
+  },
+  {
+    "_index": 23,
+    "Id": "Boots",
+    "Name": "Обувь"
+  },
+  {
+    "_index": 24,
+    "Id": "Body Armour",
+    "Name": "Нательные доспехи"
+  },
+  {
+    "_index": 25,
+    "Id": "Helmet",
+    "Name": "Шлемы"
+  },
+  {
+    "_index": 26,
+    "Id": "Shield",
+    "Name": "Щиты"
+  },
+  {
+    "_index": 27,
+    "Id": "SmallRelic",
+    "Name": "Малые реликвии"
+  },
+  {
+    "_index": 28,
+    "Id": "MediumRelic",
+    "Name": "Средние реликвии"
+  },
+  {
+    "_index": 29,
+    "Id": "LargeRelic",
+    "Name": "Большие реликвии"
+  },
+  {
+    "_index": 30,
+    "Id": "StackableCurrency",
+    "Name": "Валюта"
+  },
+  {
+    "_index": 31,
+    "Id": "QuestItem",
+    "Name": "Вещи для заданий"
+  },
+  {
+    "_index": 32,
+    "Id": "Sceptre",
+    "Name": "Скипетры"
+  },
+  {
+    "_index": 33,
+    "Id": "UtilityFlask",
+    "Name": "Обереги"
+  },
+  {
+    "_index": 34,
+    "Id": "DONOTUSE7",
+    "Name": ""
+  },
+  {
+    "_index": 35,
+    "Id": "Map",
+    "Name": "Путевые камни"
+  },
+  {
+    "_index": 36,
+    "Id": "Unarmed",
+    "Name": ""
+  },
+  {
+    "_index": 37,
+    "Id": "FishingRod",
+    "Name": "Удочки"
+  },
+  {
+    "_index": 38,
+    "Id": "MapFragment",
+    "Name": "Обрывки карт"
+  },
+  {
+    "_index": 39,
+    "Id": "HideoutDoodad",
+    "Name": "Предметы убежища"
+  },
+  {
+    "_index": 40,
+    "Id": "Microtransaction",
+    "Name": "Микротранзакции"
+  },
+  {
+    "_index": 41,
+    "Id": "Jewel",
+    "Name": "Самоцветы"
+  },
+  {
+    "_index": 42,
+    "Id": "DivinationCard",
+    "Name": "Гадальные карты"
+  },
+  {
+    "_index": 43,
+    "Id": "DONOTUSE8",
+    "Name": ""
+  },
+  {
+    "_index": 44,
+    "Id": "DONOTUSE9",
+    "Name": ""
+  },
+  {
+    "_index": 45,
+    "Id": "DONOTUSE10",
+    "Name": ""
+  },
+  {
+    "_index": 46,
+    "Id": "MiscMapItem",
+    "Name": "Прочие предметы карт"
+  },
+  {
+    "_index": 47,
+    "Id": "Leaguestone",
+    "Name": "Камни лиги"
+  },
+  {
+    "_index": 48,
+    "Id": "PantheonSoul",
+    "Name": "Души Пантеона"
+  },
+  {
+    "_index": 49,
+    "Id": "UniqueFragment",
+    "Name": "Фрагменты"
+  },
+  {
+    "_index": 50,
+    "Id": "AbyssJewel",
+    "Name": "Самоцветы Бездны"
+  },
+  {
+    "_index": 51,
+    "Id": "IncursionItem",
+    "Name": "Предметы Вмешательства"
+  },
+  {
+    "_index": 52,
+    "Id": "DelveSocketableCurrency",
+    "Name": "Валюта Спуска"
+  },
+  {
+    "_index": 53,
+    "Id": "Incubator",
+    "Name": "Инкубаторы"
+  },
+  {
+    "_index": 54,
+    "Id": "UniqueShard",
+    "Name": "Осколки"
+  },
+  {
+    "_index": 55,
+    "Id": "UniqueShardBase",
+    "Name": "Стержни осколков"
+  },
+  {
+    "_index": 56,
+    "Id": "DONOTUSE11",
+    "Name": ""
+  },
+  {
+    "_index": 57,
+    "Id": "Warstaff",
+    "Name": "Боевые посохи"
+  },
+  {
+    "_index": 58,
+    "Id": "DelveStackableSocketableCurrency",
+    "Name": "Валюта Спуска"
+  },
+  {
+    "_index": 59,
+    "Id": "AtlasUpgradeItem",
+    "Name": "Предметы улучшения Атласа"
+  },
+  {
+    "_index": 60,
+    "Id": "DONOTUSE4",
+    "Name": ""
+  },
+  {
+    "_index": 61,
+    "Id": "HiddenItem",
+    "Name": "Сокрытые предметы"
+  },
+  {
+    "_index": 62,
+    "Id": "DONOTUSE1",
+    "Name": ""
+  },
+  {
+    "_index": 63,
+    "Id": "DONOTUSE2",
+    "Name": ""
+  },
+  {
+    "_index": 64,
+    "Id": "DONOTUSE3",
+    "Name": ""
+  },
+  {
+    "_index": 65,
+    "Id": "HeistContract",
+    "Name": "Контракты"
+  },
+  {
+    "_index": 66,
+    "Id": "HeistEquipmentWeapon",
+    "Name": "Разбойничьи принадлежности"
+  },
+  {
+    "_index": 67,
+    "Id": "HeistEquipmentTool",
+    "Name": "Разбойничий инструмент"
+  },
+  {
+    "_index": 68,
+    "Id": "HeistEquipmentUtility",
+    "Name": "Разбойничьи накидки"
+  },
+  {
+    "_index": 69,
+    "Id": "HeistEquipmentReward",
+    "Name": "Разбойничьи броши"
+  },
+  {
+    "_index": 70,
+    "Id": "HeistBlueprint",
+    "Name": "Чертежи"
+  },
+  {
+    "_index": 71,
+    "Id": "Trinket",
+    "Name": "Украшения"
+  },
+  {
+    "_index": 72,
+    "Id": "HeistObjective",
+    "Name": "Предметы кражи"
+  },
+  {
+    "_index": 73,
+    "Id": "ExpeditionLogbook",
+    "Name": "Журналы экспедиции"
+  },
+  {
+    "_index": 74,
+    "Id": "IncubatorStackable",
+    "Name": "Инкубаторы"
+  },
+  {
+    "_index": 75,
+    "Id": "ArchnemesisMod",
+    "Name": "Свойства Возмездия"
+  },
+  {
+    "_index": 76,
+    "Id": "Meta Skill Gem",
+    "Name": ""
+  },
+  {
+    "_index": 77,
+    "Id": "Spear",
+    "Name": "Копья"
+  },
+  {
+    "_index": 78,
+    "Id": "Crossbow",
+    "Name": "Самострелы"
+  },
+  {
+    "_index": 79,
+    "Id": "Focus",
+    "Name": "Фокусы"
+  },
+  {
+    "_index": 80,
+    "Id": "InstanceLocalItem",
+    "Name": "Местные предметы области"
+  },
+  {
+    "_index": 81,
+    "Id": "SentinelDrone",
+    "Name": "Часовые"
+  },
+  {
+    "_index": 82,
+    "Id": "MemoryLine",
+    "Name": "Воспоминания"
+  },
+  {
+    "_index": 83,
+    "Id": "Flail",
+    "Name": "Кистени"
+  },
+  {
+    "_index": 84,
+    "Id": "Relic",
+    "Name": "Реликвии"
+  },
+  {
+    "_index": 85,
+    "Id": "SanctumSpecialRelic",
+    "Name": "Священные реликвии"
+  },
+  {
+    "_index": 86,
+    "Id": "Breachstone",
+    "Name": "Камни Разлома"
+  },
+  {
+    "_index": 87,
+    "Id": "GiftBox",
+    "Name": ""
+  },
+  {
+    "_index": 88,
+    "Id": "VaultKey",
+    "Name": "Ключи от хранилищ"
+  },
+  {
+    "_index": 89,
+    "Id": "ItemisedSanctum",
+    "Name": "Монеты Испытания"
+  },
+  {
+    "_index": 90,
+    "Id": "DONOTUSE12",
+    "Name": ""
+  },
+  {
+    "_index": 91,
+    "Id": "UncutSkillGem_OLD",
+    "Name": ""
+  },
+  {
+    "_index": 92,
+    "Id": "Buckler",
+    "Name": "Баклеры"
+  },
+  {
+    "_index": 93,
+    "Id": "Thrown One Hand Axe",
+    "Name": ""
+  },
+  {
+    "_index": 94,
+    "Id": "Thrown Two Hand Axe",
+    "Name": ""
+  },
+  {
+    "_index": 95,
+    "Id": "ConventionTreasure",
+    "Name": ""
+  },
+  {
+    "_index": 96,
+    "Id": "TrapTool",
+    "Name": "Ловушки"
+  },
+  {
+    "_index": 97,
+    "Id": "Crossbow Attachment REMOVE",
+    "Name": ""
+  },
+  {
+    "_index": 98,
+    "Id": "SkillGemToken",
+    "Name": "Вещи на обмен"
+  },
+  {
+    "_index": 99,
+    "Id": "Nothing",
+    "Name": ""
+  },
+  {
+    "_index": 100,
+    "Id": "UltimatumKey",
+    "Name": "Начертанные Ультиматумы"
+  },
+  {
+    "_index": 101,
+    "Id": "UncutSupportGem_OLD",
+    "Name": ""
+  },
+  {
+    "_index": 102,
+    "Id": "UncutReservationGem_OLD",
+    "Name": ""
+  },
+  {
+    "_index": 103,
+    "Id": "Thrown Shield",
+    "Name": ""
+  },
+  {
+    "_index": 104,
+    "Id": "SoulCore",
+    "Name": "Усилители"
+  },
+  {
+    "_index": 105,
+    "Id": "TowerAugmentation",
+    "Name": "Плитки"
+  },
+  {
+    "_index": 106,
+    "Id": "Omen",
+    "Name": "Предзнаменования"
+  },
+  {
+    "_index": 107,
+    "Id": "PinnacleKey",
+    "Name": "Древние ключи"
+  },
+  {
+    "_index": 108,
+    "Id": "Talisman",
+    "Name": "Талисманы"
+  },
+  {
+    "_index": 109,
+    "Id": "UncutSkillGemStackable",
+    "Name": "Неогранённые камни умений"
+  },
+  {
+    "_index": 110,
+    "Id": "UncutSupportGemStackable",
+    "Name": "Неогранённые камни поддержки"
+  },
+  {
+    "_index": 111,
+    "Id": "UncutReservationGemStackable",
+    "Name": "Неогранённые камни духа"
+  },
+  {
+    "_index": 112,
+    "Id": "IncursionArm",
+    "Name": "Вознесённая рука"
+  },
+  {
+    "_index": 113,
+    "Id": "IncursionLeg",
+    "Name": "Вознесённая нога"
+  }
+]
