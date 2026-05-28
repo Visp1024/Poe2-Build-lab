@@ -30,6 +30,7 @@ public sealed class GameTranslationService
     private Dictionary<string, string> _configSections    = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, string> _configLabels      = new(StringComparer.Ordinal);
     private Dictionary<string, string> _runes             = new(StringComparer.OrdinalIgnoreCase);
+    private Dictionary<string, string> _calcLabels        = new(StringComparer.Ordinal);
     private string _loadedLang = "";
 
     private GameTranslationService()
@@ -58,6 +59,7 @@ public sealed class GameTranslationService
             _configSections    = new(StringComparer.OrdinalIgnoreCase);
             _configLabels      = new(StringComparer.Ordinal);
             _runes             = new(StringComparer.OrdinalIgnoreCase);
+            _calcLabels        = new(StringComparer.Ordinal);
             return;
         }
 
@@ -76,7 +78,17 @@ public sealed class GameTranslationService
         _configLabels      = LoadMap($"PBLApp.ViewModels.Translations.config_labels_{lang}.json",
                                      StringComparer.Ordinal);
         _runes             = LoadMap($"PBLApp.ViewModels.Translations.runes_{lang}.json");
+        _calcLabels        = LoadMap($"PBLApp.ViewModels.Translations.calc_labels_{lang}.json",
+                                     StringComparer.Ordinal);
     }
+
+    /// <summary>Translate a CalcsTab / tree hover stat label (e.g. "Total Life",
+    /// "Average Damage") to the current UI language. Falls back to the
+    /// English label when no mapping exists.</summary>
+    public string CalcLabel(string englishLabel) =>
+        _calcLabels.TryGetValue(englishLabel, out var ru) ? ru : englishLabel;
+
+    public static string TCalcLabel(string englishLabel) => Instance.CalcLabel(englishLabel);
 
     /// <summary>Translate a rune / soul core / idol name.</summary>
     public string Rune(string englishName) =>

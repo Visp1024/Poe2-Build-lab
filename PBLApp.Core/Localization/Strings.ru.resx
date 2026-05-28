@@ -334,6 +334,16 @@
   <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Выбрано: {0}</value></data>
   <data name="Tree_NodesFmt"        xml:space="preserve"><value>Нодов: {0}</value></data>
 
+  <!-- Tree node hover tooltip -->
+  <data name="Tree_Tip_AllocGives"      xml:space="preserve"><value>Выбор этой ноды даст:</value></data>
+  <data name="Tree_Tip_UnallocGives"    xml:space="preserve"><value>Отмена этой ноды даст:</value></data>
+  <data name="Tree_Tip_PathAllocGives"  xml:space="preserve"><value>Выбор пути до ноды даст:</value></data>
+  <data name="Tree_Tip_PathUnallocGives" xml:space="preserve"><value>Отмена ноды и её зависимых даст:</value></data>
+  <data name="Tree_Tip_NoChange"        xml:space="preserve"><value>Нет изменений для текущей сборки</value></data>
+  <data name="Tree_Tip_PointsFmt"       xml:space="preserve"><value>{0} очков до ноды</value></data>
+  <data name="Tree_Tip_OnePoint"        xml:space="preserve"><value>1 очко до ноды</value></data>
+  <data name="Tree_Tip_PerPointFmt"     xml:space="preserve"><value>за очко</value></data>
+
   <!-- Credits / acknowledgements window -->
   <data name="Credits_Title"        xml:space="preserve"><value>Благодарности</value></data>
   <data name="Credits_Heading"      xml:space="preserve"><value>Спасибо Path of Building Community</value></data>

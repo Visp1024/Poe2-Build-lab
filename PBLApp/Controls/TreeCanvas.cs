@@ -763,32 +763,51 @@ public sealed class TreeCanvas : Control
         }
 
         // ── Stat diff blocks ───────────────────────────────────────────────
-        void EmitDiffs(string header, NodeStatDiff[] diffs)
+        static string LocalizeHeader(string key) => key switch
+        {
+            "alloc"        => LocalizationService.Get("Tree_Tip_AllocGives"),
+            "unalloc"      => LocalizationService.Get("Tree_Tip_UnallocGives"),
+            "pathAlloc"    => LocalizationService.Get("Tree_Tip_PathAllocGives"),
+            "pathUnalloc"  => LocalizationService.Get("Tree_Tip_PathUnallocGives"),
+            _              => key,
+        };
+
+        void EmitDiffs(string headerKey, NodeStatDiff[] diffs)
         {
             if (diffs.Length == 0) return;
+            var header = LocalizeHeader(headerKey);
             var hdrFt = new FormattedText(header, CultureInfo.InvariantCulture,
                 FlowDirection.LeftToRight, bodyFace, 12, new SolidColorBrush(TextSecondaryC))
             { MaxTextWidth = contentW };
             blocks.Add((hdrFt, TextSecondaryC, SecGap));
 
+            var perPointSuffix = " " + LocalizationService.Get("Tree_Tip_PerPointFmt");
+
             foreach (var d in diffs)
             {
                 var col = d.IsPositive ? SuccessC : DangerC;
-                var line = $"{d.ValueText}  {d.Label}";
+                var label = GameTranslationService.TCalcLabel(d.Label);
+                var line = $"{d.ValueText}  {label}";
                 if (!string.IsNullOrEmpty(d.PercentText)) line += "  " + d.PercentText;
-                if (!string.IsNullOrEmpty(d.PerPointText)) line += "  " + d.PerPointText;
+                // Per-point delta comes from Lua as just the raw value
+                // ("+5%"); wrap with "[value per pt]" using the current
+                // language. Empty for single-node diffs.
+                string perPointBracket = "";
+                if (!string.IsNullOrEmpty(d.PerPointText))
+                {
+                    perPointBracket = $"[{d.PerPointText}{perPointSuffix}]";
+                    line += "  " + perPointBracket;
+                }
                 var ft = new FormattedText(line, CultureInfo.InvariantCulture,
                     FlowDirection.LeftToRight, bodyFace, 13, new SolidColorBrush(TextPrimaryC))
                 { MaxTextWidth = contentW };
-                // The +/- value at the start gets the positive/negative colour;
-                // the per-point bracket gets a muted colour for visual hierarchy.
                 int valLen = d.ValueText.Length;
                 ft.SetForegroundBrush(new SolidColorBrush(col), 0, valLen);
-                if (!string.IsNullOrEmpty(d.PerPointText))
+                if (perPointBracket.Length > 0)
                 {
-                    int idx = line.IndexOf(d.PerPointText, StringComparison.Ordinal);
+                    int idx = line.IndexOf(perPointBracket, StringComparison.Ordinal);
                     if (idx > 0)
-                        ft.SetForegroundBrush(new SolidColorBrush(TextMutedC), idx, d.PerPointText.Length);
+                        ft.SetForegroundBrush(new SolidColorBrush(TextMutedC), idx, perPointBracket.Length);
                 }
                 if (!string.IsNullOrEmpty(d.PercentText))
                 {
@@ -810,7 +829,7 @@ public sealed class TreeCanvas : Control
             EmitDiffs(info.PathDiffHeader, info.PathStatDiffs);
             if (!emittedAny && info.Mods.Length > 0 && !info.IsAllocated)
             {
-                var noteFt = new FormattedText("No measurable change for current build",
+                var noteFt = new FormattedText(LocalizationService.Get("Tree_Tip_NoChange"),
                     CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                     bodyFace, 12, new SolidColorBrush(TextMutedC))
                 { MaxTextWidth = contentW };
@@ -821,8 +840,8 @@ public sealed class TreeCanvas : Control
             if (info.PathDist > 0)
             {
                 var pathStr = info.PathDist == 1
-                    ? "1 point to allocate"
-                    : $"{info.PathDist} points to allocate";
+                    ? LocalizationService.Get("Tree_Tip_OnePoint")
+                    : string.Format(LocalizationService.Get("Tree_Tip_PointsFmt"), info.PathDist);
                 var pathFt = new FormattedText(pathStr, CultureInfo.InvariantCulture,
                     FlowDirection.LeftToRight, smallFace, 12, new SolidColorBrush(TextMutedC))
                 { MaxTextWidth = contentW };

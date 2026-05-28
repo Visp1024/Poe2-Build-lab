@@ -2448,7 +2448,9 @@ public sealed class LuaHost : IDisposable
                                 end
                                 local perPt = ''
                                 if nodeCount and nodeCount > 1 then
-                                    perPt = string.format('[%+' .. sd.fmt .. ' per pt]',
+                                    -- Emit just the raw formatted delta; the C# renderer
+                                    -- wraps it with the localised 'per point' label.
+                                    perPt = string.format('%+' .. sd.fmt,
                                         diff * ((sd.pc or sd.mod) and 100 or 1) / nodeCount)
                                 end
                                 table.insert(list, { sd.label or sd.stat, valStr, positive and 1 or 0, pcStr, perPt })
@@ -2462,30 +2464,31 @@ public sealed class LuaHost : IDisposable
 
             local calcFunc, calcBase = build.calcsTab:GetMiscCalculator(build)
             local nodeDiff, pathDiff = {}, {}
+            -- Headers returned as keys (resolved to Strings.resx by the C# side).
             local diffHeader, pathHeader = '', ''
             local pathLen = (node.path and #node.path) or 0
             if calcFunc then
                 if node.alloc then
                     local out = calcFunc({ removeNodes = { [node] = true } })
                     nodeDiff = emitDiffs(calcBase, out)
-                    diffHeader = 'Unallocating this node gives you:'
+                    diffHeader = 'unalloc'
                     if pathLen > 1 then
                         local pathNodes = {}
                         for _, n in ipairs(node.path) do pathNodes[n] = true end
                         local pOut = calcFunc({ removeNodes = pathNodes })
                         pathDiff = emitDiffs(calcBase, pOut, pathLen)
-                        pathHeader = 'Unallocating this node and its dependents gives you:'
+                        pathHeader = 'pathUnalloc'
                     end
                 else
                     local out = calcFunc({ addNodes = { [node] = true } })
                     nodeDiff = emitDiffs(calcBase, out)
-                    diffHeader = 'Allocating this node gives you:'
+                    diffHeader = 'alloc'
                     if pathLen > 1 and #node.intuitiveLeapLikesAffecting == 0 then
                         local pathNodes = {}
                         for _, n in ipairs(node.path) do pathNodes[n] = true end
                         local pOut = calcFunc({ addNodes = pathNodes })
                         pathDiff = emitDiffs(calcBase, pOut, pathLen)
-                        pathHeader = 'Allocating the path to this node gives you:'
+                        pathHeader = 'pathAlloc'
                     end
                 end
             end
