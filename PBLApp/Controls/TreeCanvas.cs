@@ -121,6 +121,20 @@ public sealed class TreeCanvas : Control
     private object?       _canAllocAllocRef;
     private object?       _canAllocNodesRef;
 
+    // ── Layered rendering: static connection bitmap ───────────────────────
+    // Connections form ~5000 anti-aliased lines that don't change unless the
+    // node set or ascendancy filter does. Bake them once into an off-screen
+    // bitmap at a fixed reference scale; on each Render, draw that bitmap
+    // transformed by the current pan/zoom. Pan becomes a translate (≈ 0 cost),
+    // zoom is a fast bitmap rescale, and only the alloc/can-alloc connection
+    // overlays + nodes redraw per frame. Re-bake when scale drifts past the
+    // resolution headroom (current bake gets blurry beyond ~1.5×).
+    private Avalonia.Media.Imaging.RenderTargetBitmap? _staticLayer;
+    private double _staticLayerScale;   // reference scale used during bake
+    private double _staticMinX, _staticMinY; // world-space top-left of the bitmap
+    private object? _staticNodesRef;
+    private string  _staticFilter = "<unset>";
+
     // ── Brushes & pens (static) ────────────────────────────────────────────
 
     private static readonly IBrush BgBrush = new SolidColorBrush(Color.Parse("#11111B"));
@@ -231,6 +245,16 @@ public sealed class TreeCanvas : Control
         {
             InvalidateVisual();
         }
+
+        // Static connection bitmap depends on Nodes + AscendancyFilter only
+        if (change.Property == NodesProperty || change.Property == AscendancyFilterProperty)
+            InvalidateStaticLayer();
+    }
+
+    private void InvalidateStaticLayer()
+    {
+        _staticLayer?.Dispose();
+        _staticLayer = null;
     }
 
     public override void Render(DrawingContext dc)
@@ -281,31 +305,52 @@ public sealed class TreeCanvas : Control
         if (!string.IsNullOrEmpty(filter))
             DrawAscendancyBackground(dc, filter);
 
-        // ── Draw connections ───────────────────────────────────────────────
+        // ── Static connection layer (cached bitmap) ────────────────────────
+        // Draw the ~5000 baseline (ConnPen) lines as a single textured rect.
+        // Pan is free, zoom is one bilinear filter. Alloc / can-alloc edges
+        // get drawn on top with heavier pens that fully cover the cached line
+        // so colour transitions look right.
+        EnsureStaticLayer(filter);
+        if (_staticLayer != null)
+        {
+            var ratio = _scale / _staticLayerScale;
+            double dx = _staticMinX * _scale + _offsetX;
+            double dy = _staticMinY * _scale + _offsetY;
+            double dw = _staticLayer.PixelSize.Width  * ratio;
+            double dh = _staticLayer.PixelSize.Height * ratio;
+            dc.DrawImage(_staticLayer, new Rect(dx, dy, dw, dh));
+        }
+
+        // ── Alloc / can-alloc connection overlay ──────────────────────────
+        // Only the edges whose state differs from the cached neutral version
+        // need redrawing. Cheap loop — typically <300 edges out of ~5000.
         foreach (var node in nodes)
         {
             if (!IsNodeVisible(node, filter)) continue;
-            var (fromX, fromY) = W2S(node);
+            bool nAlloc = alloc?.Contains(node.Id) == true;
+            bool nCan   = canAlloc?.Contains(node.Id) == true;
+            if (!nAlloc && !nCan) continue;
 
+            var (fromX, fromY) = W2S(node);
             foreach (var lid in node.LinkedIds)
             {
                 if (lid >= node.Id) continue;
                 if (!_nodeById.TryGetValue(lid, out var tgt)) continue;
                 if (!IsNodeVisible(tgt, filter)) continue;
-                // Skip cross-boundary connections (main tree ↔ ascendancy)
                 bool srcAsc = !string.IsNullOrEmpty(node.AscendancyName);
                 bool tgtAsc = !string.IsNullOrEmpty(tgt.AscendancyName);
                 if (srcAsc != tgtAsc) continue;
 
-                var (toX, toY) = W2S(tgt);
+                bool bothAlloc = nAlloc && alloc!.Contains(lid);
+                bool eitherCan = nCan   || (canAlloc?.Contains(lid) == true);
+                if (!bothAlloc && !eitherCan) continue;
 
+                var (toX, toY) = W2S(tgt);
                 double mx = Math.Min(fromX, toX), Mx = Math.Max(fromX, toX);
                 double my = Math.Min(fromY, toY), My = Math.Max(fromY, toY);
                 if (Mx < 0 || mx > Bounds.Width || My < 0 || my > Bounds.Height) continue;
 
-                bool bothAlloc = alloc != null && alloc.Contains(node.Id) && alloc.Contains(lid);
-                bool eitherCan = canAlloc != null && (canAlloc.Contains(node.Id) || canAlloc.Contains(lid));
-                var pen = bothAlloc ? ConnAllocPen : eitherCan ? CanAllocPen : ConnPen;
+                var pen = bothAlloc ? ConnAllocPen : CanAllocPen;
                 dc.DrawLine(pen, new Point(fromX, fromY), new Point(toX, toY));
             }
         }
@@ -670,6 +715,10 @@ public sealed class TreeCanvas : Control
         _offsetX = pos.X + (_offsetX - pos.X) * fac;
         _offsetY = pos.Y + (_offsetY - pos.Y) * fac;
         _scale  *= fac;
+        // If the user zoomed in well past the baked resolution, force a rebake
+        // so the static connections stay sharp. Out by 50 % triggers a refresh.
+        if (_staticLayer != null && _scale > _staticLayerScale * 1.5)
+            InvalidateStaticLayer();
         InvalidateVisual();
         e.Handled = true;
     }
@@ -733,6 +782,81 @@ public sealed class TreeCanvas : Control
             }
             _ascendRadii[name] = maxR;
         }
+    }
+
+    /// <summary>(Re)bake the static connection layer if it's missing or stale.
+    /// The layer is drawn in bitmap coordinates with the world origin shifted
+    /// to (0,0), scaled by <see cref="_staticLayerScale"/>. On render we draw
+    /// it back with a destRect computed from the current pan/zoom.</summary>
+    private void EnsureStaticLayer(string filter)
+    {
+        var nodes = Nodes;
+        if (nodes == null || nodes.Count == 0) return;
+
+        bool stale = _staticLayer == null
+                  || !ReferenceEquals(nodes, _staticNodesRef)
+                  || _staticFilter != filter;
+        if (!stale) return;
+
+        // Reference scale: bake at a moderate density, with headroom for some
+        // zooming-in. Tied to the current scale so first-paint quality is good.
+        double refScale = Math.Max(_scale, 0.18);
+
+        // Compute world-space bounds covering all visible-or-potentially-visible
+        // nodes (including ascendancies, with their per-ascendancy offsets applied).
+        // We deliberately include ALL connection endpoints — the per-node draw
+        // loop filters by ascendancy at paint time, so any stale lines from
+        // hidden ascendancies stay hidden because they're drawn off-screen.
+        double minX = double.MaxValue, maxX = double.MinValue;
+        double minY = double.MaxValue, maxY = double.MinValue;
+        foreach (var n in nodes)
+        {
+            if (!IsNodeVisible(n, filter)) continue;
+            var (wx, wy) = EffectiveWorld(n);
+            if (wx < minX) minX = wx;
+            if (wx > maxX) maxX = wx;
+            if (wy < minY) minY = wy;
+            if (wy > maxY) maxY = wy;
+        }
+        if (minX > maxX || minY > maxY) return;
+        const double pad = 50;
+        minX -= pad; minY -= pad; maxX += pad; maxY += pad;
+
+        int pxW = Math.Min(4096, Math.Max(64, (int)((maxX - minX) * refScale)));
+        int pxH = Math.Min(4096, Math.Max(64, (int)((maxY - minY) * refScale)));
+
+        var bmp = new Avalonia.Media.Imaging.RenderTargetBitmap(
+            new PixelSize(pxW, pxH), new Vector(96, 96));
+        using (var ctx = bmp.CreateDrawingContext())
+        {
+            // World → bitmap: (wx - minX) * refScale
+            foreach (var node in nodes)
+            {
+                if (!IsNodeVisible(node, filter)) continue;
+                var (wx1, wy1) = EffectiveWorld(node);
+                foreach (var lid in node.LinkedIds)
+                {
+                    if (lid >= node.Id) continue;
+                    if (!_nodeById.TryGetValue(lid, out var tgt)) continue;
+                    if (!IsNodeVisible(tgt, filter)) continue;
+                    bool srcAsc = !string.IsNullOrEmpty(node.AscendancyName);
+                    bool tgtAsc = !string.IsNullOrEmpty(tgt.AscendancyName);
+                    if (srcAsc != tgtAsc) continue;
+                    var (wx2, wy2) = EffectiveWorld(tgt);
+                    ctx.DrawLine(ConnPen,
+                        new Point((wx1 - minX) * refScale, (wy1 - minY) * refScale),
+                        new Point((wx2 - minX) * refScale, (wy2 - minY) * refScale));
+                }
+            }
+        }
+
+        _staticLayer?.Dispose();
+        _staticLayer       = bmp;
+        _staticLayerScale  = refScale;
+        _staticMinX        = minX;
+        _staticMinY        = minY;
+        _staticNodesRef    = nodes;
+        _staticFilter      = filter;
     }
 
     private void FitToView()
