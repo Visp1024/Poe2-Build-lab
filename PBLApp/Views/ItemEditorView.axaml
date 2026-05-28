@@ -670,6 +670,7 @@
 
                 <!-- Mods list: implicits (read-only) + explicits (unified template) -->
                 <Border Grid.Column="0"
+                        Padding="0,0,8,0"
                         Background="Transparent"
                         BorderBrush="Transparent" BorderThickness="0">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -720,28 +721,31 @@
                                                                    Foreground="{DynamicResource RarityMagicBrush}" FontSize="13"/>
                                                     </StackPanel>
 
-                                                    <!-- Slider for numeric ranges -->
+                                                    <!-- Slider for numeric ranges. Margin on the slider gives the
+                                                         thumb room to render past the track ends without being
+                                                         clipped by the parent panel padding. -->
                                                     <Grid IsVisible="{Binding HasSlider}"
-                                                          ColumnDefinitions="Auto,*,Auto">
+                                                          ColumnDefinitions="Auto,*,Auto"
+                                                          Margin="0,4,8,2">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{Binding SliderMin, StringFormat='{}{0:0.##}'}"
                                                                    Foreground="{DynamicResource TextMutedBrush}" FontSize="14"
                                                                    VerticalAlignment="Center"
-                                                                   Margin="0,0,6,0"/>
+                                                                   Margin="0,0,10,0"/>
                                                         <Slider Grid.Column="1"
                                                                 Minimum="{Binding SliderMin}"
                                                                 Maximum="{Binding SliderMax}"
                                                                 Value="{Binding SliderValue}"
                                                                 TickFrequency="1"
                                                                 IsSnapToTickEnabled="True"
-                                                                MinWidth="200"
-                                                                Height="22"
+                                                                HorizontalAlignment="Stretch"
+                                                                Margin="0,0,0,0"
                                                                 VerticalAlignment="Center"/>
                                                         <TextBlock Grid.Column="2"
                                                                    Text="{Binding SliderMax, StringFormat='{}{0:0.##}'}"
                                                                    Foreground="{DynamicResource TextMutedBrush}" FontSize="14"
                                                                    VerticalAlignment="Center"
-                                                                   Margin="6,0,0,0"/>
+                                                                   Margin="10,0,0,0"/>
                                                     </Grid>
                                                 </StackPanel>
 

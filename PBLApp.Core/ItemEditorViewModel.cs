@@ -392,13 +392,16 @@ public partial class ItemEditorViewModel : ViewModelBase
                               nameof(EffectiveEnergyShield), nameof(EffectiveWard))]
     private int _baseQualityPct = 0;
 
-    /// <summary>Whether the item is corrupted. Locks mod editing in PoB semantics.</summary>
+    /// <summary>Whether the item is corrupted. Cosmetic flag only — does NOT lock
+    /// mod editing here (PoB game semantics would, but for build planning we want
+    /// the user to keep tweaking sliders / removing mods on corrupted gear).</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanEditMods))]
     private bool _isCorrupted = false;
 
-    /// <summary>When corrupted, mod editing is disabled (PoB rule).</summary>
-    public bool CanEditMods => !IsCorrupted;
+    /// <summary>Mod editing is always allowed in the planner; kept as a property
+    /// so existing bindings continue to compile and any future read-only logic
+    /// has a single switch to flip.</summary>
+    public bool CanEditMods => true;
 
     // ── Base defence / spirit / charm slot stats ─────────────────────────────
     // Values default to 0 (= "not present in raw"). The UI hides rows where

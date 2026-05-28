@@ -275,6 +275,7 @@
   <data name="Sidebar_Mana"         xml:space="preserve"><value>Mana:</value></data>
   <data name="Sidebar_Armour"       xml:space="preserve"><value>Armour:</value></data>
   <data name="Sidebar_Eva"          xml:space="preserve"><value>Eva:</value></data>
+  <data name="Sidebar_Spirit"       xml:space="preserve"><value>Spirit:</value></data>
 
   <!-- Items tab section headers and pool -->
   <data name="Item_EquippedHeader"  xml:space="preserve"><value>EQUIPPED ITEMS</value></data>
