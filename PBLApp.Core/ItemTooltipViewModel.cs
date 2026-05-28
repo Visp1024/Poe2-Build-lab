@@ -36,6 +36,12 @@ public sealed class TooltipLineVm
 public partial class ItemTooltipViewModel : ViewModelBase
 {
     public ObservableCollection<TooltipLineVm> Lines { get; } = new();
+    /// <summary>Lines belonging to the item itself (block == 1). Rendered in the left
+    /// column of the tooltip view.</summary>
+    public ObservableCollection<TooltipLineVm> ItemLines { get; } = new();
+    /// <summary>Lines belonging to the equip/unequip delta comparison (block ≥ 2).
+    /// Rendered in a side column so they don't push item info downward.</summary>
+    public ObservableCollection<TooltipLineVm> DeltaLines { get; } = new();
 
     /// <summary>
     /// True when the tooltip is empty (no item to show). Use to hide the view.
@@ -43,9 +49,14 @@ public partial class ItemTooltipViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isEmpty = true;
 
+    [ObservableProperty]
+    private bool _hasDelta;
+
     public void Load(IEnumerable<ItemTooltipLine> rawLines)
     {
         Lines.Clear();
+        ItemLines.Clear();
+        DeltaLines.Clear();
         foreach (var line in rawLines)
         {
             if (line.Kind == "separator")
@@ -89,6 +100,17 @@ public partial class ItemTooltipViewModel : ViewModelBase
                 });
             }
         }
+        // Split into item info (block 1) vs delta block (block ≥ 2). Leading/trailing
+        // separators in the delta block are dropped — they're meaningless once the
+        // block is shown in its own column.
+        foreach (var l in Lines)
+        {
+            if (l.Block <= 1) ItemLines.Add(l);
+            else DeltaLines.Add(l);
+        }
+        while (DeltaLines.Count > 0 && DeltaLines[0].Kind == "separator") DeltaLines.RemoveAt(0);
+        while (DeltaLines.Count > 0 && DeltaLines[^1].Kind == "separator") DeltaLines.RemoveAt(DeltaLines.Count - 1);
+        HasDelta = DeltaLines.Count > 0;
         IsEmpty = Lines.Count == 0;
     }
 

@@ -1,14 +1,14 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:PBLApp.ViewModels"
+             xmlns:ctl="using:PBLApp.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="700"
+             mc:Ignorable="d" d:DesignWidth="820" d:DesignHeight="700"
              x:Class="PBLApp.Views.ItemTooltipView"
              x:DataType="vm:ItemTooltipViewModel">
 
     <UserControl.Styles>
-        <!-- Frame: dark scroll-like background + warm gold outline -->
         <Style Selector="Border.tooltip-frame">
             <Setter Property="Background" Value="{DynamicResource TooltipBgBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderGoldBrush}"/>
@@ -16,57 +16,90 @@
             <Setter Property="CornerRadius" Value="2"/>
             <Setter Property="Padding" Value="14,12"/>
         </Style>
-        <!-- Inner soft inset glow look: a second slim border just inside -->
         <Style Selector="Border.tooltip-inset">
             <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderBrownBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="1"/>
             <Setter Property="Background" Value="Transparent"/>
         </Style>
+        <!-- A single Inline-driven TextBlock per line so long titles wrap inside the
+             column rather than overflowing. WrapPanel of separate TextBlocks doesn't
+             word-wrap; only the row-of-runs wraps. -->
+        <Style Selector="TextBlock.tt-line">
+            <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="LineHeight" Value="22"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        </Style>
+        <Style Selector="Border.tt-sep">
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Background" Value="{DynamicResource TooltipBorderBrownBrush}"/>
+            <Setter Property="Margin" Value="0,6,0,6"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+        <Style Selector="TextBlock.tt-delta-header">
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Per-line DataTemplate logic: separator vs text -->
     </UserControl.Styles>
 
-    <Border Classes="tooltip-frame" MaxWidth="620">
+    <Border Classes="tooltip-frame">
         <Border Classes="tooltip-inset" Padding="10,8">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Lines}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="vm:TooltipLineVm">
-                            <Grid Margin="0,2">
-                                <!-- Separator row -->
-                                <Border IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsSeparator}}"
-                                        Height="1"
-                                        Background="{DynamicResource TooltipBorderBrownBrush}"
-                                        Margin="0,6,0,6"
-                                        HorizontalAlignment="Stretch" />
-                                <!-- Text row: WrapPanel hosts one TextBlock per coloured segment.
-                                     FontSize maps PoB sizes (14/18/22) 1:1 to DIPs — denser scaling
-                                     was unreadable. Headers (size ≥ 20) bold via WeightForSize. -->
-                                <ItemsControl IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsText}}"
-                                              ItemsSource="{Binding Segments}"
-                                              HorizontalAlignment="{Binding Centered, Converter={x:Static vm:TooltipKindConverter.CenterOrLeft}}"
-                                              Tag="{Binding Size}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate DataType="vm:TooltipSegment">
-                                            <TextBlock Text="{Binding Text}"
-                                                       Foreground="{Binding ColorHex, Converter={x:Static vm:TooltipKindConverter.HexToBrush}}"
-                                                       FontFamily="Inter, Segoe UI, Arial"
-                                                       FontSize="{Binding $parent[ItemsControl].Tag, Converter={x:Static vm:TooltipKindConverter.ScaleSize}}"
-                                                       FontWeight="{Binding $parent[ItemsControl].Tag, Converter={x:Static vm:TooltipKindConverter.WeightForSize}}"
-                                                       LineHeight="22"
-                                                       TextWrapping="Wrap" />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <Grid ColumnDefinitions="*,Auto,*">
+                    <!-- ── Item info (block 1) ─────────────────────────────────── -->
+                    <ItemsControl Grid.Column="0"
+                                  ItemsSource="{Binding ItemLines}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:TooltipLineVm">
+                                <Grid Margin="0,2">
+                                    <Border Classes="tt-sep"
+                                            IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsSeparator}}"/>
+                                    <TextBlock Classes="tt-line"
+                                               IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsText}}"
+                                               ctl:InlinesHelper.ItemSegments="{Binding Segments}"
+                                               FontSize="{Binding Size, Converter={x:Static vm:TooltipKindConverter.ScaleSize}}"
+                                               FontWeight="{Binding Size, Converter={x:Static vm:TooltipKindConverter.WeightForSize}}"
+                                               HorizontalAlignment="{Binding Centered, Converter={x:Static vm:TooltipKindConverter.CenterOrLeft}}"
+                                               TextAlignment="{Binding Centered, Converter={x:Static vm:TooltipKindConverter.CenterOrLeftTextAlignment}}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- ── Vertical divider (only when delta block exists) ─────── -->
+                    <Border Grid.Column="1"
+                            Width="1"
+                            Margin="14,0,14,0"
+                            Background="{DynamicResource TooltipBorderBrownBrush}"
+                            IsVisible="{Binding HasDelta}"/>
+
+                    <!-- ── Equip / unequip delta (block ≥ 2) ────────────────────── -->
+                    <StackPanel Grid.Column="2"
+                                IsVisible="{Binding HasDelta}">
+                        <ItemsControl ItemsSource="{Binding DeltaLines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:TooltipLineVm">
+                                    <Grid Margin="0,1">
+                                        <Border Classes="tt-sep"
+                                                IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsSeparator}}"/>
+                                        <TextBlock Classes="tt-line"
+                                                   IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsText}}"
+                                                   ctl:InlinesHelper.ItemSegments="{Binding Segments}"
+                                                   FontSize="{Binding Size, Converter={x:Static vm:TooltipKindConverter.ScaleSize}}"
+                                                   FontWeight="{Binding Size, Converter={x:Static vm:TooltipKindConverter.WeightForSize}}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
             </ScrollViewer>
         </Border>
     </Border>
