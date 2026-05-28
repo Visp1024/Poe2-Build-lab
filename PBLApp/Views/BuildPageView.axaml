@@ -101,6 +101,13 @@
                                Foreground="{DynamicResource StatEvasionBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="{loc:Tr Sidebar_Spirit}" Classes="caption" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Build.Spirit, StringFormat={}{0:N0}}"
+                               Classes="num-md"
+                               Foreground="{DynamicResource AttrIntBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
 
                 <!-- Divider between stats and main-skill selector -->
                 <Border Width="1"

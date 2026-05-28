@@ -52,6 +52,9 @@ public sealed class BuildModel : INotifyPropertyChanged
     private double _evasion;
     public double Evasion { get => _evasion; private set => Set(ref _evasion, value); }
 
+    private double _spirit;
+    public double Spirit { get => _spirit; private set => Set(ref _spirit, value); }
+
     private double _physicalReduction;
     public double PhysicalReduction { get => _physicalReduction; private set => Set(ref _physicalReduction, value); }
 
@@ -110,6 +113,7 @@ public sealed class BuildModel : INotifyPropertyChanged
         EnergyShield      = ReadDouble("EnergyShield");
         Armour            = ReadDouble("Armour");
         Evasion           = ReadDouble("Evasion");
+        Spirit            = ReadDouble("Spirit");
         PhysicalReduction = ReadDouble("PhysicalReduction");
     }
 
