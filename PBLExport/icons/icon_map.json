@@ -20120,6 +20120,138 @@
       "url": "https://cdn.poe2db.tw/image/Art/2DItems/Jewels/Uniques/Vivisection.webp",
       "file": "Art/2DItems/Jewels/Uniques/Vivisection.webp",
       "alt": false
+    },
+    "Gamblesprint": {
+      "file": "Art/2DItems/Armours/Boots/Uniques/Gamblesprint.png"
+    },
+    "Painter's Servant": {
+      "file": "Art/2DItems/Armours/Gloves/Uniques/PaintersServant.png"
+    },
+    "Doedre's Tenure": {
+      "file": "Art/2DItems/Armours/Gloves/Uniques/EnraptHands.png"
+    },
+    "Maligaro's Virtuosity": {
+      "file": "Art/2DItems/Armours/Gloves/Uniques/MaligarosVirtuosity.png"
+    },
+    "Corpsewade": {
+      "file": "Art/2DItems/Armours/Boots/Uniques/Corpsewade.png"
+    },
+    "Forbidden Gaze": {
+      "file": "Art/2DItems/Armours/Helmets/Uniques/ForbiddenGaze.png"
+    },
+    "Aurseize": {
+      "file": "Art/2DItems/Armours/Gloves/Uniques/Aurseize.png"
+    },
+    "Queen of the Forest": {
+      "file": "Art/2DItems/Armours/BodyArmours/Uniques/QueenOfTheForest.png"
+    },
+    "Bones of Ullr": {
+      "file": "Art/2DItems/Armours/Boots/Uniques/BonesOfUllr.png"
+    },
+    "Carnage Heart": {
+      "file": "Art/2DItems/Amulets/Uniques/CarnageHeart.png"
+    },
+    "Thunderstep": {
+      "file": "Art/2DItems/Armours/Boots/Uniques/ThunderousSilence.png"
+    },
+    "Ming's Heart": {
+      "file": "Art/2DItems/Rings/Uniques/MingsHeart.png"
+    },
+    "Blackflame": {
+      "file": "Art/2DItems/Rings/Uniques/Blackflame.png"
+    },
+    "Death Rush": {
+      "file": "Art/2DItems/Rings/Uniques/DeathRush.png"
+    },
+    "Thief's Torment": {
+      "file": "Art/2DItems/Rings/Uniques/ThiefsTorment.png"
+    },
+    "Kalandra's Touch": {
+      "file": "Art/2DItems/Rings/MirrorRing.png"
+    },
+    "Perandus Seal": {
+      "file": "Art/2DItems/Rings/Uniques/PerandusSeal.png"
+    },
+    "Heartbound Loop": {
+      "file": "Art/2DItems/Rings/Uniques/HeartboundLoop.png"
+    },
+    "Meginord's Girdle": {
+      "file": "Art/2DItems/Belts/Uniques/MeginordsGirdle.png"
+    },
+    "Keelhaul": {
+      "file": "Art/2DItems/Belts/Uniques/Keelhaul.png"
+    },
+    "Infernoclasp": {
+      "file": "Art/2DItems/Belts/Uniques/Infernoclasp.png"
+    },
+    "Merit of Service": {
+      "file": "Art/2DItems/Offhand/Shields/Uniques/MeritOfService.png"
+    },
+    "Ryslatha's Coil": {
+      "file": "Art/2DItems/Belts/Uniques/RyslathasCoil.png"
+    },
+    "Headhunter": {
+      "file": "Art/2DItems/Belts/Uniques/Headhunter.png"
+    },
+    "Olroth's Resolve": {
+      "file": "Art/2DItems/Flasks/Uniques/OlrothsResolve.png"
+    },
+    "Birthright Buckle": {
+      "file": "Art/2DItems/Belts/Uniques/BirthrightBuckle.png"
+    },
+    "Icefang Orbit": {
+      "file": "Art/2DItems/Rings/Uniques/IcefangOrbit.png"
+    },
+    "Vigilant View": {
+      "file": "Art/2DItems/Rings/Uniques/VigilantView.png"
+    },
+    "Gifts from Above": {
+      "file": "Art/2DItems/Rings/Uniques/GiftsFromAbove.png"
+    },
+    "Bijouborne": {
+      "file": "Art/2DItems/Belts/Uniques/Twinclasp.png"
+    },
+    "Nightscale": {
+      "file": "Art/2DItems/Armours/Gloves/Uniques/Nightscale.png"
+    },
+    "The Fallen Formation": {
+      "file": "Art/2DItems/Armours/BodyArmours/Uniques/FallenFormation.png"
+    },
+    "Valako's Vice": {
+      "file": "Art/2DItems/Armours/Gloves/Uniques/ValakosVice.png"
+    },
+    "Empire's Grasp": {
+      "file": "Art/2DItems/Armours/Gloves/Uniques/EmpiresGrasp.png"
+    },
+    "Leopold's Applause": {
+      "file": "Art/2DItems/Armours/Gloves/Uniques/LeopoldsApplause.png"
+    },
+    "Skysliver": {
+      "file": "Art/2DItems/Weapons/OneHandWeapons/OneHandSpears/Uniques/Skysliver.png"
+    },
+    "For Utopia": {
+      "file": "Art/2DItems/Charms/Uniques/StoneUniqueCharm.png"
+    },
+    "Sanguis Heroum": {
+      "file": "Art/2DItems/Charms/Uniques/StaunchingUniqueCharm.png"
+    },
+    "Arakaali's Gift": {
+      "file": "Art/2DItems/Charms/Uniques/AntidoteUniqueCharm.png"
+    },
+    "The Black Cat": {
+      "file": "Art/2DItems/Charms/Uniques/GroundingUniqueCharm.png"
+    },
+    "Forsaken Bangle": {
+      "file": "Art/2DItems/Charms/Uniques/ChaosUniqueCharm.png"
+    },
+    "Lavianga's Spirits": {
+      "file": "Art/2DItems/Flasks/Uniques/LaviangasSpirit.png"
+    },
+    "Umbilicus Immortalis": {
+      "file": "Art/2DItems/Belts/Uniques/UmbilicusImmortalis.png"
+    },
+    "Ingenuity": {
+      "file": "Art/2DItems/Belts/Uniques/Widowmaker.png"
     }
   }
 }
