@@ -134,9 +134,47 @@ public partial class ItemSlotViewModel : ObservableObject
         OnPropertyChanged(nameof(Explicits));
         OnPropertyChanged(nameof(IconPath));
         OnPropertyChanged(nameof(HasIcon));
+        OnPropertyChanged(nameof(HoverTooltipText));
     }
 
     public bool HasIcon => !string.IsNullOrEmpty(IconPath);
+
+    /// <summary>Plain-text hover tooltip shown over the slot in the figure.
+    /// Empty slots get just the slot label; equipped slots show the localised
+    /// display name + item level + key affix lines. Avalonia's ToolTip.Tip
+    /// accepts strings as-is — no view location needed.</summary>
+    public string HoverTooltipText
+    {
+        get
+        {
+            if (IsEmpty) return SlotLabel;
+            var sb = new System.Text.StringBuilder();
+            sb.Append(LeftDisplayName);
+            if (ItemLevel > 0) sb.Append("  (ilvl ").Append(ItemLevel).Append(')');
+            void AppendList(IReadOnlyList<string> lines)
+            {
+                foreach (var raw in lines)
+                {
+                    if (string.IsNullOrWhiteSpace(raw)) continue;
+                    var clean = StripColorCodes(raw);
+                    if (clean.Length == 0) continue;
+                    sb.Append('\n').Append(clean);
+                }
+            }
+            AppendList(Implicits);
+            AppendList(Explicits);
+            return sb.ToString();
+        }
+    }
+
+    /// <summary>Strip PoB inline colour escapes (^xRRGGBB / ^d) and template
+    /// placeholders ({range:0}, {crafted}, …) so the hover tooltip stays plain.</summary>
+    private static string StripColorCodes(string s)
+    {
+        s = System.Text.RegularExpressions.Regex.Replace(s, @"\^x[0-9A-Fa-f]{6}|\^\d", "");
+        s = System.Text.RegularExpressions.Regex.Replace(s, @"\{[a-zA-Z_:0-9]+\}", "");
+        return s.Trim();
+    }
 
     public void NotifySelectionChanged() => OnPropertyChanged(nameof(IsSelected));
 
@@ -244,6 +282,10 @@ public sealed class ItemPoolEntryViewModel : ObservableObject
 
     public IRelayCommand SelectCommand { get; }
     public IRelayCommand DeleteCommand { get; }
+
+    /// <summary>Plain-text hover tooltip lazily built by the parent tab when first asked.
+    /// Includes item name, ilvl, and the equipped slot (if any).</summary>
+    public string HoverTooltipText => _parent.GetPoolHoverTooltipText(ItemId);
 
     public ItemPoolEntryViewModel(ItemsTabViewModel parent, ItemPoolEntry entry)
     {
@@ -487,6 +529,33 @@ public partial class ItemsTabViewModel : ViewModelBase
     {
         SelectedPoolItemId = -1;
         SelectedSlotName   = slotName;   // triggers OnSelectedSlotNameChanged
+    }
+
+    /// <summary>Build a plain-text hover tooltip for the pool item with the given id.
+    /// Pulls full mod text via LuaHost.GetItemTooltipLines so even unequipped items
+    /// show their affixes on hover. Lazy — only called by Avalonia when the tooltip
+    /// is about to open.</summary>
+    internal string GetPoolHoverTooltipText(int itemId)
+    {
+        try
+        {
+            var lines = _host.GetItemTooltipLines(itemId, null);
+            if (lines.Count == 0) return "";
+            var sb = new System.Text.StringBuilder();
+            foreach (var line in lines)
+            {
+                if (line.Kind == "separator") continue;
+                var clean = System.Text.RegularExpressions.Regex.Replace(line.Text,
+                    @"\^x[0-9A-Fa-f]{6}|\^\d", "");
+                clean = System.Text.RegularExpressions.Regex.Replace(clean,
+                    @"\{[a-zA-Z_:0-9]+\}", "").Trim();
+                if (clean.Length == 0) continue;
+                if (sb.Length > 0) sb.Append('\n');
+                sb.Append(clean);
+            }
+            return sb.ToString();
+        }
+        catch { return ""; }
     }
 
     partial void OnSelectedSlotNameChanged(string slotName)

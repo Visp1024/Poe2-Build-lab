@@ -78,7 +78,8 @@
         <Style Selector="StackPanel.slot-fallback">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Spacing" Value="2"/>
+            <Setter Property="Spacing" Value="1"/>
+            <Setter Property="Margin" Value="2"/>
         </Style>
         <Style Selector="TextBlock.slot-fallback-label">
             <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
@@ -90,12 +91,22 @@
         <Style Selector="TextBlock.slot-fallback-name">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="LineHeight" Value="12"/>
+            <Setter Property="LineHeight" Value="11"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="MaxWidth" Value="92"/>
+        </Style>
+        <!-- Compact variant for small 1x1 / narrow slots (Ring, Amulet, Charm, Belt) -->
+        <Style Selector="TextBlock.slot-fallback-name-compact">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="LineHeight" Value="10"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
 
         <!-- Item icon inside the pool-row thumbnail -->
@@ -280,7 +291,7 @@
                                 <Border Canvas.Left="197" Canvas.Top="15" Width="145" Height="115" Classes="slot-cell"
                                         Classes.selected="{Binding Helmet.IsSelected}"
                                         BorderBrush="{Binding Helmet.NameColor}"
-                                        Tag="slot:Helmet">
+                                        Tag="slot:Helmet" ToolTip.Tip="{Binding Helmet.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Helmet.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -299,7 +310,7 @@
                                 <Border Canvas.Left="348" Canvas.Top="60" Width="70" Height="70" Classes="slot-cell"
                                         Classes.selected="{Binding Amulet.IsSelected}"
                                         BorderBrush="{Binding Amulet.NameColor}"
-                                        Tag="slot:Amulet">
+                                        Tag="slot:Amulet" ToolTip.Tip="{Binding Amulet.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Amulet.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -309,7 +320,7 @@
                                             <TextBlock Text="{loc:Tr Slot_Amulet}" Classes="slot-fallback-label"/>
                                             <TextBlock Text="{Binding Amulet.LeftDisplayName}"
                                                        Foreground="{Binding Amulet.NameColor}"
-                                                       Classes="slot-fallback-name"/>
+                                                       Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -319,7 +330,7 @@
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon1.IsSelected}"
                                         BorderBrush="{Binding Weapon1.NameColor}"
-                                        Tag="slot:Weapon 1">
+                                        Tag="slot:Weapon 1" ToolTip.Tip="{Binding Weapon1.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Weapon1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -339,7 +350,7 @@
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon1Swap.IsSelected}"
                                         BorderBrush="{Binding Weapon1Swap.NameColor}"
-                                        Tag="slot:Weapon 1 Swap">
+                                        Tag="slot:Weapon 1 Swap" ToolTip.Tip="{Binding Weapon1Swap.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Weapon1Swap.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -358,7 +369,7 @@
                                 <Border Canvas.Left="197" Canvas.Top="140" Width="145" Height="175" Classes="slot-cell"
                                         Classes.selected="{Binding BodyArmour.IsSelected}"
                                         BorderBrush="{Binding BodyArmour.NameColor}"
-                                        Tag="slot:Body Armour">
+                                        Tag="slot:Body Armour" ToolTip.Tip="{Binding BodyArmour.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding BodyArmour.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -377,7 +388,7 @@
                                 <Border Canvas.Left="122" Canvas.Top="147" Width="70" Height="70" Classes="slot-cell"
                                         Classes.selected="{Binding Ring1.IsSelected}"
                                         BorderBrush="{Binding Ring1.NameColor}"
-                                        Tag="slot:Ring 1">
+                                        Tag="slot:Ring 1" ToolTip.Tip="{Binding Ring1.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Ring1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -387,7 +398,7 @@
                                             <TextBlock Text="{loc:Tr Slot_Ring1}" Classes="slot-fallback-label"/>
                                             <TextBlock Text="{Binding Ring1.LeftDisplayName}"
                                                        Foreground="{Binding Ring1.NameColor}"
-                                                       Classes="slot-fallback-name"/>
+                                                       Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -396,7 +407,7 @@
                                 <Border Canvas.Left="348" Canvas.Top="147" Width="70" Height="70" Classes="slot-cell"
                                         Classes.selected="{Binding Ring2.IsSelected}"
                                         BorderBrush="{Binding Ring2.NameColor}"
-                                        Tag="slot:Ring 2">
+                                        Tag="slot:Ring 2" ToolTip.Tip="{Binding Ring2.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Ring2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -406,7 +417,7 @@
                                             <TextBlock Text="{loc:Tr Slot_Ring2}" Classes="slot-fallback-label"/>
                                             <TextBlock Text="{Binding Ring2.LeftDisplayName}"
                                                        Foreground="{Binding Ring2.NameColor}"
-                                                       Classes="slot-fallback-name"/>
+                                                       Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -416,7 +427,7 @@
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon2.IsSelected}"
                                         BorderBrush="{Binding Weapon2.NameColor}"
-                                        Tag="slot:Weapon 2">
+                                        Tag="slot:Weapon 2" ToolTip.Tip="{Binding Weapon2.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Weapon2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -436,7 +447,7 @@
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon2Swap.IsSelected}"
                                         BorderBrush="{Binding Weapon2Swap.NameColor}"
-                                        Tag="slot:Weapon 2 Swap">
+                                        Tag="slot:Weapon 2 Swap" ToolTip.Tip="{Binding Weapon2Swap.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Weapon2Swap.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -455,7 +466,7 @@
                                 <Border Canvas.Left="197" Canvas.Top="325" Width="145" Height="60" Classes="slot-cell"
                                         Classes.selected="{Binding Belt.IsSelected}"
                                         BorderBrush="{Binding Belt.NameColor}"
-                                        Tag="slot:Belt">
+                                        Tag="slot:Belt" ToolTip.Tip="{Binding Belt.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Belt.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -465,7 +476,7 @@
                                             <TextBlock Text="{loc:Tr Slot_Belt}" Classes="slot-fallback-label"/>
                                             <TextBlock Text="{Binding Belt.LeftDisplayName, FallbackValue=''}"
                                                        Foreground="{Binding Belt.NameColor}"
-                                                       Classes="slot-fallback-name"/>
+                                                       Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -474,7 +485,7 @@
                                 <Border Canvas.Left="60" Canvas.Top="259" Width="132" Height="126" Classes="slot-cell"
                                         Classes.selected="{Binding Gloves.IsSelected}"
                                         BorderBrush="{Binding Gloves.NameColor}"
-                                        Tag="slot:Gloves">
+                                        Tag="slot:Gloves" ToolTip.Tip="{Binding Gloves.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Gloves.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -493,7 +504,7 @@
                                 <Border Canvas.Left="348" Canvas.Top="259" Width="132" Height="126" Classes="slot-cell"
                                         Classes.selected="{Binding Boots.IsSelected}"
                                         BorderBrush="{Binding Boots.NameColor}"
-                                        Tag="slot:Boots">
+                                        Tag="slot:Boots" ToolTip.Tip="{Binding Boots.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Boots.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -512,7 +523,7 @@
                                 <Border Canvas.Left="190" Canvas.Top="405" Width="50" Height="100" Classes="slot-cell"
                                         Classes.selected="{Binding Charm1.IsSelected}"
                                         BorderBrush="{Binding Charm1.NameColor}"
-                                        Tag="slot:Charm 1">
+                                        Tag="slot:Charm 1" ToolTip.Tip="{Binding Charm1.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Charm1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -522,14 +533,14 @@
                                             <TextBlock Text="{loc:Tr Slot_Charm1}" Classes="slot-fallback-label"/>
                                             <TextBlock Text="{Binding Charm1.LeftDisplayName}"
                                                        Foreground="{Binding Charm1.NameColor}"
-                                                       Classes="slot-fallback-name"/>
+                                                       Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
                                 <Border Canvas.Left="245" Canvas.Top="405" Width="50" Height="100" Classes="slot-cell"
                                         Classes.selected="{Binding Charm2.IsSelected}"
                                         BorderBrush="{Binding Charm2.NameColor}"
-                                        Tag="slot:Charm 2">
+                                        Tag="slot:Charm 2" ToolTip.Tip="{Binding Charm2.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Charm2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -539,14 +550,14 @@
                                             <TextBlock Text="{loc:Tr Slot_Charm2}" Classes="slot-fallback-label"/>
                                             <TextBlock Text="{Binding Charm2.LeftDisplayName}"
                                                        Foreground="{Binding Charm2.NameColor}"
-                                                       Classes="slot-fallback-name"/>
+                                                       Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
                                 <Border Canvas.Left="300" Canvas.Top="405" Width="50" Height="100" Classes="slot-cell"
                                         Classes.selected="{Binding Charm3.IsSelected}"
                                         BorderBrush="{Binding Charm3.NameColor}"
-                                        Tag="slot:Charm 3">
+                                        Tag="slot:Charm 3" ToolTip.Tip="{Binding Charm3.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Charm3.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -556,7 +567,7 @@
                                             <TextBlock Text="{loc:Tr Slot_Charm3}" Classes="slot-fallback-label"/>
                                             <TextBlock Text="{Binding Charm3.LeftDisplayName}"
                                                        Foreground="{Binding Charm3.NameColor}"
-                                                       Classes="slot-fallback-name"/>
+                                                       Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -565,7 +576,7 @@
                                 <Border Canvas.Left="95" Canvas.Top="395" Width="60" Height="120" Classes="slot-cell"
                                         Classes.selected="{Binding Flask1.IsSelected}"
                                         BorderBrush="{Binding Flask1.NameColor}"
-                                        Tag="slot:Flask 1">
+                                        Tag="slot:Flask 1" ToolTip.Tip="{Binding Flask1.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Flask1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -584,7 +595,7 @@
                                 <Border Canvas.Left="390" Canvas.Top="395" Width="60" Height="120" Classes="slot-cell"
                                         Classes.selected="{Binding Flask2.IsSelected}"
                                         BorderBrush="{Binding Flask2.NameColor}"
-                                        Tag="slot:Flask 2">
+                                        Tag="slot:Flask 2" ToolTip.Tip="{Binding Flask2.HoverTooltipText}" ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                                     <Grid>
                                         <Image Classes="slot-icon"
                                                Source="{Binding Flask2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
@@ -751,7 +762,10 @@
                                                 <DataTemplate DataType="vm:ItemPoolEntryViewModel">
                                                     <Button Classes="pool-btn"
                                                             Classes.selected="{Binding IsSelected}"
-                                                            Tag="{Binding ItemId, StringFormat='pool:{0}'}">
+                                                            Tag="{Binding ItemId, StringFormat='pool:{0}'}"
+                                                            ToolTip.Tip="{Binding HoverTooltipText}"
+                                                            ToolTip.ShowDelay="400"
+                                                            ToolTip.Placement="Pointer">
                                                         <Grid ColumnDefinitions="Auto,*,Auto,Auto">
 
                                                             <!-- Icon thumbnail -->
