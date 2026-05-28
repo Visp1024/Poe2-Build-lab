@@ -368,10 +368,23 @@ public sealed class TreeCanvas : Control
             }
         }
 
-        // ── Draw nodes ─────────────────────────────────────────────────────
+        // ── Draw nodes (only those whose state differs from the baked layer) ─
+        // The static layer already contains every visible node rendered in its
+        // unallocated visual state. We only overdraw nodes that are currently
+        // alloc / canAlloc / hovered / matching the search term. For a typical
+        // build with ~50 allocated nodes, this collapses 2200 per-frame node
+        // draws into ~60 — a huge per-paint win on top of the cached
+        // connection layer.
         foreach (var node in nodes)
         {
             if (!IsNodeVisible(node, filter)) continue;
+
+            bool isAlloc  = alloc?.Contains(node.Id) == true;
+            bool isCan    = canAlloc?.Contains(node.Id) == true;
+            bool isSearch = search.Length > 0 &&
+                            node.Name.Contains(search, StringComparison.OrdinalIgnoreCase);
+            bool isHover  = node == _hoveredNode;
+            if (!isAlloc && !isCan && !isSearch && !isHover) continue;
 
             var (sx, sy) = W2S(node);
             var r  = GetRadius(node.Type);
@@ -380,12 +393,7 @@ public sealed class TreeCanvas : Control
                 sy + r * 3 < 0 || sy - r * 3 > Bounds.Height)
                 continue;
 
-            bool isAlloc  = alloc?.Contains(node.Id) == true;
-            bool isCan    = canAlloc?.Contains(node.Id) == true;
-            bool isSearch = search.Length > 0 &&
-                            node.Name.Contains(search, StringComparison.OrdinalIgnoreCase);
-
-            DrawNode(dc, node, sx, sy, r, isAlloc, isCan, isSearch, node == _hoveredNode);
+            DrawNode(dc, node, sx, sy, r, isAlloc, isCan, isSearch, isHover);
         }
 
         // ── Jewel radius rings (Socket hover) ─────────────────────────────
@@ -415,14 +423,22 @@ public sealed class TreeCanvas : Control
 
     private void DrawNode(DrawingContext dc, TreeNodeDto node,
                           double sx, double sy, double r,
-                          bool alloc, bool canAlloc, bool search, bool hover)
+                          bool alloc, bool canAlloc, bool search, bool hover) =>
+        DrawNodeAt(dc, node, sx, sy, r, alloc, canAlloc, search, hover, _scale, AssetStore);
+
+    /// <summary>Scale-parametric variant of <see cref="DrawNode"/>. Used both
+    /// for per-frame screen draws and when baking the unallocated node layer
+    /// into the static bitmap (where the screen-space scale isn't yet known).</summary>
+    private static void DrawNodeAt(DrawingContext dc, TreeNodeDto node,
+                                   double sx, double sy, double r,
+                                   bool alloc, bool canAlloc, bool search, bool hover,
+                                   double scale, TreeAssetStore? assets)
     {
         var center = new Point(sx, sy);
-        var assets = AssetStore;
 
         // ── Try sprite rendering ───────────────────────────────────────────
         double iconHalfWorld = GetIconHalfWorld(node.Type);
-        double iconHalfPx    = iconHalfWorld * _scale;
+        double iconHalfPx    = iconHalfWorld * scale;
 
         bool useSprites = assets != null && iconHalfPx >= MinIconScreenPx;
 
@@ -798,10 +814,6 @@ public sealed class TreeCanvas : Control
                   || _staticFilter != filter;
         if (!stale) return;
 
-        // Reference scale: bake at a moderate density, with headroom for some
-        // zooming-in. Tied to the current scale so first-paint quality is good.
-        double refScale = Math.Max(_scale, 0.18);
-
         // Compute world-space bounds covering all visible-or-potentially-visible
         // nodes (including ascendancies, with their per-ascendancy offsets applied).
         // We deliberately include ALL connection endpoints — the per-node draw
@@ -822,14 +834,25 @@ public sealed class TreeCanvas : Control
         const double pad = 50;
         minX -= pad; minY -= pad; maxX += pad; maxY += pad;
 
-        int pxW = Math.Min(4096, Math.Max(64, (int)((maxX - minX) * refScale)));
-        int pxH = Math.Min(4096, Math.Max(64, (int)((maxY - minY) * refScale)));
+        // Reference scale: bake at a moderate density with headroom for zoom,
+        // but cap so the larger world axis fits within RenderTargetBitmap's
+        // 4096 px limit — otherwise the bake would clip nodes near the far
+        // edges of the tree (PoE2 main tree is ~32k × 32k world units).
+        double maxWorld   = Math.Max(maxX - minX, maxY - minY);
+        const int MaxPx   = 4000; // a touch under 4096 to leave room for pad
+        double fitScale   = MaxPx / maxWorld;
+        double refScale   = Math.Min(Math.Max(_scale * 1.2, 0.15), fitScale);
+
+        int pxW = Math.Max(64, (int)((maxX - minX) * refScale));
+        int pxH = Math.Max(64, (int)((maxY - minY) * refScale));
 
         var bmp = new Avalonia.Media.Imaging.RenderTargetBitmap(
             new PixelSize(pxW, pxH), new Vector(96, 96));
         using (var ctx = bmp.CreateDrawingContext())
         {
             // World → bitmap: (wx - minX) * refScale
+            // First pass: connections (neutral pen) — node icons drawn on top
+            // will fully cover the line endpoints near each node.
             foreach (var node in nodes)
             {
                 if (!IsNodeVisible(node, filter)) continue;
@@ -847,6 +870,24 @@ public sealed class TreeCanvas : Control
                         new Point((wx1 - minX) * refScale, (wy1 - minY) * refScale),
                         new Point((wx2 - minX) * refScale, (wy2 - minY) * refScale));
                 }
+            }
+
+            // Second pass: bake each node in its UNALLOCATED visual state. The
+            // per-frame Render then only overdraws nodes whose live state
+            // differs (alloc, canAlloc, hover, search). Allocated draws fully
+            // cover the baked icon disc + frame (alloc render writes opaque
+            // icon + denser frame in the same spot).
+            var assets = AssetStore;
+            foreach (var node in nodes)
+            {
+                if (!IsNodeVisible(node, filter)) continue;
+                var (wx, wy) = EffectiveWorld(node);
+                double bx = (wx - minX) * refScale;
+                double by = (wy - minY) * refScale;
+                double r  = GetRadius(node.Type);
+                DrawNodeAt(ctx, node, bx, by, r,
+                           alloc: false, canAlloc: false, search: false, hover: false,
+                           scale: refScale, assets);
             }
         }
 
