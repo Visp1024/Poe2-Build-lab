@@ -322,8 +322,11 @@ public partial class TreeTabViewModel : ViewModelBase
 
     private void RefreshAllocated()
     {
-        AllocatedIds   = _host.GetAllocatedNodeIds();
-        RadiusEmitters = _host.GetRadiusEmitters();
+        // Single round-trip into Lua: both alloc set and radius emitters come
+        // back from one DoString — saves an NLua marshal per click.
+        var (alloc, emitters) = _host.GetAllocatedAndEmitters();
+        AllocatedIds   = alloc;
+        RadiusEmitters = emitters;
         OnPropertyChanged(nameof(AllocatedCount));
         OnPropertyChanged(nameof(AllocatedLabel));
     }

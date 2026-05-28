@@ -2103,6 +2103,58 @@ public sealed class LuaHost : IDisposable
         return set;
     }
 
+    /// <summary>Single round-trip variant of <see cref="GetAllocatedNodeIds"/>
+    /// + <see cref="GetRadiusEmitters"/>. Called from
+    /// <c>TreeTabViewModel.RefreshAllocated</c> on every node click — avoids
+    /// paying NLua marshalling twice per click.</summary>
+    public (HashSet<int> Allocated, List<(int NodeId, double RadiusWorld)> Emitters) GetAllocatedAndEmitters()
+    {
+        var allocated = new HashSet<int>();
+        var emitters  = new List<(int, double)>();
+
+        var result = State.DoString(@"
+            if not (build and build.spec) then return nil, nil end
+            local spec = build.spec
+            local alloc = {}
+            for id, _ in pairs(spec.allocNodes or {}) do
+                alloc[#alloc+1] = id
+            end
+            local emitters = {}
+            local leaps = spec.intuitiveLeapLikeNodes
+            if leaps and #leaps > 0 then
+                for _, leap in ipairs(leaps) do
+                    if leap.from == 'Keystone' and leap.radiusIndex then
+                        local radData = data and data.jewelRadius and data.jewelRadius[leap.radiusIndex]
+                        if radData then
+                            local outerWorld = radData.outer * 1.2
+                            for _, keyNode in pairs(spec.tree.keystoneMap or {}) do
+                                if spec.allocNodes[keyNode.id] then
+                                    table.insert(emitters, { keyNode.id, outerWorld })
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            return alloc, emitters
+        ");
+
+        if (result is { Length: >= 1 } && result[0] is LuaTable allocTbl)
+            foreach (var k in allocTbl.Keys)
+                if (allocTbl[k] is long al) allocated.Add((int)al);
+
+        if (result is { Length: >= 2 } && result[1] is LuaTable emitTbl)
+            foreach (var k in emitTbl.Keys)
+            {
+                if (emitTbl[k] is not LuaTable row) continue;
+                var nodeId = row[1L] is long li ? (int)li : 0;
+                var radius = row[2L] is double dr ? dr : row[2L] is long lr ? (double)lr : 0.0;
+                if (nodeId != 0 && radius > 0) emitters.Add((nodeId, radius));
+            }
+
+        return (allocated, emitters);
+    }
+
     // ── Tree tab ───────────────────────────────────────────────────────────────
 
     public (List<TreeNodeDto> Nodes, HashSet<int> AllocatedIds) GetTreeData()
