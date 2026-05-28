@@ -1963,19 +1963,103 @@ public sealed class LuaHost : IDisposable
     /// <summary>Allocate a non-attribute node. Returns 1 on success, 0 on failure.</summary>
     /// <summary>Allocate a node. When <paramref name="deferRecalc"/> is true,
     /// skip <c>runCallback('OnFrame')</c> + <c>build.calcsTab:BuildOutput()</c>
-    /// — caller is expected to invoke <see cref="RecalcStats"/> later (e.g.
-    /// from a debounced timer). Returns 1 on success, 0 on failure.</summary>
+    /// AND skip <c>spec:BuildAllDependsAndPaths()</c> (the dominant 40-180 ms
+    /// cost inside <c>spec:AllocNode</c>). Instead, do an incremental BFS to
+    /// update shortest-path data for nodes near the newly-allocated subgraph
+    /// and mark the spec dirty — <see cref="RecalcStats"/> and
+    /// <see cref="DeallocNode"/> flush the full rebuild before doing their
+    /// work. Falls back to the upstream PoB path if the node has any
+    /// constraints we can't safely handle locally (intuitive-leap, multi-
+    /// choice, sockets/keystones, unlock constraints, conqueredBy). Returns
+    /// 1 on success, 0 on failure.</summary>
     public int AllocNode(int nodeId, bool deferRecalc = false)
     {
         State["_nodeId"] = (long)nodeId;
         State["_defer"]  = deferRecalc;
         var result = State.DoString(@"
             if not (build and build.spec) then return 0 end
-            local node = build.spec.nodes[_nodeId]
+            local spec = build.spec
+            local node = spec.nodes[_nodeId]
             if not node then return 0 end
             if node.alloc then return 0 end
             if not node.path or #node.path == 0 then return 0 end
-            build.spec:AllocNode(node)
+
+            -- Decide whether the fast path is safe for this allocation.
+            local function canFastPath()
+                if not _defer then return false end  -- caller wants stats now → full path
+                if #node.intuitiveLeapLikesAffecting > 0 then return false end
+                if node.isMultipleChoiceOption then return false end
+                if node.type == 'Keystone' or node.type == 'Socket'
+                   or node.containJewelSocket or node.conqueredBy then return false end
+                if node.unlockConstraint then return false end
+                for _, pn in ipairs(node.path) do
+                    if pn.unlockConstraint or pn.containJewelSocket
+                       or pn.type == 'Socket' or pn.type == 'Keystone'
+                       or pn.conqueredBy then return false end
+                end
+                return true
+            end
+
+            if canFastPath() then
+                -- 1. Allocate every node along the precomputed path.
+                local newlyAlloc = {}
+                for _, pn in ipairs(node.path) do
+                    if not pn.alloc then
+                        pn.alloc = true
+                        pn.allocMode = spec.allocMode
+                        if pn.isAttribute then
+                            spec:SwitchAttributeNode(pn.id, spec.attributeIndex or 1)
+                        end
+                        spec.allocNodes[pn.id] = pn
+                        pn.pathDist = 0
+                        pn.path = {}
+                        pn.depends = pn.depends or {}
+                        pn.depends[1] = pn
+                        newlyAlloc[#newlyAlloc+1] = pn
+                    end
+                end
+
+                -- 2. Incremental BFS: try to shorten neighbours' paths. We
+                --    seed the queue with newly-allocated nodes (pathDist=0)
+                --    and propagate outward, only updating an unallocated
+                --    neighbour if the new route is shorter than its existing
+                --    stored path. Mirrors PassiveSpec:BuildPathFromNode's
+                --    relaxation rules so semantics match upstream.
+                local queue, qi = {}, 1
+                for _, n in ipairs(newlyAlloc) do queue[qi] = n; qi = qi + 1 end
+                local qo = 1
+                while qo < qi do
+                    local cur = queue[qo]; qo = qo + 1
+                    local curDist = cur.pathDist
+                    if cur.type ~= 'Mastery' then
+                        for _, other in ipairs(cur.linked) do
+                            if other.type ~= 'ClassStart' and other.type ~= 'AscendClassStart'
+                               and (cur.ascendancyName == other.ascendancyName
+                                    or (curDist == 0 and not other.ascendancyName)) then
+                                local newDist = curDist + (other.alloc and 0 or 1)
+                                if newDist < (other.pathDist or 1000) then
+                                    other.pathDist = newDist
+                                    other.path = {}
+                                    other.path[1] = other
+                                    for i, p in ipairs(cur.path) do
+                                        other.path[i+1] = p
+                                    end
+                                    queue[qi] = other; qi = qi + 1
+                                end
+                            end
+                        end
+                    end
+                end
+
+                -- 3. Mark the spec dirty. depends / intuitive-leap / jewel-
+                --    radius state may now be slightly stale; RecalcStats
+                --    and DeallocNode flush a full BuildAllDependsAndPaths
+                --    before relying on those.
+                spec._fastAllocDirty = true
+            else
+                spec:AllocNode(node)
+            end
+
             build.buildFlag = true
             if not _defer then
                 runCallback('OnFrame')
@@ -1989,18 +2073,27 @@ public sealed class LuaHost : IDisposable
     }
 
     /// <summary>Deallocate a node. Returns -1 on success, 0 on failure. See
-    /// <see cref="AllocNode"/> for <paramref name="deferRecalc"/> semantics.</summary>
+    /// <see cref="AllocNode"/> for <paramref name="deferRecalc"/> semantics.
+    /// Always flushes any pending fast-alloc state first because
+    /// <c>spec:DeallocNode</c> reads <c>node.depends</c>.</summary>
     public int DeallocNode(int nodeId, bool deferRecalc = false)
     {
         State["_nodeId"] = (long)nodeId;
         State["_defer"]  = deferRecalc;
         var result = State.DoString(@"
             if not (build and build.spec) then return 0 end
-            local node = build.spec.nodes[_nodeId]
+            local spec = build.spec
+            local node = spec.nodes[_nodeId]
             if not node then return 0 end
             if not node.alloc then return 0 end
             if node.type == 'ClassStart' or node.type == 'AscendClassStart' then return 0 end
-            build.spec:DeallocNode(node)
+            -- Flush any pending fast-alloc state — DeallocNode reads node.depends
+            -- which the fast path leaves slightly stale.
+            if spec._fastAllocDirty then
+                spec:BuildAllDependsAndPaths()
+                spec._fastAllocDirty = false
+            end
+            spec:DeallocNode(node)
             build.buildFlag = true
             if not _defer then
                 runCallback('OnFrame')
@@ -2015,11 +2108,17 @@ public sealed class LuaHost : IDisposable
 
     /// <summary>Force a full stat recalc. Use this after a batch of deferred
     /// <see cref="AllocNode"/>/<see cref="DeallocNode"/> calls so the sidebar
-    /// and Calcs tab pick up the new values.</summary>
+    /// and Calcs tab pick up the new values. Also flushes any pending
+    /// fast-alloc state so depends/jewel-radius/intuitive-leap data is
+    /// consistent before stats are read.</summary>
     public void RecalcStats()
     {
         State.DoString(@"
             if not build then return end
+            if build.spec and build.spec._fastAllocDirty then
+                build.spec:BuildAllDependsAndPaths()
+                build.spec._fastAllocDirty = false
+            end
             build.buildFlag = true
             runCallback('OnFrame')
             if build.calcsTab then build.calcsTab:BuildOutput() end
