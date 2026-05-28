@@ -90,9 +90,16 @@
       <_SrcFiles Include="$(MSBuildProjectDirectory)\..\src\**\*" Exclude="$(MSBuildProjectDirectory)\..\src\TreeData\**\*.dds.zst;&#xD;&#xA;                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.dds;&#xD;&#xA;                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.png;&#xD;&#xA;                          $(MSBuildProjectDirectory)\..\src\TreeData\**\*.jpg" />
       <_RuntimeLuaFiles Include="$(MSBuildProjectDirectory)\..\runtime\lua\**\*" />
       <_TreeAssetFiles Include="$(MSBuildProjectDirectory)\Assets\TreeData\**\*" />
+      <!-- Item icons + map. Same SDK quirk as TreeData PNGs: Content with Link
+           silently drops the files on single-file publish, only the directory
+           tree survives. Re-copy them here to keep the figure populated. -->
+      <_ItemIconFiles Include="$(MSBuildProjectDirectory)\..\PBLExport\icons\cache\**\*.webp" />
+      <_ItemIconMap Include="$(MSBuildProjectDirectory)\..\PBLExport\icons\icon_map.json" Condition="Exists('$(MSBuildProjectDirectory)\..\PBLExport\icons\icon_map.json')" />
     </ItemGroup>
     <Copy SourceFiles="@(_SrcFiles)" DestinationFiles="@(_SrcFiles->'$(PublishDir)src\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(_RuntimeLuaFiles)" DestinationFiles="@(_RuntimeLuaFiles->'$(PublishDir)runtime\lua\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(_TreeAssetFiles)" DestinationFiles="@(_TreeAssetFiles->'$(PublishDir)Assets\TreeData\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_ItemIconFiles)" DestinationFiles="@(_ItemIconFiles->'$(PublishDir)ItemIcons\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_ItemIconMap)" DestinationFolder="$(PublishDir)ItemIcons" SkipUnchangedFiles="true" />
   </Target>
 </Project>
