@@ -1668,7 +1668,7 @@ public sealed class LuaHost : IDisposable
         State["_affixBase"] = baseName;
         var list = new List<AffixEntry>();
         var result = State.DoString(@"
-            if not (data and data.itemBases and data.itemMods and data.itemMods.Corrupted) then return {} end
+            if not (data and data.itemBases and data.itemMods and data.itemMods.Corruption) then return {} end
             local base = data.itemBases[_affixBase]
             if not base then return {} end
             local tags = {}
@@ -1678,7 +1678,7 @@ public sealed class LuaHost : IDisposable
                 tags[t] = true
             end
             local out = {}
-            for modId, mod in pairs(data.itemMods.Corrupted) do
+            for modId, mod in pairs(data.itemMods.Corruption) do
                 if mod.type and mod[1] then
                     local ok = false
                     for i, wk in ipairs(mod.weightKey or {}) do

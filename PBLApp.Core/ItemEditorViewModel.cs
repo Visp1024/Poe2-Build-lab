@@ -695,24 +695,16 @@ public partial class ItemEditorViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(FilteredAffixes), nameof(IsFilterAll), nameof(IsFilterPrefix), nameof(IsFilterSuffix))]
     private string _modTypeFilter = "All";  // "All" / "Prefix" / "Suffix"
 
-    /// <summary>When true the picker shows corruption-implicit mods from data.itemMods.Corrupted
-    /// instead of the regular Item table. Toggled by the "+ Добавить осквернение" button next
-    /// to the Corrupted checkbox.</summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(FilteredAffixes))]
-    private bool _isCorruptionPickerMode = false;
+    /// <summary>True while the user is interacting with the corruption picker — kept as a
+    /// flag so AddCommand on AffixEntryViewModel can branch (corruption vs regular add).</summary>
+    public bool IsCorruptionPickerMode => IsCorruptionPickerOpen;
 
     public IEnumerable<AffixEntryViewModel> FilteredAffixes
     {
         get
         {
-            var pool = IsCorruptionPickerMode ? _corruptionAffixes : _allAffixes;
-            // Corruption mods skip prefix/suffix cap check (they're treated as implicits) and
-            // the type filter (no Prefix/Suffix distinction).
-            IEnumerable<AffixEntryViewModel> q = IsCorruptionPickerMode
-                ? pool
-                : pool.Where(a => CanAddAffix(a.Entry));
-            if (!IsCorruptionPickerMode && ModTypeFilter != "All")
+            var q = _allAffixes.Where(a => CanAddAffix(a.Entry));
+            if (ModTypeFilter != "All")
                 q = q.Where(a => a.Entry.AffixType == ModTypeFilter);
             if (!string.IsNullOrWhiteSpace(ModSearch))
                 q = q.Where(a =>
@@ -723,15 +715,37 @@ public partial class ItemEditorViewModel : ViewModelBase
         }
     }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FilteredCorruptionAffixes))]
+    private string _corruptionSearch = "";
+
+    /// <summary>Separate filtered list for the dedicated corruption picker — keeps the
+    /// regular affix picker logic intact and avoids cap / Prefix-Suffix filter rules
+    /// that don't apply to corruption implicits.</summary>
+    public IEnumerable<AffixEntryViewModel> FilteredCorruptionAffixes
+    {
+        get
+        {
+            IEnumerable<AffixEntryViewModel> q = _corruptionAffixes;
+            if (!string.IsNullOrWhiteSpace(CorruptionSearch))
+                q = q.Where(a =>
+                    a.Entry.StatText.Contains(CorruptionSearch, StringComparison.OrdinalIgnoreCase) ||
+                    a.Entry.AffixName.Contains(CorruptionSearch, StringComparison.OrdinalIgnoreCase) ||
+                    a.Entry.Group.Contains(CorruptionSearch, StringComparison.OrdinalIgnoreCase));
+            return q.Take(400);
+        }
+    }
+
     // ── Affix picker visibility (collapsed by default — toggled via "+ Add Mod") ──
 
     [ObservableProperty] private bool _isAffixPickerOpen = false;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsCorruptionPickerMode))]
+    private bool _isCorruptionPickerOpen = false;
 
     [RelayCommand]
     private void OpenCorruptionPicker()
     {
-        // Load the corruption mod pool on demand. Re-uses CurrentSlotType's base name —
-        // SelectedBase wins, fallback to the unique's BaseName / preserved fallback.
         var baseName = SelectedBase?.Name
                     ?? SelectedUnique?.BaseName
                     ?? _fallbackBaseName;
@@ -742,9 +756,11 @@ public partial class ItemEditorViewModel : ViewModelBase
                 .Select(e => new AffixEntryViewModel(this, e))
                 .ToList();
         }
-        IsCorruptionPickerMode = true;
-        IsAffixPickerOpen = true;
-        ModSearch = "";
+        IsCorruptionPickerOpen = !IsCorruptionPickerOpen;
+        // Close the regular picker so the two don't overlap visually.
+        if (IsCorruptionPickerOpen) IsAffixPickerOpen = false;
+        CorruptionSearch = "";
+        OnPropertyChanged(nameof(FilteredCorruptionAffixes));
     }
 
     /// <summary>Adds a corruption mod into ExplicitMods as an implicit row. Called by
@@ -759,8 +775,7 @@ public partial class ItemEditorViewModel : ViewModelBase
         {
             IsCorruption = true,
         });
-        IsCorruptionPickerMode = false;
-        IsAffixPickerOpen = false;
+        IsCorruptionPickerOpen = false;
         SaveError = "";
     }
 
