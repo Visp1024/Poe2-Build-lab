@@ -41,7 +41,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)..\PBLExport\icons\cache')">
-    <Content Include="..\PBLExport\icons\cache\**\*.webp">
+    <Content Include="..\PBLExport\icons\cache\**\*.*">
       <Link>ItemIcons\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -93,7 +93,7 @@
       <!-- Item icons + map. Same SDK quirk as TreeData PNGs: Content with Link
            silently drops the files on single-file publish, only the directory
            tree survives. Re-copy them here to keep the figure populated. -->
-      <_ItemIconFiles Include="$(MSBuildProjectDirectory)\..\PBLExport\icons\cache\**\*.webp" />
+      <_ItemIconFiles Include="$(MSBuildProjectDirectory)\..\PBLExport\icons\cache\**\*.*" />
       <_ItemIconMap Include="$(MSBuildProjectDirectory)\..\PBLExport\icons\icon_map.json" Condition="Exists('$(MSBuildProjectDirectory)\..\PBLExport\icons\icon_map.json')" />
     </ItemGroup>
     <Copy SourceFiles="@(_SrcFiles)" DestinationFiles="@(_SrcFiles->'$(PublishDir)src\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
