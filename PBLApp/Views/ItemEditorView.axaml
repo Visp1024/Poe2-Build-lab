@@ -490,189 +490,112 @@
                 </Grid>
                 <Border DockPanel.Dock="Top" Classes="tooltip-sep" IsVisible="{Binding HasAnyBaseStat}"/>
 
-                <!-- Toolbar -->
-                <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,6">
-                    <TextBlock Grid.Column="0" Text="{loc:Tr Editor_Mods}"
-                               Foreground="{DynamicResource TextMutedBrush}" FontSize="14" FontWeight="Bold"
-                               VerticalAlignment="Center" Margin="0"/>
-                    <!-- Prefix/Suffix counter (non-unique only) -->
-                    <Border Grid.Column="1"
-                            IsVisible="{Binding IsNotUnique}"
-                            Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
-                            CornerRadius="3" Padding="8,3" Margin="0,0,8,0"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="{Binding PrefixSuffixLabel}"
-                                   Foreground="{DynamicResource ModImplicitBrush}" FontSize="13"/>
-                    </Border>
-                    <!-- + Add Mod toggle (non-unique only; disabled when corrupted) -->
-                    <Button Grid.Column="2"
-                            IsVisible="{Binding IsNotUnique}"
-                            IsEnabled="{Binding CanEditMods}"
-                            Content="+ Add Mod"
-                            Command="{Binding ToggleAffixPickerCommand}"
-                            Classes="rarity-btn"
-                            Classes.active="{Binding IsAffixPickerOpen}"
-                            Padding="12,4" FontSize="13"/>
-                </Grid>
-
-                <!-- Affix picker (collapsible, non-unique only) -->
-                <Border DockPanel.Dock="Top"
-                        IsVisible="{Binding IsAffixPickerOpen}"
-                        Height="240"
-                        Margin="0,0,0,10"
-                        Background="{DynamicResource BgMantleBrush}"
-                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
-                        CornerRadius="3">
-                    <DockPanel Margin="8">
-                        <!-- Filter row -->
-                        <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" Margin="0,0,0,6">
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="1">
-                                <Button Content="{loc:Tr Editor_FilterAll}"
-                                        Classes="rarity-btn"
-                                        Classes.active="{Binding IsFilterAll}"
-                                        Command="{Binding SetFilterAllCommand}"
-                                        Padding="10,3" FontSize="13"/>
-                                <Button Content="{loc:Tr Editor_FilterPrefix}"
-                                        Classes="rarity-btn"
-                                        Classes.active="{Binding IsFilterPrefix}"
-                                        Command="{Binding SetFilterPrefixCommand}"
-                                        Padding="10,3" FontSize="13"/>
-                                <Button Content="{loc:Tr Editor_FilterSuffix}"
-                                        Classes="rarity-btn"
-                                        Classes.active="{Binding IsFilterSuffix}"
-                                        Command="{Binding SetFilterSuffixCommand}"
-                                        Padding="10,3" FontSize="13"/>
-                            </StackPanel>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding ModSearch}"
-                                     Classes="ed-input"
-                                     Watermark="🔍 Search mods..."
-                                     Margin="8,0,0,0"/>
-                        </Grid>
-                        <!-- Affix list -->
-                        <Border Background="{DynamicResource BgBaseBrush}"
-                                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding FilteredAffixes}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate DataType="vm:AffixEntryViewModel">
-                                            <Button Classes="list-btn"
-                                                    Command="{Binding AddCommand}"
-                                                    ToolTip.Tip="{Binding Entry.AffixName}">
-                                                <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="6">
-                                                    <TextBlock Grid.Column="0"
-                                                               Text="{Binding TypeLabel}"
-                                                               Foreground="{Binding TypeColor}"
-                                                               FontSize="13" FontWeight="Bold"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding TranslatedStatText}"
-                                                               Foreground="{DynamicResource TextPrimaryBrush}" FontSize="14"
-                                                               FontFamily="Cascadia Code,Consolas,monospace"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               VerticalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="2"
-                                                               Text="{Binding Entry.Level, StringFormat='Lv {0}'}"
-                                                               Foreground="{DynamicResource BorderStrongBrush}" FontSize="14"
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,4,0"/>
-                                                </Grid>
-                                            </Button>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </Border>
-                    </DockPanel>
-                </Border>
-
-                <!-- ── Mods + Runes split: mods fill the left column, runes on the right
-                     (visible only if the base has rune sockets). Wrapped in a Grid so
-                     they can sit side by side instead of stacking vertically. ── -->
+                <!-- ── Mods + Runes split: toolbar + (collapsible) affix picker + mods list
+                     in the left column; runes (when present) in the right column starting
+                     at the same vertical level as the mods toolbar. ── -->
                 <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
 
-                <!-- ── Runes / Idols column (right) — visible if the base has rune sockets -->
-                <Border Grid.Column="2"
-                        IsVisible="{Binding HasRuneSockets}"
-                        Width="260"
-                        Background="Transparent"
-                        BorderBrush="{DynamicResource TooltipBorderBrownBrush}" BorderThickness="1,0,0,0"
-                        Padding="12,0,0,0"
-                        Margin="0,0,0,0">
-                    <StackPanel Spacing="6">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Grid.Column="0"
-                                       Text="{loc:Tr Editor_Runes}"
-                                       Classes="sec-label"
-                                       VerticalAlignment="Center" Margin="0"/>
-                            <Button Grid.Column="1"
-                                    Content="{loc:Tr Editor_AddRune}"
-                                    Command="{Binding AddRuneSocketCommand}"
-                                    IsEnabled="{Binding CanAddRune}"
-                                    Classes="rarity-btn"
-                                    Padding="10,3" FontSize="13"/>
-                        </Grid>
+                <!-- LEFT COLUMN: toolbar + affix picker + mods list -->
+                <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*">
 
-                        <TextBlock IsVisible="{Binding !HasAnyRunes}"
-                                   Text="{loc:Tr Editor_NoRunes}"
-                                   Foreground="{DynamicResource TextMutedBrush}" FontSize="13"
-                                   FontStyle="Italic"/>
+                    <!-- Mods toolbar — Add Mod button + prefix/suffix counter -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,6">
+                        <TextBlock Grid.Column="0" Text="{loc:Tr Editor_Mods}"
+                                   Foreground="{DynamicResource TextMutedBrush}" FontSize="14" FontWeight="Bold"
+                                   VerticalAlignment="Center" Margin="0"/>
+                        <Border Grid.Column="1"
+                                IsVisible="{Binding IsNotUnique}"
+                                Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                                CornerRadius="3" Padding="8,3" Margin="0,0,8,0"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="{Binding PrefixSuffixLabel}"
+                                       Foreground="{DynamicResource ModImplicitBrush}" FontSize="13"/>
+                        </Border>
+                        <Button Grid.Column="2"
+                                IsVisible="{Binding IsNotUnique}"
+                                IsEnabled="{Binding CanEditMods}"
+                                Content="+ Add Mod"
+                                Command="{Binding ToggleAffixPickerCommand}"
+                                Classes="rarity-btn"
+                                Classes.active="{Binding IsAffixPickerOpen}"
+                                Padding="12,4" FontSize="13"/>
+                    </Grid>
 
-                        <ItemsControl ItemsSource="{Binding RuneSockets}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="vm:RuneSocketViewModel">
-                                    <Border Background="{DynamicResource BgBaseBrush}"
-                                            BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
-                                            Margin="0,3,0,0"
-                                            Padding="6,4">
-                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
-                                            <TextBlock Grid.Column="0"
-                                                       Text="{Binding Index, StringFormat='#{0}'}"
-                                                       Foreground="{DynamicResource ModEnchantBrush}" FontSize="13" FontWeight="Bold"
-                                                       VerticalAlignment="Center"
-                                                       MinWidth="22"/>
-                                            <StackPanel Grid.Column="1" Spacing="2">
-                                                <ComboBox ItemsSource="{Binding AvailableRunes}"
-                                                          SelectedItem="{Binding SelectedRune}"
-                                                          Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}"
-                                                          Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"
-                                                          HorizontalAlignment="Stretch"
-                                                          IsEnabled="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).CanEditMods}">
-                                                    <ComboBox.ItemTemplate>
-                                                        <DataTemplate DataType="eng:RuneEntry">
-                                                            <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.TranslateRune}}"
-                                                                       FontSize="13"
-                                                                       TextTrimming="CharacterEllipsis"/>
-                                                        </DataTemplate>
-                                                    </ComboBox.ItemTemplate>
-                                                </ComboBox>
-                                                <TextBlock Text="{Binding ModSummary}"
-                                                           IsVisible="{Binding !IsEmpty}"
-                                                           Foreground="{DynamicResource RarityMagicBrush}" FontSize="14"
-                                                           TextWrapping="Wrap"/>
-                                            </StackPanel>
-                                            <Button Grid.Column="2"
-                                                    Content="✕"
-                                                    Classes="remove-mod"
-                                                    Command="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).RemoveRuneSocketCommand}"
-                                                    CommandParameter="{Binding}"
-                                                    IsEnabled="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).CanEditMods}"
-                                                    VerticalAlignment="Top"
-                                                    Margin="0,2,0,0"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
+                    <!-- Affix picker (collapsible, non-unique only) -->
+                    <Border Grid.Row="1"
+                            IsVisible="{Binding IsAffixPickerOpen}"
+                            Height="240"
+                            Margin="0,0,0,10"
+                            Background="{DynamicResource BgMantleBrush}"
+                            BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                            CornerRadius="3">
+                        <DockPanel Margin="8">
+                            <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" Margin="0,0,0,6">
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="1">
+                                    <Button Content="{loc:Tr Editor_FilterAll}"
+                                            Classes="rarity-btn"
+                                            Classes.active="{Binding IsFilterAll}"
+                                            Command="{Binding SetFilterAllCommand}"
+                                            Padding="10,3" FontSize="13"/>
+                                    <Button Content="{loc:Tr Editor_FilterPrefix}"
+                                            Classes="rarity-btn"
+                                            Classes.active="{Binding IsFilterPrefix}"
+                                            Command="{Binding SetFilterPrefixCommand}"
+                                            Padding="10,3" FontSize="13"/>
+                                    <Button Content="{loc:Tr Editor_FilterSuffix}"
+                                            Classes="rarity-btn"
+                                            Classes.active="{Binding IsFilterSuffix}"
+                                            Command="{Binding SetFilterSuffixCommand}"
+                                            Padding="10,3" FontSize="13"/>
+                                </StackPanel>
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding ModSearch}"
+                                         Classes="ed-input"
+                                         Watermark="🔍 Search mods..."
+                                         Margin="8,0,0,0"/>
+                            </Grid>
+                            <Border Background="{DynamicResource BgBaseBrush}"
+                                    BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding FilteredAffixes}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="vm:AffixEntryViewModel">
+                                                <Button Classes="list-btn"
+                                                        Command="{Binding AddCommand}"
+                                                        ToolTip.Tip="{Binding Entry.AffixName}">
+                                                    <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="6">
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{Binding TypeLabel}"
+                                                                   Foreground="{Binding TypeColor}"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding TranslatedStatText}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}" FontSize="14"
+                                                                   FontFamily="Cascadia Code,Consolas,monospace"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{Binding Entry.Level, StringFormat='Lv {0}'}"
+                                                                   Foreground="{DynamicResource BorderStrongBrush}" FontSize="14"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,4,0"/>
+                                                    </Grid>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
+                        </DockPanel>
+                    </Border>
 
-                <!-- Mods list: implicits (read-only) + explicits (unified template) -->
-                <Border Grid.Column="0"
-                        Padding="0,0,8,0"
-                        Background="Transparent"
-                        BorderBrush="Transparent" BorderThickness="0">
+                    <!-- Mods list — Grid.Row=2 fills the remaining height in the left column. -->
+                    <Border Grid.Row="2"
+                            Padding="0,0,8,0"
+                            Background="Transparent"
+                            BorderBrush="Transparent" BorderThickness="0">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
 
@@ -765,6 +688,86 @@
 
                         </StackPanel>
                     </ScrollViewer>
+                </Border>
+
+                </Grid> <!-- close LEFT COLUMN Grid (toolbar + picker + mods) -->
+
+                <!-- ── Runes / Idols column (right) — visible if the base has rune sockets.
+                     Lives in Grid.Column=2 of the outer mods+runes Grid, so its top edge
+                     aligns with the mods toolbar — not pushed below it. -->
+                <Border Grid.Column="2"
+                        IsVisible="{Binding HasRuneSockets}"
+                        Width="260"
+                        Background="Transparent"
+                        BorderBrush="{DynamicResource TooltipBorderBrownBrush}" BorderThickness="1,0,0,0"
+                        Padding="12,0,0,0"
+                        Margin="0,0,0,0">
+                    <StackPanel Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0"
+                                       Text="{loc:Tr Editor_Runes}"
+                                       Classes="sec-label"
+                                       VerticalAlignment="Center" Margin="0"/>
+                            <Button Grid.Column="1"
+                                    Content="{loc:Tr Editor_AddRune}"
+                                    Command="{Binding AddRuneSocketCommand}"
+                                    IsEnabled="{Binding CanAddRune}"
+                                    Classes="rarity-btn"
+                                    Padding="10,3" FontSize="13"/>
+                        </Grid>
+
+                        <TextBlock IsVisible="{Binding !HasAnyRunes}"
+                                   Text="{loc:Tr Editor_NoRunes}"
+                                   Foreground="{DynamicResource TextMutedBrush}" FontSize="13"
+                                   FontStyle="Italic"/>
+
+                        <ItemsControl ItemsSource="{Binding RuneSockets}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:RuneSocketViewModel">
+                                    <Border Background="{DynamicResource BgBaseBrush}"
+                                            BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                                            Margin="0,3,0,0"
+                                            Padding="6,4">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Index, StringFormat='#{0}'}"
+                                                       Foreground="{DynamicResource ModEnchantBrush}" FontSize="13" FontWeight="Bold"
+                                                       VerticalAlignment="Center"
+                                                       MinWidth="22"/>
+                                            <StackPanel Grid.Column="1" Spacing="2">
+                                                <ComboBox ItemsSource="{Binding AvailableRunes}"
+                                                          SelectedItem="{Binding SelectedRune}"
+                                                          Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}"
+                                                          Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"
+                                                          HorizontalAlignment="Stretch"
+                                                          IsEnabled="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).CanEditMods}">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate DataType="eng:RuneEntry">
+                                                            <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.TranslateRune}}"
+                                                                       FontSize="13"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                                <TextBlock Text="{Binding ModSummary}"
+                                                           IsVisible="{Binding !IsEmpty}"
+                                                           Foreground="{DynamicResource RarityMagicBrush}" FontSize="14"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <Button Grid.Column="2"
+                                                    Content="✕"
+                                                    Classes="remove-mod"
+                                                    Command="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).RemoveRuneSocketCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).CanEditMods}"
+                                                    VerticalAlignment="Top"
+                                                    Margin="0,2,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </Border>
 
                 </Grid> <!-- close mods+runes grid -->
