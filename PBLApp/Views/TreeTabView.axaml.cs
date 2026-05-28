@@ -28,7 +28,10 @@ public partial class TreeTabView : UserControl
             _store = TreeAssetStore.TryLoad(vm.RepoRoot);
             var canvas = this.FindControl<TreeCanvas>("TreeCanvasControl");
             if (canvas != null)
-                canvas.AssetStore = _store;
+            {
+                canvas.AssetStore        = _store;
+                canvas.HoverInfoProvider = vm.GetNodeHoverInfo;
+            }
 
             vm.ConfirmClassChange = ShowClassChangeConfirmAsync;
             vm.SelectAttribute    = ShowAttributeSelectAsync;
