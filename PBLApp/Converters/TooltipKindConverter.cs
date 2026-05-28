@@ -126,9 +126,12 @@ public static class TooltipKindConverter
     {
         private static readonly IBrush Default = new SolidColorBrush(Color.Parse("#CDD6F4"));
 
+        private static readonly IBrush Transparent = Brushes.Transparent;
+
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is not string hex || string.IsNullOrEmpty(hex)) return Default;
+            if (string.Equals(hex, "Transparent", StringComparison.OrdinalIgnoreCase)) return Transparent;
             try { return new SolidColorBrush(Color.Parse(hex)); }
             catch { return Default; }
         }

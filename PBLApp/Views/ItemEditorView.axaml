@@ -380,7 +380,7 @@
                 <Border DockPanel.Dock="Top" Classes="tooltip-sep"/>
 
                 <!-- ── Item meta strip: Item Level / Quality / Corrupted ── -->
-                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="10" Margin="0,2,0,4">
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto" ColumnSpacing="10" Margin="0,2,0,4">
                     <TextBlock Grid.Column="0"
                                Text="{loc:Tr Editor_Quality}"
                                Foreground="{DynamicResource TextMutedBrush}" FontSize="13"
@@ -406,6 +406,19 @@
                         <TextBlock Text="{loc:Tr Editor_Corrupted}"
                                    Foreground="{DynamicResource AttrStrBrush}" FontSize="14" FontWeight="SemiBold"/>
                     </CheckBox>
+                    <!-- Corruption-mod picker entry — visible only when the item is corrupted.
+                         Distinct red styling to mirror the corruption badge on resulting mod
+                         rows so the user can see the entire add-corruption pipeline at a glance. -->
+                    <Button Grid.Column="6"
+                            IsVisible="{Binding IsCorrupted}"
+                            Content="{loc:Tr Editor_AddCorruption}"
+                            Command="{Binding OpenCorruptionPickerCommand}"
+                            Background="{DynamicResource BgRaisedBrush}"
+                            BorderBrush="#DD0022" BorderThickness="1"
+                            Foreground="#DD0022"
+                            FontSize="13" FontWeight="Bold"
+                            Padding="12,4"
+                            VerticalAlignment="Center"/>
                 </Grid>
                 <Border DockPanel.Dock="Top" Classes="tooltip-sep"/>
 
@@ -612,20 +625,27 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="vm:ExplicitModViewModel">
                                         <Border BorderBrush="{DynamicResource TooltipSeparatorBrush}" BorderThickness="0,0,0,1"
-                                                Padding="0,6,0,6">
-                                            <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="8">
-
-                                                <!-- Type badge (P / S / I / empty) -->
-                                                <TextBlock Grid.Column="0"
+                                                Background="{Binding RowBackgroundColor, Converter={x:Static vm:TooltipKindConverter.HexToBrush}}"
+                                                Padding="6,6,6,6">
+                                            <Grid ColumnDefinitions="3,16,*,Auto" ColumnSpacing="8">
+                                                <!-- Corruption accent stripe — vivid red left edge for corruption mods only -->
+                                                <Border Grid.Column="0"
+                                                        Width="3"
+                                                        IsVisible="{Binding IsCorruption}"
+                                                        Background="#DD0022"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Stretch"/>
+                                                <!-- Type badge (P / S / I / C / empty) -->
+                                                <TextBlock Grid.Column="1"
                                                            Text="{Binding TypeBadgeLabel}"
-                                                           Foreground="{Binding TypeBadgeColor}"
+                                                           Foreground="{Binding TypeBadgeColor, Converter={x:Static vm:TooltipKindConverter.HexToBrush}}"
                                                            FontSize="14" FontWeight="Bold"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Top"
                                                            Margin="0,2,0,0"/>
 
                                                 <!-- Mod text + slider -->
-                                                <StackPanel Grid.Column="1" Spacing="5">
+                                                <StackPanel Grid.Column="2" Spacing="5">
 
                                                     <!-- Plain text -->
                                                     <TextBlock IsVisible="{Binding !HasColoredValue}"
@@ -673,7 +693,7 @@
                                                 </StackPanel>
 
                                                 <!-- × Remove (only for removable mods) -->
-                                                <Button Grid.Column="2"
+                                                <Button Grid.Column="3"
                                                         IsVisible="{Binding IsRemovable}"
                                                         Content="✕"
                                                         Classes="remove-mod"
