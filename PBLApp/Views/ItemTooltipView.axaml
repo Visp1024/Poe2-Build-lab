@@ -28,7 +28,6 @@
         <Style Selector="TextBlock.tt-line">
             <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="LineHeight" Value="22"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         </Style>
         <Style Selector="Border.tt-sep">
@@ -66,6 +65,7 @@
                                                ctl:InlinesHelper.ItemSegments="{Binding Segments}"
                                                FontSize="{Binding Size, Converter={x:Static vm:TooltipKindConverter.ScaleSize}}"
                                                FontWeight="{Binding Size, Converter={x:Static vm:TooltipKindConverter.WeightForSize}}"
+                                               LineHeight="{Binding Size, Converter={x:Static vm:TooltipKindConverter.LineHeightForSize}}"
                                                HorizontalAlignment="{Binding Centered, Converter={x:Static vm:TooltipKindConverter.CenterOrLeft}}"
                                                TextAlignment="{Binding Centered, Converter={x:Static vm:TooltipKindConverter.CenterOrLeftTextAlignment}}"/>
                                 </Grid>

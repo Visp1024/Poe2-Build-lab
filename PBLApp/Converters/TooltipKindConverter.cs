@@ -22,6 +22,9 @@ public static class TooltipKindConverter
     public static readonly IValueConverter ScaleSize   = new ScaleSizeConverter(1.0);
     /// <summary>Bold for header sizes (≥ 20), Normal otherwise.</summary>
     public static readonly IValueConverter WeightForSize = new WeightForSizeConverter();
+    /// <summary>LineHeight = size × 1.4 — without this, larger title glyphs get clipped
+    /// vertically by a too-tight default line box.</summary>
+    public static readonly IValueConverter LineHeightForSize = new LineHeightForSizeConverter();
     /// <summary>Run an arbitrary English mod/stat line through GameTranslationService.TooltipLine.</summary>
     public static readonly IValueConverter TranslateLine = new TranslateLineConverter();
 
@@ -80,6 +83,23 @@ public static class TooltipKindConverter
                 _        => 14.0,
             };
             return Math.Max(8.0, size * factor);
+        }
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
+    private sealed class LineHeightForSizeConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            double size = value switch
+            {
+                int i    => i,
+                long l   => l,
+                double d => d,
+                _        => 14.0,
+            };
+            return Math.Max(16.0, size * 1.4);
         }
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
             => throw new NotSupportedException();

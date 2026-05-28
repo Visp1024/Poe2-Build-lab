@@ -12,6 +12,10 @@ namespace PBLApp.ViewModels;
 
 // ── ModLineViewModel ──────────────────────────────────────────────────────────
 
+/// <summary>Bundle passed to ctl:StyledHoverTooltip.Source to render a styled
+/// multi-line hover tooltip with rarity-coloured title and number-highlighted mods.</summary>
+public sealed record HoverTooltipModel(string Text, string TitleColor);
+
 public sealed class ModLineViewModel
 {
     public string Text        { get; }
@@ -167,6 +171,8 @@ public partial class ItemSlotViewModel : ObservableObject
         }
     }
 
+    public HoverTooltipModel HoverTooltip => new(HoverTooltipText, NameColor);
+
     /// <summary>Strip PoB inline colour escapes (^xRRGGBB / ^d) and template
     /// placeholders ({range:0}, {crafted}, …) so the hover tooltip stays plain.</summary>
     private static string StripColorCodes(string s)
@@ -286,6 +292,8 @@ public sealed class ItemPoolEntryViewModel : ObservableObject
     /// <summary>Plain-text hover tooltip lazily built by the parent tab when first asked.
     /// Includes item name, ilvl, and the equipped slot (if any).</summary>
     public string HoverTooltipText => _parent.GetPoolHoverTooltipText(ItemId);
+
+    public HoverTooltipModel HoverTooltip => new(HoverTooltipText, NameColor);
 
     public ItemPoolEntryViewModel(ItemsTabViewModel parent, ItemPoolEntry entry)
     {
