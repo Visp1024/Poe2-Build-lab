@@ -206,6 +206,11 @@ public sealed partial class ExplicitModViewModel : ObservableObject
         // Strip ALL existing {range:X} markers anywhere in the line (PoB places the
         // range marker before each {variant:N} group; double-marker raws break parsing).
         var cleaned = Regex.Replace(_rawLineForSave, @"\{range:[^}]+\}", "");
+        // Strip {variant:N} markers as well. The editor only emits mods for the currently
+        // selected variant; preserving the variant prefix on save then leaves the parsed
+        // item without a Selected Variant marker, and PoB's CheckModLineVariant drops the
+        // mods (silent disappearance of e.g. Bones of Ullr's mods after edit + save).
+        cleaned = Regex.Replace(cleaned, @"\{variant:[^}]+\}", "");
         return $"{{range:{rf}}}{cleaned}";
     }
 
@@ -579,8 +584,17 @@ public partial class ItemEditorViewModel : ViewModelBase
         var slotType = CurrentSlotType();
         if (string.IsNullOrEmpty(slotType)) return [];
         if (rune.ModsByType.TryGetValue(slotType, out var direct)) return direct;
-        // Try generic categories
-        string[] generics = ["weapon", "armour", "caster", "focus"];
+        // Fall back through generic categories ordered by what the slot type is:
+        // armour pieces (boots/helmet/gloves/body/belt) -> "armour" before "weapon";
+        // weapons -> "weapon" first; focuses/casters -> their own first.
+        string[] generics = slotType switch
+        {
+            "boots" or "helmet" or "gloves" or "body armour" or "belt" or "armour" or "shield"
+                => ["armour", "caster", "weapon", "focus"],
+            "focus"  => ["focus", "caster", "armour", "weapon"],
+            "caster" => ["caster", "weapon", "armour", "focus"],
+            _        => ["weapon", "armour", "caster", "focus"]
+        };
         foreach (var g in generics)
             if (rune.ModsByType.TryGetValue(g, out var gm)) return gm;
         return [];
@@ -812,9 +826,51 @@ public partial class ItemEditorViewModel : ViewModelBase
         if (!string.IsNullOrEmpty(val)) LoadBasesForCategory(val);
     }
 
+    private bool _suppressBaseSelectedSideEffects;
+
     partial void OnSelectedBaseChanged(BaseItemEntry? val)
     {
-        if (val is not null) OnBaseSelected(val);
+        if (val is not null && !_suppressBaseSelectedSideEffects) OnBaseSelected(val);
+    }
+
+    /// <summary>Quietly aligns <see cref="SelectedBase"/> with the unique's base item without
+    /// running OnBaseSelected (which would wipe the unique's hydrated mods/rune sockets).
+    /// Used when opening the editor on an existing unique so CurrentSlotType resolves to the
+    /// real base type (e.g. "boots") instead of the default Bases[0] (often "Gold Amulet"),
+    /// which fed wrong mod summaries to runes like Soul Core of Citaqualotl.</summary>
+    private void AlignBaseForUnique(string baseName)
+    {
+        if (string.IsNullOrEmpty(baseName)) return;
+        var match = Bases.FirstOrDefault(b =>
+            string.Equals(b.Name, baseName, StringComparison.OrdinalIgnoreCase));
+        if (match is null)
+        {
+            foreach (var cat in Categories)
+            {
+                var bases = _host.GetItemBasesForCategory(cat);
+                var found = bases.FirstOrDefault(b =>
+                    string.Equals(b.Name, baseName, StringComparison.OrdinalIgnoreCase));
+                if (found is not null)
+                {
+                    Bases.Clear();
+                    foreach (var b in bases) Bases.Add(b);
+                    _selectedCategory = cat;
+                    OnPropertyChanged(nameof(SelectedCategory));
+                    OnPropertyChanged(nameof(FilteredBases));
+                    match = found;
+                    break;
+                }
+            }
+        }
+        if (match is null) return;
+        _suppressBaseSelectedSideEffects = true;
+        try { SelectedBase = match; }
+        finally { _suppressBaseSelectedSideEffects = false; }
+        MaxRunes = match.SocketCount > 0 ? Math.Max(MaxRunes, match.SocketCount) : MaxRunes;
+        RefreshCompatibleRunes();
+        // Surface ModSummary updates on already-hydrated rune sockets — they were built
+        // before SelectedBase was correct, so AvailableRunes / display text are stale.
+        foreach (var s in RuneSockets) s.RaisePropertyChanged(nameof(RuneSocketViewModel.ModSummary));
     }
 
     partial void OnSelectedUniqueChanged(UniqueItemEntry? u)
@@ -825,6 +881,7 @@ public partial class ItemEditorViewModel : ViewModelBase
         if (u is not null)
         {
             LoadUniqueModsByKey(u.LookupKey);
+            AlignBaseForUnique(u.BaseName);
             RefreshCompatibleRunes();
         }
     }
@@ -1186,6 +1243,7 @@ public partial class ItemEditorViewModel : ViewModelBase
                 if (string.IsNullOrWhiteSpace(sourceRaw)) sourceRaw = null;
             }
             ParseUniqueRaw(sourceRaw ?? raw, replaceItemLevel: true, rolledRaw: sourceRaw is null ? null : raw);
+            if (match is not null) AlignBaseForUnique(match.BaseName);
             return;
         }
 
