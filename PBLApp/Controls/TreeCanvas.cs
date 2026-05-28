@@ -368,23 +368,15 @@ public sealed class TreeCanvas : Control
             }
         }
 
-        // ── Draw nodes (only those whose state differs from the baked layer) ─
-        // The static layer already contains every visible node rendered in its
-        // unallocated visual state. We only overdraw nodes that are currently
-        // alloc / canAlloc / hovered / matching the search term. For a typical
-        // build with ~50 allocated nodes, this collapses 2200 per-frame node
-        // draws into ~60 — a huge per-paint win on top of the cached
-        // connection layer.
+        // ── Draw nodes ─────────────────────────────────────────────────────
+        // All nodes drawn per-frame. We tried baking unallocated nodes into
+        // the static bitmap (commit d119426) but small icons lost too much
+        // detail when the bake was downscaled at typical zoom levels. Live
+        // rendering is fast enough — DrawNode is a few primitives per node
+        // and only visible nodes (post-cull) get drawn.
         foreach (var node in nodes)
         {
             if (!IsNodeVisible(node, filter)) continue;
-
-            bool isAlloc  = alloc?.Contains(node.Id) == true;
-            bool isCan    = canAlloc?.Contains(node.Id) == true;
-            bool isSearch = search.Length > 0 &&
-                            node.Name.Contains(search, StringComparison.OrdinalIgnoreCase);
-            bool isHover  = node == _hoveredNode;
-            if (!isAlloc && !isCan && !isSearch && !isHover) continue;
 
             var (sx, sy) = W2S(node);
             var r  = GetRadius(node.Type);
@@ -393,7 +385,12 @@ public sealed class TreeCanvas : Control
                 sy + r * 3 < 0 || sy - r * 3 > Bounds.Height)
                 continue;
 
-            DrawNode(dc, node, sx, sy, r, isAlloc, isCan, isSearch, isHover);
+            bool isAlloc  = alloc?.Contains(node.Id) == true;
+            bool isCan    = canAlloc?.Contains(node.Id) == true;
+            bool isSearch = search.Length > 0 &&
+                            node.Name.Contains(search, StringComparison.OrdinalIgnoreCase);
+
+            DrawNode(dc, node, sx, sy, r, isAlloc, isCan, isSearch, node == _hoveredNode);
         }
 
         // ── Jewel radius rings (Socket hover) ─────────────────────────────
@@ -872,23 +869,13 @@ public sealed class TreeCanvas : Control
                 }
             }
 
-            // Second pass: bake each node in its UNALLOCATED visual state. The
-            // per-frame Render then only overdraws nodes whose live state
-            // differs (alloc, canAlloc, hover, search). Allocated draws fully
-            // cover the baked icon disc + frame (alloc render writes opaque
-            // icon + denser frame in the same spot).
-            var assets = AssetStore;
-            foreach (var node in nodes)
-            {
-                if (!IsNodeVisible(node, filter)) continue;
-                var (wx, wy) = EffectiveWorld(node);
-                double bx = (wx - minX) * refScale;
-                double by = (wy - minY) * refScale;
-                double r  = GetRadius(node.Type);
-                DrawNodeAt(ctx, node, bx, by, r,
-                           alloc: false, canAlloc: false, search: false, hover: false,
-                           scale: refScale, assets);
-            }
+            // Node bake removed — small unallocated nodes rendered poorly when
+            // the bitmap was upscaled at the user's typical zoom (PoE2 tree is
+            // ~32k world units, so refScale gets clamped low to fit 4096 px;
+            // tiny per-node features lose detail through bilinear filtering).
+            // Connections bake cleanly because they're sub-pixel lines that
+            // antialias well at any scale; node icons / frames / dim overlays
+            // do not. Per-frame node draw loop kept intact.
         }
 
         _staticLayer?.Dispose();
