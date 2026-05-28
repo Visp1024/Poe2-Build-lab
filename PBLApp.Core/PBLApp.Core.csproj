@@ -30,5 +30,6 @@
     <EmbeddedResource Include="Translations\skill_descriptions_ru.json" />
     <EmbeddedResource Include="Translations\config_sections_ru.json" />
     <EmbeddedResource Include="Translations\config_labels_ru.json" />
+    <EmbeddedResource Include="Translations\calc_labels_ru.json" />
   </ItemGroup>
 </Project>

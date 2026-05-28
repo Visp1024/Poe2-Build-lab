@@ -334,6 +334,16 @@
   <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Allocated: {0}</value></data>
   <data name="Tree_NodesFmt"        xml:space="preserve"><value>Nodes: {0}</value></data>
 
+  <!-- Tree node hover tooltip -->
+  <data name="Tree_Tip_AllocGives"      xml:space="preserve"><value>Allocating this node gives you:</value></data>
+  <data name="Tree_Tip_UnallocGives"    xml:space="preserve"><value>Unallocating this node gives you:</value></data>
+  <data name="Tree_Tip_PathAllocGives"  xml:space="preserve"><value>Allocating the path to this node gives you:</value></data>
+  <data name="Tree_Tip_PathUnallocGives" xml:space="preserve"><value>Unallocating this node and its dependents gives you:</value></data>
+  <data name="Tree_Tip_NoChange"        xml:space="preserve"><value>No measurable change for current build</value></data>
+  <data name="Tree_Tip_PointsFmt"       xml:space="preserve"><value>{0} points to allocate</value></data>
+  <data name="Tree_Tip_OnePoint"        xml:space="preserve"><value>1 point to allocate</value></data>
+  <data name="Tree_Tip_PerPointFmt"     xml:space="preserve"><value>per pt</value></data>
+
   <!-- Credits / acknowledgements window -->
   <data name="Credits_Title"        xml:space="preserve"><value>Acknowledgements</value></data>
   <data name="Credits_Heading"      xml:space="preserve"><value>Thanks to the Path of Building Community</value></data>
