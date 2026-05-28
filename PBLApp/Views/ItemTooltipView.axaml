@@ -25,23 +25,23 @@
         </Style>
     </UserControl.Styles>
 
-    <Border Classes="tooltip-frame" MaxWidth="560">
-        <Border Classes="tooltip-inset" Padding="6,4">
+    <Border Classes="tooltip-frame" MaxWidth="620">
+        <Border Classes="tooltip-inset" Padding="10,8">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding Lines}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="vm:TooltipLineVm">
-                            <Grid>
+                            <Grid Margin="0,2">
                                 <!-- Separator row -->
                                 <Border IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsSeparator}}"
                                         Height="1"
                                         Background="{DynamicResource TooltipBorderBrownBrush}"
-                                        Margin="0,4,0,4"
+                                        Margin="0,6,0,6"
                                         HorizontalAlignment="Stretch" />
                                 <!-- Text row: WrapPanel hosts one TextBlock per coloured segment.
-                                     FontSize is taken from the line's Size (×0.7 to map PoB pixel sizes to Avalonia DIPs).
-                                     Header lines (size ≥ 20) get FontWeight=Bold + slight LetterSpacing for small-caps feel. -->
+                                     FontSize maps PoB sizes (14/18/22) 1:1 to DIPs — denser scaling
+                                     was unreadable. Headers (size ≥ 20) bold via WeightForSize. -->
                                 <ItemsControl IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsText}}"
                                               ItemsSource="{Binding Segments}"
                                               HorizontalAlignment="{Binding Centered, Converter={x:Static vm:TooltipKindConverter.CenterOrLeft}}"
@@ -55,9 +55,10 @@
                                         <DataTemplate DataType="vm:TooltipSegment">
                                             <TextBlock Text="{Binding Text}"
                                                        Foreground="{Binding ColorHex, Converter={x:Static vm:TooltipKindConverter.HexToBrush}}"
-                                                       FontFamily="Segoe UI"
+                                                       FontFamily="Inter, Segoe UI, Arial"
                                                        FontSize="{Binding $parent[ItemsControl].Tag, Converter={x:Static vm:TooltipKindConverter.ScaleSize}}"
                                                        FontWeight="{Binding $parent[ItemsControl].Tag, Converter={x:Static vm:TooltipKindConverter.WeightForSize}}"
+                                                       LineHeight="22"
                                                        TextWrapping="Wrap" />
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
