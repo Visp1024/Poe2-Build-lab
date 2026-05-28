@@ -709,15 +709,17 @@ public sealed class TreeCanvas : Control
             }
         }
 
-        const double Pad      = 12;
-        const double MaxW     = 380;
-        const double LineGap  = 3;
-        const double SecGap   = 8;
+        const double Pad      = 14;
+        const double MaxW     = 440;
+        const double LineGap  = 4;
+        const double SecGap   = 10;
         double contentW = MaxW - Pad * 2;
 
-        var titleFace = new Typeface("Segoe UI", FontStyle.Normal, FontWeight.SemiBold);
-        var bodyFace  = new Typeface("Segoe UI");
-        var smallFace = new Typeface("Segoe UI");
+        // Match the rest of the app's UI font — Inter falls back to Segoe UI
+        // on systems without it, same chain as Tokens.Typography.axaml.
+        var titleFace = new Typeface("Inter, Segoe UI, Arial", FontStyle.Normal, FontWeight.SemiBold);
+        var bodyFace  = new Typeface("Inter, Segoe UI, Arial");
+        var smallFace = new Typeface("Inter, Segoe UI, Arial", FontStyle.Normal, FontWeight.Medium);
 
         var blocks = new List<(FormattedText ft, Color col, double topGap)>();
 
@@ -727,7 +729,7 @@ public sealed class TreeCanvas : Control
             : GameTranslationService.TPassiveName(node.Name);
         var titleColor  = NodeTitleColor(info?.Type ?? node.Type, alloc);
         var titleFt = new FormattedText(displayName, CultureInfo.InvariantCulture,
-            FlowDirection.LeftToRight, titleFace, 14, new SolidColorBrush(titleColor))
+            FlowDirection.LeftToRight, titleFace, 17, new SolidColorBrush(titleColor))
         { MaxTextWidth = contentW };
         blocks.Add((titleFt, titleColor, 0));
 
@@ -736,7 +738,7 @@ public sealed class TreeCanvas : Control
         var ascText  = info?.AscendancyName ?? node.AscendancyName;
         var subtitle = string.IsNullOrEmpty(ascText) ? typeText : $"{typeText} · {ascText}";
         var subFt = new FormattedText(subtitle.ToUpperInvariant(), CultureInfo.InvariantCulture,
-            FlowDirection.LeftToRight, smallFace, 9, new SolidColorBrush(TextMutedC))
+            FlowDirection.LeftToRight, smallFace, 11, new SolidColorBrush(TextMutedC))
         { MaxTextWidth = contentW };
         blocks.Add((subFt, TextMutedC, 1));
 
@@ -751,7 +753,7 @@ public sealed class TreeCanvas : Control
             if (string.IsNullOrWhiteSpace(raw)) continue;
             // Pre-measure so we can choose mod-block typography uniformly.
             var modFt = new FormattedText(raw, CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight, bodyFace, 11, new SolidColorBrush(ModExplicitC))
+                FlowDirection.LeftToRight, bodyFace, 13, new SolidColorBrush(ModExplicitC))
             { MaxTextWidth = contentW };
             // Highlight numbers in brand gold.
             foreach (System.Text.RegularExpressions.Match m in NumberRegex.Matches(raw))
@@ -765,7 +767,7 @@ public sealed class TreeCanvas : Control
         {
             if (diffs.Length == 0) return;
             var hdrFt = new FormattedText(header, CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight, bodyFace, 10, new SolidColorBrush(TextSecondaryC))
+                FlowDirection.LeftToRight, bodyFace, 12, new SolidColorBrush(TextSecondaryC))
             { MaxTextWidth = contentW };
             blocks.Add((hdrFt, TextSecondaryC, SecGap));
 
@@ -776,7 +778,7 @@ public sealed class TreeCanvas : Control
                 if (!string.IsNullOrEmpty(d.PercentText)) line += "  " + d.PercentText;
                 if (!string.IsNullOrEmpty(d.PerPointText)) line += "  " + d.PerPointText;
                 var ft = new FormattedText(line, CultureInfo.InvariantCulture,
-                    FlowDirection.LeftToRight, bodyFace, 11, new SolidColorBrush(TextPrimaryC))
+                    FlowDirection.LeftToRight, bodyFace, 13, new SolidColorBrush(TextPrimaryC))
                 { MaxTextWidth = contentW };
                 // The +/- value at the start gets the positive/negative colour;
                 // the per-point bracket gets a muted colour for visual hierarchy.
@@ -800,8 +802,20 @@ public sealed class TreeCanvas : Control
 
         if (info != null)
         {
+            // If the node has mods but no measurable diff (e.g. specialty
+            // nodes that affect a skill the player isn't using), show a
+            // small footnote so the empty space doesn't look like a bug.
+            bool emittedAny = info.StatDiffs.Length > 0 || info.PathStatDiffs.Length > 0;
             EmitDiffs(info.DiffHeader, info.StatDiffs);
             EmitDiffs(info.PathDiffHeader, info.PathStatDiffs);
+            if (!emittedAny && info.Mods.Length > 0 && !info.IsAllocated)
+            {
+                var noteFt = new FormattedText("No measurable change for current build",
+                    CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                    bodyFace, 12, new SolidColorBrush(TextMutedC))
+                { MaxTextWidth = contentW };
+                blocks.Add((noteFt, TextMutedC, SecGap));
+            }
 
             // Path distance footer.
             if (info.PathDist > 0)
@@ -810,23 +824,30 @@ public sealed class TreeCanvas : Control
                     ? "1 point to allocate"
                     : $"{info.PathDist} points to allocate";
                 var pathFt = new FormattedText(pathStr, CultureInfo.InvariantCulture,
-                    FlowDirection.LeftToRight, smallFace, 10, new SolidColorBrush(TextMutedC))
+                    FlowDirection.LeftToRight, smallFace, 12, new SolidColorBrush(TextMutedC))
                 { MaxTextWidth = contentW };
                 blocks.Add((pathFt, TextMutedC, SecGap));
             }
         }
 
         // ── Layout & paint ─────────────────────────────────────────────────
-        double panelW = Math.Max(120, blocks.Max(b => b.ft.Width)) + Pad * 2;
+        double panelW = Math.Max(160, blocks.Max(b => b.ft.Width)) + Pad * 2;
         double panelH = Pad * 2 + blocks.Sum(b => b.ft.Height + LineGap + b.topGap) - LineGap;
 
-        double px = 8.0;
-        double py = 8.0;
-        // Keep within bounds if panel is taller / wider than expected.
-        if (px + panelW + 4 > Bounds.Width)  px = Bounds.Width  - panelW - 4;
+        // Position the panel near the hovered node. Try right of the node
+        // first; if it would overflow off-canvas, place it on the left.
+        // Then clamp vertically so the entire panel stays visible.
+        var (nx, ny) = W2S(node);
+        double nodeR = GetRadius(node.Type);
+        double gap   = 18;
+        double px    = nx + nodeR + gap;
+        if (px + panelW + 4 > Bounds.Width)
+            px = nx - nodeR - gap - panelW;
+        double py = ny - panelH / 2;
         if (py + panelH + 4 > Bounds.Height) py = Bounds.Height - panelH - 4;
-        px = Math.Max(4, px);
-        py = Math.Max(4, py);
+        if (py < 4) py = 4;
+        // Final fallback — keep within left edge if both right and left were rejected.
+        if (px < 4) px = 4;
 
         dc.DrawRectangle(HoverBgBrush, HoverBorderPen, new Rect(px, py, panelW, panelH), 6, 6);
 
