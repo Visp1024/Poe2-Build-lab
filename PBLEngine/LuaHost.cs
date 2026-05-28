@@ -2409,5 +2409,144 @@ public sealed class LuaHost : IDisposable
         return result;
     }
 
+    /// <summary>Build the hover-info packet for a tree node: name, mod lines,
+    /// path distance, and the stat delta from allocating (or deallocating)
+    /// the node. Drives the modern hover tooltip rendered by
+    /// <c>TreeCanvas.DrawHoverInfo</c>. Returns null when the node id is
+    /// unknown or the build state isn't ready.</summary>
+    public NodeHoverInfo? GetNodeHoverInfo(int nodeId)
+    {
+        State["_nodeId"] = (long)nodeId;
+        // Flush any pending fast-alloc state — calcFunc/stat diff depends on
+        // a consistent depends/path tree.
+        State.DoString(@"
+            if build and build.spec and build.spec._fastAllocDirty then
+                build.spec:BuildAllDependsAndPaths()
+                build.spec._fastAllocDirty = false
+            end
+        ");
+        var result = State.DoString(@"
+            if not (build and build.spec and build.calcsTab) then return nil end
+            local node = build.spec.nodes[_nodeId]
+            if not node then return nil end
+
+            local function emitDiffs(baseOutput, compareOutput, nodeCount)
+                local list = {}
+                local function collect(stats, base, comp)
+                    for _, sd in ipairs(stats) do
+                        if sd.stat and not sd.childStat and sd.stat ~= 'SkillDPS' then
+                            local v1 = comp[sd.stat] or 0
+                            local v2 = base[sd.stat] or 0
+                            local diff = v1 - v2
+                            if (diff > 0.001 or diff < -0.001) then
+                                local positive = (sd.lowerIsBetter and diff < 0) or (not sd.lowerIsBetter and diff > 0)
+                                local val = diff * ((sd.pc or sd.mod) and 100 or 1)
+                                local valStr = string.format('%+' .. sd.fmt, val)
+                                local pcStr = ''
+                                if sd.compPercent and v1 ~= 0 and v2 ~= 0 then
+                                    pcStr = string.format('(%+.1f%%)', v1 / v2 * 100 - 100)
+                                end
+                                local perPt = ''
+                                if nodeCount and nodeCount > 1 then
+                                    perPt = string.format('[%+' .. sd.fmt .. ' per pt]',
+                                        diff * ((sd.pc or sd.mod) and 100 or 1) / nodeCount)
+                                end
+                                table.insert(list, { sd.label or sd.stat, valStr, positive and 1 or 0, pcStr, perPt })
+                            end
+                        end
+                    end
+                end
+                collect(build.displayStats, baseOutput, compareOutput)
+                return list
+            end
+
+            local calcFunc, calcBase = build.calcsTab:GetMiscCalculator(build)
+            local nodeDiff, pathDiff = {}, {}
+            local diffHeader, pathHeader = '', ''
+            local pathLen = (node.path and #node.path) or 0
+            if calcFunc then
+                if node.alloc then
+                    local out = calcFunc({ removeNodes = { [node] = true } })
+                    nodeDiff = emitDiffs(calcBase, out)
+                    diffHeader = 'Unallocating this node gives you:'
+                    if pathLen > 1 then
+                        local pathNodes = {}
+                        for _, n in ipairs(node.path) do pathNodes[n] = true end
+                        local pOut = calcFunc({ removeNodes = pathNodes })
+                        pathDiff = emitDiffs(calcBase, pOut, pathLen)
+                        pathHeader = 'Unallocating this node and its dependents gives you:'
+                    end
+                else
+                    local out = calcFunc({ addNodes = { [node] = true } })
+                    nodeDiff = emitDiffs(calcBase, out)
+                    diffHeader = 'Allocating this node gives you:'
+                    if pathLen > 1 and #node.intuitiveLeapLikesAffecting == 0 then
+                        local pathNodes = {}
+                        for _, n in ipairs(node.path) do pathNodes[n] = true end
+                        local pOut = calcFunc({ addNodes = pathNodes })
+                        pathDiff = emitDiffs(calcBase, pOut, pathLen)
+                        pathHeader = 'Allocating the path to this node gives you:'
+                    end
+                end
+            end
+
+            local mods = {}
+            for _, sd in ipairs(node.sd or {}) do mods[#mods+1] = sd end
+
+            return {
+                node.id, node.dn or node.name or '',
+                node.type or 'Normal', node.ascendancyName or '',
+                node.alloc and 1 or 0,
+                node.pathDist or 0, pathLen,
+                mods, nodeDiff, pathDiff, diffHeader, pathHeader
+            }
+        ");
+        State["_nodeId"] = null;
+
+        if (result is not { Length: > 0 } || result[0] is not LuaTable r) return null;
+
+        static string[] ParseStringArray(object? v)
+        {
+            if (v is not LuaTable t) return [];
+            var list = new List<string>();
+            foreach (var k in t.Keys)
+                if (t[k] is string s) list.Add(s);
+            return list.ToArray();
+        }
+
+        static NodeStatDiff[] ParseDiffs(object? v)
+        {
+            if (v is not LuaTable t) return [];
+            var list = new List<NodeStatDiff>();
+            foreach (var k in t.Keys)
+            {
+                if (t[k] is not LuaTable row) continue;
+                var label   = row[1L] as string ?? "";
+                var val     = row[2L] as string ?? "";
+                var pos     = row[3L] is long p && p == 1L;
+                var pcStr   = row[4L] as string ?? "";
+                var perPt   = row[5L] as string ?? "";
+                list.Add(new NodeStatDiff(label, val, pos, pcStr, perPt));
+            }
+            return list.ToArray();
+        }
+
+        var id          = r[1L] is long i ? (int)i : 0;
+        var name        = r[2L] as string ?? "";
+        var type        = r[3L] as string ?? "Normal";
+        var asc         = r[4L] as string ?? "";
+        var alloc       = r[5L] is long a && a == 1L;
+        var pathDist    = r[6L] is long pd ? (int)pd : 0;
+        var pathLen     = r[7L] is long pl ? (int)pl : 0;
+        var mods        = ParseStringArray(r[8L]);
+        var diffs       = ParseDiffs(r[9L]);
+        var pathDiffs   = ParseDiffs(r[10L]);
+        var diffHdr     = r[11L] as string ?? "";
+        var pathDiffHdr = r[12L] as string ?? "";
+
+        return new NodeHoverInfo(id, name, type, asc, alloc, pathDist, pathLen,
+            mods, diffs, pathDiffs, diffHdr, pathDiffHdr);
+    }
+
     public void Dispose() => State.Dispose();
 }

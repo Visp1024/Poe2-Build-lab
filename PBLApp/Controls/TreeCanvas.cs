@@ -49,6 +49,13 @@ public sealed class TreeCanvas : Control
     public static readonly StyledProperty<IReadOnlyDictionary<string, (double X, double Y)>?> AscendancyBackgroundsProperty =
         AvaloniaProperty.Register<TreeCanvas, IReadOnlyDictionary<string, (double X, double Y)>?>(nameof(AscendancyBackgrounds));
 
+    /// <summary>Callback supplied by the view layer that fetches the modern
+    /// hover-info packet (mod lines + stat diff + path distance) for a node
+    /// via <c>LuaHost.GetNodeHoverInfo</c>. Hooked into Render via a small
+    /// per-node cache that invalidates on alloc-state change.</summary>
+    public static readonly StyledProperty<Func<int, NodeHoverInfo?>?> HoverInfoProviderProperty =
+        AvaloniaProperty.Register<TreeCanvas, Func<int, NodeHoverInfo?>?>(nameof(HoverInfoProvider));
+
     public IReadOnlyList<TreeNodeDto>? Nodes
     {
         get => GetValue(NodesProperty);
@@ -95,6 +102,19 @@ public sealed class TreeCanvas : Control
         get => GetValue(AscendancyBackgroundsProperty);
         set => SetValue(AscendancyBackgroundsProperty, value);
     }
+    public Func<int, NodeHoverInfo?>? HoverInfoProvider
+    {
+        get => GetValue(HoverInfoProviderProperty);
+        set => SetValue(HoverInfoProviderProperty, value);
+    }
+
+    // Cache the resolved hover packet for the currently hovered node so that
+    // every Render pass (pan/zoom/repaint while the cursor stays on a node)
+    // doesn't re-hit Lua. Invalidated by hovered-node change or alloc-state
+    // change (handled in OnPropertyChanged).
+    private NodeHoverInfo? _hoverCache;
+    private int            _hoverCacheNodeId   = -1;
+    private object?        _hoverCacheAllocRef;
 
     // ── Pan / zoom state ───────────────────────────────────────────────────
 
@@ -223,6 +243,9 @@ public sealed class TreeCanvas : Control
         }
         else if (change.Property == AllocatedIdsProperty)
         {
+            // Alloc changed → hover diff numbers are stale.
+            _hoverCache = null;
+            _hoverCacheNodeId = -1;
             InvalidateVisual();
         }
         else if (change.Property == SearchTextProperty)
@@ -593,52 +616,224 @@ public sealed class TreeCanvas : Control
 
     // ── Hover info panel ───────────────────────────────────────────────────
 
+    // Design-token brushes for the modern tooltip. Colour values come from
+    // PBLApp/Themes/Tokens.Colors.axaml (Dark theme) — kept inline here so
+    // TreeCanvas remains a self-contained Avalonia Control rather than
+    // having to resolve resources on every paint.
+    private static readonly Color BgMantleC      = Color.Parse("#15171D");
+    private static readonly Color BorderStrongC  = Color.Parse("#3E4456");
+    private static readonly Color TextPrimaryC   = Color.Parse("#E4E7EE");
+    private static readonly Color TextSecondaryC = Color.Parse("#A8B0BD");
+    private static readonly Color TextMutedC     = Color.Parse("#6E7689");
+    private static readonly Color Brand400C      = Color.Parse("#D9B670"); // notable / keystone gold
+    private static readonly Color SuccessC       = Color.Parse("#7FC78A");
+    private static readonly Color DangerC        = Color.Parse("#D87171");
+    private static readonly Color StatLifeC      = Color.Parse("#7FC78A");
+    private static readonly Color StatEsC        = Color.Parse("#6FA8DC");
+    private static readonly Color StatManaC      = Color.Parse("#8AA6F5");
+    private static readonly Color WarningC       = Color.Parse("#E8B763");
+    private static readonly Color ModExplicitC   = Color.Parse("#CDD6F4");
+    private static readonly Color InfoC          = Color.Parse("#6FA8DC");
+    private static readonly Color AttrIntC       = Color.Parse("#89B4FA");
+    private static readonly Color AttrDexC       = Color.Parse("#A6E3A1");
+
+    private static readonly IBrush HoverBgBrush     = new SolidColorBrush(Color.FromArgb(245, BgMantleC.R, BgMantleC.G, BgMantleC.B));
+    private static readonly IPen   HoverBorderPen   = MkPen("#3E4456", 1.0);
+    private static readonly IBrush HoverSepBrush    = new SolidColorBrush(BorderStrongC);
+
+    private static readonly System.Text.RegularExpressions.Regex NumberRegex =
+        new(@"[+-]?\d+\.?\d*", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static Color NodeTitleColor(string type, bool alloc)
+    {
+        return type switch
+        {
+            "Notable" or "AscendClassStart" => Brand400C,
+            "Keystone"                       => WarningC,
+            "Socket"                         => InfoC,
+            "Mastery"                        => AttrIntC,
+            _                                => alloc ? SuccessC : TextPrimaryC,
+        };
+    }
+
+    /// <summary>Renders a single mod line with numbers highlighted in a
+    /// different colour from the surrounding text. Returns the text height.</summary>
+    private static double DrawColoredModLine(DrawingContext dc, string text, double x, double y,
+                                             double maxWidth, double fontSize,
+                                             Typeface typeface,
+                                             Color textColor, Color numberColor)
+    {
+        var matches = NumberRegex.Matches(text);
+        if (matches.Count == 0)
+        {
+            var ft = new FormattedText(text, CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight, typeface, fontSize, new SolidColorBrush(textColor))
+            { MaxTextWidth = maxWidth };
+            dc.DrawText(ft, new Point(x, y));
+            return ft.Height;
+        }
+
+        // Split into alternating runs; emit each with the right colour.
+        // Render in one FormattedText with spans so wrapping behaves
+        // naturally — Avalonia's TextSpan covers ranges within the text.
+        var ft2 = new FormattedText(text, CultureInfo.InvariantCulture,
+            FlowDirection.LeftToRight, typeface, fontSize, new SolidColorBrush(textColor))
+        { MaxTextWidth = maxWidth };
+        var numberBrush = new SolidColorBrush(numberColor);
+        foreach (System.Text.RegularExpressions.Match m in matches)
+            ft2.SetForegroundBrush(numberBrush, m.Index, m.Length);
+        dc.DrawText(ft2, new Point(x, y));
+        return ft2.Height;
+    }
+
     private void DrawHoverInfo(DrawingContext dc, TreeNodeDto node, bool alloc)
     {
-        const double Pad    = 8;
-        const double MaxW   = 340;
-        const double LineGap = 2;
+        // Try fetching the modern hover packet (mod text + stat diff + path).
+        // Cache the result while the cursor stays on the same node and the
+        // alloc set doesn't change.
+        NodeHoverInfo? info = null;
+        if (HoverInfoProvider != null)
+        {
+            if (_hoverCacheNodeId == node.Id
+                && ReferenceEquals(_hoverCacheAllocRef, AllocatedIds))
+            {
+                info = _hoverCache;
+            }
+            else
+            {
+                try { info = HoverInfoProvider(node.Id); }
+                catch { info = null; }
+                _hoverCache         = info;
+                _hoverCacheNodeId   = node.Id;
+                _hoverCacheAllocRef = AllocatedIds;
+            }
+        }
+
+        const double Pad      = 12;
+        const double MaxW     = 380;
+        const double LineGap  = 3;
+        const double SecGap   = 8;
         double contentW = MaxW - Pad * 2;
 
-        var translatedName = GameTranslationService.TPassiveName(node.Name);
-        var typeStr = $"[{node.Type}{(string.IsNullOrEmpty(node.AscendancyName) ? "" : " · " + node.AscendancyName)}]";
+        var titleFace = new Typeface("Segoe UI", FontStyle.Normal, FontWeight.SemiBold);
+        var bodyFace  = new Typeface("Segoe UI");
+        var smallFace = new Typeface("Segoe UI");
 
-        var rawLines = new List<(string text, Color color, double fontSize)>();
-        rawLines.Add((translatedName, alloc ? Color.Parse("#A6E3A1") : Colors.White, 12));
-        rawLines.Add((typeStr, Color.Parse("#585B70"), 10));
-        foreach (var s in node.Stats)
-            if (!string.IsNullOrEmpty(s))
-                rawLines.Add((GameTranslationService.TPassiveStat(s), Color.Parse("#CDD6F4"), 10));
+        var blocks = new List<(FormattedText ft, Color col, double topGap)>();
 
-        var typeface = new Typeface("Cascadia Code,Consolas,monospace");
+        // ── Title block ────────────────────────────────────────────────────
+        var displayName = !string.IsNullOrEmpty(info?.Name)
+            ? GameTranslationService.TPassiveName(info!.Name)
+            : GameTranslationService.TPassiveName(node.Name);
+        var titleColor  = NodeTitleColor(info?.Type ?? node.Type, alloc);
+        var titleFt = new FormattedText(displayName, CultureInfo.InvariantCulture,
+            FlowDirection.LeftToRight, titleFace, 14, new SolidColorBrush(titleColor))
+        { MaxTextWidth = contentW };
+        blocks.Add((titleFt, titleColor, 0));
 
-        // Build FormattedText list with wrapping; measure actual sizes
-        var fts = rawLines.Select(l =>
+        // Type / ascendancy caption
+        var typeText = info?.Type ?? node.Type;
+        var ascText  = info?.AscendancyName ?? node.AscendancyName;
+        var subtitle = string.IsNullOrEmpty(ascText) ? typeText : $"{typeText} · {ascText}";
+        var subFt = new FormattedText(subtitle.ToUpperInvariant(), CultureInfo.InvariantCulture,
+            FlowDirection.LeftToRight, smallFace, 9, new SolidColorBrush(TextMutedC))
+        { MaxTextWidth = contentW };
+        blocks.Add((subFt, TextMutedC, 1));
+
+        // ── Mod lines ──────────────────────────────────────────────────────
+        IEnumerable<string> modSource = info?.Mods is { Length: > 0 }
+            ? info.Mods.Select(GameTranslationService.TPassiveStat)
+            : node.Stats.Select(GameTranslationService.TPassiveStat);
+
+        bool firstMod = true;
+        foreach (var raw in modSource)
         {
-            var ft = new FormattedText(l.text, CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight, typeface, l.fontSize, Brushes.White)
+            if (string.IsNullOrWhiteSpace(raw)) continue;
+            // Pre-measure so we can choose mod-block typography uniformly.
+            var modFt = new FormattedText(raw, CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight, bodyFace, 11, new SolidColorBrush(ModExplicitC))
+            { MaxTextWidth = contentW };
+            // Highlight numbers in brand gold.
+            foreach (System.Text.RegularExpressions.Match m in NumberRegex.Matches(raw))
+                modFt.SetForegroundBrush(new SolidColorBrush(Brand400C), m.Index, m.Length);
+            blocks.Add((modFt, ModExplicitC, firstMod ? SecGap : 0));
+            firstMod = false;
+        }
+
+        // ── Stat diff blocks ───────────────────────────────────────────────
+        void EmitDiffs(string header, NodeStatDiff[] diffs)
+        {
+            if (diffs.Length == 0) return;
+            var hdrFt = new FormattedText(header, CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight, bodyFace, 10, new SolidColorBrush(TextSecondaryC))
+            { MaxTextWidth = contentW };
+            blocks.Add((hdrFt, TextSecondaryC, SecGap));
+
+            foreach (var d in diffs)
             {
-                MaxTextWidth = contentW
-            };
-            return (ft, l.color);
-        }).ToList();
+                var col = d.IsPositive ? SuccessC : DangerC;
+                var line = $"{d.ValueText}  {d.Label}";
+                if (!string.IsNullOrEmpty(d.PercentText)) line += "  " + d.PercentText;
+                if (!string.IsNullOrEmpty(d.PerPointText)) line += "  " + d.PerPointText;
+                var ft = new FormattedText(line, CultureInfo.InvariantCulture,
+                    FlowDirection.LeftToRight, bodyFace, 11, new SolidColorBrush(TextPrimaryC))
+                { MaxTextWidth = contentW };
+                // The +/- value at the start gets the positive/negative colour;
+                // the per-point bracket gets a muted colour for visual hierarchy.
+                int valLen = d.ValueText.Length;
+                ft.SetForegroundBrush(new SolidColorBrush(col), 0, valLen);
+                if (!string.IsNullOrEmpty(d.PerPointText))
+                {
+                    int idx = line.IndexOf(d.PerPointText, StringComparison.Ordinal);
+                    if (idx > 0)
+                        ft.SetForegroundBrush(new SolidColorBrush(TextMutedC), idx, d.PerPointText.Length);
+                }
+                if (!string.IsNullOrEmpty(d.PercentText))
+                {
+                    int idx = line.IndexOf(d.PercentText, StringComparison.Ordinal);
+                    if (idx > 0)
+                        ft.SetForegroundBrush(new SolidColorBrush(TextSecondaryC), idx, d.PercentText.Length);
+                }
+                blocks.Add((ft, TextPrimaryC, 0));
+            }
+        }
 
-        double panelW = Math.Max(100, fts.Max(x => x.ft.Width)) + Pad * 2;
-        double panelH = Pad * 2 + fts.Sum(x => x.ft.Height + LineGap) - LineGap;
+        if (info != null)
+        {
+            EmitDiffs(info.DiffHeader, info.StatDiffs);
+            EmitDiffs(info.PathDiffHeader, info.PathStatDiffs);
 
-        // Keep panel inside canvas
-        double px = Math.Min(8.0, Bounds.Width  - panelW - 4);
-        double py = Math.Min(8.0, Bounds.Height - panelH - 4);
+            // Path distance footer.
+            if (info.PathDist > 0)
+            {
+                var pathStr = info.PathDist == 1
+                    ? "1 point to allocate"
+                    : $"{info.PathDist} points to allocate";
+                var pathFt = new FormattedText(pathStr, CultureInfo.InvariantCulture,
+                    FlowDirection.LeftToRight, smallFace, 10, new SolidColorBrush(TextMutedC))
+                { MaxTextWidth = contentW };
+                blocks.Add((pathFt, TextMutedC, SecGap));
+            }
+        }
+
+        // ── Layout & paint ─────────────────────────────────────────────────
+        double panelW = Math.Max(120, blocks.Max(b => b.ft.Width)) + Pad * 2;
+        double panelH = Pad * 2 + blocks.Sum(b => b.ft.Height + LineGap + b.topGap) - LineGap;
+
+        double px = 8.0;
+        double py = 8.0;
+        // Keep within bounds if panel is taller / wider than expected.
+        if (px + panelW + 4 > Bounds.Width)  px = Bounds.Width  - panelW - 4;
+        if (py + panelH + 4 > Bounds.Height) py = Bounds.Height - panelH - 4;
         px = Math.Max(4, px);
         py = Math.Max(4, py);
 
-        dc.DrawRectangle(InfoBg, InfoBrd, new Rect(px, py, panelW, panelH), 4, 4);
+        dc.DrawRectangle(HoverBgBrush, HoverBorderPen, new Rect(px, py, panelW, panelH), 6, 6);
 
         double ty = py + Pad;
-        for (int i = 0; i < fts.Count; i++)
+        foreach (var (ft, _, topGap) in blocks)
         {
-            var (ft, color) = fts[i];
-            ft.SetForegroundBrush(new SolidColorBrush(color));
+            ty += topGap;
             dc.DrawText(ft, new Point(px + Pad, ty));
             ty += ft.Height + LineGap;
         }

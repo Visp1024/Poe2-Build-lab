@@ -320,6 +320,11 @@ public partial class TreeTabViewModel : ViewModelBase
         _statsDebounce.Start();
     }
 
+    /// <summary>Fetch the modern hover-info packet (mod text, stat diff,
+    /// path distance) for a tree node. Used by <c>TreeCanvas</c> to populate
+    /// the new hover tooltip.</summary>
+    public NodeHoverInfo? GetNodeHoverInfo(int nodeId) => _host.GetNodeHoverInfo(nodeId);
+
     private void RefreshAllocated()
     {
         // Single round-trip into Lua: both alloc set and radius emitters come
