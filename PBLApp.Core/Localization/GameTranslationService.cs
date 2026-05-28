@@ -631,20 +631,32 @@ public sealed class GameTranslationService
         if (_items.Count == 0) return null;
 
         // Find the longest base name that appears inside the line surrounded by
-        // word boundaries (start-of-line or space; end-of-line or space).
+        // word boundaries (start-of-line / end-of-line / non-letter-digit).
+        // Earlier check was ' ' only — that misses bases adjacent to punctuation
+        // (comma, period) and lets a short base (e.g. "Belt") win over a longer
+        // composite ("Heavy Belt") only when a space happens to be present.
+        // We also enforce: the substring at idx must NOT extend through a
+        // boundary-less letter context that would suggest it's part of another
+        // word (e.g. "Ringmaster" must not match the "Ring" base).
+        static bool IsWordChar(char c) => char.IsLetterOrDigit(c) || c == '\'';
         string? bestBase = null;
         int bestIdx = -1;
         foreach (var k in _items.Keys)
         {
-            var idx = line.IndexOf(k, StringComparison.Ordinal);
-            if (idx < 0) continue;
-            // boundary check
-            if (idx > 0 && line[idx - 1] != ' ') continue;
-            var endPos = idx + k.Length;
-            if (endPos < line.Length && line[endPos] != ' ') continue;
-            if (bestBase is null || k.Length > bestBase.Length)
+            int searchFrom = 0;
+            while (true)
             {
-                bestBase = k; bestIdx = idx;
+                var idx = line.IndexOf(k, searchFrom, StringComparison.Ordinal);
+                if (idx < 0) break;
+                searchFrom = idx + 1;
+                if (idx > 0 && IsWordChar(line[idx - 1])) continue;
+                var endPos = idx + k.Length;
+                if (endPos < line.Length && IsWordChar(line[endPos])) continue;
+                if (bestBase is null || k.Length > bestBase.Length)
+                {
+                    bestBase = k; bestIdx = idx;
+                }
+                break;
             }
         }
         if (bestBase is null) return null;

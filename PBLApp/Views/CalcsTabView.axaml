@@ -282,7 +282,7 @@
                                                FontSize="11" FontWeight="Bold" Margin="0,0,0,4" />
                                     <Grid ColumnDefinitions="60,60,80,*" Margin="0,0,0,2">
                                         <TextBlock Grid.Column="0" Text="{loc:Tr Calc_ColValue}"  Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
-                                        <TextBlock Grid.Column="1" Text="Type"   Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="1" Text="{loc:Tr Calc_ColType}"   Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
                                         <TextBlock Grid.Column="2" Text="{loc:Tr Calc_ColSource}" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
                                         <TextBlock Grid.Column="3" Text="{loc:Tr Calc_ColName}"   Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
                                     </Grid>
