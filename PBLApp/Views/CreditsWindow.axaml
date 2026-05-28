@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:PBLApp.Localization"
+        x:Class="PBLApp.Views.CreditsWindow"
+        Width="480" SizeToContent="Height"
+        CanResize="False" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Title="{loc:Tr Credits_Title}"
+        Background="{DynamicResource BgMantleBrush}">
+
+    <Border Padding="24" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="14">
+            <TextBlock Grid.Row="0"
+                       Text="{loc:Tr Credits_Heading}"
+                       FontSize="16" FontWeight="Bold"
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
+
+            <TextBlock Grid.Row="1"
+                       Text="{loc:Tr Credits_Body}"
+                       FontSize="13"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       TextWrapping="Wrap"
+                       LineHeight="20" />
+
+            <CheckBox Grid.Row="2"
+                      Name="DontShowCheck"
+                      Content="{loc:Tr Credits_DontShow}"
+                      Foreground="{DynamicResource TextSecondaryBrush}" />
+
+            <StackPanel Grid.Row="3" Orientation="Horizontal"
+                        HorizontalAlignment="Right" Spacing="8">
+                <Button Content="{loc:Tr Credits_Close}"
+                        Click="Close_Click"
+                        Padding="18,6"
+                        FontWeight="Bold" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

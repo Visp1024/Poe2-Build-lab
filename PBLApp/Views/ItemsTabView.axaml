@@ -10,16 +10,19 @@
 
     <UserControl.Styles>
 
-        <!-- Slot cell (figure layout) — proportional rectangle, colored by rarity -->
+        <!-- Slot cell (figure layout) — proportional rectangle, colored by rarity.
+             Margin of 2 around each cell creates a tight grid; the SukiTheme Button
+             template's hover background is suppressed via the /template/ ContentPresenter
+             rule (gotcha: setting Background on Button itself doesn't reach hover state). -->
         <Style Selector="Button.slot-cell">
             <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BgRaisedBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Padding" Value="3"/>
+            <Setter Property="Padding" Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="CornerRadius" Value="4"/>
             <!-- Enable drag-and-drop target. PointerPressed/Moved start a drag from this slot;
                  Drop equips a pool item or swaps from another slot. -->
             <Setter Property="DragDrop.AllowDrop" Value="True"/>
@@ -27,13 +30,19 @@
         <Style Selector="Button.pool-btn">
             <Setter Property="DragDrop.AllowDrop" Value="True"/>
         </Style>
+        <!-- Propagate the slot-cell CornerRadius=4 to the ContentPresenter so the
+             hover/selected background respects the rounded corners (the SukiTheme
+             Button template paints hover via /template/ ContentPresenter, not on
+             the Button itself — see avalonia-suki-gotchas). Background stays bound
+             to the Button so the drag-highlight code can override it directly. -->
         <Style Selector="Button.slot-cell /template/ ContentPresenter">
             <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="CornerRadius" Value="4"/>
         </Style>
         <Style Selector="Button.slot-cell:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}"/>
         </Style>
-        <Style Selector="Button.slot-cell.selected">
+        <Style Selector="Button.slot-cell.selected /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
         </Style>
 
@@ -60,27 +69,46 @@
             <Setter Property="Background" Value="Transparent"/>
         </Style>
 
-        <!-- Slot label (small gray text above item name) -->
-        <Style Selector="TextBlock.slot-label">
-            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,1,0,0"/>
+        <!-- Item icon inside slot — fills the cell when an icon is available; the
+             text fallback (slot-fallback below) hides itself in that case. -->
+        <Style Selector="Image.slot-icon">
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="3"/>
         </Style>
 
-        <!-- Item name inside slot -->
-        <Style Selector="TextBlock.slot-name">
-            <Setter Property="FontSize" Value="11"/>
+        <!-- Text fallback when no icon is available (light build, or icon missing). -->
+        <Style Selector="StackPanel.slot-fallback">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Spacing" Value="2"/>
+        </Style>
+        <Style Selector="TextBlock.slot-fallback-label">
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Opacity" Value="0.6"/>
+        </Style>
+        <Style Selector="TextBlock.slot-fallback-name">
+            <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="LineHeight" Value="13"/>
+            <Setter Property="LineHeight" Value="12"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="MaxWidth" Value="92"/>
+        </Style>
+
+        <!-- Item icon inside the pool-row thumbnail -->
+        <Style Selector="Image.pool-icon">
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <!-- Reserve room for the slot label sitting at the top of the cell -->
-            <Setter Property="Margin" Value="2,14,2,2"/>
         </Style>
 
         <!-- Pool list item row -->
@@ -219,32 +247,38 @@
                         <TextBlock Text="{loc:Tr Item_EquippedHeader}" Classes="section-header" Margin="0,0,0,6"/>
 
                         <!-- ═══════════════════════════════════════════════════════════
-                             Character figure: absolute layout on Canvas (500 × 620).
-                             Slot sizes mimic in-game proportions (weapons tall, body
-                             large, rings small, belt long, flasks tall, charms small).
-                             All slot bounding boxes have ≥5px clearance — no overlap.
+                             Character figure — PoE-proportional grid.
+
+                             All cells are 50×50 dip (with a 2 dip Margin around each
+                             via the slot-cell style). Items occupy their game-natural
+                             rectangles via Grid.RowSpan / Grid.ColumnSpan:
+
+                                Helmet      2×2     Weapon (1H/2H) 2×4 or 2×5
+                                Body Armour 2×3     Belt           2×1
+                                Gloves      2×2     Amulet/Ring     1×1
+                                Boots       2×2     Charm           1×1
+                                                    Flask          1×2
+
+                             Layout (rows × cols, 9×11 grid of 50dip cells):
+
+                                  0 1   2 3 4 5    6 7 8
+                                0     [Helm Helm]
+                                1     [Helm Helm]   [Amul]
+                                2 [W1 W1]                    [W2 W2]
+                                3 [W1 W1] [Body Body] [Ring1] [W2 W2]
+                                4 [W1 W1] [Body Body] [Ring2] [W2 W2]
+                                5 [W1 W1] [Body Body]         [W2 W2]
+                                6        [Belt Belt]
+                                7 [Glov  Glov]   [Ch1 Ch2 Ch3]   [Boot Boot]
+                                8 [Glov  Glov]                   [Boot Boot]
+                                9      [F1] [F2]
+                               10      [F1] [F2]
                              ═══════════════════════════════════════════════════════════ -->
-                        <!-- ═══════════════════════════════════════════════════════════
-                             Character figure: canvas 500 × 590, centred on x=250.
-                             Symmetric body column (BodyArmour 135) with weapons in
-                             outer columns, rings filling the gap between body and
-                             weapons below the body block. Charms occupy the central
-                             column between Flask1 and Flask2 in the bottom row.
-                             Sizes preserved from previous layout; only positions
-                             changed for alignment.
-                             ═══════════════════════════════════════════════════════════ -->
-                        <!-- Canvas-free figure: weapon-set toggle row, then a Grid below.
-                             Grid: 5 columns × 6 rows for clean alignment.
-                             Columns:  Weapon | gap | BodyCenter (3 sub-cols for rings/belt) | gap | Weapon
-                             Rows:     Helmet/Amulet row | Weapon×Body row | Rings/Belt row | Charm/Gloves/Boots row | Flask row | Charm-cont -->
                         <StackPanel HorizontalAlignment="Center" Spacing="6">
 
-                            <!-- ── Weapon-set toggle — single compact row centred over the figure ─ -->
+                            <!-- Weapon-set toggle — single compact row centred over the figure. -->
                             <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center"
                                         Margin="0,0,0,2">
-                                <TextBlock Text="{loc:Tr Item_WeaponSet}" Classes="caption"
-                                           VerticalAlignment="Center"
-                                           IsVisible="False"/>
                                 <Button Classes="swap-btn"
                                         Classes.active="{Binding IsWeaponSet1Active}"
                                         Command="{Binding SelectWeaponSet1Command}"
@@ -255,60 +289,73 @@
                                         Content="II"/>
                             </StackPanel>
 
-                            <Grid Width="500">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="105"/>  <!-- 0: Weapon1 / Gloves / Flask1 -->
-                                    <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="86"/>   <!-- 2: Helmet-L / Body-L / Ring1 / Charms-L -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="88"/>   <!-- 4: Helmet-R / Body-C / Belt-C / Charms-C -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="86"/>   <!-- 6: Amulet / Body-R / Ring2 / Charms-R -->
-                                    <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="105"/>  <!-- 8: Weapon2 / Boots / Flask2 -->
+                                    <ColumnDefinition Width="50"/>  <!-- 0  Weapon1 L  / Gloves L         -->
+                                    <ColumnDefinition Width="50"/>  <!-- 1  Weapon1 R  / Gloves R         -->
+                                    <ColumnDefinition Width="50"/>  <!-- 2                                -->
+                                    <ColumnDefinition Width="50"/>  <!-- 3  Helmet/Body L / Belt L / Ch1  -->
+                                    <ColumnDefinition Width="50"/>  <!-- 4  Helmet/Body R / Belt R / Ch2  -->
+                                    <ColumnDefinition Width="50"/>  <!-- 5  Amulet / Ring1 / Ring2 / Ch3  -->
+                                    <ColumnDefinition Width="50"/>  <!-- 6                                -->
+                                    <ColumnDefinition Width="50"/>  <!-- 7  Weapon2 L / Boots L           -->
+                                    <ColumnDefinition Width="50"/>  <!-- 8  Weapon2 R / Boots R           -->
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="60"/>   <!-- 0: Helmet + Amulet -->
-                                    <RowDefinition Height="6"/>
-                                    <RowDefinition Height="170"/>  <!-- 2: Weapons + Body -->
-                                    <RowDefinition Height="6"/>
-                                    <RowDefinition Height="48"/>   <!-- 4: Rings + Belt -->
-                                    <RowDefinition Height="6"/>
-                                    <RowDefinition Height="125"/>  <!-- 6: Gloves + Charms + Boots -->
-                                    <RowDefinition Height="6"/>
-                                    <RowDefinition Height="115"/>  <!-- 8: Flasks (+ tail of charms) -->
+                                    <RowDefinition Height="50"/>  <!-- 0  Helmet (top)                   -->
+                                    <RowDefinition Height="50"/>  <!-- 1  Helmet (bottom)   Amulet       -->
+                                    <RowDefinition Height="50"/>  <!-- 2  Weapons start                  -->
+                                    <RowDefinition Height="50"/>  <!-- 3  Body row 1, Ring1              -->
+                                    <RowDefinition Height="50"/>  <!-- 4  Body row 2, Ring2              -->
+                                    <RowDefinition Height="50"/>  <!-- 5  Body row 3                     -->
+                                    <RowDefinition Height="50"/>  <!-- 6  Belt                           -->
+                                    <RowDefinition Height="50"/>  <!-- 7  Gloves/Charms/Boots row 1      -->
+                                    <RowDefinition Height="50"/>  <!-- 8  Gloves/Boots row 2             -->
+                                    <RowDefinition Height="50"/>  <!-- 9  Flasks row 1                   -->
+                                    <RowDefinition Height="50"/>  <!-- 10 Flasks row 2                   -->
                                 </Grid.RowDefinitions>
 
-                                <!-- ── Helmet (centre, cols 2-4, row 0) ──────── -->
-                                <Button Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3"
+                                <!-- ── Helmet (cols 3-4, rows 0-1) — 2×2 ────────────── -->
+                                <Button Grid.Row="0" Grid.Column="3" Grid.RowSpan="2" Grid.ColumnSpan="2"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Helmet.IsSelected}"
                                         BorderBrush="{Binding Helmet.NameColor}"
                                         Command="{Binding Helmet.SelectCommand}"
                                         Tag="slot:Helmet">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Helmet}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Helmet.LeftDisplayName}"
-                                                   Foreground="{Binding Helmet.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Helmet.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Helmet.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Helmet.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Helmet}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Helmet.LeftDisplayName}"
+                                                       Foreground="{Binding Helmet.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Amulet (col 6, row 0) — same height as helmet, top-aligned ─ -->
-                                <Button Grid.Row="0" Grid.Column="6"
+                                <!-- ── Amulet (col 5, row 1) — 1×1 ──────────────────── -->
+                                <Button Grid.Row="1" Grid.Column="5"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Amulet.IsSelected}"
                                         BorderBrush="{Binding Amulet.NameColor}"
                                         Command="{Binding Amulet.SelectCommand}"
                                         Tag="slot:Amulet">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Amulet}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Amulet.LeftDisplayName, FallbackValue='Amu'}"
-                                                   Foreground="{Binding Amulet.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Amulet.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Amulet.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Amulet.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Amulet}" Classes="slot-fallback-label"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Weapon 1 (col 0, row 2) — primary set ─────────── -->
-                                <Button Grid.Row="2" Grid.Column="0"
+                                <!-- ── Weapon 1 (cols 0-1, rows 2-5) — 2×4 ─────────── -->
+                                <Button Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2"
                                         IsVisible="{Binding IsWeaponSet1Active}"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon1.IsSelected}"
@@ -316,14 +363,21 @@
                                         Command="{Binding Weapon1.SelectCommand}"
                                         Tag="slot:Weapon 1">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Weapon1}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Weapon1.LeftDisplayName}"
-                                                   Foreground="{Binding Weapon1.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Weapon1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Weapon1.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Weapon1.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Weapon1}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Weapon1.LeftDisplayName}"
+                                                       Foreground="{Binding Weapon1.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Weapon 1 Swap (secondary set) — same cell as Weapon1, toggled by IsVisible ── -->
-                                <Button Grid.Row="2" Grid.Column="0"
+                                <!-- ── Weapon 1 Swap — overlays Weapon1, toggled via IsVisible ── -->
+                                <Button Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2"
                                         IsVisible="{Binding IsWeaponSet2Active}"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon1Swap.IsSelected}"
@@ -331,28 +385,78 @@
                                         Command="{Binding Weapon1Swap.SelectCommand}"
                                         Tag="slot:Weapon 1 Swap">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Weapon1}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Weapon1Swap.LeftDisplayName}"
-                                                   Foreground="{Binding Weapon1Swap.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Weapon1Swap.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Weapon1Swap.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Weapon1Swap.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Weapon1}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Weapon1Swap.LeftDisplayName}"
+                                                       Foreground="{Binding Weapon1Swap.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Body Armour (cols 2-6 spanning, row 2) ─────────────────── -->
-                                <Button Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="5"
+                                <!-- ── Body Armour (cols 3-4, rows 3-5) — 2×3 ──────── -->
+                                <Button Grid.Row="3" Grid.Column="3" Grid.RowSpan="3" Grid.ColumnSpan="2"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding BodyArmour.IsSelected}"
                                         BorderBrush="{Binding BodyArmour.NameColor}"
                                         Command="{Binding BodyArmour.SelectCommand}"
                                         Tag="slot:Body Armour">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_BodyArmour}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding BodyArmour.LeftDisplayName}"
-                                                   Foreground="{Binding BodyArmour.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding BodyArmour.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding BodyArmour.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !BodyArmour.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_BodyArmour}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding BodyArmour.LeftDisplayName}"
+                                                       Foreground="{Binding BodyArmour.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Weapon 2 (col 8, row 2) — primary set ────────── -->
-                                <Button Grid.Row="2" Grid.Column="8"
+                                <!-- ── Ring 1 (col 5, row 3) — 1×1 ──────────────────── -->
+                                <Button Grid.Row="3" Grid.Column="5"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Ring1.IsSelected}"
+                                        BorderBrush="{Binding Ring1.NameColor}"
+                                        Command="{Binding Ring1.SelectCommand}"
+                                        Tag="slot:Ring 1">
+                                    <Grid>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Ring1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Ring1.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Ring1.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Ring1}" Classes="slot-fallback-label"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Ring 2 (col 5, row 4) — 1×1 ──────────────────── -->
+                                <Button Grid.Row="4" Grid.Column="5"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Ring2.IsSelected}"
+                                        BorderBrush="{Binding Ring2.NameColor}"
+                                        Command="{Binding Ring2.SelectCommand}"
+                                        Tag="slot:Ring 2">
+                                    <Grid>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Ring2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Ring2.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Ring2.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Ring2}" Classes="slot-fallback-label"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Weapon 2 (cols 7-8, rows 2-5) — 2×4 ─────────── -->
+                                <Button Grid.Row="2" Grid.Column="7" Grid.RowSpan="4" Grid.ColumnSpan="2"
                                         IsVisible="{Binding IsWeaponSet1Active}"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon2.IsSelected}"
@@ -360,14 +464,21 @@
                                         Command="{Binding Weapon2.SelectCommand}"
                                         Tag="slot:Weapon 2">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Weapon2}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Weapon2.LeftDisplayName}"
-                                                   Foreground="{Binding Weapon2.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Weapon2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Weapon2.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Weapon2.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Weapon2}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Weapon2.LeftDisplayName}"
+                                                       Foreground="{Binding Weapon2.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Weapon 2 Swap (secondary set) ───────────────── -->
-                                <Button Grid.Row="2" Grid.Column="8"
+                                <!-- ── Weapon 2 Swap — overlays Weapon2, toggled via IsVisible ── -->
+                                <Button Grid.Row="2" Grid.Column="7" Grid.RowSpan="4" Grid.ColumnSpan="2"
                                         IsVisible="{Binding IsWeaponSet2Active}"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Weapon2Swap.IsSelected}"
@@ -375,142 +486,171 @@
                                         Command="{Binding Weapon2Swap.SelectCommand}"
                                         Tag="slot:Weapon 2 Swap">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Weapon2}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Weapon2Swap.LeftDisplayName}"
-                                                   Foreground="{Binding Weapon2Swap.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Weapon2Swap.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Weapon2Swap.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Weapon2Swap.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Weapon2}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Weapon2Swap.LeftDisplayName}"
+                                                       Foreground="{Binding Weapon2Swap.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Ring 1 / Belt / Ring 2 (row 4: cols 2 / 4 / 6) ─────────── -->
-                                <Button Grid.Row="4" Grid.Column="2"
-                                        Classes="slot-cell"
-                                        Classes.selected="{Binding Ring1.IsSelected}"
-                                        BorderBrush="{Binding Ring1.NameColor}"
-                                        Command="{Binding Ring1.SelectCommand}"
-                                        Tag="slot:Ring 1">
-                                    <TextBlock Text="{Binding Ring1.LeftDisplayName, FallbackValue='R1'}"
-                                               Foreground="{Binding Ring1.NameColor}"
-                                               FontSize="10" TextWrapping="Wrap" TextAlignment="Center"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Button>
-
-                                <Button Grid.Row="4" Grid.Column="4"
+                                <!-- ── Belt (cols 3-4, row 6) — 2×1 ─────────────────── -->
+                                <Button Grid.Row="6" Grid.Column="3" Grid.ColumnSpan="2"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Belt.IsSelected}"
                                         BorderBrush="{Binding Belt.NameColor}"
                                         Command="{Binding Belt.SelectCommand}"
                                         Tag="slot:Belt">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Belt}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Belt.LeftDisplayName, FallbackValue='Belt'}"
-                                                   Foreground="{Binding Belt.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Belt.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Belt.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Belt.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Belt}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Belt.LeftDisplayName, FallbackValue=''}"
+                                                       Foreground="{Binding Belt.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <Button Grid.Row="4" Grid.Column="6"
-                                        Classes="slot-cell"
-                                        Classes.selected="{Binding Ring2.IsSelected}"
-                                        BorderBrush="{Binding Ring2.NameColor}"
-                                        Command="{Binding Ring2.SelectCommand}"
-                                        Tag="slot:Ring 2">
-                                    <TextBlock Text="{Binding Ring2.LeftDisplayName, FallbackValue='R2'}"
-                                               Foreground="{Binding Ring2.NameColor}"
-                                               FontSize="10" TextWrapping="Wrap" TextAlignment="Center"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Button>
-
-                                <!-- ── Gloves (col 0, row 6) ────────────────── -->
-                                <Button Grid.Row="6" Grid.Column="0"
+                                <!-- ── Gloves (cols 0-1, rows 7-8) — 2×2 ────────────── -->
+                                <Button Grid.Row="7" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Gloves.IsSelected}"
                                         BorderBrush="{Binding Gloves.NameColor}"
                                         Command="{Binding Gloves.SelectCommand}"
                                         Tag="slot:Gloves">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Gloves}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Gloves.LeftDisplayName}"
-                                                   Foreground="{Binding Gloves.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Gloves.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Gloves.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Gloves.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Gloves}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Gloves.LeftDisplayName}"
+                                                       Foreground="{Binding Gloves.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Charms (cols 2-6, row 6) — 3 stacked sub-rows inside ── -->
-                                <Border Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="5">
-                                    <Grid RowDefinitions="*,3,*,3,*">
-                                        <Button Grid.Row="0"
-                                                Classes="slot-cell"
-                                                Classes.selected="{Binding Charm1.IsSelected}"
-                                                BorderBrush="{Binding Charm1.NameColor}"
-                                                Command="{Binding Charm1.SelectCommand}"
-                                                Tag="slot:Charm 1">
-                                            <TextBlock Text="{Binding Charm1.LeftDisplayName, FallbackValue='C1'}"
-                                                       Foreground="{Binding Charm1.NameColor}"
-                                                       FontSize="11" FontWeight="Medium" TextTrimming="CharacterEllipsis"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Button>
-                                        <Button Grid.Row="2"
-                                                Classes="slot-cell"
-                                                Classes.selected="{Binding Charm2.IsSelected}"
-                                                BorderBrush="{Binding Charm2.NameColor}"
-                                                Command="{Binding Charm2.SelectCommand}"
-                                                Tag="slot:Charm 2">
-                                            <TextBlock Text="{Binding Charm2.LeftDisplayName, FallbackValue='C2'}"
-                                                       Foreground="{Binding Charm2.NameColor}"
-                                                       FontSize="11" FontWeight="Medium" TextTrimming="CharacterEllipsis"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Button>
-                                        <Button Grid.Row="4"
-                                                Classes="slot-cell"
-                                                Classes.selected="{Binding Charm3.IsSelected}"
-                                                BorderBrush="{Binding Charm3.NameColor}"
-                                                Command="{Binding Charm3.SelectCommand}"
-                                                Tag="slot:Charm 3">
-                                            <TextBlock Text="{Binding Charm3.LeftDisplayName, FallbackValue='C3'}"
-                                                       Foreground="{Binding Charm3.NameColor}"
-                                                       FontSize="11" FontWeight="Medium" TextTrimming="CharacterEllipsis"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Button>
-                                    </Grid>
-                                </Border>
-
-                                <!-- ── Boots (col 8, row 6) ────────────────── -->
-                                <Button Grid.Row="6" Grid.Column="8"
+                                <!-- ── Boots (cols 7-8, rows 7-8) — 2×2 ─────────────── -->
+                                <Button Grid.Row="7" Grid.Column="7" Grid.RowSpan="2" Grid.ColumnSpan="2"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Boots.IsSelected}"
                                         BorderBrush="{Binding Boots.NameColor}"
                                         Command="{Binding Boots.SelectCommand}"
                                         Tag="slot:Boots">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Boots}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Boots.LeftDisplayName}"
-                                                   Foreground="{Binding Boots.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Boots.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Boots.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Boots.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Boots}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Boots.LeftDisplayName}"
+                                                       Foreground="{Binding Boots.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Flask 1 (col 0, row 8) ─────────────────── -->
-                                <Button Grid.Row="8" Grid.Column="0"
+                                <!-- ── Charms (cols 3-5, row 7) — three 1×1 cells ──── -->
+                                <Button Grid.Row="7" Grid.Column="3"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Charm1.IsSelected}"
+                                        BorderBrush="{Binding Charm1.NameColor}"
+                                        Command="{Binding Charm1.SelectCommand}"
+                                        Tag="slot:Charm 1">
+                                    <Grid>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Charm1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Charm1.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Charm1.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Charm1}" Classes="slot-fallback-label"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Button>
+                                <Button Grid.Row="7" Grid.Column="4"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Charm2.IsSelected}"
+                                        BorderBrush="{Binding Charm2.NameColor}"
+                                        Command="{Binding Charm2.SelectCommand}"
+                                        Tag="slot:Charm 2">
+                                    <Grid>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Charm2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Charm2.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Charm2.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Charm2}" Classes="slot-fallback-label"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Button>
+                                <Button Grid.Row="7" Grid.Column="5"
+                                        Classes="slot-cell"
+                                        Classes.selected="{Binding Charm3.IsSelected}"
+                                        BorderBrush="{Binding Charm3.NameColor}"
+                                        Command="{Binding Charm3.SelectCommand}"
+                                        Tag="slot:Charm 3">
+                                    <Grid>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Charm3.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Charm3.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Charm3.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Charm3}" Classes="slot-fallback-label"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Button>
+
+                                <!-- ── Flask 1 (col 3, rows 9-10) — 1×2 ─────────────── -->
+                                <Button Grid.Row="9" Grid.Column="3" Grid.RowSpan="2"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Flask1.IsSelected}"
                                         BorderBrush="{Binding Flask1.NameColor}"
                                         Command="{Binding Flask1.SelectCommand}"
                                         Tag="slot:Flask 1">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Flask1}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Flask1.LeftDisplayName}"
-                                                   Foreground="{Binding Flask1.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Flask1.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Flask1.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Flask1.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Flask1}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Flask1.LeftDisplayName}"
+                                                       Foreground="{Binding Flask1.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
-                                <!-- ── Flask 2 (col 8, row 8) ────────────────── -->
-                                <Button Grid.Row="8" Grid.Column="8"
+                                <!-- ── Flask 2 (col 4, rows 9-10) — 1×2 ─────────────── -->
+                                <Button Grid.Row="9" Grid.Column="4" Grid.RowSpan="2"
                                         Classes="slot-cell"
                                         Classes.selected="{Binding Flask2.IsSelected}"
                                         BorderBrush="{Binding Flask2.NameColor}"
                                         Command="{Binding Flask2.SelectCommand}"
                                         Tag="slot:Flask 2">
                                     <Grid>
-                                        <TextBlock Text="{loc:Tr Slot_Flask2}" Classes="slot-label" VerticalAlignment="Top"/>
-                                        <TextBlock Text="{Binding Flask2.LeftDisplayName}"
-                                                   Foreground="{Binding Flask2.NameColor}" Classes="slot-name"/>
+                                        <Image Classes="slot-icon"
+                                               Source="{Binding Flask2.IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                               IsVisible="{Binding Flask2.HasIcon}"/>
+                                        <StackPanel Classes="slot-fallback"
+                                                    IsVisible="{Binding !Flask2.HasIcon}">
+                                            <TextBlock Text="{loc:Tr Slot_Flask2}" Classes="slot-fallback-label"/>
+                                            <TextBlock Text="{Binding Flask2.LeftDisplayName}"
+                                                       Foreground="{Binding Flask2.NameColor}"
+                                                       Classes="slot-fallback-name"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Button>
 
@@ -662,10 +802,17 @@
                                                             Classes.selected="{Binding IsSelected}"
                                                             Command="{Binding SelectCommand}"
                                                             Tag="{Binding ItemId, StringFormat='pool:{0}'}">
-                                                        <Grid ColumnDefinitions="*,Auto,Auto">
+                                                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+
+                                                            <!-- Icon thumbnail -->
+                                                            <Image Grid.Column="0"
+                                                                   Classes="pool-icon"
+                                                                   Source="{Binding IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"
+                                                                   IsVisible="{Binding HasIcon}"
+                                                                   Margin="0,0,8,0"/>
 
                                                             <!-- Item name + base (rarity-coloured for legibility) -->
-                                                            <StackPanel Grid.Column="0" Spacing="1"
+                                                            <StackPanel Grid.Column="1" Spacing="1"
                                                                         VerticalAlignment="Center">
                                                                 <TextBlock Text="{Binding PoolTopName}"
                                                                            IsVisible="{Binding HasTopName}"
@@ -681,7 +828,7 @@
                                                             </StackPanel>
 
                                                             <!-- Equipped slot badge -->
-                                                            <Border Grid.Column="1"
+                                                            <Border Grid.Column="2"
                                                                     IsVisible="{Binding IsEquipped}"
                                                                     Background="{DynamicResource BgSurfaceBrush}"
                                                                     BorderBrush="{DynamicResource AttrIntBrush}" BorderThickness="1"
@@ -695,7 +842,7 @@
                                                             </Border>
 
                                                             <!-- iLvl -->
-                                                            <TextBlock Grid.Column="1"
+                                                            <TextBlock Grid.Column="2"
                                                                        IsVisible="{Binding !IsEquipped}"
                                                                        Text="{Binding ItemLevel, StringFormat='iLvl {0}'}"
                                                                        Foreground="{DynamicResource TextMutedBrush}"
@@ -704,7 +851,7 @@
                                                                        VerticalAlignment="Center"/>
 
                                                             <!-- Delete button -->
-                                                            <Button Grid.Column="2"
+                                                            <Button Grid.Column="3"
                                                                     Content="✕"
                                                                     Command="{Binding DeleteCommand}"
                                                                     Background="Transparent"
