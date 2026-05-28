@@ -1,0 +1,12 @@
+{
+  "name": "pbl-icon-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node render-icons.mjs"
+  },
+  "dependencies": {
+    "sharp": "^0.33.5",
+    "png-to-ico": "^2.1.8"
+  }
+}

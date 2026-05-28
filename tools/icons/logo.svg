@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1280" shape-rendering="geometricPrecision">
+  <defs>
+    <!-- backdrop -->
+    <radialGradient id="bgVert" cx="50%" cy="45%" r="80%">
+      <stop offset="0%"   stop-color="#0C1B23"/>
+      <stop offset="60%"  stop-color="#05101A"/>
+      <stop offset="100%" stop-color="#01050A"/>
+    </radialGradient>
+
+    <!-- BIG text gold: rich vertical gradient with highlight -->
+    <linearGradient id="goldBig" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#FFF1C0"/>
+      <stop offset="18%"  stop-color="#F8DCA0"/>
+      <stop offset="42%"  stop-color="#E8B756"/>
+      <stop offset="70%"  stop-color="#8C5E2A"/>
+      <stop offset="100%" stop-color="#3A2210"/>
+    </linearGradient>
+    <linearGradient id="goldThin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#E2B57A"/>
+      <stop offset="100%" stop-color="#6B4520"/>
+    </linearGradient>
+    <linearGradient id="goldRich" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#F8DCA0"/>
+      <stop offset="100%" stop-color="#8C5E2A"/>
+    </linearGradient>
+    <linearGradient id="cyanText" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#C7FFF1"/>
+      <stop offset="100%" stop-color="#2EC4D8"/>
+    </linearGradient>
+
+    <linearGradient id="dividerLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#5C3A0E" stop-opacity="0"/>
+      <stop offset="50%"  stop-color="#D9A968"/>
+      <stop offset="100%" stop-color="#5C3A0E" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="textShadow" x="-10%" y="-30%" width="120%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dx="0" dy="6" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.7"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- ============ ORNAMENT: curl flourish (right-facing tail) ============ -->
+    <symbol id="curlR" viewBox="-60 -30 120 60">
+      <!-- main S-curve with tapering -->
+      <path d="M -56,0 C -36,0 -20,-2 -4,-12 C 14,-22 36,-18 44,-4 C 50,8 40,20 24,18 C 12,17 6,8 12,2"
+            fill="none" stroke="url(#goldRich)" stroke-width="4" stroke-linecap="round"/>
+      <!-- small leaf/dot at tip -->
+      <circle cx="16" cy="-2" r="3" fill="#F8DCA0"/>
+      <!-- tiny accent dot -->
+      <circle cx="-30" cy="0" r="2.5" fill="#F8DCA0"/>
+    </symbol>
+
+    <!-- ============ ORNAMENT: 4-point spark ============ -->
+    <symbol id="spark" viewBox="-20 -20 40 40">
+      <polygon points="0,-18 4,-4 18,0 4,4 0,18 -4,4 -18,0 -4,-4" fill="url(#goldRich)"/>
+      <polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#FFF4C8"/>
+    </symbol>
+
+    <!-- ============ ORNAMENT: diamond boss with inner cross ============ -->
+    <symbol id="diamondBoss" viewBox="-24 -24 48 48">
+      <polygon points="0,-22 22,0 0,22 -22,0" fill="url(#goldRich)" stroke="#1F1208" stroke-width="2"/>
+      <polygon points="0,-14 14,0 0,14 -14,0" fill="none" stroke="#3A2210" stroke-width="1.5"/>
+      <circle r="3.5" fill="#FFF4C8"/>
+    </symbol>
+
+    <!-- ============ ORNATE DIVIDER (long, used on both flanks) ============ -->
+    <symbol id="divider" viewBox="-200 -16 400 32">
+      <!-- outer fading line -->
+      <line x1="-198" y1="0" x2="198" y2="0" stroke="url(#dividerLine)" stroke-width="2.5"/>
+      <!-- two flanking dots near ends -->
+      <circle cx="-178" cy="0" r="3" fill="#D9A968" opacity="0.85"/>
+      <circle cx="178"  cy="0" r="3" fill="#D9A968" opacity="0.85"/>
+      <!-- small flanking diamonds -->
+      <polygon points="-150,0 -140,-6 -130,0 -140,6" fill="#A87238"/>
+      <polygon points="150,0  140,-6  130,0  140,6"  fill="#A87238"/>
+      <!-- secondary thin inner line -->
+      <line x1="-120" y1="0" x2="120" y2="0" stroke="#5C3A0E" stroke-width="1" opacity="0.7"/>
+    </symbol>
+  </defs>
+
+  <!-- ====================== BACKDROP ====================== -->
+  <rect width="1024" height="1280" fill="url(#bgVert)"/>
+
+  <!-- subtle outer frame inset (very faint) -->
+  <rect x="22" y="22" width="980" height="1236" rx="14"
+        fill="none" stroke="#3A2210" stroke-width="2" opacity="0.45"/>
+  <rect x="32" y="32" width="960" height="1216" rx="10"
+        fill="none" stroke="#8C5E2A" stroke-width="1" opacity="0.35"/>
+
+  <!-- ====================== ICON (slightly smaller, top) ====================== -->
+  <g transform="translate(212 40) scale(0.585)">
+    <use href="#__icon__"/>
+  </g>
+
+  <!-- ====================== PoE 2 small subtitle line ====================== -->
+  <g transform="translate(512 720)">
+    <!-- left & right divider lines flanking the text -->
+    <line x1="-260" y1="0" x2="-110" y2="0" stroke="url(#dividerLine)" stroke-width="2"/>
+    <line x1="260"  y1="0" x2="110"  y2="0" stroke="url(#dividerLine)" stroke-width="2"/>
+    <!-- small sparks at line ends -->
+    <use href="#spark" x="-92" y="-12" width="24" height="24"/>
+    <use href="#spark" x="68"  y="-12" width="24" height="24"/>
+    <!-- the text itself -->
+    <text x="0" y="10" text-anchor="middle"
+          font-family="'Cinzel','Trajan Pro','Times New Roman',serif"
+          font-weight="500" font-size="44" letter-spacing="14"
+          fill="url(#goldThin)">
+      <tspan>FOR</tspan>
+      <tspan dx="14"> PoE</tspan>
+      <tspan dx="6" fill="url(#cyanText)">2</tspan>
+    </text>
+  </g>
+
+  <!-- ====================== BUILD LAB — focal wordmark ====================== -->
+  <!-- text: triple-layer for richness; textLength locks width to fit canvas -->
+  <g filter="url(#textShadow)">
+    <text x="512" y="950" text-anchor="middle" textLength="820" lengthAdjust="spacingAndGlyphs"
+          font-family="'Cinzel','Trajan Pro','Times New Roman',serif"
+          font-weight="700" font-size="148"
+          fill="none" stroke="#1A0E04" stroke-width="8" stroke-linejoin="round">
+      BUILD LAB
+    </text>
+    <text x="512" y="950" text-anchor="middle" textLength="820" lengthAdjust="spacingAndGlyphs"
+          font-family="'Cinzel','Trajan Pro','Times New Roman',serif"
+          font-weight="700" font-size="148"
+          fill="url(#goldBig)">
+      BUILD LAB
+    </text>
+    <text x="512" y="950" text-anchor="middle" textLength="820" lengthAdjust="spacingAndGlyphs"
+          font-family="'Cinzel','Trajan Pro','Times New Roman',serif"
+          font-weight="700" font-size="148"
+          fill="none" stroke="#FFF1C0" stroke-width="1.2" opacity="0.7">
+      BUILD LAB
+    </text>
+  </g>
+
+  <!-- corner flourishes flanking the wordmark, below baseline -->
+  <g transform="translate(100 956)">
+    <use href="#curlR" width="160" height="80" x="-80" y="-40"/>
+  </g>
+  <g transform="translate(924 956)">
+    <g transform="scale(-1 1)"><use href="#curlR" width="160" height="80" x="-80" y="-40"/></g>
+  </g>
+
+  <!-- ====================== ORNATE DIVIDER below BUILD LAB ====================== -->
+  <g transform="translate(512 1015)">
+    <!-- twin lines -->
+    <line x1="-340" y1="-6" x2="340" y2="-6" stroke="url(#dividerLine)" stroke-width="1.5"/>
+    <line x1="-300" y1="6"  x2="300" y2="6"  stroke="url(#dividerLine)" stroke-width="1.5" opacity="0.7"/>
+    <!-- central composition: spark — diamond — spark -->
+    <use href="#spark"       x="-58"  y="-14" width="28" height="28"/>
+    <use href="#diamondBoss" x="-22"  y="-22" width="44" height="44"/>
+    <use href="#spark"       x="30"   y="-14" width="28" height="28"/>
+    <!-- end caps: small filled circles + tiny outward chevrons -->
+    <circle cx="-340" cy="-6" r="3.5" fill="#D9A968"/>
+    <circle cx="340"  cy="-6" r="3.5" fill="#D9A968"/>
+    <polyline points="-360,-6 -370,-12 -360,-18 -360,6 -370,12 -360,18"
+              fill="none" stroke="#8C5E2A" stroke-width="1.5"/>
+    <polyline points="360,-6 370,-12 360,-18 360,6 370,12 360,18"
+              fill="none" stroke="#8C5E2A" stroke-width="1.5"/>
+  </g>
+
+  <!-- ====================== TAGLINE row ====================== -->
+  <g transform="translate(512 1090)">
+    <text x="0" y="0" text-anchor="middle"
+          font-family="'Cinzel','Trajan Pro','Times New Roman',serif"
+          font-weight="500" font-size="30" letter-spacing="18"
+          fill="url(#goldThin)" opacity="0.92">
+      TALENT TREE  ·  SKILLS  ·  ITEMS
+    </text>
+  </g>
+
+  <!-- ====================== bottom flourish ====================== -->
+  <g transform="translate(512 1180)">
+    <use href="#divider" x="-200" y="-16" width="400" height="32"/>
+    <use href="#spark"   x="-16"  y="-16" width="32" height="32"/>
+  </g>
+
+  <!-- ====================== corner ornaments (tiny accents in 4 corners of inner frame) ====================== -->
+  <g fill="url(#goldRich)" stroke="#1F1208" stroke-width="1">
+    <polygon points="50,50 70,50 50,70"/>
+    <polygon points="974,50 954,50 974,70"/>
+    <polygon points="50,1230 70,1230 50,1210"/>
+    <polygon points="974,1230 954,1230 974,1210"/>
+  </g>
+</svg>

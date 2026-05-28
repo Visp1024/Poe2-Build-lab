@@ -1,0 +1,245 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" shape-rendering="geometricPrecision">
+  <defs>
+    <!-- background: dark rounded-square with subtle vignette -->
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0%"   stop-color="#142C36"/>
+      <stop offset="55%"  stop-color="#07161E"/>
+      <stop offset="100%" stop-color="#020608"/>
+    </radialGradient>
+
+    <linearGradient id="bronze" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%"   stop-color="#F2C77A"/>
+      <stop offset="35%"  stop-color="#B07A38"/>
+      <stop offset="75%"  stop-color="#5C3A14"/>
+      <stop offset="100%" stop-color="#1F1208"/>
+    </linearGradient>
+    <linearGradient id="bronzeRim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#F8DCA0"/>
+      <stop offset="55%"  stop-color="#A87238"/>
+      <stop offset="100%" stop-color="#2A1808"/>
+    </linearGradient>
+
+    <linearGradient id="liquid" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%"   stop-color="#D7FBF2"/>
+      <stop offset="20%"  stop-color="#7DEAE0"/>
+      <stop offset="55%"  stop-color="#2EC4D8"/>
+      <stop offset="100%" stop-color="#0A5A7A"/>
+    </linearGradient>
+    <linearGradient id="glassDark" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%"   stop-color="#08161C"/>
+      <stop offset="100%" stop-color="#11242E"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="11"/>
+      <feOffset dx="0" dy="16" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.6"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="nodeGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="8"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- ============ FLASK SILHOUETTE ============ -->
+    <path id="flaskBody" d="
+      M 410 205
+      L 410 330
+      C 410 348 400 364 384 376
+      L 250 542
+      C 196 612 154 712 154 800
+      C 154 906 232 970 360 970
+      L 664 970
+      C 792 970 870 906 870 800
+      C 870 712 828 612 774 542
+      L 640 376
+      C 624 364 614 348 614 330
+      L 614 205 Z"/>
+  </defs>
+
+  <!-- ============ BACKGROUND: rounded square ============ -->
+  <rect x="0" y="0" width="1024" height="1024" rx="160" ry="160" fill="url(#bg)"/>
+  <!-- inner bronze hairline border for definition -->
+  <rect x="14" y="14" width="996" height="996" rx="148" ry="148"
+        fill="none" stroke="url(#bronzeRim)" stroke-width="6" opacity="0.75"/>
+  <rect x="22" y="22" width="980" height="980" rx="140" ry="140"
+        fill="none" stroke="#1A0E04" stroke-width="2" opacity="0.7"/>
+
+  <!-- ============ flask drop shadow ============ -->
+  <g filter="url(#softShadow)">
+    <use href="#flaskBody" fill="#04121A"/>
+  </g>
+
+  <!-- ============ glass body (dark above liquid line) ============ -->
+  <use href="#flaskBody" fill="url(#glassDark)"/>
+
+  <!-- ============ liquid (clipped to flask) ============ -->
+  <clipPath id="liquidClip">
+    <use href="#flaskBody"/>
+  </clipPath>
+  <g clip-path="url(#liquidClip)">
+    <rect x="100" y="420" width="824" height="600" fill="url(#liquid)"/>
+    <rect x="100" y="420" width="824" height="9" fill="#E7FFF8" opacity="0.95"/>
+    <rect x="100" y="429" width="824" height="3" fill="#9DF6E8" opacity="0.8"/>
+
+    <!-- subtle swirls -->
+    <path d="M 180 540 Q 360 510 540 540 T 880 540" stroke="#E7FFF8"
+          stroke-width="2.5" fill="none" opacity="0.30"/>
+
+    <!-- bubbles (kept few; tree is the focus) -->
+    <circle cx="780" cy="640" r="9" fill="#E7FFF8" opacity="0.7"/>
+    <circle cx="800" cy="710" r="5" fill="#E7FFF8" opacity="0.55"/>
+    <circle cx="220" cy="860" r="6" fill="#E7FFF8" opacity="0.5"/>
+
+    <!-- ====================================================
+         TALENT TREE — asymmetric, takes the focus
+         Nodes:
+           A  top                (502, 460)
+           B  NOTABLE (focal)    (478, 624)
+           C  right branch       (632, 680)
+           D  right end          (770, 760)
+           E  right small pip    (730, 858)
+           L1 left mid           (322, 712)
+           L2 left low           (260, 866)
+           L3 left side spur     (398, 832)
+           F  bottom end         (538, 890)
+         ==================================================== -->
+
+    <!-- connection lines: dark backing + cream stroke for contrast on cyan -->
+    <g stroke="#1A0E04" stroke-width="18" stroke-linecap="round" opacity="0.55" fill="none">
+      <!-- spine -->
+      <line x1="502" y1="460" x2="478" y2="624"/>
+      <!-- right arm -->
+      <line x1="478" y1="624" x2="632" y2="680"/>
+      <line x1="632" y1="680" x2="770" y2="760"/>
+      <line x1="770" y1="760" x2="730" y2="858"/>
+      <!-- left arm -->
+      <line x1="478" y1="624" x2="322" y2="712"/>
+      <line x1="322" y1="712" x2="260" y2="866"/>
+      <!-- left spur -->
+      <line x1="322" y1="712" x2="398" y2="832"/>
+      <!-- bottom drop -->
+      <line x1="478" y1="624" x2="538" y2="890"/>
+    </g>
+    <g stroke="#FBEEC8" stroke-width="10" stroke-linecap="round" fill="none">
+      <line x1="502" y1="460" x2="478" y2="624"/>
+      <line x1="478" y1="624" x2="632" y2="680"/>
+      <line x1="632" y1="680" x2="770" y2="760"/>
+      <line x1="770" y1="760" x2="730" y2="858"/>
+      <line x1="478" y1="624" x2="322" y2="712"/>
+      <line x1="322" y1="712" x2="260" y2="866"/>
+      <line x1="322" y1="712" x2="398" y2="832"/>
+      <line x1="478" y1="624" x2="538" y2="890"/>
+    </g>
+    <!-- inner highlight on connections (warm gold) -->
+    <g stroke="#FFE8A8" stroke-width="3" stroke-linecap="round" opacity="0.85" fill="none">
+      <line x1="502" y1="460" x2="478" y2="624"/>
+      <line x1="478" y1="624" x2="632" y2="680"/>
+      <line x1="632" y1="680" x2="770" y2="760"/>
+      <line x1="770" y1="760" x2="730" y2="858"/>
+      <line x1="478" y1="624" x2="322" y2="712"/>
+      <line x1="322" y1="712" x2="260" y2="866"/>
+      <line x1="322" y1="712" x2="398" y2="832"/>
+      <line x1="478" y1="624" x2="538" y2="890"/>
+    </g>
+
+    <!-- minor + end nodes (varying sizes, bronze-rimmed, cream core) -->
+    <g>
+      <!-- A top -->
+      <g transform="translate(502 460)">
+        <circle r="24" fill="#1A0E04"/>
+        <circle r="18" fill="#FBEEC8" stroke="#8C5E2A" stroke-width="3"/>
+      </g>
+      <!-- C right mid -->
+      <g transform="translate(632 680)">
+        <circle r="22" fill="#1A0E04"/>
+        <circle r="16" fill="#FBEEC8" stroke="#8C5E2A" stroke-width="3"/>
+      </g>
+      <!-- D right end -->
+      <g transform="translate(770 760)">
+        <circle r="22" fill="#1A0E04"/>
+        <circle r="16" fill="#FBEEC8" stroke="#8C5E2A" stroke-width="3"/>
+      </g>
+      <!-- E small pip -->
+      <g transform="translate(730 858)">
+        <circle r="16" fill="#1A0E04"/>
+        <circle r="11" fill="#FBEEC8" stroke="#8C5E2A" stroke-width="2.5"/>
+      </g>
+      <!-- L1 left mid -->
+      <g transform="translate(322 712)">
+        <circle r="24" fill="#1A0E04"/>
+        <circle r="18" fill="#FBEEC8" stroke="#8C5E2A" stroke-width="3"/>
+      </g>
+      <!-- L2 left low -->
+      <g transform="translate(260 866)">
+        <circle r="22" fill="#1A0E04"/>
+        <circle r="16" fill="#FBEEC8" stroke="#8C5E2A" stroke-width="3"/>
+      </g>
+      <!-- L3 left spur -->
+      <g transform="translate(398 832)">
+        <circle r="16" fill="#1A0E04"/>
+        <circle r="11" fill="#FBEEC8" stroke="#8C5E2A" stroke-width="2.5"/>
+      </g>
+      <!-- F bottom -->
+      <g transform="translate(538 890)">
+        <circle r="22" fill="#1A0E04"/>
+        <circle r="16" fill="#FBEEC8" stroke="#8C5E2A" stroke-width="3"/>
+      </g>
+
+      <!-- B NOTABLE — central focal point, oversize and glowing -->
+      <g transform="translate(478 624)" filter="url(#nodeGlow)">
+        <!-- outer warm glow -->
+        <circle r="86" fill="#FFE8A8" opacity="0.30"/>
+        <circle r="72" fill="#1A0E04"/>
+        <!-- bronze frame -->
+        <circle r="64" fill="url(#bronze)" stroke="#15080A" stroke-width="5"/>
+        <!-- inner well -->
+        <circle r="48" fill="#04161A" stroke="#F8DCA0" stroke-width="4"/>
+        <!-- 4-point spark -->
+        <polygon points="0,-38 9,-9 38,0 9,9 0,38 -9,9 -38,0 -9,-9"
+                 fill="#FFFFFF"/>
+        <!-- rivet pips around frame -->
+        <g fill="#F8DCA0" stroke="#15080A" stroke-width="2">
+          <circle cx="0"   cy="-60" r="5"/>
+          <circle cx="60"  cy="0"   r="5"/>
+          <circle cx="0"   cy="60"  r="5"/>
+          <circle cx="-60" cy="0"   r="5"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- ============ glass outline (bronze rim) ============ -->
+  <use href="#flaskBody" fill="none" stroke="url(#bronzeRim)" stroke-width="18" stroke-linejoin="round"/>
+  <use href="#flaskBody" fill="none" stroke="#1A0E04" stroke-width="4" stroke-linejoin="round"/>
+
+  <!-- ============ glass specular highlights ============ -->
+  <g opacity="0.7">
+    <path d="M 432 230 L 432 330 C 432 348 422 364 408 376 L 290 540"
+          stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.55"/>
+    <path d="M 270 600 Q 220 700 220 800" stroke="#E7FFF8"
+          stroke-width="5" stroke-linecap="round" fill="none" opacity="0.45"/>
+    <circle cx="260" cy="750" r="14" fill="#FFFFFF" opacity="0.55"/>
+  </g>
+
+  <!-- ============ CAP ============ -->
+  <g filter="url(#softShadow)">
+    <rect x="390" y="195" width="244" height="28" rx="6"
+          fill="url(#bronze)" stroke="#1A0E04" stroke-width="4"/>
+    <rect x="370" y="100" width="284" height="100" rx="10"
+          fill="url(#bronze)" stroke="#1A0E04" stroke-width="5"/>
+    <rect x="370" y="100" width="284" height="22" rx="6" fill="url(#bronzeRim)" opacity="0.95"/>
+    <g stroke="#3A2210" stroke-width="3">
+      <line x1="408" y1="128" x2="408" y2="195"/>
+      <line x1="448" y1="128" x2="448" y2="195"/>
+      <line x1="488" y1="128" x2="488" y2="195"/>
+      <line x1="536" y1="128" x2="536" y2="195"/>
+      <line x1="576" y1="128" x2="576" y2="195"/>
+      <line x1="616" y1="128" x2="616" y2="195"/>
+    </g>
+    <circle cx="512" cy="80" r="24" fill="url(#bronze)" stroke="#1A0E04" stroke-width="4"/>
+    <circle cx="506" cy="74" r="8" fill="#F8DCA0" opacity="0.9"/>
+    <circle cx="512" cy="155" r="14" fill="#5EEAD4" stroke="#063C3A" stroke-width="3"/>
+    <circle cx="508" cy="151" r="4" fill="#E7FFF8"/>
+  </g>
+</svg>

@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:PBLApp.Localization"
+        x:Class="PBLApp.Views.ConfirmDialog"
+        Width="420" SizeToContent="Height"
+        CanResize="False" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BgMantleBrush}">
+
+    <Border Padding="20" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="14">
+            <TextBlock Grid.Row="0"
+                       Name="TitleText"
+                       Text="{loc:Tr Dlg_Confirm}"
+                       FontSize="14" FontWeight="Bold"
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
+            <TextBlock Grid.Row="1"
+                       Name="MessageText"
+                       FontSize="13"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       TextWrapping="Wrap" />
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8"
+                        HorizontalAlignment="Right">
+                <Button Name="CancelBtn"
+                        Content="{loc:Tr Btn_Cancel}"
+                        Click="Cancel_Click"
+                        Padding="14,6" />
+                <Button Name="ConfirmBtn"
+                        Content="{loc:Tr Btn_Delete}"
+                        Click="Confirm_Click"
+                        Padding="14,6"
+                        Background="{DynamicResource DangerBrush}"
+                        Foreground="White"
+                        FontWeight="Bold" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

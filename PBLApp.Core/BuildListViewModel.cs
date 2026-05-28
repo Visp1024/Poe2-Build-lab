@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PBLEngine;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -9,72 +10,131 @@ using System.Threading.Tasks;
 
 namespace PBLApp.ViewModels;
 
+/// <summary>Single segment of the breadcrumb trail at the top of the grid view.</summary>
+public sealed record BreadcrumbSegment(string Name, string Path, bool IsLast);
+
 public partial class BuildListViewModel : ViewModelBase
 {
     private readonly Task<LuaHost> _hostTask;
     private readonly Action<BuildEntryViewModel> _openBuild;
 
-    [ObservableProperty]
-    private ObservableCollection<BuildEntryViewModel> _builds = new();
+    /// <summary>Asks the view to show a Yes/No confirmation modal before deleting.
+    /// Returns true if the user confirmed. View wires this on construction.</summary>
+    public Func<string, Task<bool>>? ConfirmDeleteAsync { get; set; }
 
+    /// <summary>Items in the currently-visible folder. Folders come first, then builds;
+    /// the final entry is always the virtual "+ Create" placeholder.</summary>
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(OpenBuildCommand))]
-    [NotifyCanExecuteChangedFor(nameof(DeleteBuildCommand))]
-    private BuildEntryViewModel? _selectedBuild;
+    private ObservableCollection<BuildEntryViewModel> _currentItems = new();
 
+    /// <summary>Breadcrumb trail for the current folder, root → current.</summary>
     [ObservableProperty]
-    private bool _isEmpty;
+    private ObservableCollection<BreadcrumbSegment> _breadcrumb = new();
 
-    [ObservableProperty]
-    private string _statusMessage = "";
+    [ObservableProperty] private bool   _isEmpty;
+    [ObservableProperty] private string _statusMessage = "";
+
+    /// <summary>Absolute path of the folder whose contents are currently displayed.</summary>
+    private string _currentFolder;
 
     public BuildListViewModel(Task<LuaHost> hostTask, Action<BuildEntryViewModel> openBuild)
     {
         _hostTask = hostTask;
         _openBuild = openBuild;
-        LoadBuilds();
+        _currentFolder = GetBuildsPath();
+        Refresh();
     }
 
-    private void LoadBuilds()
-    {
-        var buildsPath = GetBuildsPath();
-        Builds.Clear();
-        if (Directory.Exists(buildsPath))
-            LoadDirectory(Builds, buildsPath);
-        IsEmpty = Builds.Count == 0;
-    }
+    // ── Loading / navigation ──────────────────────────────────────────────
 
-    private static void LoadDirectory(ObservableCollection<BuildEntryViewModel> list, string dir)
+    [RelayCommand]
+    private void Refresh()
     {
-        foreach (var sub in Directory.GetDirectories(dir).OrderBy(Path.GetFileName))
+        var root = GetBuildsPath();
+        Directory.CreateDirectory(root);
+        if (!IsInsideRoot(_currentFolder, root))
+            _currentFolder = root;
+
+        CurrentItems.Clear();
+        if (Directory.Exists(_currentFolder))
         {
-            var folder = new BuildEntryViewModel(Path.GetFileName(sub)!, sub, isFolder: true);
-            LoadDirectory(folder.Children, sub);
-            list.Add(folder);
+            foreach (var sub in Directory.GetDirectories(_currentFolder).OrderBy(Path.GetFileName))
+                CurrentItems.Add(new BuildEntryViewModel(Path.GetFileName(sub)!, sub, BuildEntryKind.Folder));
+            foreach (var file in Directory.GetFiles(_currentFolder, "*.xml").OrderBy(Path.GetFileNameWithoutExtension))
+                CurrentItems.Add(new BuildEntryViewModel(Path.GetFileNameWithoutExtension(file)!, file, BuildEntryKind.Build));
         }
-        foreach (var file in Directory.GetFiles(dir, "*.xml").OrderBy(Path.GetFileNameWithoutExtension))
-            list.Add(new BuildEntryViewModel(Path.GetFileNameWithoutExtension(file)!, file, isFolder: false));
+        CurrentItems.Add(new BuildEntryViewModel("", _currentFolder, BuildEntryKind.Create));
+
+        IsEmpty = CurrentItems.Count <= 1; // only the Create placeholder
+        RebuildBreadcrumb();
     }
 
-    [RelayCommand(CanExecute = nameof(CanOpenBuild))]
-    private void OpenBuild()
+    private void RebuildBreadcrumb()
     {
+        var root = GetBuildsPath();
+        var segments = new List<BreadcrumbSegment>();
+        var path = _currentFolder;
+
+        while (!string.IsNullOrEmpty(path) && IsInsideRoot(path, root) && !string.Equals(path, root, StringComparison.OrdinalIgnoreCase))
+        {
+            segments.Insert(0, new BreadcrumbSegment(Path.GetFileName(path)!, path, false));
+            var parent = Path.GetDirectoryName(path);
+            if (string.IsNullOrEmpty(parent)) break;
+            path = parent;
+        }
+        segments.Insert(0, new BreadcrumbSegment("Builds", root, false));
+        // Mark the last segment so the view can render it un-clickable.
+        if (segments.Count > 0)
+            segments[^1] = segments[^1] with { IsLast = true };
+
+        Breadcrumb.Clear();
+        foreach (var s in segments) Breadcrumb.Add(s);
+    }
+
+    /// <summary>Navigate to <paramref name="folder"/>. Clamps to root.</summary>
+    public void NavigateTo(string folder)
+    {
+        var root = GetBuildsPath();
+        _currentFolder = IsInsideRoot(folder, root) ? folder : root;
+        Refresh();
+    }
+
+    [RelayCommand]
+    private void OpenItem(BuildEntryViewModel? entry)
+    {
+        if (entry is null) return;
+        StatusMessage = "";
         try
         {
-            StatusMessage = "";
-            if (SelectedBuild is { IsFolder: false } entry)
-                _openBuild(entry);
+            switch (entry.Kind)
+            {
+                case BuildEntryKind.Folder:
+                    NavigateTo(entry.Path);
+                    break;
+                case BuildEntryKind.Build:
+                    _openBuild(entry);
+                    break;
+                case BuildEntryKind.Create:
+                    _ = NewBuildAsync();
+                    break;
+            }
         }
         catch (Exception ex)
         {
-            StatusMessage = "Error opening build: " + ex.Message;
-            WriteErrorLog("OpenBuild", ex);
+            StatusMessage = "Error: " + ex.Message;
+            WriteErrorLog("OpenItem", ex);
         }
     }
 
-    private bool CanOpenBuild() => SelectedBuild is { IsFolder: false };
-
     [RelayCommand]
+    private void NavigateBreadcrumb(BreadcrumbSegment? segment)
+    {
+        if (segment is null) return;
+        NavigateTo(segment.Path);
+    }
+
+    // ── Create / delete ───────────────────────────────────────────────────
+
     private async Task NewBuildAsync()
     {
         try
@@ -83,21 +143,18 @@ public partial class BuildListViewModel : ViewModelBase
             var host = await _hostTask;
             host.NewBuild();
 
-            var buildsPath = GetBuildsPath();
-            Directory.CreateDirectory(buildsPath);
-
-            var name = UniqueName(buildsPath, "New Build");
-            var filePath = Path.Combine(buildsPath, name + ".xml");
+            Directory.CreateDirectory(_currentFolder);
+            var name = UniqueName(_currentFolder, "New Build");
+            var filePath = Path.Combine(_currentFolder, name + ".xml");
             var xml = host.SaveBuildToXml();
             if (xml == null)
             {
                 StatusMessage = "Failed to create new build (SaveBuildToXml returned null).";
                 return;
             }
-
             await File.WriteAllTextAsync(filePath, xml);
 
-            var entry = new BuildEntryViewModel(name, filePath, isFolder: false);
+            var entry = new BuildEntryViewModel(name, filePath, BuildEntryKind.Build);
             _openBuild(entry);
         }
         catch (Exception ex)
@@ -105,6 +162,55 @@ public partial class BuildListViewModel : ViewModelBase
             StatusMessage = "Error creating build: " + ex.Message;
             WriteErrorLog("NewBuildAsync", ex);
         }
+    }
+
+    [RelayCommand]
+    private async Task DeleteEntryAsync(BuildEntryViewModel? entry)
+    {
+        if (entry is null) return;
+        if (entry.Kind == BuildEntryKind.Create) return;
+
+        var confirmer = ConfirmDeleteAsync;
+        var confirmed = confirmer == null || await confirmer(entry.Name);
+        if (!confirmed) return;
+
+        try
+        {
+            if (entry.IsFolder) Directory.Delete(entry.Path, recursive: true);
+            else                File.Delete(entry.Path);
+            Refresh();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "Error deleting: " + ex.Message;
+            WriteErrorLog("DeleteEntryAsync", ex);
+        }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    private static bool IsInsideRoot(string path, string root)
+    {
+        var full = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar);
+        var rootFull = Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar);
+        return full.Equals(rootFull, StringComparison.OrdinalIgnoreCase)
+            || full.StartsWith(rootFull + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string UniqueName(string dir, string baseName)
+    {
+        if (!File.Exists(Path.Combine(dir, baseName + ".xml"))) return baseName;
+        for (int i = 2; ; i++)
+        {
+            var candidate = $"{baseName} {i}";
+            if (!File.Exists(Path.Combine(dir, candidate + ".xml"))) return candidate;
+        }
+    }
+
+    private static string GetBuildsPath()
+    {
+        var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        return Path.Combine(local, "PathOfBuilding2", "Builds");
     }
 
     private static void WriteErrorLog(string source, Exception ex)
@@ -123,41 +229,5 @@ public partial class BuildListViewModel : ViewModelBase
                 ex + "\n----------------------------------------\n");
         }
         catch { }
-    }
-
-    [RelayCommand(CanExecute = nameof(CanDeleteBuild))]
-    private void DeleteBuild()
-    {
-        if (SelectedBuild is null) return;
-
-        if (SelectedBuild.IsFolder)
-            Directory.Delete(SelectedBuild.Path, recursive: true);
-        else
-            File.Delete(SelectedBuild.Path);
-
-        LoadBuilds();
-    }
-
-    private bool CanDeleteBuild() => SelectedBuild is not null;
-
-    [RelayCommand]
-    private void Refresh() => LoadBuilds();
-
-    private static string UniqueName(string dir, string baseName)
-    {
-        if (!File.Exists(Path.Combine(dir, baseName + ".xml")))
-            return baseName;
-        for (int i = 2; ; i++)
-        {
-            var candidate = $"{baseName} {i}";
-            if (!File.Exists(Path.Combine(dir, candidate + ".xml")))
-                return candidate;
-        }
-    }
-
-    private static string GetBuildsPath()
-    {
-        var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        return Path.Combine(local, "PathOfBuilding2", "Builds");
     }
 }
