@@ -1,3 +1,4 @@
+using System;
 using PBLApp.Controls;
 using SukiUI.Controls;
 
@@ -9,5 +10,12 @@ public partial class MainWindow : SukiWindow
     {
         InitializeComponent();
         WindowDefaults.Apply(this);
+        Opened += OnOpened;
+    }
+
+    private async void OnOpened(object? sender, EventArgs e)
+    {
+        Opened -= OnOpened;
+        await CreditsWindow.ShowIfNeeded(this);
     }
 }

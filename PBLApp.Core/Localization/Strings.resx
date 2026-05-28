@@ -60,6 +60,16 @@
   <data name="Skill_AddNew"       xml:space="preserve"><value>+ Add Skill</value></data>
   <data name="Skill_PickerTitle"  xml:space="preserve"><value>Choose active skill</value></data>
 
+  <!-- Build list grid -->
+  <data name="List_BuildsRoot"    xml:space="preserve"><value>Builds</value></data>
+  <data name="List_CreateCard"    xml:space="preserve"><value>Create build</value></data>
+  <data name="List_LvlPrefix"     xml:space="preserve"><value>Lvl</value></data>
+  <data name="Dlg_Confirm"        xml:space="preserve"><value>Confirm</value></data>
+  <data name="Dlg_DeleteTitle"    xml:space="preserve"><value>Delete build</value></data>
+  <data name="Dlg_DeleteBuildMsg" xml:space="preserve"><value>Delete build "{0}"? This cannot be undone.</value></data>
+  <data name="Dlg_DeleteFolderMsg" xml:space="preserve"><value>Delete folder "{0}" and all builds inside it? This cannot be undone.</value></data>
+  <data name="Btn_Cancel"         xml:space="preserve"><value>Cancel</value></data>
+
   <!-- Items tab -->
   <data name="Item_NoSelection"   xml:space="preserve"><value>Select a slot on the left to view item details.</value></data>
   <data name="Item_Empty"         xml:space="preserve"><value>(empty)</value></data>
@@ -323,5 +333,12 @@
   <!-- Tree tab status -->
   <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Allocated: {0}</value></data>
   <data name="Tree_NodesFmt"        xml:space="preserve"><value>Nodes: {0}</value></data>
+
+  <!-- Credits / acknowledgements window -->
+  <data name="Credits_Title"        xml:space="preserve"><value>Acknowledgements</value></data>
+  <data name="Credits_Heading"      xml:space="preserve"><value>Thanks to the Path of Building Community</value></data>
+  <data name="Credits_Body"         xml:space="preserve"><value>This project stands on the shoulders of the Path of Building Community and their years of open work on the original PoB.&#xA;&#xA;Huge thanks to David Gowor and every contributor. ♥&#xA;&#xA;https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2</value></data>
+  <data name="Credits_DontShow"     xml:space="preserve"><value>Don't show this again</value></data>
+  <data name="Credits_Close"        xml:space="preserve"><value>Close</value></data>
 
 </root>

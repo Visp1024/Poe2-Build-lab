@@ -60,6 +60,16 @@
   <data name="Skill_AddNew"       xml:space="preserve"><value>+ Добавить умение</value></data>
   <data name="Skill_PickerTitle"  xml:space="preserve"><value>Выберите активное умение</value></data>
 
+  <!-- Сетка билдов -->
+  <data name="List_BuildsRoot"    xml:space="preserve"><value>Билды</value></data>
+  <data name="List_CreateCard"    xml:space="preserve"><value>Создать билд</value></data>
+  <data name="List_LvlPrefix"     xml:space="preserve"><value>Ур.</value></data>
+  <data name="Dlg_Confirm"        xml:space="preserve"><value>Подтвердите</value></data>
+  <data name="Dlg_DeleteTitle"    xml:space="preserve"><value>Удалить билд</value></data>
+  <data name="Dlg_DeleteBuildMsg" xml:space="preserve"><value>Удалить билд «{0}»? Действие нельзя отменить.</value></data>
+  <data name="Dlg_DeleteFolderMsg" xml:space="preserve"><value>Удалить папку «{0}» со всеми билдами внутри? Действие нельзя отменить.</value></data>
+  <data name="Btn_Cancel"         xml:space="preserve"><value>Отмена</value></data>
+
   <!-- Items tab -->
   <data name="Item_NoSelection"   xml:space="preserve"><value>Выберите слот слева для просмотра предмета.</value></data>
   <data name="Item_Empty"         xml:space="preserve"><value>(пусто)</value></data>
@@ -323,5 +333,12 @@
   <!-- Tree tab status -->
   <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Выбрано: {0}</value></data>
   <data name="Tree_NodesFmt"        xml:space="preserve"><value>Нодов: {0}</value></data>
+
+  <!-- Credits / acknowledgements window -->
+  <data name="Credits_Title"        xml:space="preserve"><value>Благодарности</value></data>
+  <data name="Credits_Heading"      xml:space="preserve"><value>Спасибо Path of Building Community</value></data>
+  <data name="Credits_Body"         xml:space="preserve"><value>Этот проект стоит на плечах сообщества Path of Building и их многолетней открытой работы над оригинальным PoB.&#xA;&#xA;Огромное спасибо David Gowor и всем контрибьюторам. ♥&#xA;&#xA;https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2</value></data>
+  <data name="Credits_DontShow"     xml:space="preserve"><value>Больше не показывать</value></data>
+  <data name="Credits_Close"        xml:space="preserve"><value>Закрыть</value></data>
 
 </root>
