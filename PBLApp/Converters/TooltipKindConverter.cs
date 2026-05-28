@@ -16,6 +16,7 @@ public static class TooltipKindConverter
     public static readonly IValueConverter IsSeparator = new KindEqualsConverter("separator");
     public static readonly IValueConverter IsText      = new KindEqualsConverter("text");
     public static readonly IValueConverter CenterOrLeft = new BoolToAlignmentConverter();
+    public static readonly IValueConverter CenterOrLeftTextAlignment = new BoolToTextAlignmentConverter();
     public static readonly IValueConverter HexToBrush  = new HexBrushConverter();
     /// <summary>Maps PoB pixel sizes (14/18/22) to Avalonia DIPs at 1.0× (denser scale was hard to read).</summary>
     public static readonly IValueConverter ScaleSize   = new ScaleSizeConverter(1.0);
@@ -55,6 +56,14 @@ public static class TooltipKindConverter
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
             => value is bool b && b ? HorizontalAlignment.Center : HorizontalAlignment.Left;
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
+    private sealed class BoolToTextAlignmentConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => value is bool b && b ? TextAlignment.Center : TextAlignment.Left;
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
             => throw new NotSupportedException();
     }
