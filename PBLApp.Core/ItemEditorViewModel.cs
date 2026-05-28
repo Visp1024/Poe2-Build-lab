@@ -30,18 +30,33 @@ public sealed partial class ExplicitModViewModel : ObservableObject
                               : AffixType == "Suffix" ? "#A6E3A1"
                               : "Transparent";
 
-    /// <summary>Unified one-letter badge for the mod row (P/S/I or empty).</summary>
+    /// <summary>Unified one-letter badge for the mod row (P/S/I/C or empty).</summary>
     public string TypeBadgeLabel =>
+        IsCorruption            ? "C" :
         IsImplicit              ? "I" :
         AffixType == "Prefix"   ? "P" :
         AffixType == "Suffix"   ? "S" : "";
 
     /// <summary>Color used for the unified badge.</summary>
     public string TypeBadgeColor =>
+        IsCorruption            ? "#DD0022" :       // red — corruption
         IsImplicit              ? "#74C7EC" :       // cyan — implicit
         AffixType == "Prefix"   ? "#89B4FA" :       // blue — prefix
         AffixType == "Suffix"   ? "#A6E3A1" :       // green — suffix
         "Transparent";
+
+    /// <summary>True for mods added via the Corrupted-implicit picker. Used to paint
+    /// the row in a distinct way (red badge + crimson tint) so corruption looks
+    /// dangerous and unambiguous next to regular affixes.</summary>
+    public bool IsCorruption { get; init; }
+
+    /// <summary>Brush key for the row's background when corruption — gives the entire
+    /// mod line a faint crimson tint so the picker → list pipeline is obviously
+    /// "this is a corruption implicit, not a normal affix".</summary>
+    public string RowBackgroundColor => IsCorruption ? "#2A1015" : "Transparent";
+
+    /// <summary>Border colour for the corruption row's left edge — bold accent.</summary>
+    public string RowAccentColor => IsCorruption ? "#DD0022" : "Transparent";
 
     // ── Slider (only for mods with exactly one integer range) ────────────────
 
@@ -248,8 +263,12 @@ public sealed class AffixEntryViewModel
         _editor    = editor;
         Entry      = entry;
         AddCommand = new RelayCommand(
-            () => _editor.AddAffix(entry),
-            () => _editor.CanAddAffix(entry));
+            () =>
+            {
+                if (_editor.IsCorruptionPickerMode) _editor.AddCorruptionAffix(entry);
+                else _editor.AddAffix(entry);
+            },
+            () => _editor.IsCorruptionPickerMode || _editor.CanAddAffix(entry));
     }
 
     public void RefreshCanAdd() => (AddCommand as RelayCommand)?.NotifyCanExecuteChanged();
@@ -666,6 +685,7 @@ public partial class ItemEditorViewModel : ViewModelBase
     // ── Mod picker ───────────────────────────────────────────────────────────
 
     private List<AffixEntryViewModel> _allAffixes = [];
+    private List<AffixEntryViewModel> _corruptionAffixes = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FilteredAffixes))]
@@ -675,13 +695,24 @@ public partial class ItemEditorViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(FilteredAffixes), nameof(IsFilterAll), nameof(IsFilterPrefix), nameof(IsFilterSuffix))]
     private string _modTypeFilter = "All";  // "All" / "Prefix" / "Suffix"
 
+    /// <summary>When true the picker shows corruption-implicit mods from data.itemMods.Corrupted
+    /// instead of the regular Item table. Toggled by the "+ Добавить осквернение" button next
+    /// to the Corrupted checkbox.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FilteredAffixes))]
+    private bool _isCorruptionPickerMode = false;
+
     public IEnumerable<AffixEntryViewModel> FilteredAffixes
     {
         get
         {
-            // Only show mods that can actually be added right now (hides full groups, capped slots)
-            var q = _allAffixes.Where(a => CanAddAffix(a.Entry));
-            if (ModTypeFilter != "All")
+            var pool = IsCorruptionPickerMode ? _corruptionAffixes : _allAffixes;
+            // Corruption mods skip prefix/suffix cap check (they're treated as implicits) and
+            // the type filter (no Prefix/Suffix distinction).
+            IEnumerable<AffixEntryViewModel> q = IsCorruptionPickerMode
+                ? pool
+                : pool.Where(a => CanAddAffix(a.Entry));
+            if (!IsCorruptionPickerMode && ModTypeFilter != "All")
                 q = q.Where(a => a.Entry.AffixType == ModTypeFilter);
             if (!string.IsNullOrWhiteSpace(ModSearch))
                 q = q.Where(a =>
@@ -695,6 +726,43 @@ public partial class ItemEditorViewModel : ViewModelBase
     // ── Affix picker visibility (collapsed by default — toggled via "+ Add Mod") ──
 
     [ObservableProperty] private bool _isAffixPickerOpen = false;
+
+    [RelayCommand]
+    private void OpenCorruptionPicker()
+    {
+        // Load the corruption mod pool on demand. Re-uses CurrentSlotType's base name —
+        // SelectedBase wins, fallback to the unique's BaseName / preserved fallback.
+        var baseName = SelectedBase?.Name
+                    ?? SelectedUnique?.BaseName
+                    ?? _fallbackBaseName;
+        if (!string.IsNullOrEmpty(baseName))
+        {
+            var entries = _host.GetItemCorruptedAffixes(baseName);
+            _corruptionAffixes = entries
+                .Select(e => new AffixEntryViewModel(this, e))
+                .ToList();
+        }
+        IsCorruptionPickerMode = true;
+        IsAffixPickerOpen = true;
+        ModSearch = "";
+    }
+
+    /// <summary>Adds a corruption mod into ExplicitMods as an implicit row. Called by
+    /// AffixEntryViewModel.AddCommand when the picker is in corruption mode.</summary>
+    public void AddCorruptionAffix(AffixEntry e)
+    {
+        var text = MaxRollText(e.StatText);
+        ExplicitMods.Insert(0, new ExplicitModViewModel(this, text,
+            originalStatText: e.StatText,
+            affixType:        "",
+            isImplicit:       false)
+        {
+            IsCorruption = true,
+        });
+        IsCorruptionPickerMode = false;
+        IsAffixPickerOpen = false;
+        SaveError = "";
+    }
 
     // ── Save / delete state ──────────────────────────────────────────────────
 

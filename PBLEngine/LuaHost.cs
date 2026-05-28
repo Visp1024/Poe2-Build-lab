@@ -1660,6 +1660,58 @@ public sealed class LuaHost : IDisposable
         return list;
     }
 
+    /// <summary>Same shape as GetItemAffixes but pulls from data.itemMods.Corrupted —
+    /// the corruption implicits applied by Vaal Orb. Filtered by base item tags so the
+    /// list only shows mods that can actually roll on this slot type.</summary>
+    public List<AffixEntry> GetItemCorruptedAffixes(string baseName)
+    {
+        State["_affixBase"] = baseName;
+        var list = new List<AffixEntry>();
+        var result = State.DoString(@"
+            if not (data and data.itemBases and data.itemMods and data.itemMods.Corrupted) then return {} end
+            local base = data.itemBases[_affixBase]
+            if not base then return {} end
+            local tags = {}
+            if base.tags then for tag,_ in pairs(base.tags) do tags[tag] = true end end
+            if base.type then
+                local t = base.type:lower():gsub(' ','_'):gsub(':.*','')
+                tags[t] = true
+            end
+            local out = {}
+            for modId, mod in pairs(data.itemMods.Corrupted) do
+                if mod.type and mod[1] then
+                    local ok = false
+                    for i, wk in ipairs(mod.weightKey or {}) do
+                        local wv = mod.weightVal and mod.weightVal[i] or 0
+                        if wv > 0 and tags[wk] then ok = true; break end
+                    end
+                    if ok then
+                        table.insert(out, { modId, mod.affix or '', mod[1], mod.type, mod.level or 0, mod.group or '' })
+                    end
+                end
+            end
+            table.sort(out, function(a,b)
+                if a[6] ~= b[6] then return a[6] < b[6] end
+                return a[5] < b[5]
+            end)
+            return out
+        ");
+        State["_affixBase"] = null;
+        if (result is { Length: > 0 } && result[0] is LuaTable t)
+            foreach (var k in t.Keys)
+                if (t[k] is LuaTable row)
+                {
+                    var id   = row[1L] as string ?? "";
+                    var afx  = row[2L] as string ?? "";
+                    var stat = row[3L] as string ?? "";
+                    var typ  = row[4L] as string ?? "";
+                    var lvl  = row[5L] is long li ? (int)li : 0;
+                    var grp  = row[6L] as string ?? "";
+                    list.Add(new AffixEntry(id, afx, stat, typ, lvl, grp));
+                }
+        return list;
+    }
+
     /// <summary>Returns all unique items from the loaded unique database.</summary>
     public List<UniqueItemEntry> GetUniqueItems()
     {

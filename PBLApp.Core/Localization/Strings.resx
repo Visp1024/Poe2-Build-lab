@@ -319,7 +319,9 @@
   <data name="Editor_NoMods"        xml:space="preserve"><value>No mods. Use '+ Add Mod' (or select a unique on the left).</value></data>
   <data name="Editor_Quality"       xml:space="preserve"><value>QUALITY</value></data>
   <data name="Editor_Corrupted"     xml:space="preserve"><value>Corrupted</value></data>
-  <data name="Editor_CorruptedHint" xml:space="preserve"><value>Corrupted items cannot be modified</value></data>
+  <data name="Editor_CorruptedHint" xml:space="preserve"><value>Marks the item as corrupted (Vaal Orb)</value></data>
+  <data name="Editor_AddCorruption" xml:space="preserve"><value>+ Add corruption</value></data>
+  <data name="Editor_CorruptionPickerHeader" xml:space="preserve"><value>CORRUPTION IMPLICITS — pick one</value></data>
   <data name="Editor_Runes"         xml:space="preserve"><value>RUNES / IDOLS</value></data>
   <data name="Editor_AddRune"       xml:space="preserve"><value>+ Add Rune</value></data>
   <data name="Editor_NoRunes"       xml:space="preserve"><value>No runes or idols socketed</value></data>

@@ -319,6 +319,8 @@
   <data name="Editor_NoMods"        xml:space="preserve"><value>Нет модов. Нажмите «+ Добавить мод» или выберите уникалку слева.</value></data>
   <data name="Editor_Quality"       xml:space="preserve"><value>КАЧЕСТВО</value></data>
   <data name="Editor_Corrupted"     xml:space="preserve"><value>Осквернённый</value></data>
+  <data name="Editor_AddCorruption" xml:space="preserve"><value>+ Добавить осквернение</value></data>
+  <data name="Editor_CorruptionPickerHeader" xml:space="preserve"><value>ОСКВЕРНЁННЫЕ ИМПЛИЦИТЫ — выберите один</value></data>
   <data name="Editor_CorruptedHint" xml:space="preserve"><value>Осквернённые предметы нельзя модифицировать</value></data>
   <data name="Editor_Runes"         xml:space="preserve"><value>РУНЫ / ИДОЛЫ</value></data>
   <data name="Editor_AddRune"       xml:space="preserve"><value>+ Добавить руну</value></data>
