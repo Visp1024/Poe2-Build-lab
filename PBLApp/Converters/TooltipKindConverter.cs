@@ -17,8 +17,8 @@ public static class TooltipKindConverter
     public static readonly IValueConverter IsText      = new KindEqualsConverter("text");
     public static readonly IValueConverter CenterOrLeft = new BoolToAlignmentConverter();
     public static readonly IValueConverter HexToBrush  = new HexBrushConverter();
-    /// <summary>Maps PoB pixel sizes (14/18/22) to Avalonia DIPs at 0.85× (matches in-game look).</summary>
-    public static readonly IValueConverter ScaleSize   = new ScaleSizeConverter(0.85);
+    /// <summary>Maps PoB pixel sizes (14/18/22) to Avalonia DIPs at 1.0× (denser scale was hard to read).</summary>
+    public static readonly IValueConverter ScaleSize   = new ScaleSizeConverter(1.0);
     /// <summary>Bold for header sizes (≥ 20), Normal otherwise.</summary>
     public static readonly IValueConverter WeightForSize = new WeightForSizeConverter();
     /// <summary>Run an arbitrary English mod/stat line through GameTranslationService.TooltipLine.</summary>

@@ -182,10 +182,33 @@
             <Setter Property="Padding" Value="8"/>
         </Style>
 
+        <!-- Plain-text hover tooltips on slot/pool cells. The default Avalonia ToolTip
+             renders compact white-on-black with a tight box; for multi-line item
+             tooltips that's hard to read. Restyle: dark mantle bg, gold-tinted border,
+             larger body font, generous line spacing — first line is the item name and
+             gets a bigger title-style size via a TextBlock template later. -->
+        <Style Selector="ToolTip">
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand400Brush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="MaxWidth" Value="460" />
+            <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+        </Style>
+        <!-- The inner ContentPresenter wraps the text — give it more breathing room
+             between lines (Avalonia's default LineHeight is tight). -->
+        <Style Selector="ToolTip /template/ ContentPresenter">
+            <Setter Property="TextBlock.LineHeight" Value="20" />
+            <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+        </Style>
+
     </UserControl.Styles>
 
-    <!-- Root: left panel | right panel -->
-    <Grid ColumnDefinitions="540,*">
+    <!-- Root: left panel | splitter | right panel -->
+    <Grid ColumnDefinitions="540,5,*">
 
         <!-- ── Left panel ──────────────────────────────────────────────────── -->
         <Border Grid.Column="0"
@@ -848,8 +871,16 @@
             </DockPanel>
         </Border>
 
+        <!-- Splitter between left and right panes -->
+        <GridSplitter Grid.Column="1"
+                      Width="5"
+                      ResizeDirection="Columns"
+                      Background="{DynamicResource BorderSubtleBrush}"
+                      HorizontalAlignment="Stretch"
+                      ShowsPreview="False" />
+
         <!-- ── Right panel ─────────────────────────────────────────────────── -->
-        <Panel Grid.Column="1">
+        <Panel Grid.Column="2">
 
             <!-- ── (A) Nothing selected ──────────────────────────────────── -->
             <StackPanel IsVisible="{Binding IsRightPaneEmpty}"
