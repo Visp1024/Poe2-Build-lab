@@ -124,7 +124,12 @@ public partial class BuildPageViewModel : ViewModelBase
             var model = new BuildModel(host);
             await Task.Run(() => model.LoadBuildFromXml(xml, BuildName));
             Build = model;
-            CalcsTab  = new CalcsTabViewModel(host, model);
+            CalcsTab  = new CalcsTabViewModel(host, model,
+                onMainGroupChanged: () =>
+                {
+                    SkillsTab?.RefreshMainFlag();
+                    _ = AutoSaveAsync();
+                });
             SkillsTab = new SkillsTabViewModel(host, model,
                 onStatsChanged:  () => CalcsTab.Refresh(),
                 onGroupsChanged: () => { CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); });
@@ -162,5 +167,12 @@ public partial class BuildPageViewModel : ViewModelBase
         var xml = Build.SaveBuildToXml();
         if (xml != null && !string.IsNullOrEmpty(_xmlPath))
             await File.WriteAllTextAsync(_xmlPath, xml);
+    }
+
+    /// <summary>Persists the build silently — used for small UX choices like main-skill
+    /// selection that should survive between sessions without forcing the user to click Save.</summary>
+    private async Task AutoSaveAsync()
+    {
+        try { await SaveBuildAsync(); } catch { /* best-effort */ }
     }
 }

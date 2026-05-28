@@ -46,62 +46,11 @@
         </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="*">
 
-        <!-- Skill selector header -->
-        <Border Grid.Row="0" Background="{DynamicResource BgMantleBrush}" Padding="8,6"
-                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                <TextBlock Text="{loc:Tr Calc_ActiveSkill}" Classes="statlabel" />
-                <ComboBox ItemsSource="{Binding SkillGroups}"
-                          SelectedItem="{Binding SelectedSkillGroup}"
-                          MinWidth="240"
-                          Background="{DynamicResource BgRaisedBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
-                          BorderBrush="{DynamicResource BorderStrongBrush}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="vm:SkillGroupDisplayVm">
-                            <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource TextPrimaryBrush}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <TextBlock Text="{loc:Tr Calc_NoGroups}"
-                           IsVisible="{Binding !SkillGroups.Count}"
-                           Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
-                           VerticalAlignment="Center" />
-
-                <!-- Active Skill sub-selector (shown when group has multiple active skills) -->
-                <TextBlock Text="{loc:Tr Calc_ActiveSkill}" Classes="statlabel"
-                           IsVisible="{Binding HasMultipleActiveSkills}" />
-                <ComboBox ItemsSource="{Binding ActiveSkills}"
-                          SelectedItem="{Binding SelectedActiveSkill}"
-                          IsVisible="{Binding HasMultipleActiveSkills}"
-                          MinWidth="180"
-                          Background="{DynamicResource BgRaisedBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
-                          BorderBrush="{DynamicResource BorderStrongBrush}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="vm:ActiveSkillDisplayVm">
-                            <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource TextPrimaryBrush}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-
-                <!-- DPS summary in header -->
-                <Border Width="1" Background="{DynamicResource BorderStrongBrush}" Margin="4,2" />
-                <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="{loc:Tr Calc_TotalDPS}" Classes="statlabel" />
-                        <TextBlock Text="{Binding TotalDpsText}" Classes="statvalue" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="{loc:Tr Calc_AvgDmg}" Classes="statlabel" />
-                        <TextBlock Text="{Binding AvgDamageLabel}" Classes="statvalue" />
-                    </StackPanel>
-                </StackPanel>
-            </StackPanel>
-        </Border>
-
-        <!-- Main split: stat tree | details panel -->
-        <Grid Name="SplitGrid" Grid.Row="1" ColumnDefinitions="280,4,*">
+        <!-- Main split: stat tree | details panel.
+             Skill selector moved to BuildPageView (unified top selector). -->
+        <Grid Name="SplitGrid" Grid.Row="0" ColumnDefinitions="280,4,*">
 
             <!-- Left: stat tree -->
             <ScrollViewer Grid.Column="0" Padding="0,4,0,4">
