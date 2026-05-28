@@ -11,7 +11,7 @@ public record ConfigOption(
 
 public record ConfigListItem(string Val, string Label);
 
-public record SkillGroupEntry(int Index, string Name, string Label = "", bool IsEnabled = true);
+public record SkillGroupEntry(int Index, string Name, string Label = "", bool IsEnabled = true, bool IsTrigger = false);
 
 public record ActiveSkillEntry(int Index, string Name);
 

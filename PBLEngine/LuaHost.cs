@@ -194,7 +194,20 @@ public sealed class LuaHost : IDisposable
                 if name == '' then name = strip(group.label) end
                 if name == '' then name = string.format('Group %d', i) end
                 local enabled = (group.enabled ~= false) and 1 or 0
-                table.insert(out, { i, name, strip(group.label or ''), enabled })
+                -- Trigger / meta group: first non-support gem has SkillType.Triggers (32) or .Meta (122).
+                -- Empty slots in such groups should let the user pick a triggered active spell, not just supports.
+                local isTrigger = 0
+                for _, gem in ipairs(group.gemList or {}) do
+                    local ge = gem.gemData and gem.gemData.grantedEffect or gem.grantedEffect
+                    if ge and not ge.support then
+                        local st = ge.skillTypes
+                        if st and (st[SkillType.Triggers] or st[SkillType.Meta]) then
+                            isTrigger = 1
+                        end
+                        break
+                    end
+                end
+                table.insert(out, { i, name, strip(group.label or ''), enabled, isTrigger })
             end
             return out
         ");
@@ -207,7 +220,8 @@ public sealed class LuaHost : IDisposable
                 var name     = row[2L] as string   ?? $"Group {idx}";
                 var label    = row[3L] as string   ?? "";
                 var enabled  = row[4L] is long en  && en == 1L;
-                groups.Add(new SkillGroupEntry(idx, name, label, enabled));
+                var isTrigger = row[5L] is long tr && tr == 1L;
+                groups.Add(new SkillGroupEntry(idx, name, label, enabled, isTrigger));
             }
         }
         return groups;
@@ -1947,9 +1961,14 @@ public sealed class LuaHost : IDisposable
     }
 
     /// <summary>Allocate a non-attribute node. Returns 1 on success, 0 on failure.</summary>
-    public int AllocNode(int nodeId)
+    /// <summary>Allocate a node. When <paramref name="deferRecalc"/> is true,
+    /// skip <c>runCallback('OnFrame')</c> + <c>build.calcsTab:BuildOutput()</c>
+    /// — caller is expected to invoke <see cref="RecalcStats"/> later (e.g.
+    /// from a debounced timer). Returns 1 on success, 0 on failure.</summary>
+    public int AllocNode(int nodeId, bool deferRecalc = false)
     {
         State["_nodeId"] = (long)nodeId;
+        State["_defer"]  = deferRecalc;
         var result = State.DoString(@"
             if not (build and build.spec) then return 0 end
             local node = build.spec.nodes[_nodeId]
@@ -1958,18 +1977,23 @@ public sealed class LuaHost : IDisposable
             if not node.path or #node.path == 0 then return 0 end
             build.spec:AllocNode(node)
             build.buildFlag = true
-            runCallback('OnFrame')
-            if build.calcsTab then build.calcsTab:BuildOutput() end
+            if not _defer then
+                runCallback('OnFrame')
+                if build.calcsTab then build.calcsTab:BuildOutput() end
+            end
             return 1
         ");
         State["_nodeId"] = null;
+        State["_defer"]  = null;
         return result is { Length: > 0 } && result[0] is long r ? (int)r : 0;
     }
 
-    /// <summary>Deallocate a node. Returns -1 on success, 0 on failure.</summary>
-    public int DeallocNode(int nodeId)
+    /// <summary>Deallocate a node. Returns -1 on success, 0 on failure. See
+    /// <see cref="AllocNode"/> for <paramref name="deferRecalc"/> semantics.</summary>
+    public int DeallocNode(int nodeId, bool deferRecalc = false)
     {
         State["_nodeId"] = (long)nodeId;
+        State["_defer"]  = deferRecalc;
         var result = State.DoString(@"
             if not (build and build.spec) then return 0 end
             local node = build.spec.nodes[_nodeId]
@@ -1978,12 +2002,28 @@ public sealed class LuaHost : IDisposable
             if node.type == 'ClassStart' or node.type == 'AscendClassStart' then return 0 end
             build.spec:DeallocNode(node)
             build.buildFlag = true
-            runCallback('OnFrame')
-            if build.calcsTab then build.calcsTab:BuildOutput() end
+            if not _defer then
+                runCallback('OnFrame')
+                if build.calcsTab then build.calcsTab:BuildOutput() end
+            end
             return -1
         ");
         State["_nodeId"] = null;
+        State["_defer"]  = null;
         return result is { Length: > 0 } && result[0] is long r ? (int)r : 0;
+    }
+
+    /// <summary>Force a full stat recalc. Use this after a batch of deferred
+    /// <see cref="AllocNode"/>/<see cref="DeallocNode"/> calls so the sidebar
+    /// and Calcs tab pick up the new values.</summary>
+    public void RecalcStats()
+    {
+        State.DoString(@"
+            if not build then return end
+            build.buildFlag = true
+            runCallback('OnFrame')
+            if build.calcsTab then build.calcsTab:BuildOutput() end
+        ");
     }
 
     /// <summary>
