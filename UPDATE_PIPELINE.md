@@ -1,0 +1,129 @@
+# UPDATE_PIPELINE.md
+
+Процедура обновления форка под новые версии PoE2 / upstream PathOfBuilding-PoE2.
+
+Состоит из трёх независимых, последовательно запускаемых шагов:
+
+1. **`scripts/sync-upstream.ps1`** — подтянуть Lua-логику из апстрима.
+2. **`scripts/regen-data.ps1`** — перегенерировать `src/Data/` из свежего GGPK.
+3. **`scripts/regen-localization.ps1`** — пересобрать переводы под новые данные.
+
+Маркер прогресса — `.upstream-sync.yaml` (хранит последний синхронизированный upstream sha).
+
+---
+
+## Состояние на 2026-06-11
+
+| Слой              | Текущая версия | Последний upstream sync           | Гэп |
+|-------------------|----------------|-----------------------------------|-----|
+| Lua-код апстрима  | 0.15.0         | `3e1b71c92` Release 0.15.0        | 5 минорных релизов до 0.20.0 |
+| `src/Data/`       | 0.15.0 dump    | initial commit `2cf882d` (28 май) | требует regen |
+| `src/TreeData/`   | 0.15.0         | initial commit                    | проверить наличие новых веток (0_5) |
+| Локализация       | 0.15.0 GGPK    | initial commit                    | regen после GGPK |
+| Avalonia UI       | актуальна      | n/a (наш код)                     | трогаем только при breaking changes upstream |
+
+Upstream HEAD: `558e2a5 Release 0.20.0` (через `git fetch upstream`).
+
+---
+
+## Чеклист — большое обновление (0.15 → 0.20, big-bang)
+
+### Pre-flight
+
+- [ ] Рабочее дерево чистое: `git status` — empty
+- [ ] PBLApp собирается и проходит `/pbl-verify` на текущем main
+- [ ] Зафиксирован baseline скриншот для визуальной регрессии
+- [ ] **Исправить пути в `PBLExport/Program.cs:6-7`** — сейчас они указывают на `D:\Work\PathOfBuilding-PoE2`, должны на `PathBuildLab`. Без этого regen-localization запишет файлы не туда.
+
+### 1. Sync upstream
+
+```pwsh
+pwsh ./scripts/sync-upstream.ps1 -DryRun        # посмотреть размер патча
+pwsh ./scripts/sync-upstream.ps1                # применить
+```
+
+- [ ] Скрипт создал ветку `upstream-sync/<date>`
+- [ ] 3-way apply прошёл без конфликтов **либо** конфликты разрешены вручную (`git status` после ошибки)
+- [ ] `dotnet build PBLHost.sln` зелёный
+- [ ] Маркер `.upstream-sync.yaml` обновлён (`last_synced_sha` + `version` + `date`)
+- [ ] Коммит: `sync(upstream): 0.15.0 -> 0.20.0`
+
+**Зоны типичных конфликтов:**
+- `src/Modules/ModParser.lua` — мы патчили `string.format` float→int (см. `CLAUDE.md` про Lua 5.4)
+- `src/Modules/ItemTools.lua`, `src/Modules/CalcOffence.lua` — те же 5.4 правки
+- `runtime/lua/compat.lua` — наш, апстрим его не трогает, конфликта не должно быть
+
+### 2. Regen data
+
+```pwsh
+pwsh ./scripts/regen-data.ps1
+# либо: pwsh ./scripts/regen-data.ps1 -GgpkPath "D:\Games\steamapps\common\Path of Exile 2"
+```
+
+- [ ] Скрипт нашёл/принял путь к установке PoE2
+- [ ] `PBLExport/ggpk_export/config.json` → `steam` обновлён
+- [ ] Прогон `src/Export/Launch.lua` через runtime — обновлены Gems / Bases / Stats / Skills
+- [ ] Прогон PoB с зажатым Ctrl — `src/Data/ModCache.lua` обновлён
+- [ ] `git diff --stat src/Data/ src/TreeData/` — изменения по делу
+- [ ] Коммит: `data: regen for 0.20.0` (включая ModCache.lua — обязательно)
+
+### 3. Regen localization
+
+```pwsh
+pwsh ./scripts/regen-localization.ps1
+```
+
+- [ ] `pathofexile-dat` отработал — таблицы в `PBLExport/ggpk_export/tables/{English,Russian}/`
+- [ ] `dotnet run PBLExport` собрал `gems_ru.json`, `items_ru.json`, `passive_names_ru.json`
+- [ ] Python-скрипты отработали — `passive_nodes_ru.json`, `gem_stats_templates.json`, `skill_descriptions_ru.json`
+- [ ] Покрытие в `LOCALIZATION_PLAN.md` обновлено (счётчики)
+- [ ] Коммит: `loc: regen for 0.20.0`
+
+### 4. Verification
+
+- [ ] `/pbl-build`
+- [ ] `/pbl-test` — xUnit для PBLEngine.Tests
+- [ ] `/pbl-verify` — визуальный регресс UI
+- [ ] Открыть тестовый билд, проверить:
+  - DPS не уплыл больше чем на 1-2% (или объяснить почему уплыл — обычно баланс)
+  - Новые уникальные из 0.16-0.20 видны в каталоге
+  - Новые ноды/аскенды на дереве отрисовываются
+  - RU перевод видим на тултипах гемов и нод
+
+### 5. Merge в main
+
+- [ ] PR `upstream-sync/<date>` → `main`
+- [ ] В PR-описание — сводка изменений: «5 релизов апстрима, +N уникальных, +M нод, +K скиллов»
+- [ ] После мержа — обновить `manifest.xml` `<Version number="0.20.0" />` (если не подтянулось патчем)
+
+---
+
+## Инкрементальный режим (порелизный, минорное обновление апстрима)
+
+То же самое, но `scripts/sync-upstream.ps1 -TargetRef <upstream-tag>` с одной версией за раз:
+
+```pwsh
+pwsh ./scripts/sync-upstream.ps1 -TargetRef v0.16.0
+# … разрешить конфликты, прогнать data/loc если нужно, смержить, повторить для 0.17 и т.д.
+```
+
+Это режим для обычной работы — раз в неделю-две притаскивать одну версию.
+
+---
+
+## Известные подводные камни
+
+- **NLua / Lua 5.4** — апстрим пишет под LuaJIT 5.1. Перед каждым синком проверять: новые `tostring(integer)` или `n / 1` в апстриме могут сломать ModParser. См. `CLAUDE.md → C# Projects → Critical Lua 5.4 differences`.
+- **ModCache.lua обязателен к коммиту** — без него старт PoB генерит его на лету (≈30 сек), а в тестах падает.
+- **runtime DLL не трогаем** — апстрим иногда обновляет SimpleGraphic, но наш PBLApp работает мимо рендера, и DLL-апдейты для нас бесполезны и опасны (LuaJIT vs Lua 5.4).
+- **TreeData** — каждая новая версия дерева в `src/TreeData/X_Y/` это отдельный zip. Апстрим добавляет директорию — наш патч её перенесёт автоматически.
+- **`Path of Building-PoE2.exe`** — в репе хранится с экранированным пробелом, проверять что git не «переименовал».
+
+---
+
+## История синков
+
+| Дата       | От        | До        | PR  | Заметки |
+|------------|-----------|-----------|-----|---------|
+| 2026-05-28 | —         | 0.15.0    | —   | Initial fork snapshot |
+| _TBD_      | 0.15.0    | 0.20.0    | _#_ | Big-bang sync |

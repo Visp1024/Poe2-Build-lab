@@ -3,8 +3,20 @@ using System.Text.Json;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 
-const string TransDir   = @"D:\Work\PathOfBuilding-PoE2\PBLApp.Core\Translations";
-const string GgpkDir    = @"D:\Work\PathOfBuilding-PoE2\PBLExport\ggpk_export\tables";
+string repoRoot = FindRepoRoot();
+string TransDir = Path.Combine(repoRoot, "PBLApp.Core", "Translations");
+string GgpkDir  = Path.Combine(repoRoot, "PBLExport", "ggpk_export", "tables");
+
+static string FindRepoRoot()
+{
+    var dir = new DirectoryInfo(AppContext.BaseDirectory);
+    while (dir != null && !File.Exists(Path.Combine(dir.FullName, "PBLHost.sln"))
+                       && !File.Exists(Path.Combine(dir.FullName, "manifest.xml")))
+        dir = dir.Parent;
+    if (dir == null)
+        throw new InvalidOperationException("Не найден корень репо (искал PBLHost.sln / manifest.xml).");
+    return dir.FullName;
+}
 
 var opts = new JsonSerializerOptions
 {
