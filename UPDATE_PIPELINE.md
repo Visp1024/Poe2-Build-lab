@@ -106,6 +106,30 @@ pathofexile-dat     (Node CLI, headless, читает Bundles2)
 - `getFile()` (бинарные ассеты — иконки, текстуры) пока стаб — скрипты `assets.lua` потребуют отдельной интеграции с pathofexile-dat's files-mode.
 - Схема `refs` сейчас захардкожена в C#. Долгосрочно — генерировать из `PBLExport/ggpk_export/schema.min.json` (или из spec.lua).
 
+### Главное открытие live-прогона: **schema drift между PoB и pathofexile-dat**
+
+`src/Export/spec.lua` отражает PoE2-схему *на момент когда PoB-команда последний раз делала Export*. `pathofexile-dat-schema` (https://github.com/poe-tool-dev/dat-schema) — отдельный проект, ведётся независимо и отслеживает текущую игру. Эти две схемы расходятся.
+
+Пример (validFor=2 → PoE2), таблица `CostTypes`:
+
+| PoB spec.lua            | pathofexile-dat-schema |
+|-------------------------|------------------------|
+| `Resource` (String)     | **колонка удалена**    |
+| `Stat` (Key → Stats)    | `Stat` (foreignrow → Stats) ✓ |
+| `ResourceString` (String) | **переименована в `FormatText`** |
+| `Divisor` (Int)         | `Divisor` ✓             |
+| `PerMinute` (Bool)      | `PerMinute` ✓           |
+
+Результат: live-`Costs.lua` получает `Resource = "nil"` и `ResourceString = "nil"` (буквальные строки от `tostring(nil)`), но `Stat` и `Divisor` верные.
+
+**Что нужно для лечения** (следующий слой PBLDataExport, ещё не построен):
+
+1. **Column rename map** — конфиг `column-mapping.json` вида `{ "CostTypes": { "FormatText": "ResourceString" } }`. JsonDatFile.lua применяет mapping при загрузке row.
+2. **Computed columns** — для удалённых колонок (`Resource`) реконструкция через post-load трансформ на основе других полей (`Stat.Id` → enum-значение `Mana`/`Life`/…). Хранить в Lua-конфиге per-table.
+3. Для каждой новой таблицы при расширении: запустить `python scripts/inspect-schema.py CostTypes` (выведет pathofexile-dat-schema columns), сравнить с `grep -A30 'costtypes=' src/Export/spec.lua`, добавить mapping/computed где разошлись.
+
+Утилита `scripts/inspect-schema.py` — фетчит текущую `schema.min.json` в TEMP и выводит human-readable columns для заданной таблицы. Запускать перед добавлением каждой новой таблицы в config.
+
 ### 3. Regen localization
 
 ```pwsh
