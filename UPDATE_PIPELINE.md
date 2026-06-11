@@ -239,4 +239,107 @@ pwsh ./scripts/sync-upstream.ps1 -TargetRef v0.16.0
 | Дата       | От        | До        | PR  | Заметки |
 |------------|-----------|-----------|-----|---------|
 | 2026-05-28 | —         | 0.15.0    | —   | Initial fork snapshot |
-| _TBD_      | 0.15.0    | 0.20.0    | _#_ | Big-bang sync |
+| 2026-06-11 | 0.15.0    | 0.20.0    | merged via `upstream-sync/20260611` | Big-bang sync; см. раздел «Уроки большого синка» ниже |
+
+---
+
+## Уроки большого синка 0.15.0 → 0.20.0 (для следующего оператора)
+
+Все находки и грабли из реального первого синка. Документировано чтобы следующее обновление не нарывалось на те же мины.
+
+### 1. Initial commit нашего форка ≠ Release-tag апстрима
+
+`manifest.xml` исходно показывал `<Version number="0.15.0" />`, но содержимое `src/Modules/Main.lua` Initial commit'а содержит фичи (`migrateAugments`, `LoadModule("Modules/CalcFormat")`, `GetVirtualScreenSize()`), которые ушли в upstream **позже** Release 0.15.0. Минимум diff (35 файлов) получался с `d674b18db Fix options menu overflowing screen boundaries (#1840)` — это где-то между 0.15.0 и 0.16.0.
+
+**Следствие**: `merge-base` между нашим main и любым upstream tag/HEAD пустой. Прямой `git merge upstream/dev` невозможен.
+
+**Решение**: 3-way патч через `git diff <last_synced>..<target> -- <sync_paths> | git apply --3way`. SHA «last_synced» хранится в `.upstream-sync.yaml` и при первом синке был выставлен на `3e1b71c92d…` (Release 0.15.0) как best-effort приближение. После каждого синка маркер обновляется на актуальный upstream SHA.
+
+### 2. Стратегия разрешения 3-way конфликтов
+
+После `git apply --3way` для большого синка ~50 файлов конфликтовали. Базовое распределение:
+
+| Категория | Файлов | Стратегия | Почему |
+|-----------|--------|-----------|--------|
+| `src/Data/**`, `src/Export/**` | ~30 | `git checkout --theirs` | Авто-генеренные дампы; наши «локальные правки» в Initial были застывшим снапшотом старой версии — заведомо неактуальны. Регенерация через `regen-data-ggpk` после мержа всё равно перезапишет. |
+| `src/Classes/**` | ~10 | `git checkout --theirs` | Оригинальный Lua UI PoB. Мы не используем — рендерим через Avalonia (`PBLApp`). Что в upstream — то и берём. |
+| `src/Modules/**` | 6 | `git checkout --theirs` + ручной патч | Здесь живут наши NLua/Lua 5.4 правки (CalcOffence buffer, ModParser format). Брал upstream и **пере-применял документированные правки** (см. ниже). |
+
+### 3. Документированные NLua / Lua 5.4 правки, которые ОБЯЗАНЫ выжить
+
+После любого синка проверять и при необходимости пере-применять:
+
+- **`src/Launch.lua`** — polyfill `math.tointeger`. LuaJIT 2.0 в нашем `runtime/lua51.dll` его не имеет. Падение: `Modules/ItemTools.lua:57: attempt to call field 'tointeger' (a nil value)`.
+- **`src/Modules/CalcOffence.lua:2660`** — `m_floor(entry.capped)` перед `string.len`, плюс `buffers.chance[...] or ""`. Падение под NLua: `attempt to concatenate a nil value (field 'cappedBuffer')` (integer/integer = float в 5.4 ломает `string.len` indexing).
+- **`src/Modules/ItemTools.lua:57`** — `math.tointeger(displayVal)` для целочисленной нормализации; уже подобрана upstream'ом, конфликта обычно нет.
+
+CLAUDE.md → раздел «Critical Lua 5.4 differences vs LuaJIT» — каноничный источник.
+
+### 4. Runtime exe называется `Path{space}of{space}Building-PoE2.exe`
+
+Это **не баг кодировки** — upstream хранит файл с буквальными литералами `{space}`. Скрипты `regen-modcache.ps1` / `regen-data-ggpk.ps1` автоматом копируют его в `Path of Building-PoE2.exe` при первом запуске. Локальная копия в `.gitignore`. Не пытаться `git mv` upstream-имя.
+
+### 5. ModCache regen — через env var, не через Ctrl
+
+Старая инструкция (зажать Ctrl при старте PoB) ненадёжна: фокус уходит на окно, `IsKeyDown("CTRL")` не успевает зафиксироваться. Используем env var (`Modules/Main.lua:122` принимает оба):
+
+```pwsh
+$env:REGENERATE_MOD_CACHE = "1"
+Start-Process .\runtime\<exe> -PassThru
+```
+
+`regen-modcache.ps1` уже так делает + проверяет sha256 файла до/после. **Закрывать PoB нужно штатно** — реген пишется в `main:Shutdown`.
+
+### 6. PBLHost.sln упоминается в CLAUDE.md, но не существует
+
+`scripts/sync-upstream.ps1` исходно собирал `PBLHost.sln` после patch'а. Заменено на `PBLEngine.csproj`. Если CLAUDE.md обновится с настоящим sln — синхронизировать.
+
+### 7. PBLDataExport — headless альтернатива Dat View
+
+`scripts/regen-data-ggpk.ps1` ходит через `PBLDataExport` (см. развёрнутый раздел про column-mapping выше). Покрытие сейчас: 7 Export Scripts (`costs`, `flavourText`, `modScalability`, `mods`, `skillGemList`, `essence`, `uModsToText`). Остальные требуют доп. инфры (`.it`/`.ot` extraction, GIMP/NVTT и пр.) — список deferred выше.
+
+Главное при работе с PBLDataExport:
+- **NLua не маршалит `List<Dictionary>`** — `SEHException` в `MetaFunctions.GetMethod`. Конфиг передаём через temp JSON, который Lua-side декодит через dkjson.
+- **Windows + npx**: `Process.Start("npx.cmd")` ловит `MODULE_NOT_FOUND` из-за Node `npm-prefix` resolution. Идём через `cmd.exe /c npx ...`.
+- **Schema drift**: `pathofexile-dat-schema` (https://github.com/poe-tool-dev/dat-schema) и `src/Export/spec.lua` — два независимых проекта. Колонки расходятся. Перед добавлением новой таблицы — `python scripts/inspect-schema.py <Table>`, потом сравнить с `grep -A30 '<table>=' src/Export/spec.lua`, и закрыть разрыв в `ColumnMappings.lua` (rename + computed).
+- **Unnamed columns** в pathofexile-dat schema **не экспортируются**. Пример: `Mods.SpawnWeight_Values` — i32-массив без имени → `weightVal = { }` в выходе. Лечится либо вкладом в upstream-schema, либо computed-fallback из других таблиц.
+
+### 8. Локализация: внешние зависимости и опечатка PoBApp/PBLApp
+
+`scripts/regen-localization.ps1` запускает `PBLExport` + 3 python-генератора:
+
+| Скрипт | Источник | Состояние |
+|--------|----------|-----------|
+| `PBLExport` блоки 3-4 (passive_names_ru, skill_descriptions_ru) | pathofexile-dat GGPK dumps | ✓ работает |
+| `PBLExport` блоки 1-2 (gems_ru, items_ru) | **repoe-fork дампы** в `PBLApp.Core/Translations/skill_gems_{en,ru}.json` и `base_items_{en,ru}.json` | требует ручной выгрузки из RePoE/PoE2; без них skip |
+| `gen_gem_stats_ru.py` | repoe-fork stat_translations через HTTP | ✓ работает |
+| `gen_passive_names_ru.py` | repoe-fork skills через HTTP | падает (404 на `/Russian/skills.min.json` — формат изменился) |
+| `gen_passive_ru.py` | repoe-fork stat templates через HTTP | сматчил 2/2492 (формат шаблонов изменился) — оставить **существующий прод-файл**, не перезаписывать |
+
+**Историческая опечатка**: все три python-скрипта писали в `../PoBApp.Core/Translations/` вместо `../PBLApp.Core/Translations/`. Молча создавали левую папку рядом с репо, прод-файлы не обновлялись. Исправлено в коммите `604d4b9f8`.
+
+`PBLExport/Program.cs` блоки 1-2 раньше падали при отсутствии repoe-fork файлов (hard `File.ReadAllText`). Обёрнуты в `File.Exists` — теперь skip + warning.
+
+### 9. Тест-кейс `customMods` Label
+
+`GetConfigOptions_AllHaveNonEmptyLabel` падал из-за `customMods` (textarea внутри секции «Custom Modifiers», у textarea пустой Label — это by-design). Ослаблено условие: `type == "text"` исключение допустимо. См. коммит `0266197d7`.
+
+### 10. CRLF/LF предупреждения
+
+Windows git c `core.autocrlf=true` — каждое касание Lua/JSON файла даёт warning «LF will be replaced by CRLF». Безопасно игнорировать, поведение не меняется.
+
+### 11. Время полного цикла
+
+Полный live-цикл (clean fetch + sync + ModCache regen + data-export full pass через PBLDataExport + localization regen + verify) занимает **20-40 минут** при наличии установленного PoE2. Без PoE2 (только sync + verify через старые данные) — 5 минут.
+
+### 12. На что смотреть в `/pbl-verify` после большого синка
+
+Минимум:
+- Build открывается без ошибок (LuaHost init green)
+- Header stats (DPS/HP/Mana/Spirit) посчитаны
+- Tree tab переключается и ноды кликабельны
+- Items tab показывает экипировку + runes
+- RU локализация — все табы и хедер переведены
+- Tooltip гема при ховере (если есть скилл)
+
+При первом синке 0.15→0.20 верификация прошла на «New Build 2» — DPS 4 861, всё корректно.
