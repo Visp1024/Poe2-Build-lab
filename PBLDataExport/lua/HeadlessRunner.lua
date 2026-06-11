@@ -53,6 +53,94 @@ function sanitiseText(s)
     return s
 end
 
+t_insert = table.insert
+
+-- pairsSortByKey: src/Modules/Common.lua. Stable iteration order for table dumps.
+function pairsSortByKey(t, f)
+    local sortedKeys = {}
+    for key in pairs(t) do t_insert(sortedKeys, key) end
+    table.sort(sortedKeys, f)
+    local i = 0
+    return function()
+        i = i + 1
+        if sortedKeys[i] == nil then return nil end
+        return sortedKeys[i], t[sortedKeys[i]]
+    end
+end
+
+-- escapeGGGString: strips PoE rich-text markup (used by statdesc).
+function escapeGGGString(text)
+    return text
+        :gsub("<[^>]+>{([^}]+)}", "%1")
+        :gsub("%[([^|%]]+)%]", "%1")
+        :gsub("%[[^|]+|([^|]+)%]", "%1")
+end
+
+-- codePointToUTF8 / convertUTF16to8: src/Modules/Common.lua. The PoE .csd files
+-- are UTF-16LE; PoB reads them as raw bytes and converts here.
+function codePointToUTF8(cp)
+    if cp < 0x80 then
+        return string.char(cp)
+    elseif cp < 0x800 then
+        return string.char(0xC0 + math.floor(cp / 0x40), 0x80 + cp % 0x40)
+    elseif cp < 0x10000 then
+        return string.char(0xE0 + math.floor(cp / 0x1000),
+                           0x80 + math.floor(cp / 0x40) % 0x40,
+                           0x80 + cp % 0x40)
+    else
+        return string.char(0xF0 + math.floor(cp / 0x40000),
+                           0x80 + math.floor(cp / 0x1000) % 0x40,
+                           0x80 + math.floor(cp / 0x40) % 0x40,
+                           0x80 + cp % 0x40)
+    end
+end
+
+function convertUTF16to8(text, offset)
+    if not text then return "" end
+    offset = offset or 1
+    -- Strip UTF-16 BOM if present (FF FE) — pathofexile-dat preserves it.
+    if #text >= 2 and text:byte(1) == 0xFF and text:byte(2) == 0xFE then
+        offset = 3
+    end
+    local out = {}
+    local highSurr
+    for i = offset, #text - 1, 2 do
+        local codeUnit = text:byte(i) + text:byte(i + 1) * 256
+        if codeUnit == 0 then break
+        elseif codeUnit >= 0xD800 and codeUnit <= 0xDBFF then
+            highSurr = codeUnit - 0xD800
+        elseif codeUnit >= 0xDC00 and codeUnit <= 0xDFFF then
+            if highSurr then
+                t_insert(out, codePointToUTF8(highSurr * 1024 + codeUnit - 0xDC00 + 0x010000))
+                highSurr = nil
+            end
+        else
+            t_insert(out, codePointToUTF8(codeUnit))
+        end
+    end
+    return table.concat(out)
+end
+
+-- getFile(path) -> raw binary string of a Bundles2 asset extracted by
+-- pathofexile-dat into PBLExport/ggpk_export/files/. pathofexile-dat encodes
+-- the file path by replacing '/' with '@', so "Data/StatDescriptions/foo.csd"
+-- lives at "files/Data@StatDescriptions@foo.csd".
+local _fileCache = {}
+function getFile(path)
+    if _fileCache[path] then return _fileCache[path] end
+    local diskName = path:gsub("/", "@")
+    local fullPath = _pblExport.filesRoot .. "/" .. diskName
+    local f = io.open(fullPath, "rb")
+    if not f then
+        print("getFile MISS: " .. path .. "  (expected at " .. fullPath .. ")")
+        return nil
+    end
+    local content = f:read("*all")
+    f:close()
+    _fileCache[path] = content
+    return content
+end
+
 -- ---- 3. Dat shim -----------------------------------------------------------
 
 local JsonDat = require("JsonDatFile")
@@ -72,6 +160,12 @@ JsonDat.resolveRefs()
 -- Column-mapping layer: bridges pathofexile-dat-schema to PoB spec.lua.
 local mappings = require("ColumnMappings")
 JsonDat.applyMappings(mappings)
+
+-- statdesc library: src/Export/statdesc.lua expects globals getFile/
+-- convertUTF16to8/dat which we just provided. Loading it makes
+-- loadStatFile / describeStats / describeScalability available to Scripts.
+-- CWD is src/Export/, so the file is right next door.
+dofile("statdesc.lua")
 
 -- ---- 4. Drive scripts ------------------------------------------------------
 

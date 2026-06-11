@@ -75,10 +75,12 @@ internal static class Program
                 path = t.Path.Replace('\\', '/'),
                 refs = refs.TryGetValue(t.Name, out var r) ? r : null
             });
+            var filesRoot = Path.Combine(ggpkExport, "files").Replace('\\', '/');
             var configJson = JsonSerializer.Serialize(new
             {
                 tables = configEntries,
-                scripts = options.Scripts
+                scripts = options.Scripts,
+                filesRoot = filesRoot
             });
             var configPath = Path.Combine(Path.GetTempPath(), "pbl-data-export-config.json")
                 .Replace('\\', '/');
