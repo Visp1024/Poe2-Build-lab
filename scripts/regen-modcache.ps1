@@ -33,23 +33,22 @@ Write-Host "Перед регеном:" -ForegroundColor Cyan
 Write-Host "  ModCache.lua size:  $beforeSize bytes"
 Write-Host "  ModCache.lua sha256: $($beforeHash.Substring(0,16))..." -ForegroundColor DarkGray
 
-Write-Host "`n--- Запуск PoB с зажатым Ctrl ---" -ForegroundColor Cyan
-Write-Host "ВНИМАНИЕ: Удерживай LeftCtrl до момента, когда появится Build List." -ForegroundColor Yellow
-Write-Host "Регенерация занимает ~30-60 секунд. Затем закрой PoB обычным способом." -ForegroundColor Yellow
+Write-Host "`n--- Запуск PoB с REGENERATE_MOD_CACHE=1 ---" -ForegroundColor Cyan
+Write-Host "Триггер регена выставлен через env var (Modules/Main.lua:122) — Ctrl держать не нужно." -ForegroundColor Yellow
+Write-Host "Дождись Build List и закрой PoB обычным образом." -ForegroundColor Yellow
 Write-Host ""
 
-# Ctrl должен быть зажат В МОМЕНТ старта процесса — иначе detection в Lua не сработает.
-# Автоматизировать «зажми и держи» из PowerShell ненадёжно (SendInput работает в фокус,
-# а фокус уйдёт на окно PoB до того как Init успеет проверить GetAsyncKeyState).
-# Поэтому: пользователь физически держит Ctrl при запуске.
-
 if (-not $NoWait) {
-    Read-Host "Зажми и удерживай LeftCtrl, затем нажми Enter ЭТОЙ же рукой (правой)"
+    Read-Host "Нажми Enter, чтобы запустить PoB"
 }
 
-# Запуск без ожидания exit — PoB долгоживущий процесс.
-$proc = Start-Process -FilePath ".\$exe" -PassThru
-Write-Host "PoB запущен (PID $($proc.Id))." -ForegroundColor Green
+$env:REGENERATE_MOD_CACHE = "1"
+try {
+    $proc = Start-Process -FilePath ".\$exe" -PassThru
+    Write-Host "PoB запущен (PID $($proc.Id)). REGENERATE_MOD_CACHE=1 в окружении." -ForegroundColor Green
+} finally {
+    Remove-Item env:REGENERATE_MOD_CACHE -ErrorAction SilentlyContinue
+}
 
 if ($NoWait) {
     Write-Host "Флаг -NoWait: дальнейшие шаги выполни вручную и перезапусти без флага."
