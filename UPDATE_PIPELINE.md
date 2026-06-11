@@ -5,8 +5,9 @@
 Состоит из трёх независимых, последовательно запускаемых шагов:
 
 1. **`scripts/sync-upstream.ps1`** — подтянуть Lua-логику из апстрима.
-2. **`scripts/regen-data.ps1`** — перегенерировать `src/Data/` из свежего GGPK.
-3. **`scripts/regen-localization.ps1`** — пересобрать переводы под новые данные.
+2. **`scripts/regen-modcache.ps1`** — перегенерировать `src/Data/ModCache.lua` через PoB с зажатым Ctrl (GGPK не нужен).
+3. **`scripts/regen-data-ggpk.ps1`** — перегенерировать остальные `src/Data/*` и `src/Export/*` через Dat View (GGPK нужен).
+4. **`scripts/regen-localization.ps1`** — пересобрать переводы под новые данные.
 
 Маркер прогресса — `.upstream-sync.yaml` (хранит последний синхронизированный upstream sha).
 
@@ -53,19 +54,30 @@ pwsh ./scripts/sync-upstream.ps1                # применить
 - `src/Modules/ItemTools.lua`, `src/Modules/CalcOffence.lua` — те же 5.4 правки
 - `runtime/lua/compat.lua` — наш, апстрим его не трогает, конфликта не должно быть
 
-### 2. Regen data
+### 2a. Regen ModCache (без GGPK)
 
 ```pwsh
-pwsh ./scripts/regen-data.ps1
-# либо: pwsh ./scripts/regen-data.ps1 -GgpkPath "D:\Games\steamapps\common\Path of Exile 2"
+pwsh ./scripts/regen-modcache.ps1
+```
+
+- [ ] PoB запущен с **зажатым LeftCtrl до полной загрузки** (≈30-60 сек)
+- [ ] Хэш `src/Data/ModCache.lua` изменился — скрипт это проверяет сам
+- [ ] Коммит: `data: regen ModCache for 0.20.0` (всегда обязательный — без свежего ModCache тесты падают на лету)
+
+### 2b. Regen GGPK dumps (Gems/Bases/Stats/Skills/Uniques/Spectres)
+
+```pwsh
+pwsh ./scripts/regen-data-ggpk.ps1
+# либо: pwsh ./scripts/regen-data-ggpk.ps1 -GgpkPath "D:\Games\steamapps\common\Path of Exile 2"
 ```
 
 - [ ] Скрипт нашёл/принял путь к установке PoE2
 - [ ] `PBLExport/ggpk_export/config.json` → `steam` обновлён
-- [ ] Прогон `src/Export/Launch.lua` через runtime — обновлены Gems / Bases / Stats / Skills
-- [ ] Прогон PoB с зажатым Ctrl — `src/Data/ModCache.lua` обновлён
-- [ ] `git diff --stat src/Data/ src/TreeData/` — изменения по делу
-- [ ] Коммит: `data: regen for 0.20.0` (включая ModCache.lua — обязательно)
+- [ ] Dat View открыл GGPK, экспорт прогнан по нужным таблицам
+- [ ] `git diff --stat src/Data/ src/Export/ src/TreeData/` — изменения по делу
+- [ ] Коммит: `data: regen GGPK dumps for 0.20.0`
+
+> Если Dat View не открывает GGPK (runtime отстал от формата Bundles2 в актуальной версии игры) — используем `pathofexile-dat` через `regen-localization.ps1`, расширив `config.json` под нужные таблицы.
 
 ### 3. Regen localization
 
