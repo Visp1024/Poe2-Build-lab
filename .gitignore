@@ -60,3 +60,6 @@ PBLExport/icons/missing.json
 # Node dependencies and intermediate render output for the icon-tooling scripts
 tools/icons/node_modules/
 tools/icons/.tmp/
+
+# Local runtime copy with normal spaces (upstream tracks Path{space}of{space}Building-PoE2.exe)
+runtime/Path of Building-PoE2.exe
