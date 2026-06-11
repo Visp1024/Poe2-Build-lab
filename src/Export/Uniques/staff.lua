@@ -3,6 +3,18 @@
 return {
 -- Weapon: Staff
 [[
+Atziri's Rule
+Reflecting Staff
+Source: Drops from unique{Atziri's Vault} in normal{Vaal Temple}
+League: Fate of the Vaal
+Implicits: 1
+Grants Skill: Level (1-20) Mirror of Refraction
+UniqueMaximumLifeIncrease8
+UniqueGlobalCorruptedSpellSkillLevel1
+UniqueIncreasedCastSpeed20
+UniqueIntelligence46
+UniqueSpellsThatCostLifeGainDamageAsExtraPhys1
+]],[[
 The Burden of Shadows
 Chiming Staff
 Source: Drops from unique{The King in the Mists} in normal{Crux of Nothingness}
@@ -39,6 +51,17 @@ UniqueIncreasedCastSpeed4
 UniqueManaRegeneration6
 {variant:2}UniqueShockChanceIncrease4
 UniqueTriggerSparkOnKillingShockedEnemy1
+]],[[
+The Raven's Flock
+Perching Staff
+League: Runes of Aldur
+Implicits: 1
+Grants Skill: Level (1-20) Spiraling Conspiracy
+UniqueIncreasedCastSpeed22
+UniqueIntelligence47
+UniqueMinionDamage3
+UniqueMinionChanceToApplyGruelingMadness1
+UniqueSpiritReservationEfficiency1
 ]],[[
 The Searing Touch
 Pyrophyte Staff
@@ -114,6 +137,17 @@ UniqueWeaponElementalDamage1
 UniqueLocalCriticalStrikeChance4
 UniqueGlobalElementalGemLevel1
 UniqueTriggersRefundEnergySpent1
+]],[[
+Duality
+Warding Quarterstaff
+League: Runes of Aldur
+Implicits: 1
+QuarterstaffImplicitRunicWard1
+UniqueLocalIncreasedPhysicalDamagePercent25
+UniqueLocalCriticalMultiplier3
+UniqueLocalIncreasedAttackSpeed32
+UniqueGainFinalityForXSecondsPerComboLostUsingSkills1
+UniqueGainXGuardPerComboLostUsingSkills1
 ]],[[
 Matsya
 Crescent Quarterstaff

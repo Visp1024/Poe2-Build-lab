@@ -89,10 +89,10 @@ if ($applyExit -ne 0) {
 }
 
 # ---- 5. Build + tests --------------------------------------------------------
-Write-Host "`n--- dotnet build PBLHost/PBLHost.sln ---" -ForegroundColor Cyan
-dotnet build PBLHost/PBLHost.sln --nologo --verbosity minimal
+Write-Host "`n--- dotnet build PBLEngine ---" -ForegroundColor Cyan
+dotnet build PBLEngine/PBLEngine.csproj --nologo --verbosity minimal
 if ($LASTEXITCODE -ne 0) {
-    throw "Сборка упала после применения патча."
+    throw "Сборка PBLEngine упала после применения патча."
 }
 
 # ---- 6. Обновляем маркер ----------------------------------------------------

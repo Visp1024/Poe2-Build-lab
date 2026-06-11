@@ -118,6 +118,19 @@ function ModStoreClass:ReplaceMod(...)
 	end
 end
 
+---ConvertMod
+---  Converts an existing mod to a new name, replacing it in the store.
+---  Finds a mod matching oldName with the same type, flags, keywordFlags, and source as the new mod.
+---  If no matching mod exists, the new mod is added instead.
+---@param oldName string @The name of the existing mod to convert
+---@param ... any @Parameters to be passed along to the modLib.createMod function (new name, type, value, source, ...)
+function ModStoreClass:ConvertMod(oldName, ...)
+	local mod = mod_createMod(...)
+	if not self:ConvertModInternal(oldName, mod) then
+		self:AddMod(mod)
+	end
+end
+
 function ModStoreClass:Combine(modType, cfg, ...)
 	if modType == "MORE" then
 		return self:More(cfg, ...)
@@ -157,6 +170,23 @@ function ModStoreClass:SumPositiveValues(modType, cfg, modName, ...)
 	local modTable = self:Tabulate(modType, cfg, modName)
 	for i = 1, #modTable do
 		if modTable[i].value > 0 then
+			total = total + modTable[i].value
+		end
+	end
+	return total
+end
+
+--- Returns the value of all negative modifiers to a mod added together, ignoring any negative modifiers.
+--- Works by creating a table using Tabulate and then filtering for negative values.
+---
+--- @param modType string # the mod type for which we want to create the table, e.g. "INC" or "MORE"
+--- @param cfg table | nil # passed configuration, may be nil
+--- @param modName string # the name of the mod for which we want to create the table, e.g. "FlaskRecoveryRate", "ActionSpeed", ...
+function ModStoreClass:SumNegativeValues(modType, cfg, modName, ...)
+	local total = 0
+	local modTable = self:Tabulate(modType, cfg, modName)
+	for i = 1, #modTable do
+		if modTable[i].value < 0 then
 			total = total + modTable[i].value
 		end
 	end
@@ -428,7 +458,7 @@ function ModStoreClass:EvalMod(mod, cfg, globalLimits)
 				mult = GetMultiplier(target, tag.var, cfg)
 			end
 			local threshold = tag.threshold or GetMultiplier(tag.thresholdActor and thresholdTarget or target, tag.thresholdVar, cfg)
-			if (tag.upper and mult > threshold) or (tag.equals and mult ~= threshold) or (not (tag.upper and tag.exact) and mult < threshold) then
+			if (tag.upper and mult > threshold) or (tag.equals and mult ~= threshold) or (not tag.upper and mult < threshold) then
 				return
 			end
 			-- scale effects of Multiplier mod

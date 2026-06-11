@@ -5,12 +5,15 @@ return {
 [[
 Apep's Supremacy
 Voodoo Focus
+Variant: Pre 0.5.0
+Variant: Current
 League: Dawn of the Hunt
 (100-200)% increased Energy Shield
 (30-50)% increased Energy Shield Recharge Rate
-(30-50)% faster start of Energy Shield Recharge
+{variant:1}(30-50)% faster start of Energy Shield Recharge
 20% of Elemental damage from Hits taken as Chaos damage
 +25% chance to be Poisoned
+{variant:2}100% chance to Poison on Hit with Spell Damage
 ]],[[
 Carrion Call
 Engraved Focus
@@ -41,7 +44,7 @@ League: Dawn of the Hunt
 +10 to Intelligence
 +(7-13)% to Chaos Resistance
 {variant:1}Critical Hits with Spells apply (3-5) Stacks of Critical Weakness
-{variant:2}Critical Hits with Spells apply (1-3) Stack of Critical Weakness
+{variant:2,3}Critical Hits with Spells apply (1-3) Stack of Critical Weakness
 ]],[[
 The Eternal Spark
 Crystal Focus
