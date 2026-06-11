@@ -15,8 +15,14 @@ $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 $exe = "runtime\Path of Building-PoE2.exe"
-if (-not (Test-Path $exe)) {
-    throw "Не найден $exe — runtime отсутствует."
+$exeEscaped = "runtime\Path{space}of{space}Building-PoE2.exe"
+if (-not (Test-Path -LiteralPath $exe)) {
+    if (Test-Path -LiteralPath $exeEscaped) {
+        Write-Host "Копирую $exeEscaped → $exe (упрощённое имя для запуска)" -ForegroundColor DarkYellow
+        Copy-Item -LiteralPath $exeEscaped -Destination $exe
+    } else {
+        throw "Не найден $exe — runtime отсутствует."
+    }
 }
 
 $modCachePath = "src\Data\ModCache.lua"
