@@ -121,6 +121,37 @@ function JsonDat.resolveRefs()
     end
 end
 
+-- Apply column-mapping rules to bridge pathofexile-dat-schema vs PoB spec.lua.
+-- Must run AFTER resolveRefs so computed funcs can read foreign rows.
+--
+-- mappings: { [tableName] = { rename = {from = to, ...}, computed = {col = fn(row), ...} } }
+function JsonDat.applyMappings(mappings)
+    for tableName, m in pairs(mappings) do
+        local d = JsonDat._registry[tableName:lower()]
+        if not d then goto continue end
+        for i = 1, d.rowCount do
+            local row = d.rowCache[i]
+            -- 1. Renames: from current schema name to legacy PoB name.
+            if m.rename then
+                for from, to in pairs(m.rename) do
+                    local v = rawget(row, from)
+                    if v ~= nil then
+                        row[to] = v
+                        row[from] = nil
+                    end
+                end
+            end
+            -- 2. Computed columns: reconstruct fields removed from current schema.
+            if m.computed then
+                for col, fn in pairs(m.computed) do
+                    row[col] = fn(row)
+                end
+            end
+        end
+        ::continue::
+    end
+end
+
 -- ---- public methods (mirror Dat64FileClass) --------------------------------
 
 function JsonDat:Rows()

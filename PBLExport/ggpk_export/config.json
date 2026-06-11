@@ -60,6 +60,18 @@
     {
       "name": "CostTypes",
       "columns": ["Id", "Stat", "FormatText", "Divisor", "PerMinute"]
+    },
+    {
+      "name": "FlavourText",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "UniqueOrigins",
+      "columns": ["Unique", "Origin"]
+    },
+    {
+      "name": "Origin",
+      "columns": ["Id"]
     }
   ]
 }
