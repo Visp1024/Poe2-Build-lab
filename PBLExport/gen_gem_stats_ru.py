@@ -4,13 +4,13 @@ Downloads templates from repoe-fork (stat IDs + parameterized templates) and sav
 JSON used by the C# StatDescriptionEngine to render localized stat lines at runtime.
 
 Usage: python gen_gem_stats_ru.py
-Output: ../PoBApp.Core/Translations/gem_stats_templates.json
+Output: ../PBLApp.Core/Translations/gem_stats_templates.json
 """
 
 import json, re, urllib.request, os
 
 BASE    = "https://repoe-fork.github.io/poe2"
-OUT_DIR = os.path.join(os.path.dirname(__file__), "../PoBApp.Core/Translations")
+OUT_DIR = os.path.join(os.path.dirname(__file__), "../PBLApp.Core/Translations")
 
 # Files in priority order (first match wins when rendering).
 # skill_stat_descriptions covers most skill-level scaling stats;

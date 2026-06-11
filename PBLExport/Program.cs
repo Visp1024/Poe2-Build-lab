@@ -27,50 +27,69 @@ var opts = new JsonSerializerOptions
 // ---------------------------------------------------------------------------
 // 1. gems_ru.json  (from repoe-fork)
 // ---------------------------------------------------------------------------
-Console.WriteLine("Building gems_ru.json...");
-var enGems = JsonDocument.Parse(File.ReadAllText(Path.Combine(TransDir, "skill_gems_en.json")));
-var ruGems = JsonDocument.Parse(File.ReadAllText(Path.Combine(TransDir, "skill_gems_ru.json")));
-var gemMap = new Dictionary<string, string>();
-
-foreach (var prop in enGems.RootElement.EnumerateObject())
+var skillGemsEn = Path.Combine(TransDir, "skill_gems_en.json");
+var skillGemsRu = Path.Combine(TransDir, "skill_gems_ru.json");
+if (File.Exists(skillGemsEn) && File.Exists(skillGemsRu))
 {
-    var key = prop.Name;
-    if (!prop.Value.TryGetProperty("base_item", out var enBase)) continue;
-    if (!enBase.TryGetProperty("display_name", out var enNameEl)) continue;
-    var enName = enNameEl.GetString();
-    if (string.IsNullOrEmpty(enName)) continue;
+    Console.WriteLine("Building gems_ru.json...");
+    var enGems = JsonDocument.Parse(File.ReadAllText(skillGemsEn));
+    var ruGems = JsonDocument.Parse(File.ReadAllText(skillGemsRu));
+    var gemMap = new Dictionary<string, string>();
 
-    if (!ruGems.RootElement.TryGetProperty(key, out var ruEntry)) continue;
-    if (!ruEntry.TryGetProperty("base_item", out var ruBase)) continue;
-    if (!ruBase.TryGetProperty("display_name", out var ruNameEl)) continue;
-    var ruName = ruNameEl.GetString();
-    if (!string.IsNullOrEmpty(ruName) && ruName != enName)
-        gemMap[enName] = ruName;
+    foreach (var prop in enGems.RootElement.EnumerateObject())
+    {
+        var key = prop.Name;
+        if (!prop.Value.TryGetProperty("base_item", out var enBase)) continue;
+        if (!enBase.TryGetProperty("display_name", out var enNameEl)) continue;
+        var enName = enNameEl.GetString();
+        if (string.IsNullOrEmpty(enName)) continue;
+
+        if (!ruGems.RootElement.TryGetProperty(key, out var ruEntry)) continue;
+        if (!ruEntry.TryGetProperty("base_item", out var ruBase)) continue;
+        if (!ruBase.TryGetProperty("display_name", out var ruNameEl)) continue;
+        var ruName = ruNameEl.GetString();
+        if (!string.IsNullOrEmpty(ruName) && ruName != enName)
+            gemMap[enName] = ruName;
+    }
+    WriteJson(Path.Combine(TransDir, "gems_ru.json"), gemMap, opts);
 }
-WriteJson(Path.Combine(TransDir, "gems_ru.json"), gemMap, opts);
+else
+{
+    Console.WriteLine($"[SKIP] gems_ru.json — repoe-fork dumps missing ({skillGemsEn})");
+    Console.WriteLine("       Drop skill_gems_{en,ru}.json from RePoE/PoE2 fork into PBLApp.Core/Translations/");
+}
 
 // ---------------------------------------------------------------------------
 // 2. items_ru.json  (from repoe-fork)
 // ---------------------------------------------------------------------------
-Console.WriteLine("Building items_ru.json...");
-var enItems = JsonDocument.Parse(File.ReadAllText(Path.Combine(TransDir, "base_items_en.json")));
-var ruItems = JsonDocument.Parse(File.ReadAllText(Path.Combine(TransDir, "base_items_ru.json")));
-var itemMap = new Dictionary<string, string>();
-
-foreach (var prop in enItems.RootElement.EnumerateObject())
+var baseItemsEn = Path.Combine(TransDir, "base_items_en.json");
+var baseItemsRu = Path.Combine(TransDir, "base_items_ru.json");
+if (File.Exists(baseItemsEn) && File.Exists(baseItemsRu))
 {
-    var key = prop.Name;
-    if (!prop.Value.TryGetProperty("name", out var enNameEl)) continue;
-    var enName = enNameEl.GetString();
-    if (string.IsNullOrEmpty(enName)) continue;
+    Console.WriteLine("Building items_ru.json...");
+    var enItems = JsonDocument.Parse(File.ReadAllText(baseItemsEn));
+    var ruItems = JsonDocument.Parse(File.ReadAllText(baseItemsRu));
+    var itemMap = new Dictionary<string, string>();
 
-    if (!ruItems.RootElement.TryGetProperty(key, out var ruEntry)) continue;
-    if (!ruEntry.TryGetProperty("name", out var ruNameEl)) continue;
-    var ruName = ruNameEl.GetString();
-    if (!string.IsNullOrEmpty(ruName) && ruName != enName)
-        itemMap[enName] = ruName;
+    foreach (var prop in enItems.RootElement.EnumerateObject())
+    {
+        var key = prop.Name;
+        if (!prop.Value.TryGetProperty("name", out var enNameEl)) continue;
+        var enName = enNameEl.GetString();
+        if (string.IsNullOrEmpty(enName)) continue;
+
+        if (!ruItems.RootElement.TryGetProperty(key, out var ruEntry)) continue;
+        if (!ruEntry.TryGetProperty("name", out var ruNameEl)) continue;
+        var ruName = ruNameEl.GetString();
+        if (!string.IsNullOrEmpty(ruName) && ruName != enName)
+            itemMap[enName] = ruName;
+    }
+    WriteJson(Path.Combine(TransDir, "items_ru.json"), itemMap, opts);
 }
-WriteJson(Path.Combine(TransDir, "items_ru.json"), itemMap, opts);
+else
+{
+    Console.WriteLine($"[SKIP] items_ru.json — repoe-fork dumps missing ({baseItemsEn})");
+}
 
 // ---------------------------------------------------------------------------
 // 3. passive_names_ru.json  (from GGPK export via pathofexile-dat)

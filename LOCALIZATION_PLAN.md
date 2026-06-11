@@ -30,8 +30,9 @@
 - [x] **2491/2492 (99.96%) стат-описаний пассивных нод** (`passive_nodes_ru.json`) — см. раздел ниже
 - [x] Движок `StatDescriptionEngine` — рендерит русские стат-строки гемов из repoe-fork шаблонов (`gem_stats_templates.json`)
 - [x] Тултипы TreeCanvas — имя ноды + стат-строки (с переводом через PassiveStat)
-- [x] **2254 названий пассивных нод** (`passive_names_ru.json`) — из GGPK `PassiveSkills.datc64`
-- [x] **691 описание навыков/гемов** (`skill_descriptions_ru.json`) — флейвор-текст из GGPK `ActiveSkills.datc64`
+- [x] **2721 названий пассивных нод** (`passive_names_ru.json`) — из GGPK `PassiveSkills.datc64` (после sync upstream 0.20.0: +467 нод)
+- [x] **752 описания навыков/гемов** (`skill_descriptions_ru.json`) — флейвор-текст из GGPK `ActiveSkills.datc64` (после sync: +61)
+- [x] **13163 шаблонов стат-описаний** (`gem_stats_templates.json`) — из repoe-fork (после sync: +6500, размер вырос вдвое до 2.4 MB)
 - [x] Инструмент экспорта: `pathofexile-dat` (npm) + конфиг в `PBLExport/ggpk_export/config.json`
 - [x] `PBLExport/Program.cs` — генерирует оба файла из GGPK-экспорта автоматически
 - [x] **Персистентность языка между сессиями** — исправлено сохранение/восстановление выбранного языка
