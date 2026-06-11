@@ -1,0 +1,1241 @@
+[
+  {
+    "_index": 0,
+    "Essence": 48,
+    "TargetItemCategory": 30,
+    "Mod": 836,
+    "DisplayMod": null
+  },
+  {
+    "_index": 1,
+    "Essence": 48,
+    "TargetItemCategory": 7,
+    "Mod": 456,
+    "DisplayMod": null
+  },
+  {
+    "_index": 2,
+    "Essence": 48,
+    "TargetItemCategory": 37,
+    "Mod": 1070,
+    "DisplayMod": null
+  },
+  {
+    "_index": 3,
+    "Essence": 48,
+    "TargetItemCategory": 28,
+    "Mod": 449,
+    "DisplayMod": null
+  },
+  {
+    "_index": 4,
+    "Essence": 48,
+    "TargetItemCategory": 36,
+    "Mod": 904,
+    "DisplayMod": null
+  },
+  {
+    "_index": 5,
+    "Essence": 48,
+    "TargetItemCategory": 9,
+    "Mod": 1330,
+    "DisplayMod": null
+  },
+  {
+    "_index": 6,
+    "Essence": 48,
+    "TargetItemCategory": 8,
+    "Mod": 443,
+    "DisplayMod": null
+  },
+  {
+    "_index": 7,
+    "Essence": 48,
+    "TargetItemCategory": 38,
+    "Mod": 1130,
+    "DisplayMod": null
+  },
+  {
+    "_index": 8,
+    "Essence": 48,
+    "TargetItemCategory": 32,
+    "Mod": 1431,
+    "DisplayMod": null
+  },
+  {
+    "_index": 9,
+    "Essence": 48,
+    "TargetItemCategory": 39,
+    "Mod": 1218,
+    "DisplayMod": null
+  },
+  {
+    "_index": 10,
+    "Essence": 49,
+    "TargetItemCategory": 7,
+    "Mod": 4582,
+    "DisplayMod": null
+  },
+  {
+    "_index": 11,
+    "Essence": 50,
+    "TargetItemCategory": 6,
+    "Mod": 4580,
+    "DisplayMod": null
+  },
+  {
+    "_index": 12,
+    "Essence": 51,
+    "TargetItemCategory": 8,
+    "Mod": 4581,
+    "DisplayMod": null
+  },
+  {
+    "_index": 13,
+    "Essence": 56,
+    "TargetItemCategory": 0,
+    "Mod": null,
+    "DisplayMod": null
+  },
+  {
+    "_index": 14,
+    "Essence": 0,
+    "TargetItemCategory": 11,
+    "Mod": 80,
+    "DisplayMod": null
+  },
+  {
+    "_index": 15,
+    "Essence": 0,
+    "TargetItemCategory": 12,
+    "Mod": 79,
+    "DisplayMod": null
+  },
+  {
+    "_index": 16,
+    "Essence": 12,
+    "TargetItemCategory": 13,
+    "Mod": 84,
+    "DisplayMod": null
+  },
+  {
+    "_index": 17,
+    "Essence": 12,
+    "TargetItemCategory": 14,
+    "Mod": 83,
+    "DisplayMod": null
+  },
+  {
+    "_index": 18,
+    "Essence": 24,
+    "TargetItemCategory": 13,
+    "Mod": 85,
+    "DisplayMod": null
+  },
+  {
+    "_index": 19,
+    "Essence": 24,
+    "TargetItemCategory": 15,
+    "Mod": 84,
+    "DisplayMod": null
+  },
+  {
+    "_index": 20,
+    "Essence": 36,
+    "TargetItemCategory": 7,
+    "Mod": 14416,
+    "DisplayMod": null
+  },
+  {
+    "_index": 21,
+    "Essence": 1,
+    "TargetItemCategory": 33,
+    "Mod": 96,
+    "DisplayMod": null
+  },
+  {
+    "_index": 22,
+    "Essence": 13,
+    "TargetItemCategory": 19,
+    "Mod": 99,
+    "DisplayMod": null
+  },
+  {
+    "_index": 23,
+    "Essence": 13,
+    "TargetItemCategory": 12,
+    "Mod": 100,
+    "DisplayMod": null
+  },
+  {
+    "_index": 24,
+    "Essence": 25,
+    "TargetItemCategory": 19,
+    "Mod": 100,
+    "DisplayMod": null
+  },
+  {
+    "_index": 25,
+    "Essence": 25,
+    "TargetItemCategory": 12,
+    "Mod": 101,
+    "DisplayMod": null
+  },
+  {
+    "_index": 26,
+    "Essence": 37,
+    "TargetItemCategory": 36,
+    "Mod": 14417,
+    "DisplayMod": null
+  },
+  {
+    "_index": 27,
+    "Essence": 2,
+    "TargetItemCategory": 2,
+    "Mod": null,
+    "DisplayMod": 14394
+  },
+  {
+    "_index": 28,
+    "Essence": 14,
+    "TargetItemCategory": 2,
+    "Mod": null,
+    "DisplayMod": 14396
+  },
+  {
+    "_index": 29,
+    "Essence": 26,
+    "TargetItemCategory": 2,
+    "Mod": null,
+    "DisplayMod": 14398
+  },
+  {
+    "_index": 30,
+    "Essence": 38,
+    "TargetItemCategory": 9,
+    "Mod": 14418,
+    "DisplayMod": null
+  },
+  {
+    "_index": 31,
+    "Essence": 3,
+    "TargetItemCategory": 21,
+    "Mod": 495,
+    "DisplayMod": null
+  },
+  {
+    "_index": 32,
+    "Essence": 3,
+    "TargetItemCategory": 22,
+    "Mod": 504,
+    "DisplayMod": null
+  },
+  {
+    "_index": 33,
+    "Essence": 15,
+    "TargetItemCategory": 21,
+    "Mod": 498,
+    "DisplayMod": null
+  },
+  {
+    "_index": 34,
+    "Essence": 15,
+    "TargetItemCategory": 22,
+    "Mod": 507,
+    "DisplayMod": null
+  },
+  {
+    "_index": 35,
+    "Essence": 27,
+    "TargetItemCategory": 21,
+    "Mod": 500,
+    "DisplayMod": null
+  },
+  {
+    "_index": 36,
+    "Essence": 27,
+    "TargetItemCategory": 22,
+    "Mod": 509,
+    "DisplayMod": null
+  },
+  {
+    "_index": 37,
+    "Essence": 39,
+    "TargetItemCategory": 21,
+    "Mod": 14419,
+    "DisplayMod": null
+  },
+  {
+    "_index": 38,
+    "Essence": 39,
+    "TargetItemCategory": 22,
+    "Mod": 14420,
+    "DisplayMod": null
+  },
+  {
+    "_index": 39,
+    "Essence": 4,
+    "TargetItemCategory": 21,
+    "Mod": 513,
+    "DisplayMod": null
+  },
+  {
+    "_index": 40,
+    "Essence": 4,
+    "TargetItemCategory": 22,
+    "Mod": 523,
+    "DisplayMod": null
+  },
+  {
+    "_index": 41,
+    "Essence": 16,
+    "TargetItemCategory": 21,
+    "Mod": 516,
+    "DisplayMod": null
+  },
+  {
+    "_index": 42,
+    "Essence": 16,
+    "TargetItemCategory": 22,
+    "Mod": 526,
+    "DisplayMod": null
+  },
+  {
+    "_index": 43,
+    "Essence": 28,
+    "TargetItemCategory": 21,
+    "Mod": 518,
+    "DisplayMod": null
+  },
+  {
+    "_index": 44,
+    "Essence": 28,
+    "TargetItemCategory": 22,
+    "Mod": 528,
+    "DisplayMod": null
+  },
+  {
+    "_index": 45,
+    "Essence": 40,
+    "TargetItemCategory": 21,
+    "Mod": 14421,
+    "DisplayMod": null
+  },
+  {
+    "_index": 46,
+    "Essence": 40,
+    "TargetItemCategory": 22,
+    "Mod": 14422,
+    "DisplayMod": null
+  },
+  {
+    "_index": 47,
+    "Essence": 5,
+    "TargetItemCategory": 21,
+    "Mod": 533,
+    "DisplayMod": null
+  },
+  {
+    "_index": 48,
+    "Essence": 5,
+    "TargetItemCategory": 22,
+    "Mod": 543,
+    "DisplayMod": null
+  },
+  {
+    "_index": 49,
+    "Essence": 17,
+    "TargetItemCategory": 21,
+    "Mod": 536,
+    "DisplayMod": null
+  },
+  {
+    "_index": 50,
+    "Essence": 17,
+    "TargetItemCategory": 22,
+    "Mod": 546,
+    "DisplayMod": null
+  },
+  {
+    "_index": 51,
+    "Essence": 29,
+    "TargetItemCategory": 21,
+    "Mod": 538,
+    "DisplayMod": null
+  },
+  {
+    "_index": 52,
+    "Essence": 29,
+    "TargetItemCategory": 22,
+    "Mod": 548,
+    "DisplayMod": null
+  },
+  {
+    "_index": 53,
+    "Essence": 41,
+    "TargetItemCategory": 21,
+    "Mod": 14423,
+    "DisplayMod": null
+  },
+  {
+    "_index": 54,
+    "Essence": 41,
+    "TargetItemCategory": 22,
+    "Mod": 14424,
+    "DisplayMod": null
+  },
+  {
+    "_index": 55,
+    "Essence": 6,
+    "TargetItemCategory": 21,
+    "Mod": 553,
+    "DisplayMod": null
+  },
+  {
+    "_index": 56,
+    "Essence": 6,
+    "TargetItemCategory": 22,
+    "Mod": 563,
+    "DisplayMod": null
+  },
+  {
+    "_index": 57,
+    "Essence": 18,
+    "TargetItemCategory": 21,
+    "Mod": 556,
+    "DisplayMod": null
+  },
+  {
+    "_index": 58,
+    "Essence": 18,
+    "TargetItemCategory": 22,
+    "Mod": 566,
+    "DisplayMod": null
+  },
+  {
+    "_index": 59,
+    "Essence": 30,
+    "TargetItemCategory": 21,
+    "Mod": 558,
+    "DisplayMod": null
+  },
+  {
+    "_index": 60,
+    "Essence": 30,
+    "TargetItemCategory": 22,
+    "Mod": 568,
+    "DisplayMod": null
+  },
+  {
+    "_index": 61,
+    "Essence": 42,
+    "TargetItemCategory": 21,
+    "Mod": 14425,
+    "DisplayMod": null
+  },
+  {
+    "_index": 62,
+    "Essence": 42,
+    "TargetItemCategory": 22,
+    "Mod": 14426,
+    "DisplayMod": null
+  },
+  {
+    "_index": 63,
+    "Essence": 7,
+    "TargetItemCategory": 10,
+    "Mod": 72,
+    "DisplayMod": null
+  },
+  {
+    "_index": 64,
+    "Essence": 19,
+    "TargetItemCategory": 10,
+    "Mod": 73,
+    "DisplayMod": null
+  },
+  {
+    "_index": 65,
+    "Essence": 31,
+    "TargetItemCategory": 10,
+    "Mod": 75,
+    "DisplayMod": null
+  },
+  {
+    "_index": 66,
+    "Essence": 43,
+    "TargetItemCategory": 7,
+    "Mod": 14430,
+    "DisplayMod": null
+  },
+  {
+    "_index": 67,
+    "Essence": 8,
+    "TargetItemCategory": 1,
+    "Mod": 1008,
+    "DisplayMod": null
+  },
+  {
+    "_index": 68,
+    "Essence": 20,
+    "TargetItemCategory": 1,
+    "Mod": 1010,
+    "DisplayMod": null
+  },
+  {
+    "_index": 69,
+    "Essence": 32,
+    "TargetItemCategory": 27,
+    "Mod": null,
+    "DisplayMod": 1003
+  },
+  {
+    "_index": 70,
+    "Essence": 44,
+    "TargetItemCategory": 21,
+    "Mod": 14431,
+    "DisplayMod": null
+  },
+  {
+    "_index": 71,
+    "Essence": 44,
+    "TargetItemCategory": 22,
+    "Mod": 14432,
+    "DisplayMod": null
+  },
+  {
+    "_index": 72,
+    "Essence": 9,
+    "TargetItemCategory": 23,
+    "Mod": 635,
+    "DisplayMod": null
+  },
+  {
+    "_index": 73,
+    "Essence": 9,
+    "TargetItemCategory": 18,
+    "Mod": 643,
+    "DisplayMod": null
+  },
+  {
+    "_index": 74,
+    "Essence": 21,
+    "TargetItemCategory": 23,
+    "Mod": 637,
+    "DisplayMod": null
+  },
+  {
+    "_index": 75,
+    "Essence": 21,
+    "TargetItemCategory": 18,
+    "Mod": 645,
+    "DisplayMod": null
+  },
+  {
+    "_index": 76,
+    "Essence": 33,
+    "TargetItemCategory": 23,
+    "Mod": 639,
+    "DisplayMod": null
+  },
+  {
+    "_index": 77,
+    "Essence": 33,
+    "TargetItemCategory": 18,
+    "Mod": 647,
+    "DisplayMod": null
+  },
+  {
+    "_index": 78,
+    "Essence": 45,
+    "TargetItemCategory": 40,
+    "Mod": 14433,
+    "DisplayMod": null
+  },
+  {
+    "_index": 79,
+    "Essence": 45,
+    "TargetItemCategory": 18,
+    "Mod": 14434,
+    "DisplayMod": null
+  },
+  {
+    "_index": 80,
+    "Essence": 10,
+    "TargetItemCategory": 20,
+    "Mod": 962,
+    "DisplayMod": null
+  },
+  {
+    "_index": 81,
+    "Essence": 10,
+    "TargetItemCategory": 26,
+    "Mod": 961,
+    "DisplayMod": null
+  },
+  {
+    "_index": 82,
+    "Essence": 22,
+    "TargetItemCategory": 20,
+    "Mod": 964,
+    "DisplayMod": null
+  },
+  {
+    "_index": 83,
+    "Essence": 22,
+    "TargetItemCategory": 26,
+    "Mod": 962,
+    "DisplayMod": null
+  },
+  {
+    "_index": 84,
+    "Essence": 34,
+    "TargetItemCategory": 20,
+    "Mod": 966,
+    "DisplayMod": null
+  },
+  {
+    "_index": 85,
+    "Essence": 34,
+    "TargetItemCategory": 26,
+    "Mod": 963,
+    "DisplayMod": null
+  },
+  {
+    "_index": 86,
+    "Essence": 46,
+    "TargetItemCategory": 1,
+    "Mod": 14435,
+    "DisplayMod": null
+  },
+  {
+    "_index": 87,
+    "Essence": 11,
+    "TargetItemCategory": 0,
+    "Mod": null,
+    "DisplayMod": 14402
+  },
+  {
+    "_index": 88,
+    "Essence": 23,
+    "TargetItemCategory": 0,
+    "Mod": null,
+    "DisplayMod": 14403
+  },
+  {
+    "_index": 89,
+    "Essence": 35,
+    "TargetItemCategory": 0,
+    "Mod": null,
+    "DisplayMod": 14404
+  },
+  {
+    "_index": 90,
+    "Essence": 47,
+    "TargetItemCategory": 9,
+    "Mod": null,
+    "DisplayMod": 14406
+  },
+  {
+    "_index": 91,
+    "Essence": 52,
+    "TargetItemCategory": 1,
+    "Mod": 1031,
+    "DisplayMod": null
+  },
+  {
+    "_index": 92,
+    "Essence": 52,
+    "TargetItemCategory": 23,
+    "Mod": 1037,
+    "DisplayMod": null
+  },
+  {
+    "_index": 93,
+    "Essence": 52,
+    "TargetItemCategory": 18,
+    "Mod": 1043,
+    "DisplayMod": null
+  },
+  {
+    "_index": 94,
+    "Essence": 53,
+    "TargetItemCategory": 1,
+    "Mod": 1032,
+    "DisplayMod": null
+  },
+  {
+    "_index": 95,
+    "Essence": 53,
+    "TargetItemCategory": 23,
+    "Mod": 1038,
+    "DisplayMod": null
+  },
+  {
+    "_index": 96,
+    "Essence": 53,
+    "TargetItemCategory": 18,
+    "Mod": 1044,
+    "DisplayMod": null
+  },
+  {
+    "_index": 97,
+    "Essence": 54,
+    "TargetItemCategory": 1,
+    "Mod": 1033,
+    "DisplayMod": null
+  },
+  {
+    "_index": 98,
+    "Essence": 54,
+    "TargetItemCategory": 23,
+    "Mod": 1039,
+    "DisplayMod": null
+  },
+  {
+    "_index": 99,
+    "Essence": 54,
+    "TargetItemCategory": 18,
+    "Mod": 1045,
+    "DisplayMod": null
+  },
+  {
+    "_index": 100,
+    "Essence": 55,
+    "TargetItemCategory": 7,
+    "Mod": 14441,
+    "DisplayMod": null
+  },
+  {
+    "_index": 101,
+    "Essence": 58,
+    "TargetItemCategory": 10,
+    "Mod": 37,
+    "DisplayMod": null
+  },
+  {
+    "_index": 102,
+    "Essence": 59,
+    "TargetItemCategory": 10,
+    "Mod": 39,
+    "DisplayMod": null
+  },
+  {
+    "_index": 103,
+    "Essence": 60,
+    "TargetItemCategory": 10,
+    "Mod": 41,
+    "DisplayMod": null
+  },
+  {
+    "_index": 104,
+    "Essence": 61,
+    "TargetItemCategory": 8,
+    "Mod": 14427,
+    "DisplayMod": null
+  },
+  {
+    "_index": 105,
+    "Essence": 62,
+    "TargetItemCategory": 10,
+    "Mod": 45,
+    "DisplayMod": null
+  },
+  {
+    "_index": 106,
+    "Essence": 63,
+    "TargetItemCategory": 10,
+    "Mod": 47,
+    "DisplayMod": null
+  },
+  {
+    "_index": 107,
+    "Essence": 64,
+    "TargetItemCategory": 10,
+    "Mod": 49,
+    "DisplayMod": null
+  },
+  {
+    "_index": 108,
+    "Essence": 65,
+    "TargetItemCategory": 30,
+    "Mod": 14428,
+    "DisplayMod": null
+  },
+  {
+    "_index": 109,
+    "Essence": 66,
+    "TargetItemCategory": 10,
+    "Mod": 53,
+    "DisplayMod": null
+  },
+  {
+    "_index": 110,
+    "Essence": 67,
+    "TargetItemCategory": 10,
+    "Mod": 55,
+    "DisplayMod": null
+  },
+  {
+    "_index": 111,
+    "Essence": 68,
+    "TargetItemCategory": 10,
+    "Mod": 57,
+    "DisplayMod": null
+  },
+  {
+    "_index": 112,
+    "Essence": 69,
+    "TargetItemCategory": 37,
+    "Mod": 14429,
+    "DisplayMod": null
+  },
+  {
+    "_index": 113,
+    "Essence": 70,
+    "TargetItemCategory": 23,
+    "Mod": 973,
+    "DisplayMod": null
+  },
+  {
+    "_index": 114,
+    "Essence": 70,
+    "TargetItemCategory": 18,
+    "Mod": 980,
+    "DisplayMod": null
+  },
+  {
+    "_index": 115,
+    "Essence": 71,
+    "TargetItemCategory": 23,
+    "Mod": 974,
+    "DisplayMod": null
+  },
+  {
+    "_index": 116,
+    "Essence": 71,
+    "TargetItemCategory": 18,
+    "Mod": 981,
+    "DisplayMod": null
+  },
+  {
+    "_index": 117,
+    "Essence": 72,
+    "TargetItemCategory": 23,
+    "Mod": 976,
+    "DisplayMod": null
+  },
+  {
+    "_index": 118,
+    "Essence": 72,
+    "TargetItemCategory": 18,
+    "Mod": 983,
+    "DisplayMod": null
+  },
+  {
+    "_index": 119,
+    "Essence": 73,
+    "TargetItemCategory": 23,
+    "Mod": 14436,
+    "DisplayMod": null
+  },
+  {
+    "_index": 120,
+    "Essence": 73,
+    "TargetItemCategory": 18,
+    "Mod": 14437,
+    "DisplayMod": null
+  },
+  {
+    "_index": 121,
+    "Essence": 74,
+    "TargetItemCategory": 5,
+    "Mod": 1110,
+    "DisplayMod": null
+  },
+  {
+    "_index": 122,
+    "Essence": 75,
+    "TargetItemCategory": 5,
+    "Mod": 1111,
+    "DisplayMod": null
+  },
+  {
+    "_index": 123,
+    "Essence": 76,
+    "TargetItemCategory": 5,
+    "Mod": 1112,
+    "DisplayMod": null
+  },
+  {
+    "_index": 124,
+    "Essence": 77,
+    "TargetItemCategory": 37,
+    "Mod": 14442,
+    "DisplayMod": null
+  },
+  {
+    "_index": 125,
+    "Essence": 78,
+    "TargetItemCategory": 35,
+    "Mod": 626,
+    "DisplayMod": null
+  },
+  {
+    "_index": 126,
+    "Essence": 79,
+    "TargetItemCategory": 35,
+    "Mod": 628,
+    "DisplayMod": null
+  },
+  {
+    "_index": 127,
+    "Essence": 80,
+    "TargetItemCategory": 35,
+    "Mod": 630,
+    "DisplayMod": null
+  },
+  {
+    "_index": 128,
+    "Essence": 81,
+    "TargetItemCategory": 35,
+    "Mod": 14443,
+    "DisplayMod": null
+  },
+  {
+    "_index": 129,
+    "Essence": 57,
+    "TargetItemCategory": 12,
+    "Mod": 4585,
+    "DisplayMod": null
+  },
+  {
+    "_index": 130,
+    "Essence": 82,
+    "TargetItemCategory": 36,
+    "Mod": 15541,
+    "DisplayMod": null
+  },
+  {
+    "_index": 131,
+    "Essence": 82,
+    "TargetItemCategory": 9,
+    "Mod": 15543,
+    "DisplayMod": null
+  },
+  {
+    "_index": 132,
+    "Essence": 82,
+    "TargetItemCategory": 8,
+    "Mod": 15542,
+    "DisplayMod": null
+  },
+  {
+    "_index": 133,
+    "Essence": 83,
+    "TargetItemCategory": 18,
+    "Mod": 15546,
+    "DisplayMod": null
+  },
+  {
+    "_index": 134,
+    "Essence": 83,
+    "TargetItemCategory": 40,
+    "Mod": 15545,
+    "DisplayMod": null
+  },
+  {
+    "_index": 135,
+    "Essence": 83,
+    "TargetItemCategory": 35,
+    "Mod": 15547,
+    "DisplayMod": null
+  },
+  {
+    "_index": 136,
+    "Essence": 83,
+    "TargetItemCategory": 37,
+    "Mod": 15548,
+    "DisplayMod": null
+  },
+  {
+    "_index": 137,
+    "Essence": 84,
+    "TargetItemCategory": 8,
+    "Mod": 15549,
+    "DisplayMod": null
+  },
+  {
+    "_index": 138,
+    "Essence": 84,
+    "TargetItemCategory": 43,
+    "Mod": 15552,
+    "DisplayMod": null
+  },
+  {
+    "_index": 139,
+    "Essence": 84,
+    "TargetItemCategory": 38,
+    "Mod": 15544,
+    "DisplayMod": null
+  },
+  {
+    "_index": 140,
+    "Essence": 85,
+    "TargetItemCategory": 37,
+    "Mod": 15553,
+    "DisplayMod": null
+  },
+  {
+    "_index": 141,
+    "Essence": 85,
+    "TargetItemCategory": 7,
+    "Mod": 15554,
+    "DisplayMod": null
+  },
+  {
+    "_index": 142,
+    "Essence": 85,
+    "TargetItemCategory": 30,
+    "Mod": 15555,
+    "DisplayMod": null
+  },
+  {
+    "_index": 143,
+    "Essence": 85,
+    "TargetItemCategory": 28,
+    "Mod": 15556,
+    "DisplayMod": null
+  },
+  {
+    "_index": 144,
+    "Essence": 86,
+    "TargetItemCategory": 37,
+    "Mod": 15557,
+    "DisplayMod": null
+  },
+  {
+    "_index": 145,
+    "Essence": 86,
+    "TargetItemCategory": 36,
+    "Mod": 15558,
+    "DisplayMod": null
+  },
+  {
+    "_index": 146,
+    "Essence": 86,
+    "TargetItemCategory": 8,
+    "Mod": 15559,
+    "DisplayMod": null
+  },
+  {
+    "_index": 147,
+    "Essence": 86,
+    "TargetItemCategory": 41,
+    "Mod": 15560,
+    "DisplayMod": null
+  },
+  {
+    "_index": 148,
+    "Essence": 87,
+    "TargetItemCategory": 7,
+    "Mod": 15561,
+    "DisplayMod": null
+  },
+  {
+    "_index": 149,
+    "Essence": 87,
+    "TargetItemCategory": 28,
+    "Mod": 15562,
+    "DisplayMod": null
+  },
+  {
+    "_index": 150,
+    "Essence": 87,
+    "TargetItemCategory": 37,
+    "Mod": 15563,
+    "DisplayMod": null
+  },
+  {
+    "_index": 151,
+    "Essence": 87,
+    "TargetItemCategory": 30,
+    "Mod": 15564,
+    "DisplayMod": null
+  },
+  {
+    "_index": 152,
+    "Essence": 88,
+    "TargetItemCategory": 37,
+    "Mod": 15565,
+    "DisplayMod": null
+  },
+  {
+    "_index": 153,
+    "Essence": 88,
+    "TargetItemCategory": 1,
+    "Mod": 15566,
+    "DisplayMod": null
+  },
+  {
+    "_index": 154,
+    "Essence": 88,
+    "TargetItemCategory": 29,
+    "Mod": 15567,
+    "DisplayMod": null
+  },
+  {
+    "_index": 155,
+    "Essence": 88,
+    "TargetItemCategory": 35,
+    "Mod": 15568,
+    "DisplayMod": null
+  },
+  {
+    "_index": 156,
+    "Essence": 89,
+    "TargetItemCategory": 30,
+    "Mod": 15569,
+    "DisplayMod": null
+  },
+  {
+    "_index": 157,
+    "Essence": 89,
+    "TargetItemCategory": 37,
+    "Mod": 15570,
+    "DisplayMod": null
+  },
+  {
+    "_index": 158,
+    "Essence": 89,
+    "TargetItemCategory": 28,
+    "Mod": 15571,
+    "DisplayMod": null
+  },
+  {
+    "_index": 159,
+    "Essence": 89,
+    "TargetItemCategory": 32,
+    "Mod": 15572,
+    "DisplayMod": null
+  },
+  {
+    "_index": 160,
+    "Essence": 89,
+    "TargetItemCategory": 3,
+    "Mod": 15573,
+    "DisplayMod": null
+  },
+  {
+    "_index": 161,
+    "Essence": 90,
+    "TargetItemCategory": 43,
+    "Mod": 15574,
+    "DisplayMod": null
+  },
+  {
+    "_index": 162,
+    "Essence": 90,
+    "TargetItemCategory": 2,
+    "Mod": 15550,
+    "DisplayMod": null
+  },
+  {
+    "_index": 163,
+    "Essence": 90,
+    "TargetItemCategory": 4,
+    "Mod": 15575,
+    "DisplayMod": null
+  },
+  {
+    "_index": 164,
+    "Essence": 91,
+    "TargetItemCategory": 42,
+    "Mod": 15576,
+    "DisplayMod": null
+  },
+  {
+    "_index": 165,
+    "Essence": 91,
+    "TargetItemCategory": 1,
+    "Mod": 15577,
+    "DisplayMod": null
+  },
+  {
+    "_index": 166,
+    "Essence": 92,
+    "TargetItemCategory": 29,
+    "Mod": 15579,
+    "DisplayMod": null
+  },
+  {
+    "_index": 167,
+    "Essence": 92,
+    "TargetItemCategory": 1,
+    "Mod": 15580,
+    "DisplayMod": null
+  },
+  {
+    "_index": 168,
+    "Essence": 93,
+    "TargetItemCategory": 18,
+    "Mod": 15582,
+    "DisplayMod": null
+  },
+  {
+    "_index": 169,
+    "Essence": 93,
+    "TargetItemCategory": 40,
+    "Mod": 15583,
+    "DisplayMod": null
+  },
+  {
+    "_index": 170,
+    "Essence": 94,
+    "TargetItemCategory": 44,
+    "Mod": 15584,
+    "DisplayMod": null
+  },
+  {
+    "_index": 171,
+    "Essence": 94,
+    "TargetItemCategory": 45,
+    "Mod": 15585,
+    "DisplayMod": null
+  },
+  {
+    "_index": 172,
+    "Essence": 93,
+    "TargetItemCategory": 35,
+    "Mod": 15586,
+    "DisplayMod": null
+  },
+  {
+    "_index": 173,
+    "Essence": 94,
+    "TargetItemCategory": 46,
+    "Mod": 15587,
+    "DisplayMod": null
+  },
+  {
+    "_index": 174,
+    "Essence": 93,
+    "TargetItemCategory": 47,
+    "Mod": 15588,
+    "DisplayMod": null
+  },
+  {
+    "_index": 175,
+    "Essence": 94,
+    "TargetItemCategory": 48,
+    "Mod": 15589,
+    "DisplayMod": null
+  },
+  {
+    "_index": 176,
+    "Essence": 93,
+    "TargetItemCategory": 49,
+    "Mod": 15590,
+    "DisplayMod": null
+  }
+]

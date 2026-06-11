@@ -153,6 +153,8 @@ return {
 | `flavourText.lua`   | 3735 строк | 1 символ (`Mjölner` vs `Mjolner` — реальный апдейт игры) | column-mapping + новые таблицы + `sanitiseText` |
 | `modScalability.lua`| 15064 строки | 0 байт (полный матч)  | `getFile` + `statdesc` инфра |
 | `mods.lua`          | 8 файлов, ~10K строк всего | структурно совпадает, отличается только `weightVal` (см. ниже) | Mods/ModType/Tags/ModFamily config + 5 renames + `SpawnWeight`/`NodeType` computed + helpers (`copyTable`, `round`, `intToBytes`, `murmurHash2`, `LoadModule`, `ReadCellText` через spec.lua) |
+| `skillGemList.lua`  | 8418 строк, +24 строки (новые гемы) | реальный live game content | SkillGems/GemEffects/GrantedEffects/GrantedEffectStatSets/GrantedEffectLabels/SupportGems/SkillGemSupports + 5 renames (`DisplayedName→DisplayName`, `Str/Dex/Int`, `StatSet→GrantedEffectStatSets`, `Label→LabelType`, `SkillGem→ActiveGem`) + computed `IsSupport` из `GemType` |
+| `essence.lua`       | 86 строк, диф по значениям | data drift (Tier колонка деградировала к 0; ID получили `Lesser/Greater/Deafening` префиксы; EssenceMods refs указывают на новые индексы) | Essences/EssenceMods/EssenceTargetItemCategories + computed `DropLevel = {Tier}` + rename `Mod/DisplayMod → Mod1/Mod2` |
 
 **Schema-gap при mods.lua**: `Mods.SpawnWeight_Values` (i32 array значений весов) — колонка без имени в `pathofexile-dat-schema`, pathofexile-dat её не экспортирует. Скрипт выдаёт `weightVal = { }` вместо реального списка. Все остальные поля (тип, affix, описание, statOrder, group, weightKey, modTags, tradeHashes) идентичны production. Лечится либо вкладом колонки в `poe-tool-dev/dat-schema`, либо отдельным проходом вычисления весов из других таблиц.
 

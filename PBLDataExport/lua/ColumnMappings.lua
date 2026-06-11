@@ -29,6 +29,62 @@ return {
         rename = { Name = "Id" },
     },
 
+    -- ActiveSkills: PoB scripts use .DisplayName; schema column is DisplayedName.
+    ActiveSkills = {
+        rename = { DisplayedName = "DisplayName" },
+    },
+
+    -- Essences: PoE1 schema had DropLevel as i32[] (tier level array);
+    -- PoE2 dropped it for a scalar Tier. Reconstruct DropLevel = { Tier }
+    -- so essence.lua's `essence.DropLevel[1]` keeps working.
+    Essences = {
+        computed = {
+            DropLevel = function(row) return { rawget(row, "Tier") or 0 } end,
+        },
+    },
+
+    -- EssenceMods: PoE1 had Mod1/Mod2 columns; PoE2 split into Mod/DisplayMod
+    -- (semantically: Mod1=primary outcome, Mod2=display). Rename so
+    -- essence.lua's `essenceMod.Mod1 or essenceMod.Mod2` works unchanged.
+    EssenceMods = {
+        rename = {
+            Mod        = "Mod1",
+            DisplayMod = "Mod2",
+        },
+    },
+
+    -- SkillGems: legacy short attribute names + IsSupport boolean (schema only has
+    -- numeric GemType: 0=active, 1=support per observation of dumps).
+    SkillGems = {
+        rename = {
+            StrengthRequirementPercent     = "Str",
+            DexterityRequirementPercent    = "Dex",
+            IntelligenceRequirementPercent = "Int",
+        },
+        computed = {
+            IsSupport = function(row)
+                return rawget(row, "GemType") == 1
+            end,
+        },
+    },
+
+    -- GrantedEffects: PoB names the GrantedEffectStatSets foreign key in full;
+    -- schema renamed to StatSet.
+    GrantedEffects = {
+        rename = { StatSet = "GrantedEffectStatSets" },
+    },
+
+    -- GrantedEffectStatSets: PoB calls the label foreign-key LabelType, schema Label.
+    GrantedEffectStatSets = {
+        rename = { Label = "LabelType" },
+    },
+
+    -- SkillGemSupports: PoB-spec names the LHS column ActiveGem;
+    -- pathofexile-dat-schema names it SkillGem (same column).
+    SkillGemSupports = {
+        rename = { SkillGem = "ActiveGem" },
+    },
+
     -- Mods: pathofexile-dat-schema uses suffix-style names; mods.lua uses
     -- legacy PoB names (Type, Family, SpawnTags, GenerationWeightTags, etc.).
     Mods = {

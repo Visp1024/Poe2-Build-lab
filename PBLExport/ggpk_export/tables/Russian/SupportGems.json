@@ -1,0 +1,2550 @@
+[
+  {
+    "_index": 0,
+    "SkillGem": 284
+  },
+  {
+    "_index": 1,
+    "SkillGem": 285
+  },
+  {
+    "_index": 2,
+    "SkillGem": 286
+  },
+  {
+    "_index": 3,
+    "SkillGem": 67
+  },
+  {
+    "_index": 4,
+    "SkillGem": 68
+  },
+  {
+    "_index": 5,
+    "SkillGem": 287
+  },
+  {
+    "_index": 6,
+    "SkillGem": 288
+  },
+  {
+    "_index": 7,
+    "SkillGem": 232
+  },
+  {
+    "_index": 8,
+    "SkillGem": 233
+  },
+  {
+    "_index": 9,
+    "SkillGem": 234
+  },
+  {
+    "_index": 10,
+    "SkillGem": 226
+  },
+  {
+    "_index": 11,
+    "SkillGem": 227
+  },
+  {
+    "_index": 12,
+    "SkillGem": 231
+  },
+  {
+    "_index": 13,
+    "SkillGem": 129
+  },
+  {
+    "_index": 14,
+    "SkillGem": 130
+  },
+  {
+    "_index": 15,
+    "SkillGem": 131
+  },
+  {
+    "_index": 16,
+    "SkillGem": 132
+  },
+  {
+    "_index": 17,
+    "SkillGem": 27
+  },
+  {
+    "_index": 18,
+    "SkillGem": 442
+  },
+  {
+    "_index": 19,
+    "SkillGem": 443
+  },
+  {
+    "_index": 20,
+    "SkillGem": 444
+  },
+  {
+    "_index": 21,
+    "SkillGem": 225
+  },
+  {
+    "_index": 22,
+    "SkillGem": 152
+  },
+  {
+    "_index": 23,
+    "SkillGem": 153
+  },
+  {
+    "_index": 24,
+    "SkillGem": 154
+  },
+  {
+    "_index": 25,
+    "SkillGem": 221
+  },
+  {
+    "_index": 26,
+    "SkillGem": 222
+  },
+  {
+    "_index": 27,
+    "SkillGem": 305
+  },
+  {
+    "_index": 28,
+    "SkillGem": 356
+  },
+  {
+    "_index": 29,
+    "SkillGem": 357
+  },
+  {
+    "_index": 30,
+    "SkillGem": 228
+  },
+  {
+    "_index": 31,
+    "SkillGem": 229
+  },
+  {
+    "_index": 32,
+    "SkillGem": 230
+  },
+  {
+    "_index": 33,
+    "SkillGem": 235
+  },
+  {
+    "_index": 34,
+    "SkillGem": 306
+  },
+  {
+    "_index": 35,
+    "SkillGem": 177
+  },
+  {
+    "_index": 36,
+    "SkillGem": 178
+  },
+  {
+    "_index": 37,
+    "SkillGem": 179
+  },
+  {
+    "_index": 38,
+    "SkillGem": 180
+  },
+  {
+    "_index": 39,
+    "SkillGem": 181
+  },
+  {
+    "_index": 40,
+    "SkillGem": 182
+  },
+  {
+    "_index": 41,
+    "SkillGem": 183
+  },
+  {
+    "_index": 42,
+    "SkillGem": 184
+  },
+  {
+    "_index": 43,
+    "SkillGem": 102
+  },
+  {
+    "_index": 44,
+    "SkillGem": 70
+  },
+  {
+    "_index": 45,
+    "SkillGem": 188
+  },
+  {
+    "_index": 46,
+    "SkillGem": 14
+  },
+  {
+    "_index": 47,
+    "SkillGem": 15
+  },
+  {
+    "_index": 48,
+    "SkillGem": 16
+  },
+  {
+    "_index": 49,
+    "SkillGem": 82
+  },
+  {
+    "_index": 50,
+    "SkillGem": 83
+  },
+  {
+    "_index": 51,
+    "SkillGem": 84
+  },
+  {
+    "_index": 52,
+    "SkillGem": 425
+  },
+  {
+    "_index": 53,
+    "SkillGem": 133
+  },
+  {
+    "_index": 54,
+    "SkillGem": 134
+  },
+  {
+    "_index": 55,
+    "SkillGem": 135
+  },
+  {
+    "_index": 56,
+    "SkillGem": 136
+  },
+  {
+    "_index": 57,
+    "SkillGem": 62
+  },
+  {
+    "_index": 58,
+    "SkillGem": 63
+  },
+  {
+    "_index": 59,
+    "SkillGem": 10
+  },
+  {
+    "_index": 60,
+    "SkillGem": 11
+  },
+  {
+    "_index": 61,
+    "SkillGem": 12
+  },
+  {
+    "_index": 62,
+    "SkillGem": 13
+  },
+  {
+    "_index": 63,
+    "SkillGem": 36
+  },
+  {
+    "_index": 64,
+    "SkillGem": 37
+  },
+  {
+    "_index": 65,
+    "SkillGem": 38
+  },
+  {
+    "_index": 66,
+    "SkillGem": 71
+  },
+  {
+    "_index": 67,
+    "SkillGem": 72
+  },
+  {
+    "_index": 68,
+    "SkillGem": 73
+  },
+  {
+    "_index": 69,
+    "SkillGem": 165
+  },
+  {
+    "_index": 70,
+    "SkillGem": 166
+  },
+  {
+    "_index": 71,
+    "SkillGem": 167
+  },
+  {
+    "_index": 72,
+    "SkillGem": 386
+  },
+  {
+    "_index": 73,
+    "SkillGem": 411
+  },
+  {
+    "_index": 74,
+    "SkillGem": 387
+  },
+  {
+    "_index": 75,
+    "SkillGem": 421
+  },
+  {
+    "_index": 76,
+    "SkillGem": 422
+  },
+  {
+    "_index": 77,
+    "SkillGem": 384
+  },
+  {
+    "_index": 78,
+    "SkillGem": 418
+  },
+  {
+    "_index": 79,
+    "SkillGem": 419
+  },
+  {
+    "_index": 80,
+    "SkillGem": 420
+  },
+  {
+    "_index": 81,
+    "SkillGem": 441
+  },
+  {
+    "_index": 82,
+    "SkillGem": 446
+  },
+  {
+    "_index": 83,
+    "SkillGem": 447
+  },
+  {
+    "_index": 84,
+    "SkillGem": 448
+  },
+  {
+    "_index": 85,
+    "SkillGem": 445
+  },
+  {
+    "_index": 86,
+    "SkillGem": 101
+  },
+  {
+    "_index": 87,
+    "SkillGem": 69
+  },
+  {
+    "_index": 88,
+    "SkillGem": 145
+  },
+  {
+    "_index": 89,
+    "SkillGem": 20
+  },
+  {
+    "_index": 90,
+    "SkillGem": 21
+  },
+  {
+    "_index": 91,
+    "SkillGem": 54
+  },
+  {
+    "_index": 92,
+    "SkillGem": 424
+  },
+  {
+    "_index": 93,
+    "SkillGem": 128
+  },
+  {
+    "_index": 94,
+    "SkillGem": 259
+  },
+  {
+    "_index": 95,
+    "SkillGem": 279
+  },
+  {
+    "_index": 96,
+    "SkillGem": 280
+  },
+  {
+    "_index": 97,
+    "SkillGem": 80
+  },
+  {
+    "_index": 98,
+    "SkillGem": 147
+  },
+  {
+    "_index": 99,
+    "SkillGem": 148
+  },
+  {
+    "_index": 100,
+    "SkillGem": 149
+  },
+  {
+    "_index": 101,
+    "SkillGem": 430
+  },
+  {
+    "_index": 102,
+    "SkillGem": 260
+  },
+  {
+    "_index": 103,
+    "SkillGem": 277
+  },
+  {
+    "_index": 104,
+    "SkillGem": 416
+  },
+  {
+    "_index": 105,
+    "SkillGem": 417
+  },
+  {
+    "_index": 106,
+    "SkillGem": 426
+  },
+  {
+    "_index": 107,
+    "SkillGem": 427
+  },
+  {
+    "_index": 108,
+    "SkillGem": 223
+  },
+  {
+    "_index": 109,
+    "SkillGem": 224
+  },
+  {
+    "_index": 110,
+    "SkillGem": 413
+  },
+  {
+    "_index": 111,
+    "SkillGem": 414
+  },
+  {
+    "_index": 112,
+    "SkillGem": 415
+  },
+  {
+    "_index": 113,
+    "SkillGem": 449
+  },
+  {
+    "_index": 114,
+    "SkillGem": 428
+  },
+  {
+    "_index": 115,
+    "SkillGem": 440
+  },
+  {
+    "_index": 116,
+    "SkillGem": 429
+  },
+  {
+    "_index": 117,
+    "SkillGem": 453
+  },
+  {
+    "_index": 118,
+    "SkillGem": 454
+  },
+  {
+    "_index": 119,
+    "SkillGem": 455
+  },
+  {
+    "_index": 120,
+    "SkillGem": 456
+  },
+  {
+    "_index": 121,
+    "SkillGem": 28
+  },
+  {
+    "_index": 122,
+    "SkillGem": 29
+  },
+  {
+    "_index": 123,
+    "SkillGem": 30
+  },
+  {
+    "_index": 124,
+    "SkillGem": 42
+  },
+  {
+    "_index": 125,
+    "SkillGem": 55
+  },
+  {
+    "_index": 126,
+    "SkillGem": 139
+  },
+  {
+    "_index": 127,
+    "SkillGem": 140
+  },
+  {
+    "_index": 128,
+    "SkillGem": 141
+  },
+  {
+    "_index": 129,
+    "SkillGem": 158
+  },
+  {
+    "_index": 130,
+    "SkillGem": 159
+  },
+  {
+    "_index": 131,
+    "SkillGem": 160
+  },
+  {
+    "_index": 132,
+    "SkillGem": 459
+  },
+  {
+    "_index": 133,
+    "SkillGem": 74
+  },
+  {
+    "_index": 134,
+    "SkillGem": 236
+  },
+  {
+    "_index": 135,
+    "SkillGem": 31
+  },
+  {
+    "_index": 136,
+    "SkillGem": 32
+  },
+  {
+    "_index": 137,
+    "SkillGem": 115
+  },
+  {
+    "_index": 138,
+    "SkillGem": 81
+  },
+  {
+    "_index": 139,
+    "SkillGem": 458
+  },
+  {
+    "_index": 140,
+    "SkillGem": 289
+  },
+  {
+    "_index": 141,
+    "SkillGem": 290
+  },
+  {
+    "_index": 142,
+    "SkillGem": 291
+  },
+  {
+    "_index": 143,
+    "SkillGem": 138
+  },
+  {
+    "_index": 144,
+    "SkillGem": 281
+  },
+  {
+    "_index": 145,
+    "SkillGem": 161
+  },
+  {
+    "_index": 146,
+    "SkillGem": 162
+  },
+  {
+    "_index": 147,
+    "SkillGem": 163
+  },
+  {
+    "_index": 148,
+    "SkillGem": 156
+  },
+  {
+    "_index": 149,
+    "SkillGem": 157
+  },
+  {
+    "_index": 150,
+    "SkillGem": 143
+  },
+  {
+    "_index": 151,
+    "SkillGem": 461
+  },
+  {
+    "_index": 152,
+    "SkillGem": 460
+  },
+  {
+    "_index": 153,
+    "SkillGem": 1072
+  },
+  {
+    "_index": 154,
+    "SkillGem": 6
+  },
+  {
+    "_index": 155,
+    "SkillGem": 17
+  },
+  {
+    "_index": 156,
+    "SkillGem": 22
+  },
+  {
+    "_index": 157,
+    "SkillGem": 33
+  },
+  {
+    "_index": 158,
+    "SkillGem": 24
+  },
+  {
+    "_index": 159,
+    "SkillGem": 25
+  },
+  {
+    "_index": 160,
+    "SkillGem": 469
+  },
+  {
+    "_index": 161,
+    "SkillGem": 470
+  },
+  {
+    "_index": 162,
+    "SkillGem": 7
+  },
+  {
+    "_index": 163,
+    "SkillGem": 8
+  },
+  {
+    "_index": 164,
+    "SkillGem": 9
+  },
+  {
+    "_index": 165,
+    "SkillGem": 18
+  },
+  {
+    "_index": 166,
+    "SkillGem": 19
+  },
+  {
+    "_index": 167,
+    "SkillGem": 43
+  },
+  {
+    "_index": 168,
+    "SkillGem": 44
+  },
+  {
+    "_index": 169,
+    "SkillGem": 45
+  },
+  {
+    "_index": 170,
+    "SkillGem": 462
+  },
+  {
+    "_index": 171,
+    "SkillGem": 463
+  },
+  {
+    "_index": 172,
+    "SkillGem": 464
+  },
+  {
+    "_index": 173,
+    "SkillGem": 465
+  },
+  {
+    "_index": 174,
+    "SkillGem": 466
+  },
+  {
+    "_index": 175,
+    "SkillGem": 467
+  },
+  {
+    "_index": 176,
+    "SkillGem": 468
+  },
+  {
+    "_index": 177,
+    "SkillGem": 112
+  },
+  {
+    "_index": 178,
+    "SkillGem": 173
+  },
+  {
+    "_index": 179,
+    "SkillGem": 98
+  },
+  {
+    "_index": 180,
+    "SkillGem": 99
+  },
+  {
+    "_index": 181,
+    "SkillGem": 100
+  },
+  {
+    "_index": 182,
+    "SkillGem": 26
+  },
+  {
+    "_index": 183,
+    "SkillGem": 472
+  },
+  {
+    "_index": 184,
+    "SkillGem": 137
+  },
+  {
+    "_index": 185,
+    "SkillGem": 475
+  },
+  {
+    "_index": 186,
+    "SkillGem": 476
+  },
+  {
+    "_index": 187,
+    "SkillGem": 474
+  },
+  {
+    "_index": 188,
+    "SkillGem": 477
+  },
+  {
+    "_index": 189,
+    "SkillGem": 478
+  },
+  {
+    "_index": 190,
+    "SkillGem": 511
+  },
+  {
+    "_index": 191,
+    "SkillGem": 512
+  },
+  {
+    "_index": 192,
+    "SkillGem": 513
+  },
+  {
+    "_index": 193,
+    "SkillGem": 514
+  },
+  {
+    "_index": 194,
+    "SkillGem": 515
+  },
+  {
+    "_index": 195,
+    "SkillGem": 516
+  },
+  {
+    "_index": 196,
+    "SkillGem": 142
+  },
+  {
+    "_index": 197,
+    "SkillGem": 594
+  },
+  {
+    "_index": 198,
+    "SkillGem": 595
+  },
+  {
+    "_index": 199,
+    "SkillGem": 596
+  },
+  {
+    "_index": 200,
+    "SkillGem": 597
+  },
+  {
+    "_index": 201,
+    "SkillGem": 598
+  },
+  {
+    "_index": 202,
+    "SkillGem": 599
+  },
+  {
+    "_index": 203,
+    "SkillGem": 600
+  },
+  {
+    "_index": 204,
+    "SkillGem": 601
+  },
+  {
+    "_index": 205,
+    "SkillGem": 602
+  },
+  {
+    "_index": 206,
+    "SkillGem": 603
+  },
+  {
+    "_index": 207,
+    "SkillGem": 604
+  },
+  {
+    "_index": 208,
+    "SkillGem": 605
+  },
+  {
+    "_index": 209,
+    "SkillGem": 606
+  },
+  {
+    "_index": 210,
+    "SkillGem": 607
+  },
+  {
+    "_index": 211,
+    "SkillGem": 608
+  },
+  {
+    "_index": 212,
+    "SkillGem": 609
+  },
+  {
+    "_index": 213,
+    "SkillGem": 610
+  },
+  {
+    "_index": 214,
+    "SkillGem": 150
+  },
+  {
+    "_index": 215,
+    "SkillGem": 151
+  },
+  {
+    "_index": 216,
+    "SkillGem": 611
+  },
+  {
+    "_index": 217,
+    "SkillGem": 612
+  },
+  {
+    "_index": 218,
+    "SkillGem": 613
+  },
+  {
+    "_index": 219,
+    "SkillGem": 614
+  },
+  {
+    "_index": 220,
+    "SkillGem": 615
+  },
+  {
+    "_index": 221,
+    "SkillGem": 616
+  },
+  {
+    "_index": 222,
+    "SkillGem": 629
+  },
+  {
+    "_index": 223,
+    "SkillGem": 630
+  },
+  {
+    "_index": 224,
+    "SkillGem": 631
+  },
+  {
+    "_index": 225,
+    "SkillGem": 632
+  },
+  {
+    "_index": 226,
+    "SkillGem": 633
+  },
+  {
+    "_index": 227,
+    "SkillGem": 634
+  },
+  {
+    "_index": 228,
+    "SkillGem": 635
+  },
+  {
+    "_index": 229,
+    "SkillGem": 636
+  },
+  {
+    "_index": 230,
+    "SkillGem": 637
+  },
+  {
+    "_index": 231,
+    "SkillGem": 638
+  },
+  {
+    "_index": 232,
+    "SkillGem": 639
+  },
+  {
+    "_index": 233,
+    "SkillGem": 640
+  },
+  {
+    "_index": 234,
+    "SkillGem": 641
+  },
+  {
+    "_index": 235,
+    "SkillGem": 642
+  },
+  {
+    "_index": 236,
+    "SkillGem": 628
+  },
+  {
+    "_index": 237,
+    "SkillGem": 343
+  },
+  {
+    "_index": 238,
+    "SkillGem": 344
+  },
+  {
+    "_index": 239,
+    "SkillGem": 345
+  },
+  {
+    "_index": 240,
+    "SkillGem": 346
+  },
+  {
+    "_index": 241,
+    "SkillGem": 347
+  },
+  {
+    "_index": 242,
+    "SkillGem": 348
+  },
+  {
+    "_index": 243,
+    "SkillGem": 349
+  },
+  {
+    "_index": 244,
+    "SkillGem": 350
+  },
+  {
+    "_index": 245,
+    "SkillGem": 351
+  },
+  {
+    "_index": 246,
+    "SkillGem": 621
+  },
+  {
+    "_index": 247,
+    "SkillGem": 622
+  },
+  {
+    "_index": 248,
+    "SkillGem": 623
+  },
+  {
+    "_index": 249,
+    "SkillGem": 624
+  },
+  {
+    "_index": 250,
+    "SkillGem": 625
+  },
+  {
+    "_index": 251,
+    "SkillGem": 626
+  },
+  {
+    "_index": 252,
+    "SkillGem": 627
+  },
+  {
+    "_index": 253,
+    "SkillGem": 644
+  },
+  {
+    "_index": 254,
+    "SkillGem": 645
+  },
+  {
+    "_index": 255,
+    "SkillGem": 646
+  },
+  {
+    "_index": 256,
+    "SkillGem": 647
+  },
+  {
+    "_index": 257,
+    "SkillGem": 648
+  },
+  {
+    "_index": 258,
+    "SkillGem": 649
+  },
+  {
+    "_index": 259,
+    "SkillGem": 650
+  },
+  {
+    "_index": 260,
+    "SkillGem": 651
+  },
+  {
+    "_index": 261,
+    "SkillGem": 652
+  },
+  {
+    "_index": 262,
+    "SkillGem": 653
+  },
+  {
+    "_index": 263,
+    "SkillGem": 654
+  },
+  {
+    "_index": 264,
+    "SkillGem": 655
+  },
+  {
+    "_index": 265,
+    "SkillGem": 656
+  },
+  {
+    "_index": 266,
+    "SkillGem": 657
+  },
+  {
+    "_index": 267,
+    "SkillGem": 658
+  },
+  {
+    "_index": 268,
+    "SkillGem": 659
+  },
+  {
+    "_index": 269,
+    "SkillGem": 660
+  },
+  {
+    "_index": 270,
+    "SkillGem": 661
+  },
+  {
+    "_index": 271,
+    "SkillGem": 662
+  },
+  {
+    "_index": 272,
+    "SkillGem": 663
+  },
+  {
+    "_index": 273,
+    "SkillGem": 664
+  },
+  {
+    "_index": 274,
+    "SkillGem": 665
+  },
+  {
+    "_index": 275,
+    "SkillGem": 666
+  },
+  {
+    "_index": 276,
+    "SkillGem": 680
+  },
+  {
+    "_index": 277,
+    "SkillGem": 681
+  },
+  {
+    "_index": 278,
+    "SkillGem": 682
+  },
+  {
+    "_index": 279,
+    "SkillGem": 691
+  },
+  {
+    "_index": 280,
+    "SkillGem": 692
+  },
+  {
+    "_index": 281,
+    "SkillGem": 694
+  },
+  {
+    "_index": 282,
+    "SkillGem": 695
+  },
+  {
+    "_index": 283,
+    "SkillGem": 696
+  },
+  {
+    "_index": 284,
+    "SkillGem": 697
+  },
+  {
+    "_index": 285,
+    "SkillGem": 698
+  },
+  {
+    "_index": 286,
+    "SkillGem": 699
+  },
+  {
+    "_index": 287,
+    "SkillGem": 700
+  },
+  {
+    "_index": 288,
+    "SkillGem": 701
+  },
+  {
+    "_index": 289,
+    "SkillGem": 702
+  },
+  {
+    "_index": 290,
+    "SkillGem": 703
+  },
+  {
+    "_index": 291,
+    "SkillGem": 704
+  },
+  {
+    "_index": 292,
+    "SkillGem": 705
+  },
+  {
+    "_index": 293,
+    "SkillGem": 706
+  },
+  {
+    "_index": 294,
+    "SkillGem": 707
+  },
+  {
+    "_index": 295,
+    "SkillGem": 727
+  },
+  {
+    "_index": 296,
+    "SkillGem": 728
+  },
+  {
+    "_index": 297,
+    "SkillGem": 729
+  },
+  {
+    "_index": 298,
+    "SkillGem": 730
+  },
+  {
+    "_index": 299,
+    "SkillGem": 731
+  },
+  {
+    "_index": 300,
+    "SkillGem": 732
+  },
+  {
+    "_index": 301,
+    "SkillGem": 733
+  },
+  {
+    "_index": 302,
+    "SkillGem": 683
+  },
+  {
+    "_index": 303,
+    "SkillGem": 684
+  },
+  {
+    "_index": 304,
+    "SkillGem": 685
+  },
+  {
+    "_index": 305,
+    "SkillGem": 686
+  },
+  {
+    "_index": 306,
+    "SkillGem": 734
+  },
+  {
+    "_index": 307,
+    "SkillGem": 735
+  },
+  {
+    "_index": 308,
+    "SkillGem": 736
+  },
+  {
+    "_index": 309,
+    "SkillGem": 737
+  },
+  {
+    "_index": 310,
+    "SkillGem": 738
+  },
+  {
+    "_index": 311,
+    "SkillGem": 739
+  },
+  {
+    "_index": 312,
+    "SkillGem": 740
+  },
+  {
+    "_index": 313,
+    "SkillGem": 741
+  },
+  {
+    "_index": 314,
+    "SkillGem": 742
+  },
+  {
+    "_index": 315,
+    "SkillGem": 743
+  },
+  {
+    "_index": 316,
+    "SkillGem": 744
+  },
+  {
+    "_index": 317,
+    "SkillGem": 745
+  },
+  {
+    "_index": 318,
+    "SkillGem": 746
+  },
+  {
+    "_index": 319,
+    "SkillGem": 747
+  },
+  {
+    "_index": 320,
+    "SkillGem": 748
+  },
+  {
+    "_index": 321,
+    "SkillGem": 749
+  },
+  {
+    "_index": 322,
+    "SkillGem": 750
+  },
+  {
+    "_index": 323,
+    "SkillGem": 751
+  },
+  {
+    "_index": 324,
+    "SkillGem": 752
+  },
+  {
+    "_index": 325,
+    "SkillGem": 753
+  },
+  {
+    "_index": 326,
+    "SkillGem": 754
+  },
+  {
+    "_index": 327,
+    "SkillGem": 755
+  },
+  {
+    "_index": 328,
+    "SkillGem": 756
+  },
+  {
+    "_index": 329,
+    "SkillGem": 757
+  },
+  {
+    "_index": 330,
+    "SkillGem": 758
+  },
+  {
+    "_index": 331,
+    "SkillGem": 759
+  },
+  {
+    "_index": 332,
+    "SkillGem": 760
+  },
+  {
+    "_index": 333,
+    "SkillGem": 761
+  },
+  {
+    "_index": 334,
+    "SkillGem": 762
+  },
+  {
+    "_index": 335,
+    "SkillGem": 763
+  },
+  {
+    "_index": 336,
+    "SkillGem": 764
+  },
+  {
+    "_index": 337,
+    "SkillGem": 765
+  },
+  {
+    "_index": 338,
+    "SkillGem": 766
+  },
+  {
+    "_index": 339,
+    "SkillGem": 767
+  },
+  {
+    "_index": 340,
+    "SkillGem": 768
+  },
+  {
+    "_index": 341,
+    "SkillGem": 769
+  },
+  {
+    "_index": 342,
+    "SkillGem": 770
+  },
+  {
+    "_index": 343,
+    "SkillGem": 771
+  },
+  {
+    "_index": 344,
+    "SkillGem": 772
+  },
+  {
+    "_index": 345,
+    "SkillGem": 773
+  },
+  {
+    "_index": 346,
+    "SkillGem": 774
+  },
+  {
+    "_index": 347,
+    "SkillGem": 775
+  },
+  {
+    "_index": 348,
+    "SkillGem": 776
+  },
+  {
+    "_index": 349,
+    "SkillGem": 777
+  },
+  {
+    "_index": 350,
+    "SkillGem": 778
+  },
+  {
+    "_index": 351,
+    "SkillGem": 779
+  },
+  {
+    "_index": 352,
+    "SkillGem": 780
+  },
+  {
+    "_index": 353,
+    "SkillGem": 781
+  },
+  {
+    "_index": 354,
+    "SkillGem": 783
+  },
+  {
+    "_index": 355,
+    "SkillGem": 782
+  },
+  {
+    "_index": 356,
+    "SkillGem": 784
+  },
+  {
+    "_index": 357,
+    "SkillGem": 785
+  },
+  {
+    "_index": 358,
+    "SkillGem": 786
+  },
+  {
+    "_index": 359,
+    "SkillGem": 787
+  },
+  {
+    "_index": 360,
+    "SkillGem": 788
+  },
+  {
+    "_index": 361,
+    "SkillGem": 789
+  },
+  {
+    "_index": 362,
+    "SkillGem": 790
+  },
+  {
+    "_index": 363,
+    "SkillGem": 791
+  },
+  {
+    "_index": 364,
+    "SkillGem": 792
+  },
+  {
+    "_index": 365,
+    "SkillGem": 793
+  },
+  {
+    "_index": 366,
+    "SkillGem": 794
+  },
+  {
+    "_index": 367,
+    "SkillGem": 795
+  },
+  {
+    "_index": 368,
+    "SkillGem": 796
+  },
+  {
+    "_index": 369,
+    "SkillGem": 797
+  },
+  {
+    "_index": 370,
+    "SkillGem": 798
+  },
+  {
+    "_index": 371,
+    "SkillGem": 799
+  },
+  {
+    "_index": 372,
+    "SkillGem": 800
+  },
+  {
+    "_index": 373,
+    "SkillGem": 801
+  },
+  {
+    "_index": 374,
+    "SkillGem": 802
+  },
+  {
+    "_index": 375,
+    "SkillGem": 803
+  },
+  {
+    "_index": 376,
+    "SkillGem": 804
+  },
+  {
+    "_index": 377,
+    "SkillGem": 805
+  },
+  {
+    "_index": 378,
+    "SkillGem": 806
+  },
+  {
+    "_index": 379,
+    "SkillGem": 807
+  },
+  {
+    "_index": 380,
+    "SkillGem": 808
+  },
+  {
+    "_index": 381,
+    "SkillGem": 809
+  },
+  {
+    "_index": 382,
+    "SkillGem": 810
+  },
+  {
+    "_index": 383,
+    "SkillGem": 811
+  },
+  {
+    "_index": 384,
+    "SkillGem": 812
+  },
+  {
+    "_index": 385,
+    "SkillGem": 385
+  },
+  {
+    "_index": 386,
+    "SkillGem": 945
+  },
+  {
+    "_index": 387,
+    "SkillGem": 813
+  },
+  {
+    "_index": 388,
+    "SkillGem": 814
+  },
+  {
+    "_index": 389,
+    "SkillGem": 815
+  },
+  {
+    "_index": 390,
+    "SkillGem": 816
+  },
+  {
+    "_index": 391,
+    "SkillGem": 817
+  },
+  {
+    "_index": 392,
+    "SkillGem": 818
+  },
+  {
+    "_index": 393,
+    "SkillGem": 819
+  },
+  {
+    "_index": 394,
+    "SkillGem": 820
+  },
+  {
+    "_index": 395,
+    "SkillGem": 821
+  },
+  {
+    "_index": 396,
+    "SkillGem": 822
+  },
+  {
+    "_index": 397,
+    "SkillGem": 823
+  },
+  {
+    "_index": 398,
+    "SkillGem": 824
+  },
+  {
+    "_index": 399,
+    "SkillGem": 825
+  },
+  {
+    "_index": 400,
+    "SkillGem": 826
+  },
+  {
+    "_index": 401,
+    "SkillGem": 827
+  },
+  {
+    "_index": 402,
+    "SkillGem": 828
+  },
+  {
+    "_index": 403,
+    "SkillGem": 829
+  },
+  {
+    "_index": 404,
+    "SkillGem": 830
+  },
+  {
+    "_index": 405,
+    "SkillGem": 831
+  },
+  {
+    "_index": 406,
+    "SkillGem": 832
+  },
+  {
+    "_index": 407,
+    "SkillGem": 833
+  },
+  {
+    "_index": 408,
+    "SkillGem": 834
+  },
+  {
+    "_index": 409,
+    "SkillGem": 835
+  },
+  {
+    "_index": 410,
+    "SkillGem": 836
+  },
+  {
+    "_index": 411,
+    "SkillGem": 837
+  },
+  {
+    "_index": 412,
+    "SkillGem": 838
+  },
+  {
+    "_index": 413,
+    "SkillGem": 839
+  },
+  {
+    "_index": 414,
+    "SkillGem": 840
+  },
+  {
+    "_index": 415,
+    "SkillGem": 841
+  },
+  {
+    "_index": 416,
+    "SkillGem": 842
+  },
+  {
+    "_index": 417,
+    "SkillGem": 843
+  },
+  {
+    "_index": 418,
+    "SkillGem": 844
+  },
+  {
+    "_index": 419,
+    "SkillGem": 845
+  },
+  {
+    "_index": 420,
+    "SkillGem": 846
+  },
+  {
+    "_index": 421,
+    "SkillGem": 847
+  },
+  {
+    "_index": 422,
+    "SkillGem": 848
+  },
+  {
+    "_index": 423,
+    "SkillGem": 849
+  },
+  {
+    "_index": 424,
+    "SkillGem": 850
+  },
+  {
+    "_index": 425,
+    "SkillGem": 851
+  },
+  {
+    "_index": 426,
+    "SkillGem": 852
+  },
+  {
+    "_index": 427,
+    "SkillGem": 853
+  },
+  {
+    "_index": 428,
+    "SkillGem": 854
+  },
+  {
+    "_index": 429,
+    "SkillGem": 855
+  },
+  {
+    "_index": 430,
+    "SkillGem": 856
+  },
+  {
+    "_index": 431,
+    "SkillGem": 857
+  },
+  {
+    "_index": 432,
+    "SkillGem": 858
+  },
+  {
+    "_index": 433,
+    "SkillGem": 859
+  },
+  {
+    "_index": 434,
+    "SkillGem": 860
+  },
+  {
+    "_index": 435,
+    "SkillGem": 861
+  },
+  {
+    "_index": 436,
+    "SkillGem": 862
+  },
+  {
+    "_index": 437,
+    "SkillGem": 863
+  },
+  {
+    "_index": 438,
+    "SkillGem": 864
+  },
+  {
+    "_index": 439,
+    "SkillGem": 865
+  },
+  {
+    "_index": 440,
+    "SkillGem": 866
+  },
+  {
+    "_index": 441,
+    "SkillGem": 867
+  },
+  {
+    "_index": 442,
+    "SkillGem": 868
+  },
+  {
+    "_index": 443,
+    "SkillGem": 869
+  },
+  {
+    "_index": 444,
+    "SkillGem": 438
+  },
+  {
+    "_index": 445,
+    "SkillGem": 292
+  },
+  {
+    "_index": 446,
+    "SkillGem": 870
+  },
+  {
+    "_index": 447,
+    "SkillGem": 871
+  },
+  {
+    "_index": 448,
+    "SkillGem": 872
+  },
+  {
+    "_index": 449,
+    "SkillGem": 873
+  },
+  {
+    "_index": 450,
+    "SkillGem": 874
+  },
+  {
+    "_index": 451,
+    "SkillGem": 875
+  },
+  {
+    "_index": 452,
+    "SkillGem": 876
+  },
+  {
+    "_index": 453,
+    "SkillGem": 877
+  },
+  {
+    "_index": 454,
+    "SkillGem": 878
+  },
+  {
+    "_index": 455,
+    "SkillGem": 879
+  },
+  {
+    "_index": 456,
+    "SkillGem": 880
+  },
+  {
+    "_index": 457,
+    "SkillGem": 881
+  },
+  {
+    "_index": 458,
+    "SkillGem": 882
+  },
+  {
+    "_index": 459,
+    "SkillGem": 883
+  },
+  {
+    "_index": 460,
+    "SkillGem": 884
+  },
+  {
+    "_index": 461,
+    "SkillGem": 885
+  },
+  {
+    "_index": 462,
+    "SkillGem": 886
+  },
+  {
+    "_index": 463,
+    "SkillGem": 887
+  },
+  {
+    "_index": 464,
+    "SkillGem": 889
+  },
+  {
+    "_index": 465,
+    "SkillGem": 890
+  },
+  {
+    "_index": 466,
+    "SkillGem": 891
+  },
+  {
+    "_index": 467,
+    "SkillGem": 892
+  },
+  {
+    "_index": 468,
+    "SkillGem": 893
+  },
+  {
+    "_index": 469,
+    "SkillGem": 894
+  },
+  {
+    "_index": 470,
+    "SkillGem": 895
+  },
+  {
+    "_index": 471,
+    "SkillGem": 888
+  },
+  {
+    "_index": 472,
+    "SkillGem": 896
+  },
+  {
+    "_index": 473,
+    "SkillGem": 897
+  },
+  {
+    "_index": 474,
+    "SkillGem": 898
+  },
+  {
+    "_index": 475,
+    "SkillGem": 899
+  },
+  {
+    "_index": 476,
+    "SkillGem": 900
+  },
+  {
+    "_index": 477,
+    "SkillGem": 901
+  },
+  {
+    "_index": 478,
+    "SkillGem": 902
+  },
+  {
+    "_index": 479,
+    "SkillGem": 903
+  },
+  {
+    "_index": 480,
+    "SkillGem": 904
+  },
+  {
+    "_index": 481,
+    "SkillGem": 905
+  },
+  {
+    "_index": 482,
+    "SkillGem": 906
+  },
+  {
+    "_index": 483,
+    "SkillGem": 907
+  },
+  {
+    "_index": 484,
+    "SkillGem": 908
+  },
+  {
+    "_index": 485,
+    "SkillGem": 909
+  },
+  {
+    "_index": 486,
+    "SkillGem": 910
+  },
+  {
+    "_index": 487,
+    "SkillGem": 911
+  },
+  {
+    "_index": 488,
+    "SkillGem": 912
+  },
+  {
+    "_index": 489,
+    "SkillGem": 913
+  },
+  {
+    "_index": 490,
+    "SkillGem": 914
+  },
+  {
+    "_index": 491,
+    "SkillGem": 915
+  },
+  {
+    "_index": 492,
+    "SkillGem": 916
+  },
+  {
+    "_index": 493,
+    "SkillGem": 917
+  },
+  {
+    "_index": 494,
+    "SkillGem": 918
+  },
+  {
+    "_index": 495,
+    "SkillGem": 919
+  },
+  {
+    "_index": 496,
+    "SkillGem": 920
+  },
+  {
+    "_index": 497,
+    "SkillGem": 921
+  },
+  {
+    "_index": 498,
+    "SkillGem": 922
+  },
+  {
+    "_index": 499,
+    "SkillGem": 923
+  },
+  {
+    "_index": 500,
+    "SkillGem": 924
+  },
+  {
+    "_index": 501,
+    "SkillGem": 925
+  },
+  {
+    "_index": 502,
+    "SkillGem": 926
+  },
+  {
+    "_index": 503,
+    "SkillGem": 927
+  },
+  {
+    "_index": 504,
+    "SkillGem": 928
+  },
+  {
+    "_index": 505,
+    "SkillGem": 929
+  },
+  {
+    "_index": 506,
+    "SkillGem": 930
+  },
+  {
+    "_index": 507,
+    "SkillGem": 931
+  },
+  {
+    "_index": 508,
+    "SkillGem": 932
+  },
+  {
+    "_index": 509,
+    "SkillGem": 933
+  },
+  {
+    "_index": 510,
+    "SkillGem": 934
+  },
+  {
+    "_index": 511,
+    "SkillGem": 935
+  },
+  {
+    "_index": 512,
+    "SkillGem": 936
+  },
+  {
+    "_index": 513,
+    "SkillGem": 937
+  },
+  {
+    "_index": 514,
+    "SkillGem": 938
+  },
+  {
+    "_index": 515,
+    "SkillGem": 939
+  },
+  {
+    "_index": 516,
+    "SkillGem": 942
+  },
+  {
+    "_index": 517,
+    "SkillGem": 943
+  },
+  {
+    "_index": 518,
+    "SkillGem": 944
+  },
+  {
+    "_index": 519,
+    "SkillGem": 996
+  },
+  {
+    "_index": 520,
+    "SkillGem": 997
+  },
+  {
+    "_index": 521,
+    "SkillGem": 998
+  },
+  {
+    "_index": 522,
+    "SkillGem": 999
+  },
+  {
+    "_index": 523,
+    "SkillGem": 1000
+  },
+  {
+    "_index": 524,
+    "SkillGem": 1001
+  },
+  {
+    "_index": 525,
+    "SkillGem": 1002
+  },
+  {
+    "_index": 526,
+    "SkillGem": 1003
+  },
+  {
+    "_index": 527,
+    "SkillGem": 1004
+  },
+  {
+    "_index": 528,
+    "SkillGem": 1005
+  },
+  {
+    "_index": 529,
+    "SkillGem": 1006
+  },
+  {
+    "_index": 530,
+    "SkillGem": 1008
+  },
+  {
+    "_index": 531,
+    "SkillGem": 1007
+  },
+  {
+    "_index": 532,
+    "SkillGem": 1009
+  },
+  {
+    "_index": 533,
+    "SkillGem": 1010
+  },
+  {
+    "_index": 534,
+    "SkillGem": 1011
+  },
+  {
+    "_index": 535,
+    "SkillGem": 1012
+  },
+  {
+    "_index": 536,
+    "SkillGem": 1013
+  },
+  {
+    "_index": 537,
+    "SkillGem": 1014
+  },
+  {
+    "_index": 538,
+    "SkillGem": 1015
+  },
+  {
+    "_index": 539,
+    "SkillGem": 1016
+  },
+  {
+    "_index": 540,
+    "SkillGem": 1017
+  },
+  {
+    "_index": 541,
+    "SkillGem": 1018
+  },
+  {
+    "_index": 542,
+    "SkillGem": 1019
+  },
+  {
+    "_index": 543,
+    "SkillGem": 1020
+  },
+  {
+    "_index": 544,
+    "SkillGem": 1021
+  },
+  {
+    "_index": 545,
+    "SkillGem": 1022
+  },
+  {
+    "_index": 546,
+    "SkillGem": 1023
+  },
+  {
+    "_index": 547,
+    "SkillGem": 1024
+  },
+  {
+    "_index": 548,
+    "SkillGem": 1025
+  },
+  {
+    "_index": 549,
+    "SkillGem": 1026
+  },
+  {
+    "_index": 550,
+    "SkillGem": 1027
+  },
+  {
+    "_index": 551,
+    "SkillGem": 1028
+  },
+  {
+    "_index": 552,
+    "SkillGem": 1029
+  },
+  {
+    "_index": 553,
+    "SkillGem": 1030
+  },
+  {
+    "_index": 554,
+    "SkillGem": 1031
+  },
+  {
+    "_index": 555,
+    "SkillGem": 1032
+  },
+  {
+    "_index": 556,
+    "SkillGem": 1033
+  },
+  {
+    "_index": 557,
+    "SkillGem": 1034
+  },
+  {
+    "_index": 558,
+    "SkillGem": 1035
+  },
+  {
+    "_index": 559,
+    "SkillGem": 1036
+  },
+  {
+    "_index": 560,
+    "SkillGem": 1037
+  },
+  {
+    "_index": 561,
+    "SkillGem": 1038
+  },
+  {
+    "_index": 562,
+    "SkillGem": 1039
+  },
+  {
+    "_index": 563,
+    "SkillGem": 1040
+  },
+  {
+    "_index": 564,
+    "SkillGem": 1041
+  },
+  {
+    "_index": 565,
+    "SkillGem": 1042
+  },
+  {
+    "_index": 566,
+    "SkillGem": 1043
+  },
+  {
+    "_index": 567,
+    "SkillGem": 1044
+  },
+  {
+    "_index": 568,
+    "SkillGem": 1045
+  },
+  {
+    "_index": 569,
+    "SkillGem": 1046
+  },
+  {
+    "_index": 570,
+    "SkillGem": 1079
+  },
+  {
+    "_index": 571,
+    "SkillGem": 1080
+  },
+  {
+    "_index": 572,
+    "SkillGem": 1081
+  },
+  {
+    "_index": 573,
+    "SkillGem": 1082
+  },
+  {
+    "_index": 574,
+    "SkillGem": 1083
+  },
+  {
+    "_index": 575,
+    "SkillGem": 1084
+  },
+  {
+    "_index": 576,
+    "SkillGem": 1085
+  },
+  {
+    "_index": 577,
+    "SkillGem": 1086
+  },
+  {
+    "_index": 578,
+    "SkillGem": 1087
+  },
+  {
+    "_index": 579,
+    "SkillGem": 1088
+  },
+  {
+    "_index": 580,
+    "SkillGem": 1089
+  },
+  {
+    "_index": 581,
+    "SkillGem": 1093
+  },
+  {
+    "_index": 582,
+    "SkillGem": 1094
+  },
+  {
+    "_index": 583,
+    "SkillGem": 1095
+  },
+  {
+    "_index": 584,
+    "SkillGem": 1096
+  },
+  {
+    "_index": 585,
+    "SkillGem": 1097
+  },
+  {
+    "_index": 586,
+    "SkillGem": 1098
+  },
+  {
+    "_index": 587,
+    "SkillGem": 1099
+  },
+  {
+    "_index": 588,
+    "SkillGem": 1100
+  },
+  {
+    "_index": 589,
+    "SkillGem": 1101
+  },
+  {
+    "_index": 590,
+    "SkillGem": 1102
+  },
+  {
+    "_index": 591,
+    "SkillGem": 1103
+  },
+  {
+    "_index": 592,
+    "SkillGem": 1104
+  },
+  {
+    "_index": 593,
+    "SkillGem": 1105
+  },
+  {
+    "_index": 594,
+    "SkillGem": 1106
+  },
+  {
+    "_index": 595,
+    "SkillGem": 1107
+  },
+  {
+    "_index": 596,
+    "SkillGem": 1108
+  },
+  {
+    "_index": 597,
+    "SkillGem": 1109
+  },
+  {
+    "_index": 598,
+    "SkillGem": 1110
+  },
+  {
+    "_index": 599,
+    "SkillGem": 1111
+  },
+  {
+    "_index": 600,
+    "SkillGem": 1112
+  },
+  {
+    "_index": 601,
+    "SkillGem": 1121
+  },
+  {
+    "_index": 602,
+    "SkillGem": 1123
+  },
+  {
+    "_index": 603,
+    "SkillGem": 1124
+  },
+  {
+    "_index": 604,
+    "SkillGem": 1125
+  },
+  {
+    "_index": 605,
+    "SkillGem": 1126
+  },
+  {
+    "_index": 606,
+    "SkillGem": 1127
+  },
+  {
+    "_index": 607,
+    "SkillGem": 1128
+  },
+  {
+    "_index": 608,
+    "SkillGem": 1129
+  },
+  {
+    "_index": 609,
+    "SkillGem": 1130
+  },
+  {
+    "_index": 610,
+    "SkillGem": 1122
+  },
+  {
+    "_index": 611,
+    "SkillGem": 1133
+  },
+  {
+    "_index": 612,
+    "SkillGem": 1134
+  },
+  {
+    "_index": 613,
+    "SkillGem": 1135
+  },
+  {
+    "_index": 614,
+    "SkillGem": 1136
+  },
+  {
+    "_index": 615,
+    "SkillGem": 1137
+  },
+  {
+    "_index": 616,
+    "SkillGem": 1138
+  },
+  {
+    "_index": 617,
+    "SkillGem": 1139
+  },
+  {
+    "_index": 618,
+    "SkillGem": 1140
+  },
+  {
+    "_index": 619,
+    "SkillGem": 1141
+  },
+  {
+    "_index": 620,
+    "SkillGem": 1142
+  },
+  {
+    "_index": 621,
+    "SkillGem": 1143
+  },
+  {
+    "_index": 622,
+    "SkillGem": 1144
+  },
+  {
+    "_index": 623,
+    "SkillGem": 1145
+  },
+  {
+    "_index": 624,
+    "SkillGem": 1146
+  },
+  {
+    "_index": 625,
+    "SkillGem": 1147
+  },
+  {
+    "_index": 626,
+    "SkillGem": 1148
+  },
+  {
+    "_index": 627,
+    "SkillGem": 1149
+  },
+  {
+    "_index": 628,
+    "SkillGem": 1151
+  },
+  {
+    "_index": 629,
+    "SkillGem": 1156
+  },
+  {
+    "_index": 630,
+    "SkillGem": 1157
+  },
+  {
+    "_index": 631,
+    "SkillGem": 1173
+  },
+  {
+    "_index": 632,
+    "SkillGem": 1178
+  },
+  {
+    "_index": 633,
+    "SkillGem": 1180
+  },
+  {
+    "_index": 634,
+    "SkillGem": 1182
+  },
+  {
+    "_index": 635,
+    "SkillGem": 1183
+  },
+  {
+    "_index": 636,
+    "SkillGem": 1186
+  }
+]

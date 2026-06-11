@@ -2,12 +2,3 @@
 -- Item data (c) Grinding Gear Games
 local itemBases = ...
 
-itemBases["Fishing Rod"] = {
-	type = "Fishing Rod",
-	quality = 20,
-	socketLimit = 4,
-	tags = { default = true, fishing_rod = true, not_for_sale = true, twohand = true, },
-	implicitModTypes = { },
-	weapon = { PhysicalMin = 10, PhysicalMax = 18, CritChanceBase = 5, AttackRateBase = 1.2, Range = 13, },
-	req = { },
-}
