@@ -50,7 +50,17 @@ internal static class Program
             // CostTypes.Stat -> Stats (foreign row).
             var refs = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase)
             {
-                ["CostTypes"] = new(StringComparer.OrdinalIgnoreCase) { ["Stat"] = "Stats" }
+                ["CostTypes"] = new(StringComparer.OrdinalIgnoreCase) { ["Stat"] = "Stats" },
+                ["UniqueStashLayout"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["WordsKey"] = "Words",
+                    ["ItemVisualIdentityKey"] = "ItemVisualIdentity"
+                },
+                ["UniqueOrigins"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Unique"] = "Words",
+                    ["Origin"] = "Origin"
+                }
             };
 
             var lua = SetupLua(repoRoot);

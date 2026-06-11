@@ -122,13 +122,48 @@ pathofexile-dat     (Node CLI, headless, читает Bundles2)
 
 Результат: live-`Costs.lua` получает `Resource = "nil"` и `ResourceString = "nil"` (буквальные строки от `tostring(nil)`), но `Stat` и `Divisor` верные.
 
-**Что нужно для лечения** (следующий слой PBLDataExport, ещё не построен):
+**Column-mapping слой** (`PBLDataExport/lua/ColumnMappings.lua`, реализован):
 
-1. **Column rename map** — конфиг `column-mapping.json` вида `{ "CostTypes": { "FormatText": "ResourceString" } }`. JsonDatFile.lua применяет mapping при загрузке row.
-2. **Computed columns** — для удалённых колонок (`Resource`) реконструкция через post-load трансформ на основе других полей (`Stat.Id` → enum-значение `Mana`/`Life`/…). Хранить в Lua-конфиге per-table.
-3. Для каждой новой таблицы при расширении: запустить `python scripts/inspect-schema.py CostTypes` (выведет pathofexile-dat-schema columns), сравнить с `grep -A30 'costtypes=' src/Export/spec.lua`, добавить mapping/computed где разошлись.
+```lua
+return {
+    UniqueStashLayout = {
+        rename = { ItemVisualIdentityKey = "ItemVisualIdentity" },  -- column renamed in current schema
+    },
+    CostTypes = {
+        rename = { FormatText = "ResourceString" },
+        computed = {
+            -- "Resource" was dropped from current schema entirely; reconstruct from Stat.Id.
+            Resource = function(row)
+                local stat = row.Stat and rawget(row.Stat, "Id") or ""
+                local resourceByStat = { ["base_mana_cost"] = "Mana", ... }
+                return resourceByStat[stat]
+            end,
+        },
+    },
+}
+```
 
-Утилита `scripts/inspect-schema.py` — фетчит текущую `schema.min.json` в TEMP и выводит human-readable columns для заданной таблицы. Запускать перед добавлением каждой новой таблицы в config.
+Применяется в `HeadlessRunner.lua` после `resolveRefs()` — computed-функции уже видят `row.Stat.Id` как row-объект.
+
+**Доказанные end-to-end Scripts** (headless live-выход = production):
+
+| Script           | Размер | Расхождение с production |
+|------------------|--------|--------------------------|
+| `costs.lua`      | 119 строк | 0 байт (полный матч)  |
+| `flavourText.lua`| 3735 строк | 1 символ (`Mjölner` правильно vs `Mjolner` ASCII в production — реальное data-обновление, не баг pipeline) |
+
+**Workflow добавления нового Script:**
+
+1. `python scripts/inspect-schema.py <TableName>` — посмотреть pathofexile-dat-schema колонки.
+2. Сравнить с `grep -A30 '<tablename>=' src/Export/spec.lua`.
+3. Дополнить `PBLExport/ggpk_export/config.json` (таблицы + колонки которые знает текущая схема).
+4. Дополнить `PBLDataExport/Program.cs` словарь `refs` (foreign-row referenced).
+5. Если есть rename/удалённые колонки → запись в `PBLDataExport/lua/ColumnMappings.lua`.
+6. Если script зовёт `getFile`/`describeStats`/etc — стаббить в `HeadlessRunner.lua`.
+7. `pwsh ./scripts/regen-data-ggpk.ps1 -NoDump -Scripts <name>` итерировать пока не зелёный.
+8. Сравнить выход с production через `git diff -- src/Data/<X>.lua`. Принимать только delta которая объясняется реальным изменением игры.
+
+Утилита `scripts/inspect-schema.py` — фетчит текущую `schema.min.json` в TEMP и выводит human-readable columns для заданной таблицы.
 
 ### 3. Regen localization
 

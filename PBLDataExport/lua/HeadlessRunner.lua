@@ -43,6 +43,16 @@ function wipeTable(t)
     for k in pairs(t) do t[k] = nil end
 end
 
+-- sanitiseText: src/Modules/Common.lua strips color codes + trims whitespace.
+-- flavourText.lua uses it on Words.Text2.
+function sanitiseText(s)
+    if type(s) ~= "string" then return tostring(s) end
+    s = s:gsub("%^[xX][%da-fA-F]+", "")  -- ^xAABBCC
+    s = s:gsub("%^%d", "")               -- ^7 etc
+    s = s:match("^%s*(.-)%s*$") or s
+    return s
+end
+
 -- ---- 3. Dat shim -----------------------------------------------------------
 
 local JsonDat = require("JsonDatFile")
@@ -58,6 +68,10 @@ for _, tableInfo in ipairs(_pblExport.tables) do
     end
 end
 JsonDat.resolveRefs()
+
+-- Column-mapping layer: bridges pathofexile-dat-schema to PoB spec.lua.
+local mappings = require("ColumnMappings")
+JsonDat.applyMappings(mappings)
 
 -- ---- 4. Drive scripts ------------------------------------------------------
 
