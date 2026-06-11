@@ -59,7 +59,7 @@
     },
     {
       "name": "CostTypes",
-      "columns": ["Id", "Resource", "Stat", "ResourceString", "Divisor"]
+      "columns": ["Id", "Stat", "FormatText", "Divisor", "PerMinute"]
     }
   ]
 }

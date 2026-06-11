@@ -1,0 +1,146 @@
+[
+  {
+    "_index": 0,
+    "Id": "Mana",
+    "Stat": 10944,
+    "FormatText": "{0} маны",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 1,
+    "Id": "Life",
+    "Stat": 13101,
+    "FormatText": "{0} здоровья",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 2,
+    "Id": "ES",
+    "Stat": 13908,
+    "FormatText": "{0} энергетического щита",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 3,
+    "Id": "Rage",
+    "Stat": 13138,
+    "FormatText": "{0} свирепости",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 4,
+    "Id": "Ward",
+    "Stat": 25182,
+    "FormatText": "{0} барьера",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 5,
+    "Id": "ManaPercent",
+    "Stat": 13100,
+    "FormatText": "{0}% маны",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 6,
+    "Id": "LifePercent",
+    "Stat": 13102,
+    "FormatText": "{0}% здоровья",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 7,
+    "Id": "WardPercent",
+    "Stat": 25184,
+    "FormatText": "{0}% барьера",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 8,
+    "Id": "UnreservedManaPercent",
+    "Stat": 13354,
+    "FormatText": "{0}% не удержанной маны ",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 9,
+    "Id": "ManaPerMinute",
+    "Stat": 13750,
+    "FormatText": "{0} маны в секунду",
+    "Divisor": 60,
+    "PerMinute": true
+  },
+  {
+    "_index": 10,
+    "Id": "LifePerMinute",
+    "Stat": 13751,
+    "FormatText": "{0} здоровья в секунду",
+    "Divisor": 60,
+    "PerMinute": true
+  },
+  {
+    "_index": 11,
+    "Id": "ManaPercentPerMinute",
+    "Stat": 13754,
+    "FormatText": "{0}% маны в секунду",
+    "Divisor": 60,
+    "PerMinute": true
+  },
+  {
+    "_index": 12,
+    "Id": "LifePercentPerMinute",
+    "Stat": 13755,
+    "FormatText": "{0}% здоровья в секунду",
+    "Divisor": 60,
+    "PerMinute": true
+  },
+  {
+    "_index": 13,
+    "Id": "ESPerMinute",
+    "Stat": 13830,
+    "FormatText": "{0} энергетического щита в секунду",
+    "Divisor": 60,
+    "PerMinute": true
+  },
+  {
+    "_index": 14,
+    "Id": "ESPercentPerMinute",
+    "Stat": 13831,
+    "FormatText": "{0}% энергетического щита в секунду",
+    "Divisor": 60,
+    "PerMinute": true
+  },
+  {
+    "_index": 15,
+    "Id": "ESPercent",
+    "Stat": 21449,
+    "FormatText": "{0}% энергетического щита",
+    "Divisor": 1,
+    "PerMinute": false
+  },
+  {
+    "_index": 16,
+    "Id": "RagePerMinute",
+    "Stat": 24186,
+    "FormatText": "{0} свирепости в секунду",
+    "Divisor": 60,
+    "PerMinute": true
+  },
+  {
+    "_index": 17,
+    "Id": "WardPerMinute",
+    "Stat": 25186,
+    "FormatText": "{0} барьера в секунду",
+    "Divisor": 60,
+    "PerMinute": true
+  }
+]

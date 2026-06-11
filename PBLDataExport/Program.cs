@@ -142,15 +142,17 @@ internal static class Program
     private static void RunPathOfExileDat(string ggpkExport)
     {
         Console.WriteLine("[pbl-data-export] running pathofexile-dat...");
-        var psi = new ProcessStartInfo
-        {
-            FileName = OperatingSystem.IsWindows() ? "npx.cmd" : "npx",
-            Arguments = "pathofexile-dat@latest",
-            WorkingDirectory = ggpkExport,
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        };
+        // Windows: invoking npx.cmd directly via Process.Start makes Node
+        // resolve npm from the CWD's node_modules instead of the global
+        // install (MODULE_NOT_FOUND on npx-cli.js). Route through cmd.exe
+        // so the shell does the PATH lookup correctly.
+        var psi = OperatingSystem.IsWindows()
+            ? new ProcessStartInfo("cmd.exe", "/c npx pathofexile-dat@latest")
+            : new ProcessStartInfo("npx", "pathofexile-dat@latest");
+        psi.WorkingDirectory = ggpkExport;
+        psi.UseShellExecute = false;
+        psi.RedirectStandardOutput = true;
+        psi.RedirectStandardError = true;
         using var proc = Process.Start(psi)!;
         proc.OutputDataReceived += (_, e) => { if (e.Data != null) Console.WriteLine("  " + e.Data); };
         proc.ErrorDataReceived  += (_, e) => { if (e.Data != null) Console.Error.WriteLine("  " + e.Data); };
