@@ -92,6 +92,28 @@ function launch:OnInit()
 		end
 	end
 
+	-- Parity hook: when run by tools/parity, dump stats and exit.
+	-- See tools/parity/dump_stats.lua. Activated only by env var so normal
+	-- launches are untouched. The C# orchestrator (PBLParity) sets
+	-- POB_PARITY_SCRIPT to the absolute path; we fall back to CWD-relative
+	-- paths for manual invocation from either repo root or runtime/.
+	if not errMsg and os.getenv("POB_PARITY_BUILD") then
+		local script = os.getenv("POB_PARITY_SCRIPT")
+		if not script then
+			for _, p in ipairs({"tools/parity/dump_stats.lua",
+			                    "../tools/parity/dump_stats.lua"}) do
+				local f = io.open(p, "r")
+				if f then f:close(); script = p; break end
+			end
+		end
+		if script then
+			local ok, dumpErr = pcall(dofile, script)
+			if not ok then ConPrintf("[parity] dofile failed: %s", tostring(dumpErr)) end
+		else
+			ConPrintf("[parity] dump_stats.lua not found; set POB_PARITY_SCRIPT")
+		end
+	end
+
 	if not self.devMode and not firstRunFile then
 		-- Run a background update check if developer mode is off
 		self:CheckForUpdate(true)
