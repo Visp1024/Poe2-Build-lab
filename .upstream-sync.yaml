@@ -1,0 +1,41 @@
+# Маркер синхронизации с upstream PathOfBuildingCommunity/PathOfBuilding-PoE2.
+# Используется scripts/sync-upstream.ps1 для инкрементального 3-way патча.
+# После успешного синка обновляется автоматически.
+
+upstream_remote: upstream
+upstream_url: https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2.git
+upstream_branch: dev
+
+# Последний синхронизированный upstream commit и его версия.
+# При первом синке = точка форка (Release 0.15.0).
+last_synced_sha: 3e1b71c92dc5f7c295031700746a418558117b06  # Release 0.15.0
+last_synced_version: 0.15.0
+last_synced_date: 2026-05-28
+
+# Пути в upstream, которые мы тянем 3-way патчем.
+# Avalonia/UI и runtime/*.dll НЕ трогаем.
+sync_paths:
+  - src/Modules/
+  - src/Classes/
+  - src/Data/
+  - src/TreeData/
+  - src/Export/
+  - src/Skins/
+  - runtime/lua/
+  - manifest.xml
+  - changelog.txt
+
+# Пути, которые upstream менять не должен — наша территория.
+ours_only:
+  - PBLEngine/
+  - PBLApp/
+  - PBLApp.Core/
+  - PBLMcp/
+  - PBLExport/
+  - PBLHost/
+  - scripts/
+  - CLAUDE.md
+  - AVALONIA_MIGRATION_PLAN.md
+  - LOCALIZATION_PLAN.md
+  - UPDATE_PIPELINE.md
+  - .upstream-sync.yaml
