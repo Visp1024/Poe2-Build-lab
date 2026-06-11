@@ -5,6 +5,18 @@
 -- Program entry point; loads and runs the Main module within a protected environment
 --
 
+-- Polyfill: math.tointeger ships in LuaJIT 2.1+, but the bundled lua51.dll
+-- in this repo is older. Upstream relies on it (e.g. ItemTools.lua:57).
+if not math.tointeger then
+	function math.tointeger(x)
+		local n = tonumber(x)
+		if n and math.floor(n) == n and n >= -2147483648 and n <= 2147483647 then
+			return math.floor(n)
+		end
+		return nil
+	end
+end
+
 local startTime = GetTime()
 APP_NAME = "Path of Building (PoE2)"
 
