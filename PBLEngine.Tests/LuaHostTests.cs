@@ -155,7 +155,12 @@ public class LuaHostTests : IClassFixture<LuaHostFixture>
     {
         var opts = _host.GetConfigOptions();
 
-        Assert.All(opts, o => Assert.False(string.IsNullOrEmpty(o.Label)));
+        // type=text controls (e.g. customMods textarea) intentionally carry empty
+        // Label because the section header provides the title; see
+        // src/Modules/ConfigOptions.lua "Custom Modifiers" section.
+        Assert.All(opts, o =>
+            Assert.True(o.Type == "text" || !string.IsNullOrEmpty(o.Label),
+                $"Option Var='{o.Var}' Type='{o.Type}' has empty Label"));
     }
 
     [Fact]
