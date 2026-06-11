@@ -1,0 +1,810 @@
+[
+  {
+    "_index": 0,
+    "Id": "Hidden"
+  },
+  {
+    "_index": 1,
+    "Id": "Shown"
+  },
+  {
+    "_index": 2,
+    "Id": "Melee"
+  },
+  {
+    "_index": 3,
+    "Id": "Projectile"
+  },
+  {
+    "_index": 4,
+    "Id": "Impact"
+  },
+  {
+    "_index": 5,
+    "Id": "Explosion"
+  },
+  {
+    "_index": 6,
+    "Id": "FirstForm"
+  },
+  {
+    "_index": 7,
+    "Id": "SecondForm"
+  },
+  {
+    "_index": 8,
+    "Id": "InitialStrike"
+  },
+  {
+    "_index": 9,
+    "Id": "FinalStrike"
+  },
+  {
+    "_index": 10,
+    "Id": "DamageOverTime"
+  },
+  {
+    "_index": 11,
+    "Id": "Beam"
+  },
+  {
+    "_index": 12,
+    "Id": "Base"
+  },
+  {
+    "_index": 13,
+    "Id": "ThirdStrike"
+  },
+  {
+    "_index": 14,
+    "Id": "FinalSpike"
+  },
+  {
+    "_index": 15,
+    "Id": "Wave"
+  },
+  {
+    "_index": 16,
+    "Id": "JaggedGroundEruption"
+  },
+  {
+    "_index": 17,
+    "Id": "FreezeConsumption"
+  },
+  {
+    "_index": 18,
+    "Id": "Aftershock"
+  },
+  {
+    "_index": 19,
+    "Id": "Armed"
+  },
+  {
+    "_index": 20,
+    "Id": "SecondProjectile"
+  },
+  {
+    "_index": 21,
+    "Id": "FireTrail"
+  },
+  {
+    "_index": 22,
+    "Id": "DSFirstImpact"
+  },
+  {
+    "_index": 23,
+    "Id": "DSSecondImpact"
+  },
+  {
+    "_index": 24,
+    "Id": "Shockwave"
+  },
+  {
+    "_index": 25,
+    "Id": "Storm"
+  },
+  {
+    "_index": 26,
+    "Id": "WhenSlammed"
+  },
+  {
+    "_index": 27,
+    "Id": "Minion"
+  },
+  {
+    "_index": 28,
+    "Id": "Bolt"
+  },
+  {
+    "_index": 29,
+    "Id": "Arrow"
+  },
+  {
+    "_index": 30,
+    "Id": "Firebolts"
+  },
+  {
+    "_index": 31,
+    "Id": "CastOnFrostbolt"
+  },
+  {
+    "_index": 32,
+    "Id": "Nova"
+  },
+  {
+    "_index": 33,
+    "Id": "NormalStrike"
+  },
+  {
+    "_index": 34,
+    "Id": "PerfectStrike"
+  },
+  {
+    "_index": 35,
+    "Id": "Collision"
+  },
+  {
+    "_index": 36,
+    "Id": "Vines"
+  },
+  {
+    "_index": 37,
+    "Id": "Support"
+  },
+  {
+    "_index": 38,
+    "Id": "AoE"
+  },
+  {
+    "_index": 39,
+    "Id": "Buff"
+  },
+  {
+    "_index": 40,
+    "Id": "HowlBuff"
+  },
+  {
+    "_index": 41,
+    "Id": "Hoofbeat"
+  },
+  {
+    "_index": 42,
+    "Id": "Crystal"
+  },
+  {
+    "_index": 43,
+    "Id": "FireRain"
+  },
+  {
+    "_index": 44,
+    "Id": "ChaosRain"
+  },
+  {
+    "_index": 45,
+    "Id": "Slam"
+  },
+  {
+    "_index": 46,
+    "Id": "Swipe"
+  },
+  {
+    "_index": 47,
+    "Id": "Screech"
+  },
+  {
+    "_index": 48,
+    "Id": "Pulse"
+  },
+  {
+    "_index": 49,
+    "Id": "StaggeringPalmStaffProjectile"
+  },
+  {
+    "_index": 50,
+    "Id": "StaggeringPalmUnarmedProjectile"
+  },
+  {
+    "_index": 51,
+    "Id": "ExplosionStatSuppress"
+  },
+  {
+    "_index": 52,
+    "Id": "StarFall"
+  },
+  {
+    "_index": 53,
+    "Id": "FourthStrike"
+  },
+  {
+    "_index": 54,
+    "Id": "Curses"
+  },
+  {
+    "_index": 55,
+    "Id": "Illusion"
+  },
+  {
+    "_index": 56,
+    "Id": "VoidIllusion"
+  },
+  {
+    "_index": 57,
+    "Id": "Shrapnel"
+  },
+  {
+    "_index": 58,
+    "Id": "GroundEffect"
+  },
+  {
+    "_index": 59,
+    "Id": "ProjectileHideDescription"
+  },
+  {
+    "_index": 60,
+    "Id": "ImpactHideDescription"
+  },
+  {
+    "_index": 61,
+    "Id": "Mark"
+  },
+  {
+    "_index": 62,
+    "Id": "EternalHunt"
+  },
+  {
+    "_index": 63,
+    "Id": "Wall"
+  },
+  {
+    "_index": 64,
+    "Id": "Shard"
+  },
+  {
+    "_index": 65,
+    "Id": "PoisonCloud"
+  },
+  {
+    "_index": 66,
+    "Id": "Footsteps"
+  },
+  {
+    "_index": 67,
+    "Id": "ExplosionNoStats"
+  },
+  {
+    "_index": 68,
+    "Id": "Shards"
+  },
+  {
+    "_index": 69,
+    "Id": "FrozenShards"
+  },
+  {
+    "_index": 70,
+    "Id": "WildStrikeFire"
+  },
+  {
+    "_index": 71,
+    "Id": "WildStrikeCold"
+  },
+  {
+    "_index": 72,
+    "Id": "WildStrikeLightning"
+  },
+  {
+    "_index": 73,
+    "Id": "Strike"
+  },
+  {
+    "_index": 74,
+    "Id": "BoltsNoDescription"
+  },
+  {
+    "_index": 75,
+    "Id": "ArtilleryNoDescription"
+  },
+  {
+    "_index": 76,
+    "Id": "Ballista"
+  },
+  {
+    "_index": 77,
+    "Id": "Tornado"
+  },
+  {
+    "_index": 78,
+    "Id": "PrimaryGrenade"
+  },
+  {
+    "_index": 79,
+    "Id": "MiniGrenades"
+  },
+  {
+    "_index": 80,
+    "Id": "ArmourBroken"
+  },
+  {
+    "_index": 81,
+    "Id": "IgnitedGround"
+  },
+  {
+    "_index": 82,
+    "Id": "Totem"
+  },
+  {
+    "_index": 83,
+    "Id": "Ammo"
+  },
+  {
+    "_index": 84,
+    "Id": "MinionInfo"
+  },
+  {
+    "_index": 85,
+    "Id": "MinionInfoHidden"
+  },
+  {
+    "_index": 86,
+    "Id": "Swoop"
+  },
+  {
+    "_index": 87,
+    "Id": "MirrorBreaker"
+  },
+  {
+    "_index": 88,
+    "Id": "Firestorm"
+  },
+  {
+    "_index": 89,
+    "Id": "ImprovedBolt"
+  },
+  {
+    "_index": 90,
+    "Id": "NormalDash"
+  },
+  {
+    "_index": 91,
+    "Id": "PerfectDash"
+  },
+  {
+    "_index": 92,
+    "Id": "ChilledGround"
+  },
+  {
+    "_index": 93,
+    "Id": "Command"
+  },
+  {
+    "_index": 94,
+    "Id": "Dash"
+  },
+  {
+    "_index": 95,
+    "Id": "Lunge"
+  },
+  {
+    "_index": 96,
+    "Id": "Fire"
+  },
+  {
+    "_index": 97,
+    "Id": "Lightning"
+  },
+  {
+    "_index": 98,
+    "Id": "Cold"
+  },
+  {
+    "_index": 99,
+    "Id": "LingeringIgnite"
+  },
+  {
+    "_index": 100,
+    "Id": "Heal"
+  },
+  {
+    "_index": 101,
+    "Id": "PoisonBurst"
+  },
+  {
+    "_index": 102,
+    "Id": "Ignite"
+  },
+  {
+    "_index": 103,
+    "Id": "LightningBolts"
+  },
+  {
+    "_index": 104,
+    "Id": "Spin"
+  },
+  {
+    "_index": 105,
+    "Id": "Stab"
+  },
+  {
+    "_index": 106,
+    "Id": "SecondSlash"
+  },
+  {
+    "_index": 107,
+    "Id": "Whirlwind"
+  },
+  {
+    "_index": 108,
+    "Id": "StrongExplosion"
+  },
+  {
+    "_index": 109,
+    "Id": "Fireball"
+  },
+  {
+    "_index": 110,
+    "Id": "Wall1"
+  },
+  {
+    "_index": 111,
+    "Id": "Wall2"
+  },
+  {
+    "_index": 112,
+    "Id": "Wall3"
+  },
+  {
+    "_index": 113,
+    "Id": "FireWave"
+  },
+  {
+    "_index": 114,
+    "Id": "HeavyStun"
+  },
+  {
+    "_index": 115,
+    "Id": "Spear"
+  },
+  {
+    "_index": 116,
+    "Id": "Detonation"
+  },
+  {
+    "_index": 117,
+    "Id": "FireSurge"
+  },
+  {
+    "_index": 118,
+    "Id": "ColdSurge"
+  },
+  {
+    "_index": 119,
+    "Id": "LightningSurge"
+  },
+  {
+    "_index": 120,
+    "Id": "DeathFromAbove"
+  },
+  {
+    "_index": 121,
+    "Id": "LodgedSpear"
+  },
+  {
+    "_index": 122,
+    "Id": "InfusedSpear"
+  },
+  {
+    "_index": 123,
+    "Id": "Thrust"
+  },
+  {
+    "_index": 124,
+    "Id": "Serpent"
+  },
+  {
+    "_index": 125,
+    "Id": "EmpoweredSpear"
+  },
+  {
+    "_index": 126,
+    "Id": "FrenzyCharged"
+  },
+  {
+    "_index": 127,
+    "Id": "Spirits"
+  },
+  {
+    "_index": 128,
+    "Id": "Tendrils"
+  },
+  {
+    "_index": 129,
+    "Id": "ProjectileDamage"
+  },
+  {
+    "_index": 130,
+    "Id": "AnimatedWeaponSpearLunge"
+  },
+  {
+    "_index": 131,
+    "Id": "AnimatedWeaponMaceSlam"
+  },
+  {
+    "_index": 132,
+    "Id": "AnimatedWeaponStaffSpin"
+  },
+  {
+    "_index": 133,
+    "Id": "AnimatedWeaponTalismanRake"
+  },
+  {
+    "_index": 134,
+    "Id": "Pustules"
+  },
+  {
+    "_index": 135,
+    "Id": "Enraged"
+  },
+  {
+    "_index": 136,
+    "Id": "Orb"
+  },
+  {
+    "_index": 137,
+    "Id": "Eruption"
+  },
+  {
+    "_index": 138,
+    "Id": "FrozenExplosion"
+  },
+  {
+    "_index": 139,
+    "Id": "Roots"
+  },
+  {
+    "_index": 140,
+    "Id": "Requiem"
+  },
+  {
+    "_index": 141,
+    "Id": "Empowered"
+  },
+  {
+    "_index": 142,
+    "Id": "Mirage"
+  },
+  {
+    "_index": 143,
+    "Id": "Cascade"
+  },
+  {
+    "_index": 144,
+    "Id": "Warcry"
+  },
+  {
+    "_index": 145,
+    "Id": "ToxicDomainBloom"
+  },
+  {
+    "_index": 146,
+    "Id": "ToxicDomainPustuleExplosion"
+  },
+  {
+    "_index": 147,
+    "Id": "IceFragment"
+  },
+  {
+    "_index": 148,
+    "Id": "Fissures"
+  },
+  {
+    "_index": 149,
+    "Id": "TawhoasVengeance"
+  },
+  {
+    "_index": 150,
+    "Id": "Mortar"
+  },
+  {
+    "_index": 151,
+    "Id": "IceChunk"
+  },
+  {
+    "_index": 152,
+    "Id": "IceBolts"
+  },
+  {
+    "_index": 153,
+    "Id": "HeavyStunExplosion"
+  },
+  {
+    "_index": 154,
+    "Id": "Dazed"
+  },
+  {
+    "_index": 155,
+    "Id": "FireInfused"
+  },
+  {
+    "_index": 156,
+    "Id": "ColdInfused"
+  },
+  {
+    "_index": 157,
+    "Id": "LightningInfused"
+  },
+  {
+    "_index": 158,
+    "Id": "VerisiumInfused"
+  },
+  {
+    "_index": 159,
+    "Id": "Flask"
+  },
+  {
+    "_index": 160,
+    "Id": "AcidicBurst"
+  },
+  {
+    "_index": 161,
+    "Id": "MiniFlask"
+  },
+  {
+    "_index": 162,
+    "Id": "Core"
+  },
+  {
+    "_index": 163,
+    "Id": "FieryReclamation"
+  },
+  {
+    "_index": 164,
+    "Id": "Projectiles"
+  },
+  {
+    "_index": 165,
+    "Id": "VsMarked"
+  },
+  {
+    "_index": 166,
+    "Id": "Blast"
+  },
+  {
+    "_index": 167,
+    "Id": "AtzirisCall"
+  },
+  {
+    "_index": 168,
+    "Id": "LightningCharged"
+  },
+  {
+    "_index": 169,
+    "Id": "LeapSlam"
+  },
+  {
+    "_index": 170,
+    "Id": "Leap"
+  },
+  {
+    "_index": 171,
+    "Id": "ApocalypseFire"
+  },
+  {
+    "_index": 172,
+    "Id": "ApocalypseCold"
+  },
+  {
+    "_index": 173,
+    "Id": "ApocalypseLightningPulse"
+  },
+  {
+    "_index": 174,
+    "Id": "ApocalypseLightningFinalStrike"
+  },
+  {
+    "_index": 175,
+    "Id": "Charge"
+  },
+  {
+    "_index": 176,
+    "Id": "HolyBlastWave"
+  },
+  {
+    "_index": 177,
+    "Id": "SocketedWarcry"
+  },
+  {
+    "_index": 178,
+    "Id": "SmallMeteor"
+  },
+  {
+    "_index": 179,
+    "Id": "LargeMeteor"
+  },
+  {
+    "_index": 180,
+    "Id": "SmallComet"
+  },
+  {
+    "_index": 181,
+    "Id": "LargeComet"
+  },
+  {
+    "_index": 182,
+    "Id": "FastStrikes"
+  },
+  {
+    "_index": 183,
+    "Id": "FinalPulse"
+  },
+  {
+    "_index": 184,
+    "Id": "PoisonSporesToxicPustules"
+  },
+  {
+    "_index": 185,
+    "Id": "Mushroom"
+  },
+  {
+    "_index": 186,
+    "Id": "Cackle"
+  },
+  {
+    "_index": 187,
+    "Id": "Rune"
+  },
+  {
+    "_index": 188,
+    "Id": "Emergence"
+  },
+  {
+    "_index": 189,
+    "Id": "OilGround"
+  },
+  {
+    "_index": 190,
+    "Id": "ChargedMark"
+  },
+  {
+    "_index": 191,
+    "Id": "Throw"
+  },
+  {
+    "_index": 192,
+    "Id": "Physical"
+  },
+  {
+    "_index": 193,
+    "Id": "Chaos"
+  },
+  {
+    "_index": 194,
+    "Id": "Bells"
+  },
+  {
+    "_index": 195,
+    "Id": "RunicShockwave"
+  },
+  {
+    "_index": 196,
+    "Id": "IceBurst"
+  },
+  {
+    "_index": 197,
+    "Id": "RepulsionWave"
+  },
+  {
+    "_index": 198,
+    "Id": "VolatileIce"
+  },
+  {
+    "_index": 199,
+    "Id": "TempestShockwave"
+  },
+  {
+    "_index": 200,
+    "Id": "SocketedSkills"
+  },
+  {
+    "_index": 201,
+    "Id": "Pillars"
+  }
+]

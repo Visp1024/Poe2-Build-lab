@@ -61,6 +61,51 @@ internal static class Program
                     ["Unique"] = "Words",
                     ["Origin"] = "Origin"
                 },
+                ["Essences"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["BaseItemType"] = "BaseItemTypes",
+                },
+                ["EssenceMods"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Essence"]            = "Essences",
+                    ["TargetItemCategory"] = "EssenceTargetItemCategories",
+                    ["Mod"]                = "Mods",
+                    ["DisplayMod"]         = "Mods",
+                },
+                ["EssenceTargetItemCategories"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["ItemClasses"] = "ItemClasses",
+                },
+                ["SkillGems"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["BaseItemType"] = "BaseItemTypes",
+                    ["GemEffects"]   = "GemEffects",
+                },
+                ["GemEffects"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["GrantedEffect"] = "GrantedEffects",
+                    ["AdditionalGrantedEffects"] = "GrantedEffects",
+                },
+                ["GrantedEffects"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["ActiveSkill"]          = "ActiveSkills",
+                    ["StatSet"]              = "GrantedEffectStatSets",
+                    ["AdditionalStatSets"]   = "GrantedEffectStatSets",
+                    ["CostTypes"]            = "CostTypes",
+                },
+                ["GrantedEffectStatSets"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Label"] = "GrantedEffectLabels",
+                },
+                ["SupportGems"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["SkillGem"] = "SkillGems",
+                },
+                ["SkillGemSupports"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["SkillGem"] = "SkillGems",
+                    ["Supports"] = "SkillGems",
+                },
                 ["Mods"] = new(StringComparer.OrdinalIgnoreCase)
                 {
                     ["ModType"] = "ModType",

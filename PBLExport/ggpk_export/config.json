@@ -109,6 +109,55 @@
     {
       "name": "ModFamily",
       "columns": ["Id"]
+    },
+    {
+      "name": "SkillGems",
+      "columns": [
+        "BaseItemType", "GemEffects", "GemType", "GemColour",
+        "StrengthRequirementPercent", "DexterityRequirementPercent", "IntelligenceRequirementPercent"
+      ]
+    },
+    {
+      "name": "GemEffects",
+      "columns": [
+        "Id", "Name", "GrantedEffect", "SupportText", "SupportName",
+        "AdditionalGrantedEffects"
+      ]
+    },
+    {
+      "name": "GrantedEffects",
+      "columns": [
+        "Id", "IsSupport", "SupportGemLetter", "ActiveSkill",
+        "StatSet", "AdditionalStatSets", "CostTypes"
+      ]
+    },
+    {
+      "name": "GrantedEffectStatSets",
+      "columns": ["Id", "Label"]
+    },
+    {
+      "name": "GrantedEffectLabels",
+      "columns": ["Id"]
+    },
+    {
+      "name": "SupportGems",
+      "columns": ["SkillGem"]
+    },
+    {
+      "name": "SkillGemSupports",
+      "columns": ["SkillGem", "Supports"]
+    },
+    {
+      "name": "Essences",
+      "columns": ["BaseItemType", "Tier"]
+    },
+    {
+      "name": "EssenceMods",
+      "columns": ["Essence", "TargetItemCategory", "Mod", "DisplayMod"]
+    },
+    {
+      "name": "EssenceTargetItemCategories",
+      "columns": ["Id", "ItemClasses"]
     }
   ]
 }
