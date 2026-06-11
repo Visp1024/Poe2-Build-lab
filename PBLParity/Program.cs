@@ -290,6 +290,12 @@ internal static class Program
         if (o is null && p is null) return ("MATCH", 0.0);
         if (o is null || p is null) return ("MISMATCH", null);
 
+        // Cross-side normalization: orig PoB serializes ±Inf / NaN as quoted
+        // strings (Lua math.huge can't go into JSON directly), PBLEngine
+        // returns real IEEE doubles. Treat both representations as numeric.
+        o = NormalizeSpecial(o);
+        p = NormalizeSpecial(p);
+
         if (o is bool ob && p is bool pb)
             return (ob == pb ? "MATCH" : "MISMATCH", null);
 
@@ -309,6 +315,14 @@ internal static class Program
 
         return (o.Equals(p) ? "MATCH" : "MISMATCH", null);
     }
+
+    private static object NormalizeSpecial(object v) => v switch
+    {
+        "+Inf" => double.PositiveInfinity,
+        "-Inf" => double.NegativeInfinity,
+        "NaN"  => double.NaN,
+        _      => v
+    };
 
     private static bool TryAsDouble(object? v, out double d)
     {
