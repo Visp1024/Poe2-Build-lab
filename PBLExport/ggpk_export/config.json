@@ -3,6 +3,19 @@
 
   "translations": ["English", "Russian"],
 
+  "files": [
+    "Data/StatDescriptions/stat_descriptions.csd",
+    "Data/StatDescriptions/skill_stat_descriptions.csd",
+    "Data/StatDescriptions/gem_stat_descriptions.csd",
+    "Data/StatDescriptions/passive_skill_stat_descriptions.csd",
+    "Data/StatDescriptions/passive_skill_aura_stat_descriptions.csd",
+    "Data/StatDescriptions/active_skill_gem_stat_descriptions.csd",
+    "Data/StatDescriptions/monster_stat_descriptions.csd",
+    "Data/StatDescriptions/meta_gem_stat_descriptions.csd",
+    "Data/StatDescriptions/advanced_mod_stat_descriptions.csd",
+    "Data/StatDescriptions/utility_flask_buff_stat_descriptions.csd"
+  ],
+
   "tables": [
     {
       "name": "PassiveSkills",
@@ -25,7 +38,7 @@
     },
     {
       "name": "Stats",
-      "columns": ["Id"]
+      "columns": ["Id", "IsScalable", "IsLocal", "IsWeaponLocal"]
     },
     {
       "name": "ActiveSkills",

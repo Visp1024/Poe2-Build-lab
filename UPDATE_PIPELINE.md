@@ -147,10 +147,19 @@ return {
 
 **Доказанные end-to-end Scripts** (headless live-выход = production):
 
-| Script           | Размер | Расхождение с production |
-|------------------|--------|--------------------------|
-| `costs.lua`      | 119 строк | 0 байт (полный матч)  |
-| `flavourText.lua`| 3735 строк | 1 символ (`Mjölner` правильно vs `Mjolner` ASCII в production — реальное data-обновление, не баг pipeline) |
+| Script              | Размер | Расхождение с production | Что потребовалось |
+|---------------------|--------|--------------------------|-------------------|
+| `costs.lua`         | 119 строк | 0 байт (полный матч)  | column-mapping (rename + computed) |
+| `flavourText.lua`   | 3735 строк | 1 символ (`Mjölner` vs `Mjolner` — реальный апдейт игры) | column-mapping + новые таблицы + `sanitiseText` |
+| `modScalability.lua`| 15064 строки | 0 байт (полный матч)  | `getFile` + `statdesc` инфра |
+
+**Инфра-слой 2: getFile + statdesc** (`PBLDataExport/lua/HeadlessRunner.lua`):
+
+- `config.json:files[]` — список бинарных путей в Bundles2 (`Data/StatDescriptions/*.csd`, в перспективе `Metadata/.../*.ot`).
+- pathofexile-dat пишет их в `PBLExport/ggpk_export/files/` с заменой `/` → `@`.
+- Lua-global `getFile(path)` читает из этого каталога (с кэшем).
+- Хелперы из `src/Modules/Common.lua` пере-реализованы локально: `convertUTF16to8` (для UTF-16LE→UTF-8 .csd), `codePointToUTF8`, `pairsSortByKey`, `escapeGGGString`, `t_insert`.
+- `dofile("statdesc.lua")` загружает PoB-овскую stat-desc библиотеку (`loadStatFile`/`describeStats`/`describeScalability`) поверх наших stub'ов. После этого скрипты используют её как обычно.
 
 **Workflow добавления нового Script:**
 
