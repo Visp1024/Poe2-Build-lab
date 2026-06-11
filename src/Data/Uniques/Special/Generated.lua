@@ -7,6 +7,8 @@
 data.uniques.generated = { }
 
 local excludedItemKeystones = {
+	"Acrobatics",
+	"Walker of the Wilds",
 }
 
 local uniqueMods = data.itemMods.Exclusive
@@ -102,8 +104,8 @@ do
 	table.insert(data.uniques.generated, table.concat(prism, "\n"))
 end
 
-local treedata = LoadModule("TreeData/" .. latestTreeVersion .. "/tree.lua")
-local nodes = treedata.nodes
+local treeData = LoadModule("TreeData/" .. latestTreeVersion .. "/tree.lua")
+local nodes = treeData.nodes
 
 do
     local megalomaniac = {
@@ -135,12 +137,44 @@ do
 end
 
 do
+	local fleshCrucible = {
+		"Flesh Crucible",
+		"Diamond",
+		"Source: Drops from unique{Atziri's Vault} in normal{Vaal Temple}",
+		"Limited to: 1",
+		"Has Alt Variant: true",
+	}
+	local crucibleMods = { }
+	for _, name in ipairs(data.keystones) do
+		if not isValueInArray(excludedItemKeystones, name) then
+			table.insert(crucibleMods, name)
+		end
+	end
+	for modName, mod in pairs(uniqueMods) do
+		if modName:match("^UniqueVivisectionPrice") then
+			table.insert(crucibleMods, mod[1])
+		end
+	end
+	table.sort(crucibleMods)
+	for _, name in ipairs(crucibleMods) do
+		table.insert(fleshCrucible, "Variant: " .. name)
+	end
+	table.insert(fleshCrucible, "Selected Variant: 1")
+	table.insert(fleshCrucible, "Selected Alt Variant: 25")
+	for index, text in ipairs(crucibleMods) do
+		table.insert(fleshCrucible, "{variant:"..index.."}"..text)
+	end
+	table.insert(fleshCrucible, "Corrupted")
+    table.insert(data.uniques.generated, table.concat(fleshCrucible, "\n"))
+end
+
+do
 	local kulemakMods = { }
 	for modName, mod in pairs(uniqueMods) do
 		local name = modName:match("^PassageUnique(.+)$")
 		if name then
-			table.insert(kulemakMods, { 
-				mod = mod, 
+			table.insert(kulemakMods, {
+				mod = mod,
 				name = name
 					:gsub("([a-z])([A-Z])", "%1 %2")
 					:gsub("(%d+)([A-Za-z])", " %1 %2") -- separate numbers from letters after
@@ -215,4 +249,52 @@ do
 		table.insert(heart, "{variant:" .. index .. "}{desecrated}" .. mod.mod[1])
 	end
 	table.insert(data.uniques.generated, table.concat(heart, "\n"))
+end
+
+do
+	local loreweaveMods = { }
+	for modName, mod in pairs(uniqueMods) do
+		local name = modName:match("^UniqueLoreweave(.+)$")
+		if name then
+			table.insert(loreweaveMods, {
+				mod = mod,
+				name = name
+					:gsub("([a-z])([A-Z])", "%1 %2")
+					:gsub("(%d+)([A-Za-z])", " %1 %2") -- separate numbers from letters after
+					:gsub("([A-Za-z])(%d+)", "%1 %2") -- separate letters from numbers before
+			})
+		end
+	end
+	table.sort(loreweaveMods, function(a, b) return a.name < b.name end)
+	local loreweave = {
+		"Loreweave",
+		"Ornate Ringmail",
+		"League: Runes of Aldur",
+		"Has Alt Variant: true",
+		"Has Alt Variant Two: true",
+	}
+	local baseModNames = {
+		"UniqueAddedPhysicalDamage1BigRange",
+		"UniqueIncreasedAccuracy1BigRange",
+		"UniqueIncreasedMana2BigRange",
+		"UniqueItemFoundRarityIncrease6BigRange",
+		"UniqueAdditionalGemQuality1BigRange",
+		"UniqueIncreasedCastSpeed2BigRange",
+		"UniqueMaximumResistancesOverride1BigRange",
+	}
+	for _, mod in ipairs(loreweaveMods) do
+		table.insert(loreweave, "Variant: " .. mod.name)
+	end
+	table.insert(loreweave, "Selected Variant: 22")
+	table.insert(loreweave, "Selected Alt Variant: 44")
+	table.insert(loreweave, "Selected Alt Variant Two: 66")
+	for _, modName in ipairs(baseModNames) do
+		if uniqueMods[modName] then
+			table.insert(loreweave, uniqueMods[modName][1])
+		end
+	end
+	for index, mod in ipairs(loreweaveMods) do
+		table.insert(loreweave, "{variant:" .. index .. "}" .. mod.mod[1])
+	end
+	table.insert(data.uniques.generated, table.concat(loreweave, "\n"))
 end

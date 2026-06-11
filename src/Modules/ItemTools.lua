@@ -71,6 +71,10 @@ local function antonymFunc(num, word)
 	return antonym and (num.." "..antonym) or ("-"..num.." "..word)
 end
 
+function itemLib.isZeroValueLine(line)
+	return line:match("^%+?0%%? ") or (line:match(" %+?0%%? ") and not line:match("0 to [1-9]") and not line:match("0%% to %d+%%")) or line:match(" 0%-0 ") or line:match(" 0 to 0 ")
+end
+
 -- Apply range value (0 to 1) to a modifier that has a range: "(x-x)" or "(x-x) to (x-x)"
 function itemLib.applyRange(line, range, valueScalar, baseValueScalar)
 	-- stripLines down to # in place of any number and store numbers inside values also remove all + signs are kept if value is positive
@@ -78,7 +82,7 @@ function itemLib.applyRange(line, range, valueScalar, baseValueScalar)
 	local strippedLine = line:gsub("([%+-]?)%((%-?%d+%.?%d*)%-(%-?%d+%.?%d*)%)", function(sign, min, max)
 		local value = min + range * (tonumber(max) - min)
 		if sign == "-" then value = value * -1 end
-		return (sign == "+" and value >= 0 ) and sign..tostring(value) or tostring(value)
+		return (sign == "+" and value > 0 ) and sign..tostring(value) or tostring(value)
 	end)
 	:gsub("%-(%d+%.?%d*%%) (%a+)", antonymFunc)
 	:gsub("(%-?%d+%.?%d*)", function(value)
@@ -218,6 +222,9 @@ function itemLib.applyRange(line, range, valueScalar, baseValueScalar)
 						ifRequired = true
 					elseif format == "divide_by_one_thousand" then
 						precision = 1000
+					elseif format == "divide_by_ten_thousand_1dp" then
+						precision = 10000
+						displayPrecision = 1
 					elseif format == "per_minute_to_per_second" then
 						precision = 60
 					elseif format == "per_minute_to_per_second_0dp" then
@@ -321,8 +328,9 @@ function itemLib.applyRange(line, range, valueScalar, baseValueScalar)
 end
 
 function itemLib.formatModLine(modLine, dbMode)
-	local line = (not dbMode and modLine.range and itemLib.applyRange(modLine.line, modLine.range, modLine.valueScalar, modLine.corruptedRange)) or modLine.line
-	if line:match("^%+?0%%? ") or (line:match(" %+?0%%? ") and not line:match("0 to [1-9]") and not line:match("0%% to %d+%%")) or line:match(" 0%-0 ") or line:match(" 0 to 0 ") then -- Hack to hide 0-value modifiers
+	local valueScalar = modLine.displayValueScalar and (modLine.valueScalar or 1) * modLine.displayValueScalar or modLine.valueScalar
+	local line = (not dbMode and (modLine.range or modLine.displayValueScalar) and itemLib.applyRange(modLine.line, modLine.range or main.defaultItemAffixQuality, valueScalar, modLine.corruptedRange)) or modLine.line
+	if itemLib.isZeroValueLine(line) then -- Hack to hide 0-value modifiers
 		return
 	end
 	local colorCode
@@ -333,7 +341,7 @@ function itemLib.formatModLine(modLine, dbMode)
 			line = line .. "   ^1'" .. modLine.extra .. "'"
 		end
 	else
-		colorCode = (modLine.enchant and colorCodes.ENCHANTED) or (modLine.fractured and colorCodes.FRACTURED) or (modLine.mutated and colorCodes.MUTATED) or (modLine.custom and colorCodes.CUSTOM) or colorCodes.MAGIC
+		colorCode = (modLine.crafted and colorCodes.CRAFTED) or (modLine.enchant and colorCodes.ENCHANTED) or (modLine.fractured and colorCodes.FRACTURED) or (modLine.mutated and colorCodes.MUTATED) or (modLine.custom and (not modLine.desecrated and colorCodes.CUSTOM)) or colorCodes.MAGIC
 	end
 	return colorCode..line
 end
