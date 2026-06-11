@@ -3,14 +3,14 @@ Generate passive_names_ru.json: mapping of English passive node names
 to Russian translations, using repoe-fork skills data.
 
 Usage: python gen_passive_names_ru.py
-Output: ../PoBApp.Core/Translations/passive_names_ru.json
+Output: ../PBLApp.Core/Translations/passive_names_ru.json
 """
 
 import json, urllib.request, os
 
 BASE    = "https://repoe-fork.github.io/poe2"
 TREE_JSON = os.path.join(os.path.dirname(__file__), "../src/TreeData/0_4/tree.json")
-OUT_DIR   = os.path.join(os.path.dirname(__file__), "../PoBApp.Core/Translations")
+OUT_DIR   = os.path.join(os.path.dirname(__file__), "../PBLApp.Core/Translations")
 
 
 def fetch_json(url):
