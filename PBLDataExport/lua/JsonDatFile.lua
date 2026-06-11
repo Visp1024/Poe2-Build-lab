@@ -198,9 +198,36 @@ function JsonDat:GetRowList(key, value, match)
     return out
 end
 
+-- spec.lua (from src/Export/) gives positional column metadata that PoB
+-- scripts occasionally need when they call ReadCell / ReadCellText with a
+-- numeric colIndex (e.g. statdesc.describeModTags reads Tags col 1 = Id).
+-- Loaded lazily on first ReadCell/ReadCellText call.
+local _spec
+local function getSpec(tableName)
+    if not _spec then
+        local ok, spec = pcall(dofile, "spec.lua")
+        _spec = ok and spec or {}
+    end
+    return _spec[tableName:lower()]
+end
+
 function JsonDat:ReadCell(rowIndex, colIndex)
-    -- Scripts that index by position rather than name are rare; not implemented.
-    error("ReadCell(rowIndex, colIndex) is unsupported in JsonDatFile — Scripts should index by column name.")
+    local row = self.rowCache[rowIndex]
+    if not row then return nil end
+    local spec = getSpec(self.name)
+    if not spec or not spec[colIndex] then return nil end
+    local colName = spec[colIndex].name
+    if not colName or colName == "" then return nil end
+    return rawget(row, colName)
+end
+
+function JsonDat:ReadCellText(rowIndex, colIndex)
+    local v = self:ReadCell(rowIndex, colIndex)
+    if v == nil then return "" end
+    if type(v) == "table" then
+        return tostring(rawget(v, "Id") or rawget(v, "Name") or "")
+    end
+    return tostring(v)
 end
 
 function JsonDat:ReadValueText(spec, offset)

@@ -60,6 +60,21 @@ internal static class Program
                 {
                     ["Unique"] = "Words",
                     ["Origin"] = "Origin"
+                },
+                ["Mods"] = new(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["ModType"] = "ModType",
+                    ["Stat1"] = "Stats",
+                    ["Stat2"] = "Stats",
+                    ["Stat3"] = "Stats",
+                    ["Stat4"] = "Stats",
+                    ["Stat5"] = "Stats",
+                    ["Stat6"] = "Stats",
+                    ["Tags"] = "Tags",
+                    ["SpawnWeight_Tags"] = "Tags",
+                    ["ImplicitTags"] = "Tags",
+                    ["GenerationWeight_Tags"] = "Tags",
+                    ["Families"] = "ModFamily"
                 }
             };
 

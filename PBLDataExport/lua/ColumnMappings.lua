@@ -24,6 +24,35 @@ return {
         rename = { ItemVisualIdentityKey = "ItemVisualIdentity" },
     },
 
+    -- ModType: schema only has Name; mods.lua reads it as .Id.
+    ModType = {
+        rename = { Name = "Id" },
+    },
+
+    -- Mods: pathofexile-dat-schema uses suffix-style names; mods.lua uses
+    -- legacy PoB names (Type, Family, SpawnTags, GenerationWeightTags, etc.).
+    Mods = {
+        rename = {
+            ModType                  = "Type",
+            Families                 = "Family",
+            SpawnWeight_Tags         = "SpawnTags",
+            GenerationWeight_Tags    = "GenerationWeightTags",
+            GenerationWeight_Values  = "GenerationWeightValues",
+        },
+        computed = {
+            -- SpawnWeight values are unnamed in pathofexile-dat-schema and not
+            -- exported. mods.lua reads them via mod.SpawnWeight; default to
+            -- empty so the script doesn't blow up. (Output diff vs production
+            -- will show empty weightVal lists for this run; an upstream
+            -- schema fix or a separate computation pass is needed for parity.)
+            SpawnWeight = function(row) return {} end,
+            -- NodeType: PoE1-only jewel-mod node category. Default to 3 so
+            -- mods.lua's `if mod.NodeType ~= 3` check skips the radius-jewel
+            -- branch (which is what we want when the column is absent).
+            NodeType = function(row) return 3 end,
+        },
+    },
+
     CostTypes = {
         rename = { FormatText = "ResourceString" },
         computed = {

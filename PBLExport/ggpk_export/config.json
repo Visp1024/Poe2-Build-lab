@@ -85,6 +85,30 @@
     {
       "name": "Origin",
       "columns": ["Id"]
+    },
+    {
+      "name": "Mods",
+      "columns": [
+        "Id", "Name", "ModType", "Domain", "GenerationType",
+        "Level", "MaxLevel",
+        "Stat1", "Stat2", "Stat3", "Stat4", "Stat5", "Stat6",
+        "Stat1Value", "Stat2Value", "Stat3Value", "Stat4Value", "Stat5Value", "Stat6Value",
+        "Tags", "SpawnWeight_Tags", "ImplicitTags",
+        "GenerationWeight_Tags", "GenerationWeight_Values",
+        "Families"
+      ]
+    },
+    {
+      "name": "ModType",
+      "columns": ["Name"]
+    },
+    {
+      "name": "Tags",
+      "columns": ["Id"]
+    },
+    {
+      "name": "ModFamily",
+      "columns": ["Id"]
     }
   ]
 }

@@ -152,6 +152,9 @@ return {
 | `costs.lua`         | 119 строк | 0 байт (полный матч)  | column-mapping (rename + computed) |
 | `flavourText.lua`   | 3735 строк | 1 символ (`Mjölner` vs `Mjolner` — реальный апдейт игры) | column-mapping + новые таблицы + `sanitiseText` |
 | `modScalability.lua`| 15064 строки | 0 байт (полный матч)  | `getFile` + `statdesc` инфра |
+| `mods.lua`          | 8 файлов, ~10K строк всего | структурно совпадает, отличается только `weightVal` (см. ниже) | Mods/ModType/Tags/ModFamily config + 5 renames + `SpawnWeight`/`NodeType` computed + helpers (`copyTable`, `round`, `intToBytes`, `murmurHash2`, `LoadModule`, `ReadCellText` через spec.lua) |
+
+**Schema-gap при mods.lua**: `Mods.SpawnWeight_Values` (i32 array значений весов) — колонка без имени в `pathofexile-dat-schema`, pathofexile-dat её не экспортирует. Скрипт выдаёт `weightVal = { }` вместо реального списка. Все остальные поля (тип, affix, описание, statOrder, group, weightKey, modTags, tradeHashes) идентичны production. Лечится либо вкладом колонки в `poe-tool-dev/dat-schema`, либо отдельным проходом вычисления весов из других таблиц.
 
 **Инфра-слой 2: getFile + statdesc** (`PBLDataExport/lua/HeadlessRunner.lua`):
 

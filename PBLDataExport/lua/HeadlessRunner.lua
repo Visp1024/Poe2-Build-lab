@@ -69,6 +69,23 @@ function pairsSortByKey(t, f)
 end
 
 -- escapeGGGString: strips PoE rich-text markup (used by statdesc).
+function round(val, dec)
+    if dec then
+        return math.floor(val * 10 ^ dec + 0.5) / 10 ^ dec
+    else
+        return math.floor(val + 0.5)
+    end
+end
+
+-- copyTable: src/Modules/Common.lua. mods.lua uses it to dup statEntry.stats.
+function copyTable(tbl, noRecurse)
+    local out = {}
+    for k, v in pairs(tbl) do
+        if not noRecurse and type(v) == "table" then out[k] = copyTable(v) else out[k] = v end
+    end
+    return out
+end
+
 function escapeGGGString(text)
     return text
         :gsub("<[^>]+>{([^}]+)}", "%1")
@@ -121,6 +138,71 @@ function convertUTF16to8(text, offset)
     return table.concat(out)
 end
 
+-- LoadModule(name, ...) — PoB's module loader. Just dofile-equivalent that
+-- runs the file with the given args and returns its result.
+function LoadModule(fileName, ...)
+    if not fileName:match("%.lua$") then fileName = fileName .. ".lua" end
+    local func, err = loadfile(fileName)
+    if not func then
+        error("LoadModule() error loading '" .. fileName .. "': " .. tostring(err))
+    end
+    return func(...)
+end
+
+-- Bit-op aliases + byte helpers mods.lua needs through murmurHash2 / intToBytes.
+local b_and    = bit.band
+local b_xor    = bit.bxor
+local b_rshift = bit.rshift
+
+function bytesToInt(b, o)
+    o = o or 1
+    local n = (b:byte(o + 0) or 0)
+           + (b:byte(o + 1) or 0) * 256
+           + (b:byte(o + 2) or 0) * 65536
+           + (b:byte(o + 3) or 0) * 16777216
+    return bit.tobit(n)
+end
+
+function intToBytes(int)
+    return string.char(
+        b_and(int, 0xFF),
+        b_and(b_rshift(int, 8), 0xFF),
+        b_and(b_rshift(int, 16), 0xFF),
+        b_and(b_rshift(int, 24), 0xFF)
+    )
+end
+
+do
+    local function toUnsigned(val) return val < 0 and val + 0x100000000 or val end
+    local function murmurMix(val)
+        val = toUnsigned(val)
+        return bit.tobit(val * 0xE995 + b_and(val * 0x5BD1, 0xFFFF) * 0x10000)
+    end
+    function murmurHash2(key, seed)
+        local len = #key
+        local h = b_xor(seed or 0, len)
+        local o = 1
+        while len >= 4 do
+            local k = bytesToInt(key, o)
+            k = murmurMix(k)
+            k = b_xor(k, b_rshift(k, 24))
+            k = murmurMix(k)
+            h = murmurMix(h)
+            h = b_xor(h, k)
+            o = o + 4
+            len = len - 4
+        end
+        if len > 0 then
+            h = b_xor(h, bytesToInt(key, o))
+            h = murmurMix(h)
+        end
+        h = b_xor(h, b_rshift(h, 13))
+        h = murmurMix(h)
+        h = b_xor(h, b_rshift(h, 15))
+        return toUnsigned(h)
+    end
+end
+
 -- getFile(path) -> raw binary string of a Bundles2 asset extracted by
 -- pathofexile-dat into PBLExport/ggpk_export/files/. pathofexile-dat encodes
 -- the file path by replacing '/' with '@', so "Data/StatDescriptions/foo.csd"
@@ -166,6 +248,18 @@ JsonDat.applyMappings(mappings)
 -- loadStatFile / describeStats / describeScalability available to Scripts.
 -- CWD is src/Export/, so the file is right next door.
 dofile("statdesc.lua")
+
+-- Defensive wrappers around statdesc functions. Some PoB scripts (e.g.
+-- mods.lua) assume describeMod returns out.modTags as a string, but under
+-- our shim it can be nil for mods with empty/unresolved ImplicitTags.
+do
+    local _describeMod = describeMod
+    function describeMod(mod)
+        local out, orders, missing = _describeMod(mod)
+        if out then out.modTags = out.modTags or "" end
+        return out, orders, missing
+    end
+end
 
 -- ---- 4. Drive scripts ------------------------------------------------------
 
