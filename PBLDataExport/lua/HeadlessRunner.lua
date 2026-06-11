@@ -138,6 +138,14 @@ function convertUTF16to8(text, offset)
     return table.concat(out)
 end
 
+-- isValueInArray / isValueInTable: src/Modules/Common.lua.
+function isValueInTable(tbl, val)
+    for k, v in pairs(tbl) do if val == v then return k end end
+end
+function isValueInArray(tbl, val)
+    for i, v in ipairs(tbl) do if val == v then return i end end
+end
+
 -- processTemplateFile: src/Export/Main.lua. Reads a template .txt file,
 -- dispatches #-directives via directiveTable, writes non-directive lines
 -- to outDir/name.lua. bases.lua uses this to expand 30 base templates.
