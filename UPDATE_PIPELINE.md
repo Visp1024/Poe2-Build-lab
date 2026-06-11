@@ -64,20 +64,47 @@ pwsh ./scripts/regen-modcache.ps1
 - [ ] Хэш `src/Data/ModCache.lua` изменился — скрипт это проверяет сам
 - [ ] Коммит: `data: regen ModCache for 0.20.0` (всегда обязательный — без свежего ModCache тесты падают на лету)
 
-### 2b. Regen GGPK dumps (Gems/Bases/Stats/Skills/Uniques/Spectres)
+### 2b. Regen GGPK dumps (headless, через PBLDataExport)
 
 ```pwsh
-pwsh ./scripts/regen-data-ggpk.ps1
-# либо: pwsh ./scripts/regen-data-ggpk.ps1 -GgpkPath "D:\Games\steamapps\common\Path of Exile 2"
+pwsh ./scripts/regen-data-ggpk.ps1 -Scripts costs,bases,skills
+# либо без свежего дампа (переиспользовать JSON):
+pwsh ./scripts/regen-data-ggpk.ps1 -NoDump -Scripts costs
 ```
 
-- [ ] Скрипт нашёл/принял путь к установке PoE2
-- [ ] `PBLExport/ggpk_export/config.json` → `steam` обновлён
-- [ ] Dat View открыл GGPK, экспорт прогнан по нужным таблицам
-- [ ] `git diff --stat src/Data/ src/Export/ src/TreeData/` — изменения по делу
-- [ ] Коммит: `data: regen GGPK dumps for 0.20.0`
+Архитектура:
 
-> Если Dat View не открывает GGPK (runtime отстал от формата Bundles2 в актуальной версии игры) — используем `pathofexile-dat` через `regen-localization.ps1`, расширив `config.json` под нужные таблицы.
+```
+pathofexile-dat     (Node CLI, headless, читает Bundles2)
+  └→ PBLExport/ggpk_export/tables/English/*.json
+       └→ PBLDataExport (C# + NLua headless host)
+            ├→ JsonDatFile.lua shim (mirrors src/Export/Classes/Dat64File.lua)
+            └→ runs src/Export/Scripts/*.lua unchanged → writes src/Data/*.lua
+```
+
+- [ ] `PBLExport/ggpk_export/config.json` содержит все таблицы и колонки, нужные выбранным скриптам
+- [ ] Foreign-row references задекларированы в `PBLDataExport/Program.cs` (см. словарь `refs`)
+- [ ] `git diff --stat src/Data/` — изменения по делу
+- [ ] Коммит: `data: regen GGPK dumps for <version>`
+
+### Расширение на новый Script
+
+Когда нужно добавить новый Export script (например `bases`):
+
+1. **Таблицы в `config.json`**: пройти `src/Export/Scripts/bases.lua`, выписать каждый `dat("Foo")` и доступы к колонкам (`row.Bar`). Добавить запись в `PBLExport/ggpk_export/config.json`:
+   ```json
+   { "name": "BaseItemTypes", "columns": ["Id", "Name", "ItemClass", ...] }
+   ```
+2. **Foreign refs в `PBLDataExport/Program.cs`** (словарь `refs`): для каждой Key/ShortKey колонки указать целевую таблицу. Это превратит integer-индексы из pathofexile-dat в row-объекты, чтобы `row.ItemClass.Id` работал в скрипте без правок.
+3. Прогон: `pwsh ./scripts/regen-data-ggpk.ps1 -NoDump -Scripts bases`. Итерировать пока скрипт не отработает зелёным.
+4. Запустить с `-NoDump` снят — будет полный pathofexile-dat дамп + регенерация.
+
+### Известные ограничения PBLDataExport (по состоянию на 2026-06-11)
+
+- Доказан только `costs.lua` end-to-end. Остальные 19 скриптов требуют расширения config + refs.
+- `:ReadCell(rowIndex, colIndex)` не реализован — Scripts должны индексировать по имени колонки, не по позиции.
+- `getFile()` (бинарные ассеты — иконки, текстуры) пока стаб — скрипты `assets.lua` потребуют отдельной интеграции с pathofexile-dat's files-mode.
+- Схема `refs` сейчас захардкожена в C#. Долгосрочно — генерировать из `PBLExport/ggpk_export/schema.min.json` (или из spec.lua).
 
 ### 3. Regen localization
 

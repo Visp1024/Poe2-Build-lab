@@ -56,6 +56,10 @@
     {
       "name": "Words",
       "columns": ["Text", "Text2"]
+    },
+    {
+      "name": "CostTypes",
+      "columns": ["Id", "Resource", "Stat", "ResourceString", "Divisor"]
     }
   ]
 }
