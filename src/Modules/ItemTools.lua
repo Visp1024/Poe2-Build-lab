@@ -78,11 +78,19 @@ end
 -- Apply range value (0 to 1) to a modifier that has a range: "(x-x)" or "(x-x) to (x-x)"
 function itemLib.applyRange(line, range, valueScalar, baseValueScalar)
 	-- stripLines down to # in place of any number and store numbers inside values also remove all + signs are kept if value is positive
+	-- Lua 5.4 (NLua host) prints integer-valued floats as "11.0" where LuaJIT
+	-- prints "11"; ModParser's integer-only patterns like `grants skill: level (%d+)`
+	-- then refuse to match. Normalise the rendered value through math.tointeger.
+	local function asStr(v)
+		local i = math.tointeger(v)
+		if i ~= nil then return tostring(i) end
+		return tostring(v)
+	end
 	local values = { }
 	local strippedLine = line:gsub("([%+-]?)%((%-?%d+%.?%d*)%-(%-?%d+%.?%d*)%)", function(sign, min, max)
 		local value = min + range * (tonumber(max) - min)
 		if sign == "-" then value = value * -1 end
-		return (sign == "+" and value > 0 ) and sign..tostring(value) or tostring(value)
+		return (sign == "+" and value > 0 ) and sign..asStr(value) or asStr(value)
 	end)
 	:gsub("%-(%d+%.?%d*%%) (%a+)", antonymFunc)
 	:gsub("(%-?%d+%.?%d*)", function(value)
@@ -285,7 +293,7 @@ function itemLib.applyRange(line, range, valueScalar, baseValueScalar)
 				if minPrecision ~= maxPrecision then
 					precisionSame = false
 				end
-				return (minPrecision < 0 and "" or plus) .. tostring(minPrecision)
+				return (minPrecision < 0 and "" or plus) .. asStr(minPrecision)
 			end)
 			:gsub("%-(%d+%%) (%a+)", antonymFunc)
 
@@ -315,7 +323,7 @@ function itemLib.applyRange(line, range, valueScalar, baseValueScalar)
 				numbers = numbers + 1
 				local power = 10 ^ (precision or 0)
 				local numVal = m_floor((tonumber(min) + range * (tonumber(max) - tonumber(min))) * power + 0.5) / power
-				return (numVal < 0 and "" or plus) .. tostring(numVal)
+				return (numVal < 0 and "" or plus) .. asStr(numVal)
 			end)
 			:gsub("%-(%d+%%) (%a+)", antonymFunc)
 
