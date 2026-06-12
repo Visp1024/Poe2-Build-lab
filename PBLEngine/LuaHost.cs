@@ -1278,6 +1278,41 @@ public sealed class LuaHost : IDisposable
     }
 
     /// <summary>
+    /// Returns the names of every equipment slot the given pool item is valid for,
+    /// as judged by PoB's own <c>ItemsTab:IsItemValidForSlot</c>. This honours
+    /// keystone/ascendancy flags (Giant's Blood, Instruments of Power, Lord of the
+    /// Wilds) and weapon-1 dependent off-hand rules — e.g. a Focus is only valid in
+    /// "Weapon 2" while a Staff is equipped if Instruments of Power is allocated.
+    /// Used by the UI to populate the equip-slot dropdown for off-hand items, whose
+    /// GetPrimarySlot ("Focus") does not name a real slot.
+    /// </summary>
+    public List<string> GetValidSlotsForItem(int itemId)
+    {
+        var slots = new List<string>();
+        State["_vsItemId"] = (long)itemId;
+        var result = State.DoString(@"
+            if not (build and build.itemsTab) then return {} end
+            local it = build.itemsTab
+            local item = it.items[_vsItemId]
+            if not item then return {} end
+            local out = {}
+            for slotName, slot in pairs(it.slots) do
+                if it:IsItemValidForSlot(item, slotName, it.activeItemSet) then
+                    table.insert(out, tostring(slotName))
+                end
+            end
+            return out
+        ");
+        State["_vsItemId"] = null;
+        if (result is { Length: > 0 } && result[0] is LuaTable tbl)
+        {
+            foreach (var k in tbl.Keys)
+                if (tbl[k] is string s) slots.Add(s);
+        }
+        return slots;
+    }
+
+    /// <summary>
     /// Renders a full PoB-style item tooltip into structured lines.
     /// When <paramref name="slotName"/> is provided the item is taken from
     /// that slot (and PoB appends the "Removing this item from X will give you:"
