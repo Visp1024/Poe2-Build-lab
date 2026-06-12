@@ -101,6 +101,9 @@ public partial class TreeTabViewModel : ViewModelBase
 
     public string RepoRoot { get; }
 
+    /// <summary>Tree version of the loaded spec (e.g. "0_5"); drives asset bundle selection.</summary>
+    public string TreeVersion { get; }
+
     // ── Class-change confirmation ──────────────────────────────────────────
 
     /// <summary>Set by the View layer to show a confirmation dialog. Returns true = proceed.</summary>
@@ -133,6 +136,7 @@ public partial class TreeTabViewModel : ViewModelBase
         _host           = host;
         _onStatsChanged = onStatsChanged;
         RepoRoot        = host.RepoRoot;
+        TreeVersion     = host.GetTreeVersion();
 
         _statsDebounce.Elapsed += (_, _) =>
         {

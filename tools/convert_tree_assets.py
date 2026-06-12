@@ -9,8 +9,8 @@ convert_tree_assets.py
         src/TreeData/{version}/*.png        (orbit lines — копируются как есть)
         src/TreeData/{version}/tree.json    (ddsCoords: sprite name → index)
 
-Выход:  PoBApp/Assets/TreeData/{version}/*.png
-        PoBApp/Assets/TreeData/{version}/manifest.json
+Выход:  PBLApp/Assets/TreeData/{version}/*.png
+        PBLApp/Assets/TreeData/{version}/manifest.json
 
 manifest.json используется C# runtime для поиска спрайтов:
   {
@@ -257,7 +257,7 @@ def file_hash(path: Path) -> str:
 
 def convert_version(version: str, repo_root: Path, force: bool) -> None:
     src_dir = repo_root / "src" / "TreeData" / version
-    out_dir = repo_root / "PoBApp" / "Assets" / "TreeData" / version
+    out_dir = repo_root / "PBLApp" / "Assets" / "TreeData" / version
 
     if not src_dir.exists():
         print(f"  [SKIP] {src_dir} not found")
