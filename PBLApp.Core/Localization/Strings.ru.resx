@@ -327,6 +327,11 @@
   <data name="Editor_Runes"         xml:space="preserve"><value>РУНЫ / ИДОЛЫ</value></data>
   <data name="Editor_AddRune"       xml:space="preserve"><value>+ Добавить руну</value></data>
   <data name="Editor_NoRunes"       xml:space="preserve"><value>Нет вставленных рун или идолов</value></data>
+  <data name="Rune_Aug_Rune"          xml:space="preserve"><value>Руна</value></data>
+  <data name="Rune_Aug_SoulCore"      xml:space="preserve"><value>Душ. ядро</value></data>
+  <data name="Rune_Aug_Idol"          xml:space="preserve"><value>Идол</value></data>
+  <data name="Rune_Aug_AbyssalEye"    xml:space="preserve"><value>Око Бездны</value></data>
+  <data name="Rune_Aug_CongealedMist" xml:space="preserve"><value>Туман</value></data>
   <data name="Editor_BaseStats"     xml:space="preserve"><value>БАЗОВЫЕ СТАТЫ</value></data>
   <data name="Editor_StatArmour"    xml:space="preserve"><value>Броня</value></data>
   <data name="Editor_StatEvasion"   xml:space="preserve"><value>Уклонение</value></data>

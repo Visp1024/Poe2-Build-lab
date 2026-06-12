@@ -31,6 +31,54 @@ public static class TooltipKindConverter
     /// <summary>Translate a rune / soul core / idol name via runes_ru.json.</summary>
     public static readonly IValueConverter TranslateRune = new TranslateRuneConverter();
 
+    /// <summary>Maps a socketable-augment category (Rune/SoulCore/Idol/AbyssalEye/CongealedMist)
+    /// to a short localized badge label.</summary>
+    public static readonly IValueConverter RuneAugTypeLabel = new RuneAugTypeLabelConverter();
+
+    /// <summary>Maps a socketable-augment category to a distinct badge colour.</summary>
+    public static readonly IValueConverter RuneAugTypeBrush = new RuneAugTypeBrushConverter();
+
+    private sealed class RuneAugTypeLabelConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            var key = (value as string) ?? "";
+            return key switch
+            {
+                "Rune"          => LocalizationService.Get("Rune_Aug_Rune"),
+                "SoulCore"      => LocalizationService.Get("Rune_Aug_SoulCore"),
+                "Idol"          => LocalizationService.Get("Rune_Aug_Idol"),
+                "AbyssalEye"    => LocalizationService.Get("Rune_Aug_AbyssalEye"),
+                "CongealedMist" => LocalizationService.Get("Rune_Aug_CongealedMist"),
+                _               => "",
+            };
+        }
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
+    private sealed class RuneAugTypeBrushConverter : IValueConverter
+    {
+        // PoB-flavoured: idols violet, soul cores teal, abyssal eyes crimson, mist blue, runes neutral.
+        private static readonly IBrush Idol    = new SolidColorBrush(Color.Parse("#C792EA"));
+        private static readonly IBrush SoulCore = new SolidColorBrush(Color.Parse("#56C2C0"));
+        private static readonly IBrush Abyss   = new SolidColorBrush(Color.Parse("#E06C9F"));
+        private static readonly IBrush Mist    = new SolidColorBrush(Color.Parse("#7AA2F7"));
+        private static readonly IBrush Rune    = new SolidColorBrush(Color.Parse("#9AA4B2"));
+
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => (value as string) switch
+            {
+                "Idol"          => Idol,
+                "SoulCore"      => SoulCore,
+                "AbyssalEye"    => Abyss,
+                "CongealedMist" => Mist,
+                _               => Rune,
+            };
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
     private sealed class TranslateLineConverter : IValueConverter
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

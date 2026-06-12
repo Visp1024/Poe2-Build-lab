@@ -820,9 +820,19 @@
                                                           IsEnabled="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).CanEditMods}">
                                                     <ComboBox.ItemTemplate>
                                                         <DataTemplate DataType="eng:RuneEntry">
-                                                            <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.TranslateRune}}"
-                                                                       FontSize="13"
-                                                                       TextTrimming="CharacterEllipsis"/>
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <!-- Augment-type badge: Rune / Soul Core / Idol / … -->
+                                                                <Border Background="{Binding AugType, Converter={x:Static vm:TooltipKindConverter.RuneAugTypeBrush}}"
+                                                                        CornerRadius="3" Padding="4,0" VerticalAlignment="Center">
+                                                                    <TextBlock Text="{Binding AugType, Converter={x:Static vm:TooltipKindConverter.RuneAugTypeLabel}}"
+                                                                               FontSize="10" FontWeight="Bold"
+                                                                               Foreground="#15151F"/>
+                                                                </Border>
+                                                                <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.TranslateRune}}"
+                                                                           FontSize="13"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           VerticalAlignment="Center"/>
+                                                            </StackPanel>
                                                         </DataTemplate>
                                                     </ComboBox.ItemTemplate>
                                                 </ComboBox>
