@@ -699,7 +699,7 @@ public partial class ItemsTabViewModel : ViewModelBase
         var entry = SelectedPoolItem;
         if (entry is null) return;
 
-        foreach (var s in GetCompatibleSlots(EffectivePrimarySlot(entry)))
+        foreach (var s in GetCompatibleSlots(entry))
             CompatibleSlots.Add(s);
 
         if (CompatibleSlots.Count > 0)
@@ -711,7 +711,7 @@ public partial class ItemsTabViewModel : ViewModelBase
     {
         var item = ItemPool.FirstOrDefault(p => p.ItemId == itemId);
         if (item is null) return new HashSet<string>(StringComparer.Ordinal);
-        return new HashSet<string>(GetCompatibleSlots(EffectivePrimarySlot(item)), StringComparer.Ordinal);
+        return new HashSet<string>(GetCompatibleSlots(item), StringComparer.Ordinal);
     }
 
     /// <summary>For a slot containing an item, returns OTHER slots the item could swap into.</summary>
@@ -719,7 +719,7 @@ public partial class ItemsTabViewModel : ViewModelBase
     {
         var item = ItemPool.FirstOrDefault(p => p.EquippedSlot == slotName);
         if (item is null) return new HashSet<string>(StringComparer.Ordinal);
-        var set = new HashSet<string>(GetCompatibleSlots(EffectivePrimarySlot(item)), StringComparer.Ordinal);
+        var set = new HashSet<string>(GetCompatibleSlots(item), StringComparer.Ordinal);
         set.Remove(slotName);   // don't list the source slot itself
         return set;
     }
@@ -741,10 +741,38 @@ public partial class ItemsTabViewModel : ViewModelBase
         return ps;
     }
 
-    private IEnumerable<string> GetCompatibleSlots(string primarySlot) => primarySlot switch
+    // Canonical slot ordering for the equip dropdown (mirrors the items panel layout).
+    private static readonly string[] _slotOrder =
+        ["Weapon 1", "Weapon 2", "Helmet", "Body Armour", "Gloves", "Boots",
+         "Belt", "Amulet", "Ring 1", "Ring 2", "Ring 3"];
+
+    private IEnumerable<string> GetCompatibleSlots(ItemPoolEntryViewModel item)
+    {
+        var primarySlot = EffectivePrimarySlot(item);
+        // Weapon / off-hand items (incl. Focus, whose GetPrimarySlot is the bare
+        // "Focus" and names no real slot) are validated by the engine, which honours
+        // Weapon-1 dependence and Giant's Blood / Instruments of Power / Lord of the
+        // Wilds flags. This is what lets a Focus drop into Weapon 2 with a Staff
+        // equipped only when Instruments of Power is allocated.
+        if (primarySlot is "Weapon 1" or "Weapon 2" or "Focus")
+        {
+            var valid = _host.GetValidSlotsForItem(item.ItemId)
+                // The equip dropdown only ever offered the active weapon set; the
+                // " Swap" variants are reached via the weapon-set toggle.
+                .Where(s => !s.EndsWith(" Swap", StringComparison.Ordinal))
+                .OrderBy(s => Array.IndexOf(_slotOrder, s) is var i && i >= 0 ? i : int.MaxValue)
+                .ToList();
+            if (valid.Count > 0) return valid;
+            // Engine not ready yet — fall back to the static mapping below.
+        }
+        return GetCompatibleSlotsStatic(primarySlot);
+    }
+
+    private IEnumerable<string> GetCompatibleSlotsStatic(string primarySlot) => primarySlot switch
     {
         "Weapon 1" => ["Weapon 1", "Weapon 2"],
         "Weapon 2" => ["Weapon 2", "Weapon 1"],
+        "Focus"    => ["Weapon 2"],
         "Ring 1"   => ["Ring 1", "Ring 2", "Ring 3"],
         "Ring 2"   => ["Ring 1", "Ring 2", "Ring 3"],
         // PoE2 flask slots are typed by primarySlot — Life Flask → Flask 1 only,
