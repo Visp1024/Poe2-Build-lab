@@ -71,6 +71,39 @@ public partial class TreeTabViewModel : ViewModelBase
     public string NodesLabel =>
         string.Format(LocalizationService.Get("Tree_NodesFmt"), NodeCount);
 
+    // ── Passive-point budget (used / max), incl. weapon-set point pools ────────
+    private PointUsage? _pointUsage;
+
+    public string PointsLabel =>
+        _pointUsage is { } p
+            ? string.Format(LocalizationService.Get("Tree_PointsFmt"), p.PassivesUsed, p.PassivesMax)
+            : "";
+
+    /// <summary>True when more passives are allocated than the budget allows — PoB shows
+    /// this in red with a warning.</summary>
+    public bool IsPassivesOverBudget =>
+        _pointUsage is { } p && p.PassivesUsed > p.PassivesMax;
+
+    /// <summary>Weapon-set points are only surfaced when relevant: a set has nodes
+    /// allocated, or Weapon Master / Witchhunter granted extra weapon-set points.</summary>
+    public bool HasWeaponSetPoints =>
+        _pointUsage is { } p && (p.WeaponSet1Used > 0 || p.WeaponSet2Used > 0 || p.ExtraWeaponSetPoints > 0);
+
+    public string WeaponSetLabel =>
+        _pointUsage is { } p
+            ? string.Format(LocalizationService.Get("Tree_WeaponSetFmt"),
+                            p.WeaponSet1Used, p.WeaponSet2Used, p.WeaponSetMax)
+            : "";
+
+    private void RefreshPointUsage()
+    {
+        _pointUsage = _host.GetPointUsage();
+        OnPropertyChanged(nameof(PointsLabel));
+        OnPropertyChanged(nameof(IsPassivesOverBudget));
+        OnPropertyChanged(nameof(WeaponSetLabel));
+        OnPropertyChanged(nameof(HasWeaponSetPoints));
+    }
+
     // ── Ascendancy backgrounds ─────────────────────────────────────────────
 
     public IReadOnlyDictionary<string, AscendancyBgDto> AscendancyBackgrounds { get; }
@@ -174,10 +207,14 @@ public partial class TreeTabViewModel : ViewModelBase
         DeallocNodeCommand = new AsyncRelayCommand<int?>(
             (n, ct) => n.HasValue ? DeallocNodeAsync(n.Value, ct) : Task.CompletedTask);
 
+        RefreshPointUsage();
+
         LocalizationService.Instance.LanguageChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(AllocatedLabel));
             OnPropertyChanged(nameof(NodesLabel));
+            OnPropertyChanged(nameof(PointsLabel));
+            OnPropertyChanged(nameof(WeaponSetLabel));
         };
     }
 
@@ -311,6 +348,7 @@ public partial class TreeTabViewModel : ViewModelBase
         OnPropertyChanged(nameof(NodesLabel));
         OnPropertyChanged(nameof(AllocatedCount));
         OnPropertyChanged(nameof(AllocatedLabel));
+        RefreshPointUsage();
     }
 
     /// <summary>Captures the current synchronization context (UI thread) on first
@@ -323,8 +361,8 @@ public partial class TreeTabViewModel : ViewModelBase
         {
             var ctx = SynchronizationContext.Current;
             _statsDispatcher = ctx != null
-                ? () => ctx.Post(_ => { _host.RecalcStats(); _onStatsChanged(); }, null)
-                : () => { _host.RecalcStats(); _onStatsChanged(); };
+                ? () => ctx.Post(_ => { _host.RecalcStats(); RefreshPointUsage(); _onStatsChanged(); }, null)
+                : () => { _host.RecalcStats(); RefreshPointUsage(); _onStatsChanged(); };
         }
         _statsDebounce.Stop();
         _statsDebounce.Start();
@@ -344,5 +382,6 @@ public partial class TreeTabViewModel : ViewModelBase
         RadiusEmitters = emitters;
         OnPropertyChanged(nameof(AllocatedCount));
         OnPropertyChanged(nameof(AllocatedLabel));
+        RefreshPointUsage();
     }
 }

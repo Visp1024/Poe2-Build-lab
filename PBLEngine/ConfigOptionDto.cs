@@ -19,6 +19,21 @@ public record SkillGroupEntry(int Index, string Name, string Label = "", bool Is
 
 public record ActiveSkillEntry(int Index, string Name, bool IsTrigger = false);
 
+/// <summary>Passive-tree point budget, mirroring PoB's buildMode:EstimatePlayerProgress.
+/// Weapon-set points are a separate per-weapon-set pool; Weapon Master / Witchhunter's
+/// PassivePointsToWeaponSetPoints raises <see cref="WeaponSetMax"/> (carried in
+/// <see cref="ExtraWeaponSetPoints"/>).</summary>
+public record PointUsage(
+    int PassivesUsed,
+    int PassivesMax,
+    int AscendancyUsed,
+    int AscendancyMax,
+    int WeaponSet1Used,
+    int WeaponSet2Used,
+    int WeaponSetMax,
+    int ExtraWeaponSetPoints
+);
+
 public record ModifierEntry(string Value, string ModType, string Source, string SourceName);
 
 public record GemEntry(string Name, int Level, int Quality, bool IsEnabled, bool IsSupport, string Color = "#CDD6F4");

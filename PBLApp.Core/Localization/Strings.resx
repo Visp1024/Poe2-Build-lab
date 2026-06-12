@@ -338,6 +338,9 @@
   <!-- Tree tab status -->
   <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Allocated: {0}</value></data>
   <data name="Tree_NodesFmt"        xml:space="preserve"><value>Nodes: {0}</value></data>
+  <data name="Tree_PointsFmt"       xml:space="preserve"><value>Points: {0} / {1}</value></data>
+  <data name="Tree_WeaponSetFmt"    xml:space="preserve"><value>Weapon Sets: {0} / {2} · {1} / {2}</value></data>
+  <data name="Tree_WeaponSetTip"    xml:space="preserve"><value>Weapon-set passive points used (set 1 · set 2) out of the available pool.</value></data>
 
   <!-- Tree node hover tooltip -->
   <data name="Tree_Tip_AllocGives"      xml:space="preserve"><value>Allocating this node gives you:</value></data>

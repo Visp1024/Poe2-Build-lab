@@ -53,6 +53,27 @@
                 <TextBlock Text="{Binding AllocatedLabel}"
                            Foreground="{DynamicResource AttrDexBrush}" FontSize="11" FontWeight="Bold"
                            Margin="0,0,12,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding PointsLabel}"
+                           Classes.over="{Binding IsPassivesOverBudget}"
+                           FontSize="11" FontWeight="Bold"
+                           Margin="0,0,12,0" VerticalAlignment="Center">
+                    <TextBlock.Styles>
+                        <!-- Style setters (not a local Foreground) so the over-budget
+                             selector can override the default colour. -->
+                        <Style Selector="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource AttrIntBrush}"/>
+                        </Style>
+                        <Style Selector="TextBlock.over">
+                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                        </Style>
+                    </TextBlock.Styles>
+                </TextBlock>
+                <!-- Weapon-set point pools — shown only for Weapon Master / builds using them. -->
+                <TextBlock Text="{Binding WeaponSetLabel}"
+                           IsVisible="{Binding HasWeaponSetPoints}"
+                           Foreground="{DynamicResource StatDpsBrush}" FontSize="11" FontWeight="Bold"
+                           Margin="0,0,12,0" VerticalAlignment="Center"
+                           ToolTip.Tip="{loc:Tr Tree_WeaponSetTip}"/>
 
                 <!-- Hint -->
                 <TextBlock Text="{loc:Tr Tree_Hint}"
