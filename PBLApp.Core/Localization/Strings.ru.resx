@@ -39,7 +39,7 @@
 
   <!-- Tree tab -->
   <data name="Tree_Class"         xml:space="preserve"><value>Класс:</value></data>
-  <data name="Tree_Asc"           xml:space="preserve"><value>Восх.:</value></data>
+  <data name="Tree_Asc"           xml:space="preserve"><value>Восхождение:</value></data>
   <data name="Tree_Search"        xml:space="preserve"><value>Поиск:</value></data>
   <data name="Tree_PhNodeName"    xml:space="preserve"><value>название ноды&#x2026;</value></data>
   <data name="Tree_Hint"          xml:space="preserve"><value>Тащи=пан &#xB7; Колесо=масштаб &#xB7; Клик=выбрать ноду</value></data>

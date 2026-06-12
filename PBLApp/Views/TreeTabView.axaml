@@ -34,31 +34,7 @@
                 Padding="10,5">
             <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
 
-                <!-- Class selector -->
-                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,12,0"
-                            VerticalAlignment="Center">
-                    <TextBlock Text="{loc:Tr Tree_Class}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
-                               VerticalAlignment="Center"/>
-                    <ComboBox ItemsSource="{Binding Classes}"
-                              SelectedItem="{Binding SelectedClass}"
-                              DisplayMemberBinding="{Binding DisplayName}"
-                              Width="110" VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <!-- Ascendancy selector -->
-                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,16,0"
-                            VerticalAlignment="Center">
-                    <TextBlock Text="{loc:Tr Tree_Asc}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
-                               VerticalAlignment="Center"/>
-                    <ComboBox ItemsSource="{Binding AvailableAscendancies}"
-                              SelectedItem="{Binding SelectedAscend}"
-                              DisplayMemberBinding="{Binding DisplayName}"
-                              Width="140" VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <!-- Separator -->
-                <Border Width="1" Height="20" Background="{DynamicResource BgRaisedBrush}" Margin="0,0,12,0"
-                        VerticalAlignment="Center"/>
+                <!-- Class/ascendancy selectors live in the BuildPageView header -->
 
                 <!-- Search -->
                 <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,16,0"
