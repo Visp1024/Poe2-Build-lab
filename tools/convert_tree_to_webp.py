@@ -1,5 +1,5 @@
 """
-Repack PoBApp/Assets/TreeData/<ver>/*.png as WebP and rewrite manifest.json.
+Repack PBLApp/Assets/TreeData/<ver>/*.png as WebP and rewrite manifest.json.
 
 Sheets that exceed WebP's 16383-pixel dimension limit are tiled vertically into
 N images of (sprite_w x sprite_h) each — one per row in the original sheet —
@@ -117,7 +117,7 @@ def convert_dir(version_dir: Path) -> tuple[int, int]:
 
 def main() -> int:
     repo_root = Path(__file__).resolve().parent.parent
-    base = repo_root / "PoBApp" / "Assets" / "TreeData"
+    base = repo_root / "PBLApp" / "Assets" / "TreeData"
     if not base.is_dir():
         print(f"ERROR: {base} not found", file=sys.stderr)
         return 1

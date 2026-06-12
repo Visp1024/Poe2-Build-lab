@@ -2068,6 +2068,18 @@ public sealed class LuaHost : IDisposable
         ");
     }
 
+    /// <summary>Tree version of the active build's passive spec (e.g. "0_5"), or "" if no build.</summary>
+    public string GetTreeVersion()
+    {
+        var raw = State.DoString(@"
+            if build and build.spec and build.spec.treeVersion then
+                return tostring(build.spec.treeVersion)
+            end
+            return ''
+        ");
+        return raw is { Length: >= 1 } && raw[0] is string s ? s : "";
+    }
+
     /// <summary>Returns background center world-positions keyed by ascendancy id (e.g. "Oracle").</summary>
     public Dictionary<string, (double X, double Y)> GetAscendancyBackgrounds()
     {

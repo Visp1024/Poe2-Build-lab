@@ -25,7 +25,7 @@ public partial class TreeTabView : UserControl
 
         if (DataContext is TreeTabViewModel vm && !string.IsNullOrEmpty(vm.RepoRoot))
         {
-            _store = TreeAssetStore.TryLoad(vm.RepoRoot);
+            _store = TreeAssetStore.TryLoad(vm.RepoRoot, vm.TreeVersion);
             var canvas = this.FindControl<TreeCanvas>("TreeCanvasControl");
             if (canvas != null)
             {

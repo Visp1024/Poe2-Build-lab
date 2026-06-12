@@ -61,14 +61,24 @@ public sealed class TreeAssetStore : IDisposable
         }
     }
 
-    public static TreeAssetStore? TryLoad(string repoRoot, string version = "0_4")
+    /// <summary>Newest tree version with a converted asset bundle — used when the
+    /// requested version has no assets yet and for version-agnostic consumers.</summary>
+    public const string LatestVersion = "0_5";
+
+    public static TreeAssetStore? TryLoad(string repoRoot, string version = LatestVersion)
     {
+        if (string.IsNullOrEmpty(version)) version = LatestVersion;
+
         // Preferred path: assets copied next to the exe via <Content> (Assets/TreeData/<ver>/).
         // Fallback path: dev layout where the working directory is the repo and PBLApp/Assets is in-tree.
+        // Older tree versions without a converted bundle fall back to the latest one
+        // (sprite names overlap enough for icons/frames; better than no art at all).
         string[] candidates =
         {
             Path.Combine(AppContext.BaseDirectory, "Assets", "TreeData", version),
             Path.Combine(repoRoot, "PBLApp", "Assets", "TreeData", version),
+            Path.Combine(AppContext.BaseDirectory, "Assets", "TreeData", LatestVersion),
+            Path.Combine(repoRoot, "PBLApp", "Assets", "TreeData", LatestVersion),
         };
 
         foreach (var dir in candidates)
