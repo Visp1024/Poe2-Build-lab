@@ -1,0 +1,187 @@
+[
+  {
+    "_index": 0,
+    "Id": "Marauder1",
+    "Name": "[DNT-UNUSED] Bait Fisher"
+  },
+  {
+    "_index": 1,
+    "Id": "Marauder2",
+    "Name": "[DNT-UNUSED] Handliner"
+  },
+  {
+    "_index": 2,
+    "Id": "Marauder3",
+    "Name": "[DNT-UNUSED] Rodman"
+  },
+  {
+    "_index": 3,
+    "Id": "Warrior1",
+    "Name": "Titan"
+  },
+  {
+    "_index": 4,
+    "Id": "Warrior2",
+    "Name": "Warbringer"
+  },
+  {
+    "_index": 5,
+    "Id": "Warrior3",
+    "Name": "Smith of Kitava"
+  },
+  {
+    "_index": 6,
+    "Id": "Ranger1",
+    "Name": "Deadeye"
+  },
+  {
+    "_index": 7,
+    "Id": "Ranger2",
+    "Name": "[DNT-UNUSED] Piscator"
+  },
+  {
+    "_index": 8,
+    "Id": "Ranger3",
+    "Name": "Pathfinder"
+  },
+  {
+    "_index": 9,
+    "Id": "Huntress1",
+    "Name": "Amazon"
+  },
+  {
+    "_index": 10,
+    "Id": "Huntress2",
+    "Name": "Spirit Walker"
+  },
+  {
+    "_index": 11,
+    "Id": "Huntress3",
+    "Name": "Ritualist"
+  },
+  {
+    "_index": 12,
+    "Id": "Witch1",
+    "Name": "Infernalist"
+  },
+  {
+    "_index": 13,
+    "Id": "Witch2",
+    "Name": "Blood Mage"
+  },
+  {
+    "_index": 14,
+    "Id": "Witch3",
+    "Name": "Lich"
+  },
+  {
+    "_index": 15,
+    "Id": "Witch3b",
+    "Name": "Abyssal Lich"
+  },
+  {
+    "_index": 16,
+    "Id": "Sorceress1",
+    "Name": "Stormweaver"
+  },
+  {
+    "_index": 17,
+    "Id": "Sorceress2",
+    "Name": "Chronomancer"
+  },
+  {
+    "_index": 18,
+    "Id": "Sorceress3",
+    "Name": "Disciple of Varashta"
+  },
+  {
+    "_index": 19,
+    "Id": "Duelist1",
+    "Name": "[DNT-UNUSED] Giller"
+  },
+  {
+    "_index": 20,
+    "Id": "Duelist2",
+    "Name": "[DNT-UNUSED] Filleter"
+  },
+  {
+    "_index": 21,
+    "Id": "Duelist3",
+    "Name": "[DNT-UNUSED] Waterman"
+  },
+  {
+    "_index": 22,
+    "Id": "Mercenary1",
+    "Name": "Tactician"
+  },
+  {
+    "_index": 23,
+    "Id": "Mercenary2",
+    "Name": "Witchhunter"
+  },
+  {
+    "_index": 24,
+    "Id": "Mercenary3",
+    "Name": "Gemling Legionnaire"
+  },
+  {
+    "_index": 25,
+    "Id": "Templar1",
+    "Name": "[DNT-UNUSED] Seaman"
+  },
+  {
+    "_index": 26,
+    "Id": "Templar2",
+    "Name": "[DNT-UNUSED] Trawler"
+  },
+  {
+    "_index": 27,
+    "Id": "Templar3",
+    "Name": "[DNT-UNUSED] Boatman"
+  },
+  {
+    "_index": 28,
+    "Id": "Druid1",
+    "Name": "Oracle"
+  },
+  {
+    "_index": 29,
+    "Id": "Druid2",
+    "Name": "Shaman"
+  },
+  {
+    "_index": 30,
+    "Id": "Druid3",
+    "Name": "[DNT-UNUSED] Wildfowler"
+  },
+  {
+    "_index": 31,
+    "Id": "Shadow1",
+    "Name": "[DNT-UNUSED] Ice Fisher"
+  },
+  {
+    "_index": 32,
+    "Id": "Shadow2",
+    "Name": "[DNT-UNUSED] Longliner"
+  },
+  {
+    "_index": 33,
+    "Id": "Shadow3",
+    "Name": "[DNT-UNUSED] Dredger"
+  },
+  {
+    "_index": 34,
+    "Id": "Monk1",
+    "Name": "Martial Artist"
+  },
+  {
+    "_index": 35,
+    "Id": "Monk2",
+    "Name": "Invoker"
+  },
+  {
+    "_index": 36,
+    "Id": "Monk3",
+    "Name": "Acolyte of Chayula"
+  }
+]

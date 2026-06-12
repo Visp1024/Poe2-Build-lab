@@ -17,8 +17,26 @@
 | Стат-описания гемов | `StatDescriptionEngine.Describe()` → JSON-шаблоны | `gem_stats_templates.json` |
 | Стат-строки пассивных нод | `GameTranslationService.TPassiveStat()` → JSON | `passive_nodes_ru.json` |
 | Названия пассивных нод | `GameTranslationService.TPassiveName()` → JSON | `passive_names_ru.json` |
+| Классы и восхождения | `GameTranslationService.TClassName()` → JSON | `class_names_ru.json` |
 
 ---
+
+## Покрытие (2026-06-12, дерево 0_5 / игра 0.5.1)
+
+Измеряется `python tools/loc_coverage.py` (моделирует рантайм-фоллбэки lookup'а):
+
+| Слой | Покрытие | Остаток |
+|------|----------|---------|
+| Имена нод дерева 0_5 | **100%** (1994/1994) | — |
+| Стат-строки нод дерева 0_5 | **100%** (2625/2625) | — |
+| Описания скиллов и саппортов | **99.7%** (976/979) | 3 внутренних монстро-скилла без RU в самой игре |
+
+Что было сломано и как починено (сессия 2026-06-12):
+
+1. **486 описаний саппортов не переводились вовсе** — `skill_descriptions_ru.json` строился только из `ActiveSkills.Description`; тексты саппортов живут в `GemEffects.SupportText`. Добавлен блок в `PBLExport/Program.cs`. Плюс: лукап `SkillDescription` теперь пробует `Trim()` (Lua-строки имеют хвостовые пробелы) и фоллбэк по longest-common-prefix от 50 символов — переживает дрифт формулировок, когда GGPK уходит на патч вперёд от upstream `Gems.lua`.
+2. **253 стат-строки нод 0_5 отсутствовали** — `passive_nodes_ru.json` был от 24 мая (до дерева 0_5), а repoe-fork генератор сломан. Новый генератор **`PBLExport/gen_passive_nodes_csd.py`**: парсит GGPK `.csd` (EN+RU шаблоны в одном файле), матчит уже отрендеренные EN-строки tree.json по EN-шаблону, подставляет числа в RU-шаблон. Покрыл 254/254 (с учётом ручного словаря `HAND_FIXES` для статов, которые GGG сама ещё не локализовала — у их блоков в `.csd` нет языковых секций).
+3. **Классы и восхождения** — рукописный словарь в `GameTranslationService` был неполным (не было Ranger, Monk и всех их восхождений; Spirit Walker/Martial Artist появились с 0_5) и местами неофициальным (Huntress — «Копейщица», а не «Охотница»; Warbringer — «Вестник войны»; Chronomancer — «Хрономант»...). Заменён на генерируемый **`class_names_ru.json`** из GGPK-таблиц `Characters` + `Ascendancy` (добавлены в `ggpk_export/config.json`). `PassiveName` получил фоллбэк в `ClassOrAscendancyName` — закрывает стартовые ноды восхождений (Invoker, Lich, Warbringer, Gemling Legionnaire).
+4. **8 имён нод** (Bond of the Ape/Cat/Mamba/Owl/Viper/Wolf, Elemental, Physical) — в GGPK RU == EN (GGG не локализовала). Ручные переводы как supplemental в `Program.cs` через `TryAdd` — официальный перевод автоматически победит при появлении.
 
 ## ВЫПОЛНЕНО ✅
 
@@ -209,10 +227,12 @@ https://repoe-fork.github.io/poe2/Russian/stat_translations/specific_skill_stat_
 
 | Скрипт | Что генерирует | Источник данных |
 |--------|---------------|----------------|
-| `PBLExport/gen_passive_ru.py` | `passive_nodes_ru.json` | repoe-fork stat_translations (23 файла) + gems_ru.json |
-| `PBLExport/gen_passive_names_ru.py` | `passive_names_ru.json` | repoe-fork skills.min.json |
+| `PBLExport/gen_passive_nodes_csd.py` | дополняет `passive_nodes_ru.json` | **GGPK .csd** (EN+RU шаблоны; канонический путь) |
+| `PBLExport/gen_passive_ru.py` | `passive_nodes_ru.json` | repoe-fork stat_translations — **сломан** (формат изменился), заменён csd-генератором |
+| `PBLExport/gen_passive_names_ru.py` | `passive_names_ru.json` | repoe-fork skills.min.json — **сломан** (404), заменён Program.cs |
 | `PBLExport/gen_gem_stats_ru.py` | `gem_stats_templates.json` | repoe-fork stat_translations (gem files) |
-| `PBLExport/Program.cs` | `passive_names_ru.json`, `skill_descriptions_ru.json` | GGPK tables (pathofexile-dat export) |
+| `PBLExport/Program.cs` | `passive_names_ru.json`, `skill_descriptions_ru.json` (ActiveSkills + GemEffects.SupportText), `class_names_ru.json` (Characters + Ascendancy) | GGPK tables (pathofexile-dat export) |
+| `tools/loc_coverage.py` | — (метрика покрытия трёх слоёв) | tree.json + Skills/*.lua против Translations/*.json |
 
 Для регенерации при обновлении данных игры:
 ```bash
@@ -288,7 +308,7 @@ Avalonia сбрасывает `SelectedIndex` в 0 при первом ренд�
 
 ---
 
-*Обновлено: 2026-05-24*
+*Обновлено: 2026-06-12*
 
 <!-- Changelog:
 2026-05-24 — Исправлены баги языкового сервиса:

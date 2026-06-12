@@ -599,7 +599,7 @@
     "_index": 66,
     "Id": "ValakosCharge",
     "Name": "",
-    "GrantedEffect": 8049,
+    "GrantedEffect": 8063,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -887,7 +887,7 @@
     "_index": 98,
     "Id": "Blasphemy",
     "Name": "",
-    "GrantedEffect": 7696,
+    "GrantedEffect": 7710,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -1035,7 +1035,7 @@
     "_index": 114,
     "Id": "FrostBolt",
     "Name": "",
-    "GrantedEffect": 7620,
+    "GrantedEffect": 7634,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -1086,7 +1086,7 @@
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      8070
+      8084
     ]
   },
   {
@@ -2027,7 +2027,7 @@
     "Id": "JaggedGroundSupport",
     "Name": "",
     "GrantedEffect": 683,
-    "SupportText": "Supports [Slam|Slam] skills. Supported Skills will consume [Charges|Endurance Charges] on use to create [JaggedGround|Jagged Ground].",
+    "SupportText": "Supports [Slam|Slam] skills. Supported Skills will consume [Charges|Endurance Charges] on use to create [JaggedGround|Jagged Ground]. Cannot Support Skills which consume [Charges|Endurance Charges].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
   },
@@ -2839,7 +2839,7 @@
     "_index": 308,
     "Id": "Unknown1",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2848,7 +2848,7 @@
     "_index": 309,
     "Id": "Unknown2",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2857,7 +2857,7 @@
     "_index": 310,
     "Id": "Unknown3",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2866,7 +2866,7 @@
     "_index": 311,
     "Id": "Unknown4",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2875,7 +2875,7 @@
     "_index": 312,
     "Id": "Unknown5",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2884,7 +2884,7 @@
     "_index": 313,
     "Id": "Unknown6",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2893,7 +2893,7 @@
     "_index": 314,
     "Id": "Unknown7",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2902,7 +2902,7 @@
     "_index": 315,
     "Id": "Unknown8",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2911,7 +2911,7 @@
     "_index": 316,
     "Id": "Unknown9",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2920,7 +2920,7 @@
     "_index": 317,
     "Id": "Unknown10",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2929,7 +2929,7 @@
     "_index": 318,
     "Id": "Unknown11",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2938,7 +2938,7 @@
     "_index": 319,
     "Id": "Unknown12",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2947,7 +2947,7 @@
     "_index": 320,
     "Id": "Unknown13",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2956,7 +2956,7 @@
     "_index": 321,
     "Id": "Unknown14",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2965,7 +2965,7 @@
     "_index": 322,
     "Id": "Unknown15",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2974,7 +2974,7 @@
     "_index": 323,
     "Id": "Unknown16",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2983,7 +2983,7 @@
     "_index": 324,
     "Id": "Unknown17",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -2992,7 +2992,7 @@
     "_index": 325,
     "Id": "Unknown18",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3001,7 +3001,7 @@
     "_index": 326,
     "Id": "Unknown19",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3010,7 +3010,7 @@
     "_index": 327,
     "Id": "Unknown20",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3019,7 +3019,7 @@
     "_index": 328,
     "Id": "Unknown21",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3028,7 +3028,7 @@
     "_index": 329,
     "Id": "Unknown22",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3037,7 +3037,7 @@
     "_index": 330,
     "Id": "Unknown23",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3046,7 +3046,7 @@
     "_index": 331,
     "Id": "Unknown24",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3055,7 +3055,7 @@
     "_index": 332,
     "Id": "Unknown25",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3064,7 +3064,7 @@
     "_index": 333,
     "Id": "Unknown26",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3073,7 +3073,7 @@
     "_index": 334,
     "Id": "Unknown27",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3082,7 +3082,7 @@
     "_index": 335,
     "Id": "ReservationUnknown1",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3091,7 +3091,7 @@
     "_index": 336,
     "Id": "ReservationUnknown2",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3100,7 +3100,7 @@
     "_index": 337,
     "Id": "ReservationUnknown3",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3109,7 +3109,7 @@
     "_index": 338,
     "Id": "ReservationUnknown4",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3118,7 +3118,7 @@
     "_index": 339,
     "Id": "ReservationUnknown5",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3127,7 +3127,7 @@
     "_index": 340,
     "Id": "ReservationUnknown6",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3136,7 +3136,7 @@
     "_index": 341,
     "Id": "ReservationUnknown7",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3145,7 +3145,7 @@
     "_index": 342,
     "Id": "ReservationUnknown8",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3154,7 +3154,7 @@
     "_index": 343,
     "Id": "ReservationUnknown9",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3163,7 +3163,7 @@
     "_index": 344,
     "Id": "SupportUnknown1",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3172,7 +3172,7 @@
     "_index": 345,
     "Id": "SupportUnknown2",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3181,7 +3181,7 @@
     "_index": 346,
     "Id": "SupportUnknown3",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3190,7 +3190,7 @@
     "_index": 347,
     "Id": "SupportUnknown4",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3199,7 +3199,7 @@
     "_index": 348,
     "Id": "SupportUnknown5",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3208,7 +3208,7 @@
     "_index": 349,
     "Id": "SupportUnknown6",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3217,7 +3217,7 @@
     "_index": 350,
     "Id": "SupportUnknown7",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3226,7 +3226,7 @@
     "_index": 351,
     "Id": "SupportUnknown8",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3235,7 +3235,7 @@
     "_index": 352,
     "Id": "SupportUnknown9",
     "Name": "",
-    "GrantedEffect": 6864,
+    "GrantedEffect": 6878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3353,11 +3353,11 @@
     "_index": 364,
     "Id": "SummonMercenaryCompanion",
     "Name": "",
-    "GrantedEffect": 7571,
+    "GrantedEffect": 7585,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7572,
+      7586,
       293
     ]
   },
@@ -3600,7 +3600,7 @@
     "_index": 390,
     "Id": "DetonatingArrow",
     "Name": "",
-    "GrantedEffect": 7611,
+    "GrantedEffect": 7625,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3618,7 +3618,7 @@
     "_index": 392,
     "Id": "ToxicGrowth",
     "Name": "",
-    "GrantedEffect": 7612,
+    "GrantedEffect": 7626,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3681,7 +3681,7 @@
     "_index": 399,
     "Id": "SolarOrb",
     "Name": "",
-    "GrantedEffect": 7618,
+    "GrantedEffect": 7632,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3690,7 +3690,7 @@
     "_index": 400,
     "Id": "Fireball",
     "Name": "",
-    "GrantedEffect": 7619,
+    "GrantedEffect": 7633,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3708,7 +3708,7 @@
     "_index": 402,
     "Id": "Snap",
     "Name": "",
-    "GrantedEffect": 7621,
+    "GrantedEffect": 7635,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3744,7 +3744,7 @@
     "_index": 406,
     "Id": "ManaRemnants",
     "Name": "",
-    "GrantedEffect": 7623,
+    "GrantedEffect": 7637,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3753,7 +3753,7 @@
     "_index": 407,
     "Id": "SanguineRevelry",
     "Name": "",
-    "GrantedEffect": 7624,
+    "GrantedEffect": 7638,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3773,7 +3773,7 @@
     "_index": 409,
     "Id": "FreezingShards",
     "Name": "",
-    "GrantedEffect": 7625,
+    "GrantedEffect": 7639,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3811,7 +3811,7 @@
     "_index": 413,
     "Id": "CorpseCloud",
     "Name": "",
-    "GrantedEffect": 7627,
+    "GrantedEffect": 7641,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3847,8 +3847,8 @@
     "_index": 417,
     "Id": "FrostfireSupport",
     "Name": "",
-    "GrantedEffect": 7628,
-    "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to [Consume|Consume] [Freeze] on [Ignite|Igniting] a [Frozen] enemy to boost the effect of the [Ignite].",
+    "GrantedEffect": 7642,
+    "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to [Consume|Consume] [Freeze] on [Ignite|Igniting] a [Frozen] enemy to boost the effect of the [Ignite]. Cannot support skills that [Consume|Consume] [Freeze|Freeze] or [Ignite].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
   },
@@ -3856,7 +3856,7 @@
     "_index": 418,
     "Id": "StormfireSupport",
     "Name": "",
-    "GrantedEffect": 7629,
+    "GrantedEffect": 7643,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies. Enemies [Shock|Shocked] by Supported Skills take a percentage of damage from [Ignite] as [Lightning] damage as well as [Fire] damage.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3865,7 +3865,7 @@
     "_index": 419,
     "Id": "IncreaseLimitSupport",
     "Name": "",
-    "GrantedEffect": 7630,
+    "GrantedEffect": 7644,
     "SupportText": "Supports Skills which have a [Limit], increasing that [Limit] at the cost of their duration. Only applies to restrictions that use the word \"[Limit]\".",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3874,7 +3874,7 @@
     "_index": 420,
     "Id": "IncreaseLimitSupportTwo",
     "Name": "",
-    "GrantedEffect": 7631,
+    "GrantedEffect": 7645,
     "SupportText": "Supports Skills which have a [Limit], increasing that [Limit] at the cost of their duration. Only applies to restrictions that use the word \"[Limit]\".",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3883,7 +3883,7 @@
     "_index": 421,
     "Id": "IncreaseLimitSupportThree",
     "Name": "",
-    "GrantedEffect": 7632,
+    "GrantedEffect": 7646,
     "SupportText": "Supports Skills which have a [Limit], doubling that [Limit], but [Curse|Cursing] yourself on Supported Skill use. Only applies to restrictions that use the word \"[Limit]\". Cannot support [Persistent] Skills.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3892,7 +3892,7 @@
     "_index": 422,
     "Id": "ElectrocuteSupport",
     "Name": "",
-    "GrantedEffect": 7633,
+    "GrantedEffect": 7647,
     "SupportText": "Supports any Skill which can deal Damage. [Lightning] Damage from Supported Skills can inflict [Electrocute], but Supported Skills cannot inflict [Shock].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3901,7 +3901,7 @@
     "_index": 423,
     "Id": "EonyrsThunderSupport",
     "Name": "",
-    "GrantedEffect": 7634,
+    "GrantedEffect": 7648,
     "SupportText": "Supports any Skill which can deal damage. [Lightning] damage from Supported Skills can inflict [Electrocute], but Supported Skills cannot inflict [Shock]. Enemies slain while [Electrocute|Electrocuted] by Supported Skills explode, dealing a percentage of their maximum Life as [Lightning] damage.",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -3921,7 +3921,7 @@
     "_index": 425,
     "Id": "EnergyBarrierSupport",
     "Name": "",
-    "GrantedEffect": 7658,
+    "GrantedEffect": 7672,
     "SupportText": "Supports any skill that you can use, causing [EnergyShield|Energy Shield] recharge to begin immediately if you are [Stun|Stunned] while using it.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3930,18 +3930,18 @@
     "_index": 426,
     "Id": "KnockbackWaveSupport",
     "Name": "",
-    "GrantedEffect": 7659,
+    "GrantedEffect": 7673,
     "SupportText": "Supports any skill that you can use, triggering a blast of wind that [Knockback|Knocks Back] enemies if you are [Stun|Stunned] while using it.",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7669
+      7683
     ]
   },
   {
     "_index": 427,
     "Id": "BitingFrostSupport",
     "Name": "",
-    "GrantedEffect": 7660,
+    "GrantedEffect": 7674,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing them to deal more damage to [Frozen] enemies but consume their [Freeze]. Cannot support skills that [Consume|Consume] [Freeze|Freeze].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3950,7 +3950,7 @@
     "_index": 428,
     "Id": "BitingFrostSupportTwo",
     "Name": "",
-    "GrantedEffect": 7661,
+    "GrantedEffect": 7675,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing them to deal more damage to [Frozen] enemies but consume their [Freeze], leaving them [Chill|Chilled]. Cannot support skills that [Consume|Consume] [Freeze|Freeze].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -3960,7 +3960,7 @@
     "Id": "ElementalDischarge",
     "Name": "",
     "GrantedEffect": 725,
-    "SupportText": "Supports any [Spell] that [HitDamage|Hits] enemies, causing it to consume [ElementalAilments|Elemental Ailments] on hit to trigger an Elemental Discharge. Cannot support the skills of [Minion|Minions].",
+    "SupportText": "Supports any [Spell] that [HitDamage|Hits] enemies, causing it to [Consume|Consume] [ElementalAilments|Elemental Ailments] on hit to trigger an Elemental Discharge. Cannot support the skills of [Minion|Minions] or skills which already [Consume|Consume] [ElementalAilments|Elemental Ailments].",
     "SupportName": "",
     "AdditionalGrantedEffects": [
       726
@@ -3999,7 +3999,7 @@
     "_index": 433,
     "Id": "DetonateMinion",
     "Name": "",
-    "GrantedEffect": 7583,
+    "GrantedEffect": 7597,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4093,7 +4093,7 @@
     "_index": 443,
     "Id": "StunSupport",
     "Name": "",
-    "GrantedEffect": 7670,
+    "GrantedEffect": 7684,
     "SupportText": "Supports any skill that [HitDamage|Hits] Enemies, causing it to build up [Stun|Stun] more quickly.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4102,7 +4102,7 @@
     "_index": 444,
     "Id": "StunSupportTwo",
     "Name": "",
-    "GrantedEffect": 7671,
+    "GrantedEffect": 7685,
     "SupportText": "Supports any skill that [HitDamage|Hits] Enemies, causing it to build up [Stun|Stun] more quickly.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4111,7 +4111,7 @@
     "_index": 445,
     "Id": "StunSupportThree",
     "Name": "",
-    "GrantedEffect": 7672,
+    "GrantedEffect": 7686,
     "SupportText": "Supports any skill that [HitDamage|Hits] Enemies, causing it to build up [Stun|Stun] significantly more quickly, at the cost of Damage.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4120,7 +4120,7 @@
     "_index": 446,
     "Id": "MobilitySupport",
     "Name": "",
-    "GrantedEffect": 7673,
+    "GrantedEffect": 7687,
     "SupportText": "Supports skills that can be used while moving, allowing you to move faster while using them.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4194,7 +4194,7 @@
     "_index": 454,
     "Id": "BountySupport",
     "Name": "",
-    "GrantedEffect": 7675,
+    "GrantedEffect": 7689,
     "SupportText": "Supports any Skill that [HitDamage|Hits] Enemies, causing Enemies it kills to grant more [Flask] and [Charm] charges.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4203,7 +4203,7 @@
     "_index": 455,
     "Id": "BountySupportTwo",
     "Name": "",
-    "GrantedEffect": 7676,
+    "GrantedEffect": 7690,
     "SupportText": "Supports any Skill that [HitDamage|Hits] Enemies, causing Enemies it kills to grant more [Flask] and [Charm] charges.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4212,7 +4212,7 @@
     "_index": 456,
     "Id": "ManaFlaskSupport",
     "Name": "",
-    "GrantedEffect": 7677,
+    "GrantedEffect": 7691,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing enemies it kills to grant more Mana Flask charges.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4221,7 +4221,7 @@
     "_index": 457,
     "Id": "LifeFlaskSupport",
     "Name": "",
-    "GrantedEffect": 7678,
+    "GrantedEffect": 7692,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing enemies it kills to grant more Life Flask charges.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4239,7 +4239,7 @@
     "_index": 459,
     "Id": "EnduranceChargeOnArmourBreakSupport",
     "Name": "",
-    "GrantedEffect": 7686,
+    "GrantedEffect": 7700,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, giving it a chance to gain an [Charges|Endurance Charge] when it [ArmourBreak|Fully Breaks] an enemy's [Armour].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4248,7 +4248,7 @@
     "_index": 460,
     "Id": "CurseEffectSupport",
     "Name": "",
-    "GrantedEffect": 7688,
+    "GrantedEffect": 7702,
     "SupportText": "Supports [Curse] Skills, magnifying their power.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4257,7 +4257,7 @@
     "_index": 461,
     "Id": "CorpseConservationSupport",
     "Name": "",
-    "GrantedEffect": 7689,
+    "GrantedEffect": 7703,
     "SupportText": "Supports skills that consume [Corpse|Corpses], giving them a chance to take effect without destroying the [Corpse].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4266,11 +4266,11 @@
     "_index": 462,
     "Id": "DecayingHexSupport",
     "Name": "",
-    "GrantedEffect": 7693,
+    "GrantedEffect": 7707,
     "SupportText": "Supports [Curse] skills. Supported skill [Trigger] Profane Decay on each target they curse to inflict a damaging [Debuff].",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7694
+      7708
     ]
   },
   {
@@ -4369,11 +4369,11 @@
     "_index": 473,
     "Id": "CastOnMinionDeath",
     "Name": "",
-    "GrantedEffect": 7697,
+    "GrantedEffect": 7711,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7698
+      7712
     ]
   },
   {
@@ -4425,7 +4425,7 @@
     "_index": 479,
     "Id": "ScavengedPlating",
     "Name": "",
-    "GrantedEffect": 7700,
+    "GrantedEffect": 7714,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4443,7 +4443,7 @@
     "_index": 481,
     "Id": "ManaDrain",
     "Name": "",
-    "GrantedEffect": 7701,
+    "GrantedEffect": 7715,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4452,7 +4452,7 @@
     "_index": 482,
     "Id": "BoneBlast",
     "Name": "",
-    "GrantedEffect": 7702,
+    "GrantedEffect": 7716,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4461,7 +4461,7 @@
     "_index": 483,
     "Id": "BlinkReservation",
     "Name": "",
-    "GrantedEffect": 7704,
+    "GrantedEffect": 7718,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -4472,7 +4472,7 @@
     "_index": 484,
     "Id": "BlackPowderBlitzReservation",
     "Name": "",
-    "GrantedEffect": 7705,
+    "GrantedEffect": 7719,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -4483,7 +4483,7 @@
     "_index": 485,
     "Id": "MoltenBlast",
     "Name": "",
-    "GrantedEffect": 7706,
+    "GrantedEffect": 7720,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4492,7 +4492,7 @@
     "_index": 486,
     "Id": "Malice",
     "Name": "",
-    "GrantedEffect": 7707,
+    "GrantedEffect": 7721,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4501,7 +4501,7 @@
     "_index": 487,
     "Id": "Hydra",
     "Name": "",
-    "GrantedEffect": 7708,
+    "GrantedEffect": 7722,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -4512,7 +4512,7 @@
     "_index": 488,
     "Id": "HammerOfTheGods",
     "Name": "",
-    "GrantedEffect": 7709,
+    "GrantedEffect": 7723,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4521,7 +4521,7 @@
     "_index": 489,
     "Id": "HammerOfNgamahu",
     "Name": "",
-    "GrantedEffect": 7710,
+    "GrantedEffect": 7724,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4530,7 +4530,7 @@
     "_index": 490,
     "Id": "LivingBombPlayer",
     "Name": "",
-    "GrantedEffect": 7712,
+    "GrantedEffect": 7726,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4539,7 +4539,7 @@
     "_index": 491,
     "Id": "Stampede",
     "Name": "",
-    "GrantedEffect": 7713,
+    "GrantedEffect": 7727,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4548,7 +4548,7 @@
     "_index": 492,
     "Id": "ShieldWall",
     "Name": "",
-    "GrantedEffect": 7714,
+    "GrantedEffect": 7728,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4557,18 +4557,18 @@
     "_index": 493,
     "Id": "FortifyingCry",
     "Name": "",
-    "GrantedEffect": 7715,
+    "GrantedEffect": 7729,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7716
+      7730
     ]
   },
   {
     "_index": 494,
     "Id": "EmberFusillade",
     "Name": "",
-    "GrantedEffect": 7717,
+    "GrantedEffect": 7731,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -4577,7 +4577,7 @@
     "_index": 495,
     "Id": "ScatteringCalamity",
     "Name": "",
-    "GrantedEffect": 7718,
+    "GrantedEffect": 7732,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5032,7 +5032,7 @@
     "_index": 542,
     "Id": "AscendancyLifeRemnants",
     "Name": "",
-    "GrantedEffect": 7747,
+    "GrantedEffect": 7761,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5041,7 +5041,7 @@
     "_index": 543,
     "Id": "AscendancyExplosiveConcoction",
     "Name": "",
-    "GrantedEffect": 7756,
+    "GrantedEffect": 7770,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5050,7 +5050,7 @@
     "_index": 544,
     "Id": "AscendancyFulminatingConcoction",
     "Name": "",
-    "GrantedEffect": 7757,
+    "GrantedEffect": 7771,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5059,7 +5059,7 @@
     "_index": 545,
     "Id": "AscendancyShatteringConcoction",
     "Name": "",
-    "GrantedEffect": 7758,
+    "GrantedEffect": 7772,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5068,7 +5068,7 @@
     "_index": 546,
     "Id": "AscendancyPoisonousConcoction",
     "Name": "",
-    "GrantedEffect": 7759,
+    "GrantedEffect": 7773,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5077,7 +5077,7 @@
     "_index": 547,
     "Id": "AscendancyBleedingConcoction",
     "Name": "",
-    "GrantedEffect": 7760,
+    "GrantedEffect": 7774,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5086,7 +5086,7 @@
     "_index": 548,
     "Id": "AscendancyMeditate",
     "Name": "",
-    "GrantedEffect": 7754,
+    "GrantedEffect": 7768,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5108,7 +5108,7 @@
     "SupportText": "Supports [Attack|Attacks] and [Warcry|Warcries], causing them to trigger a [Fire|Fiery] explosion when they [ArmourBreak|Fully Break] an enemy's [Armour].",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7722
+      7736
     ]
   },
   {
@@ -5119,14 +5119,14 @@
     "SupportText": "Supports [Travel] skills, causing your footsteps to crack the earth and emit damaging shockwaves while using the skill.",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7724
+      7738
     ]
   },
   {
     "_index": 552,
     "Id": "CrescendoSupport",
     "Name": "",
-    "GrantedEffect": 7725,
+    "GrantedEffect": 7739,
     "SupportText": "Supports [Strike|Strikes] that perform a [FinalStrike|Final Strike] at the end of a combination of attacks, allowing you to use the [FinalStrike|Final Strike] twice in succession.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5135,7 +5135,7 @@
     "_index": 553,
     "Id": "CrescendoSupportTwo",
     "Name": "",
-    "GrantedEffect": 7726,
+    "GrantedEffect": 7740,
     "SupportText": "Supports [Strike|Strikes] that perform a [FinalStrike|Final Strike] at the end of a combination of attacks, allowing you to use the [FinalStrike|Final Strike] twice in succession, and causing [FinalStrike|Non-Final Strike] [Attack|Attacks] to be faster.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5144,7 +5144,7 @@
     "_index": 554,
     "Id": "CrescendoSupportThree",
     "Name": "",
-    "GrantedEffect": 7727,
+    "GrantedEffect": 7741,
     "SupportText": "Supports [Strike|Strikes] that perform a [FinalStrike|Final Strike] at the end of a combination of attacks, causing the [FinalStrike|Final Strike] to be [AncestralBoost|Ancestrally Boosted].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5153,7 +5153,7 @@
     "_index": 555,
     "Id": "FireExposureSupport",
     "Name": "",
-    "GrantedEffect": 7728,
+    "GrantedEffect": 7742,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to inflict [Exposure] when [Ignite|Igniting].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5162,7 +5162,7 @@
     "_index": 556,
     "Id": "LightningExposureSupport",
     "Name": "",
-    "GrantedEffect": 7729,
+    "GrantedEffect": 7743,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to inflict [Exposure] when inflicting [Shock].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5171,7 +5171,7 @@
     "_index": 557,
     "Id": "ColdExposureSupport",
     "Name": "",
-    "GrantedEffect": 7730,
+    "GrantedEffect": 7744,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to inflict [Exposure] when it [Critical|Critically Hits] an enemy.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5180,7 +5180,7 @@
     "_index": 558,
     "Id": "DeadlyPoisonSupport",
     "Name": "",
-    "GrantedEffect": 7732,
+    "GrantedEffect": 7746,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to deal less damage but inflict more potent [Poison].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5189,7 +5189,7 @@
     "_index": 559,
     "Id": "DeadlyPoisonSupportTwo",
     "Name": "",
-    "GrantedEffect": 7733,
+    "GrantedEffect": 7747,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to deal less damage but inflict more potent [Poison].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5198,7 +5198,7 @@
     "_index": 560,
     "Id": "DeepCutsSupport",
     "Name": "",
-    "GrantedEffect": 7734,
+    "GrantedEffect": 7748,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to deal less damage but inflict more potent [Bleeding].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5207,7 +5207,7 @@
     "_index": 561,
     "Id": "DeepCutsSupportTwo",
     "Name": "",
-    "GrantedEffect": 7735,
+    "GrantedEffect": 7749,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to deal less damage but inflict more potent [Bleeding].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5216,7 +5216,7 @@
     "_index": 562,
     "Id": "CorruptingCrySupport",
     "Name": "",
-    "GrantedEffect": 7736,
+    "GrantedEffect": 7750,
     "SupportText": "Supports [Warcry|Warcries], [Trigger|Triggering] Corrupted Cry to inflict [CorruptedBlood|Corrupted Blood] on enemies in their area of effect.",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -5227,7 +5227,7 @@
     "_index": 563,
     "Id": "CorruptingCrySupportTwo",
     "Name": "",
-    "GrantedEffect": 7737,
+    "GrantedEffect": 7751,
     "SupportText": "Supports [Warcry|Warcries], [Trigger|Triggering] Corrupted Cry to inflict [CorruptedBlood|Corrupted Blood] on enemies in their area of effect.",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -5238,7 +5238,7 @@
     "_index": 564,
     "Id": "CorruptingCrySupportThree",
     "Name": "",
-    "GrantedEffect": 7738,
+    "GrantedEffect": 7752,
     "SupportText": "Supports [Warcry|Warcries], [Trigger|Triggering] Twisted Pact  to inflict [CorruptedBlood|Corrupted Blood] on enemies in their area of effect., at the cost of your Life.",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -5249,7 +5249,7 @@
     "_index": 565,
     "Id": "WindowOfOpportunitySupport",
     "Name": "",
-    "GrantedEffect": 7739,
+    "GrantedEffect": 7753,
     "SupportText": "Supports [Channelling] skills that have special effects if released with [PerfectTiming|Perfect Timing], causing them to deal much more damage if released with [PerfectTiming|Perfect Timing] but reducing the [PerfectTiming|Perfect Timing] window.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5258,7 +5258,7 @@
     "_index": 566,
     "Id": "WindowOfOpportunitySupportTwo",
     "Name": "",
-    "GrantedEffect": 7740,
+    "GrantedEffect": 7754,
     "SupportText": "Supports [Channelling] skills that have special effects if released with [PerfectTiming|Perfect Timing], causing them to deal much more damage and grant Perfect Deflection if released with [PerfectTiming|Perfect Timing] but reducing the [PerfectTiming|Perfect Timing] window.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5267,7 +5267,7 @@
     "_index": 567,
     "Id": "FireMasterySupport",
     "Name": "",
-    "GrantedEffect": 7741,
+    "GrantedEffect": 7755,
     "SupportText": "Supports [Fire] skills, granting them an additional level. Does not support skills which do not have levels.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5276,7 +5276,7 @@
     "_index": 568,
     "Id": "ColdMasterySupport",
     "Name": "",
-    "GrantedEffect": 7742,
+    "GrantedEffect": 7756,
     "SupportText": "Supports [Cold] skills, granting them an additional level. Does not support skills which do not have levels.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5285,7 +5285,7 @@
     "_index": 569,
     "Id": "LightningMasterySupport",
     "Name": "",
-    "GrantedEffect": 7743,
+    "GrantedEffect": 7757,
     "SupportText": "Supports [Lightning] skills, granting them an additional level. Does not support skills which do not have levels.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5294,7 +5294,7 @@
     "_index": 570,
     "Id": "ChaosMasterySupport",
     "Name": "",
-    "GrantedEffect": 7744,
+    "GrantedEffect": 7758,
     "SupportText": "Supports [Chaos] skills, granting them an additional level. Does not support skills which do not have levels.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5303,7 +5303,7 @@
     "_index": 571,
     "Id": "PhysicalMasterySupport",
     "Name": "",
-    "GrantedEffect": 7745,
+    "GrantedEffect": 7759,
     "SupportText": "Supports [Physical] skills, granting them an additional level. Does not support skills which do not have levels.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5312,7 +5312,7 @@
     "_index": 572,
     "Id": "MinionMasterySupport",
     "Name": "",
-    "GrantedEffect": 7746,
+    "GrantedEffect": 7760,
     "SupportText": "Supports [Minion] skills, granting them an additional level. Does not support skills which do not have levels.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5555,7 +5555,7 @@
     "_index": 599,
     "Id": "CorpsewadeCorpseCloud",
     "Name": "",
-    "GrantedEffect": 7753,
+    "GrantedEffect": 7767,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5568,7 +5568,7 @@
     "SupportText": "Supports skills you use yourself, causing them to [Trigger] a [Chaos|Chaos] Damage nova when breaking Enemy [EnergyShield|Energy Shield].",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7755
+      7769
     ]
   },
   {
@@ -5748,7 +5748,7 @@
     "_index": 620,
     "Id": "AscendancyElementalExpression",
     "Name": "",
-    "GrantedEffect": 7761,
+    "GrantedEffect": 7775,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5757,7 +5757,7 @@
     "_index": 621,
     "Id": "IceShot",
     "Name": "",
-    "GrantedEffect": 7763,
+    "GrantedEffect": 7777,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5799,7 +5799,7 @@
     "_index": 625,
     "Id": "FreezingMark",
     "Name": "",
-    "GrantedEffect": 7764,
+    "GrantedEffect": 7778,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5808,7 +5808,7 @@
     "_index": 626,
     "Id": "VoltaicMark",
     "Name": "",
-    "GrantedEffect": 7765,
+    "GrantedEffect": 7779,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5817,7 +5817,7 @@
     "_index": 627,
     "Id": "AscendancyUnboundAvatar",
     "Name": "",
-    "GrantedEffect": 7766,
+    "GrantedEffect": 7780,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5964,7 +5964,7 @@
     "_index": 642,
     "Id": "AscendancyEncasedInJade",
     "Name": "",
-    "GrantedEffect": 7774,
+    "GrantedEffect": 7788,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5973,7 +5973,7 @@
     "_index": 643,
     "Id": "AscendancyAlignFate",
     "Name": "",
-    "GrantedEffect": 7775,
+    "GrantedEffect": 7789,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5982,7 +5982,7 @@
     "_index": 644,
     "Id": "AscendancyMomentOfVulnerability",
     "Name": "",
-    "GrantedEffect": 7776,
+    "GrantedEffect": 7790,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -5991,7 +5991,7 @@
     "_index": 645,
     "Id": "TemporalRift",
     "Name": "",
-    "GrantedEffect": 7768,
+    "GrantedEffect": 7782,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -6000,7 +6000,7 @@
     "_index": 646,
     "Id": "TimeFreeze",
     "Name": "",
-    "GrantedEffect": 7769,
+    "GrantedEffect": 7783,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -6009,7 +6009,7 @@
     "_index": 647,
     "Id": "TimeSnap",
     "Name": "",
-    "GrantedEffect": 7767,
+    "GrantedEffect": 7781,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -6018,7 +6018,7 @@
     "_index": 648,
     "Id": "DemonForm",
     "Name": "",
-    "GrantedEffect": 7772,
+    "GrantedEffect": 7786,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -6027,7 +6027,7 @@
     "_index": 649,
     "Id": "SorceryWard",
     "Name": "",
-    "GrantedEffect": 7723,
+    "GrantedEffect": 7737,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -6074,7 +6074,7 @@
     "_index": 654,
     "Id": "IntoTheBreach",
     "Name": "",
-    "GrantedEffect": 7778,
+    "GrantedEffect": 7792,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -6083,7 +6083,7 @@
     "_index": 655,
     "Id": "AncestralSpriits",
     "Name": "",
-    "GrantedEffect": 7777,
+    "GrantedEffect": 7791,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -6092,7 +6092,7 @@
     "_index": 656,
     "Id": "RitualSacrifice",
     "Name": "",
-    "GrantedEffect": 7863,
+    "GrantedEffect": 7877,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -6860,7 +6860,7 @@
     "Id": "PotentialSupport",
     "Name": "",
     "GrantedEffect": 859,
-    "SupportText": "Supports Skills that you use yourself. Supported Skills will consume a [Charges|Power Charge] on use if possible, and will be much more likely to [Critical|Critically Hit] if they do. Supported Skills cannot generate [Charges|Power Charges].",
+    "SupportText": "Supports Skills that you use yourself. Supported Skills will consume a [Charges|Power Charge] on use if possible, and will be much more likely to [Critical|Critically Hit] if they do. Supported Skills cannot generate [Charges|Power Charges]. Cannot Support Skills which consume [Charges|Power Charges].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
   },
@@ -6905,7 +6905,7 @@
     "Id": "FerocitySupport",
     "Name": "",
     "GrantedEffect": 864,
-    "SupportText": "Supports Skills that you use yourself. Supported Skills will consume a [Charges|Frenzy Charge] on use if possible, and will gain significant [SkillSpeed|Skill Speed] if they do. Supported Skills cannot generate [Charges|Frenzy Charges].",
+    "SupportText": "Supports Skills that you use yourself. Supported Skills will consume a [Charges|Frenzy Charge] on use if possible, and will gain significant [SkillSpeed|Skill Speed] if they do, but cannot generate [Charges|Frenzy Charges]. Cannot Support Skills which consume [Charges|Frenzy Charges].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
   },
@@ -7332,7 +7332,7 @@
     "Id": "AbidingHexSupport",
     "Name": "",
     "GrantedEffect": 912,
-    "SupportText": "Supports [Curse] Skills you cast yourself. Supported Skills will consume [Charges|Power Charges] on use, gaining significant [Curse] duration if they do.",
+    "SupportText": "Supports [Curse] Skills you cast yourself. Supported Skills will consume [Charges|Power Charges] on use, gaining significant [Curse] duration if they do. Cannot Support Skills which consume [Charges|Power Charges].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
   },
@@ -7368,7 +7368,7 @@
     "Id": "RallySupport",
     "Name": "",
     "GrantedEffect": 916,
-    "SupportText": "Supports Melee [Attack|Attacks] you use yourself. Supported Skills [Consume] all [Charges|Endurance Charge] on use, causing you to restore a percentage of your maximum Life for each [Charges|Charge] [Consume|Consumed].",
+    "SupportText": "Supports Melee [Attack|Attacks] you use yourself. Supported Skills [Consume] all [Charges|Endurance Charge] on use, causing you to restore a percentage of your maximum Life for each [Charges|Charge] [Consume|Consumed]. Cannot Support Skills which consume [Charges|Endurance Charges].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
   },
@@ -7532,7 +7532,7 @@
     "Id": "DazzleSupport",
     "Name": "",
     "GrantedEffect": 934,
-    "SupportText": "Supports [Attack] Skills. Supported Skills always hit [Daze|Dazed] Enemies, but [Consume] [Daze] on [HitDamage|Hit], and cannot themselves inflict [Daze].",
+    "SupportText": "Supports [Attack] Skills. Supported Skills always hit [Daze|Dazed] Enemies, but [Consume] [Daze] on [HitDamage|Hit], and cannot themselves inflict [Daze]. Cannot Support Skills which [Consume] [Daze].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
   },
@@ -8492,7 +8492,7 @@
     "_index": 919,
     "Id": "UniqueDuskVigilTriggeredBlazingCluster",
     "Name": "",
-    "GrantedEffect": 7719,
+    "GrantedEffect": 7733,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8548,7 +8548,7 @@
     "_index": 925,
     "Id": "BloodBoil",
     "Name": "",
-    "GrantedEffect": 7864,
+    "GrantedEffect": 7878,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8557,7 +8557,7 @@
     "_index": 926,
     "Id": "ShatteringSpite",
     "Name": "",
-    "GrantedEffect": 7865,
+    "GrantedEffect": 7879,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8566,7 +8566,7 @@
     "_index": 927,
     "Id": "RighteousDescent",
     "Name": "",
-    "GrantedEffect": 8160,
+    "GrantedEffect": 8174,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8575,7 +8575,7 @@
     "_index": 928,
     "Id": "VividStampede",
     "Name": "",
-    "GrantedEffect": 7866,
+    "GrantedEffect": 7880,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8584,7 +8584,7 @@
     "_index": 929,
     "Id": "WildProtector",
     "Name": "",
-    "GrantedEffect": 7867,
+    "GrantedEffect": 7881,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8593,18 +8593,18 @@
     "_index": 930,
     "Id": "HollowForm",
     "Name": "",
-    "GrantedEffect": 7868,
+    "GrantedEffect": 7882,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7869
+      7883
     ]
   },
   {
     "_index": 931,
     "Id": "HollowFocus",
     "Name": "",
-    "GrantedEffect": 7870,
+    "GrantedEffect": 7884,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8613,7 +8613,7 @@
     "_index": 932,
     "Id": "HollowResonance",
     "Name": "",
-    "GrantedEffect": 7871,
+    "GrantedEffect": 7885,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8634,51 +8634,51 @@
     "_index": 934,
     "Id": "MetaRangedAttackOnIgnite",
     "Name": "",
-    "GrantedEffect": 7872,
+    "GrantedEffect": 7886,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7873
+      7887
     ]
   },
   {
     "_index": 935,
     "Id": "MetaRangedAttackOnShock",
     "Name": "",
-    "GrantedEffect": 7874,
+    "GrantedEffect": 7888,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7875
+      7889
     ]
   },
   {
     "_index": 936,
     "Id": "MetaRangedAttackOnFreeze",
     "Name": "",
-    "GrantedEffect": 7876,
+    "GrantedEffect": 7890,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7877
+      7891
     ]
   },
   {
     "_index": 937,
     "Id": "MetaArcaneArchery",
     "Name": "",
-    "GrantedEffect": 7878,
+    "GrantedEffect": 7892,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7879
+      7893
     ]
   },
   {
     "_index": 938,
     "Id": "InevitableAgony",
     "Name": "",
-    "GrantedEffect": 7880,
+    "GrantedEffect": 7894,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8687,7 +8687,7 @@
     "_index": 939,
     "Id": "WitchHunterMark",
     "Name": "",
-    "GrantedEffect": 7881,
+    "GrantedEffect": 7895,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8696,18 +8696,18 @@
     "_index": 940,
     "Id": "MetaDeadeyeMarks",
     "Name": "",
-    "GrantedEffect": 7882,
+    "GrantedEffect": 7896,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7883
+      7897
     ]
   },
   {
     "_index": 941,
     "Id": "UniqueHeraldOfAsh",
     "Name": "",
-    "GrantedEffect": 7884,
+    "GrantedEffect": 7898,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8716,7 +8716,7 @@
     "_index": 942,
     "Id": "UniqueHeraldOfIce",
     "Name": "",
-    "GrantedEffect": 7885,
+    "GrantedEffect": 7899,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8725,7 +8725,7 @@
     "_index": 943,
     "Id": "UniqueHeraldOfThunder",
     "Name": "",
-    "GrantedEffect": 7886,
+    "GrantedEffect": 7900,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8734,7 +8734,7 @@
     "_index": 944,
     "Id": "UniqueWitheringPresence",
     "Name": "",
-    "GrantedEffect": 7887,
+    "GrantedEffect": 7901,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8880,18 +8880,18 @@
     "_index": 960,
     "Id": "CastOnCharmUse",
     "Name": "",
-    "GrantedEffect": 7888,
+    "GrantedEffect": 7902,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7889
+      7903
     ]
   },
   {
     "_index": 961,
     "Id": "Trinity",
     "Name": "",
-    "GrantedEffect": 7890,
+    "GrantedEffect": 7904,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -8900,11 +8900,11 @@
     "_index": 962,
     "Id": "TrailOfCaltrops",
     "Name": "",
-    "GrantedEffect": 7909,
+    "GrantedEffect": 7923,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7910
+      7924
     ]
   },
   {
@@ -8929,22 +8929,22 @@
     "_index": 965,
     "Id": "CastLightningSpellOnHit",
     "Name": "",
-    "GrantedEffect": 7950,
+    "GrantedEffect": 7964,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7951
+      7965
     ]
   },
   {
     "_index": 966,
     "Id": "CastFireSpellOnHit",
     "Name": "",
-    "GrantedEffect": 7952,
+    "GrantedEffect": 7966,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      7953
+      7967
     ]
   },
   {
@@ -8960,22 +8960,22 @@
     "_index": 968,
     "Id": "SupportingFire",
     "Name": "",
-    "GrantedEffect": 8012,
+    "GrantedEffect": 8026,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      8013
+      8027
     ]
   },
   {
     "_index": 969,
     "Id": "TemperWeapon",
     "Name": "",
-    "GrantedEffect": 8016,
+    "GrantedEffect": 8030,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      8017
+      8031
     ]
   },
   {
@@ -8993,7 +8993,7 @@
     "_index": 971,
     "Id": "Unusable",
     "Name": "",
-    "GrantedEffect": 8018,
+    "GrantedEffect": 8032,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -9754,7 +9754,7 @@
     "_index": 1051,
     "Id": "SoulLink",
     "Name": "",
-    "GrantedEffect": 8030,
+    "GrantedEffect": 8044,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -9763,7 +9763,7 @@
     "_index": 1052,
     "Id": "FlameLink",
     "Name": "",
-    "GrantedEffect": 8031,
+    "GrantedEffect": 8045,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -9772,7 +9772,7 @@
     "_index": 1053,
     "Id": "PrimalBounty",
     "Name": "",
-    "GrantedEffect": 8032,
+    "GrantedEffect": 8046,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -9781,7 +9781,7 @@
     "_index": 1054,
     "Id": "FeastOfFlesh",
     "Name": "",
-    "GrantedEffect": 8033,
+    "GrantedEffect": 8047,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -9790,7 +9790,7 @@
     "_index": 1055,
     "Id": "LightlessStalker",
     "Name": "",
-    "GrantedEffect": 8036,
+    "GrantedEffect": 8050,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -9799,7 +9799,7 @@
     "_index": 1056,
     "Id": "ToxicDomain",
     "Name": "",
-    "GrantedEffect": 8037,
+    "GrantedEffect": 8051,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -9828,11 +9828,11 @@
     "_index": 1059,
     "Id": "IceTippedArrows",
     "Name": "",
-    "GrantedEffect": 8038,
+    "GrantedEffect": 8052,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      8039
+      8053
     ]
   },
   {
@@ -9848,7 +9848,7 @@
     "_index": 1061,
     "Id": "FuturePast",
     "Name": "",
-    "GrantedEffect": 8053,
+    "GrantedEffect": 8067,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -9857,7 +9857,7 @@
     "_index": 1062,
     "Id": "RunicTempering",
     "Name": "",
-    "GrantedEffect": 8055,
+    "GrantedEffect": 8069,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -9877,7 +9877,7 @@
     "_index": 1064,
     "Id": "TheFlawedEdict",
     "Name": "",
-    "GrantedEffect": 8067,
+    "GrantedEffect": 8081,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10124,7 +10124,7 @@
     "_index": 1089,
     "Id": "MirrorOfRefraction",
     "Name": "",
-    "GrantedEffect": 8103,
+    "GrantedEffect": 8117,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10164,18 +10164,18 @@
     "_index": 1093,
     "Id": "HayoxisFulminationSupport",
     "Name": "",
-    "GrantedEffect": 8108,
+    "GrantedEffect": 8122,
     "SupportText": "Supports [Curse] Skills, giving them a short cooldown but causing them to create areas which [Curse] enemies so long as they are within them. [Curse|Cursed] areas from Supported Skills gather power before erupting in a column of annihilating light after a moderate delay.",
     "SupportName": "",
     "AdditionalGrantedEffects": [
-      8109
+      8123
     ]
   },
   {
     "_index": 1094,
     "Id": "ZerphisLegacySupport",
     "Name": "",
-    "GrantedEffect": 8110,
+    "GrantedEffect": 8124,
     "SupportText": "Supports [Attack|Attacks] and [Warcry|Warcries] you use yourself. Supported Skills gain a [Glory] requirement, and build [Glory] when you spend Life on Skills. Supported Skills deal more damage and have significantly\n increased area of effect.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10184,7 +10184,7 @@
     "_index": 1095,
     "Id": "HelbrymsHideSupport",
     "Name": "",
-    "GrantedEffect": 8111,
+    "GrantedEffect": 8125,
     "SupportText": "Supports [Shapeshift|Shapeshifting] Skills, causing them to grant [HelbrymsComposure|Helbrym's Composure] for a brief duration when they cause you to [Shapeshift]. [Shapeshift|Shapeshifting] into a different form before the [Buff] expires causes it to be removed without effect.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10255,7 +10255,7 @@
     "_index": 1102,
     "Id": "ControlledHazardSupport",
     "Name": "",
-    "GrantedEffect": 8112,
+    "GrantedEffect": 8126,
     "SupportText": "Supports Skills which create [Hazard|Hazards], causing those [Hazard|Hazards] to be unable to be triggered for 3 seconds after being created.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10338,7 +10338,7 @@
     "_index": 1111,
     "Id": "NovaProjectilesTwoSupport",
     "Name": "",
-    "GrantedEffect": 8113,
+    "GrantedEffect": 8127,
     "SupportText": "Supports [Projectile|Projectile] Skills, making them fire extra [Projectile|Projectiles] in a circle, at the cost of Damage and gaining a cooldown. Does not Support Skills which rain down [Projectile|Projectiles] from above. Cannot Support Skills which already have a cooldown.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10396,7 +10396,7 @@
     "_index": 1117,
     "Id": "StarbornOnslaught",
     "Name": "",
-    "GrantedEffect": 8161,
+    "GrantedEffect": 8175,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10405,7 +10405,7 @@
     "_index": 1118,
     "Id": "AzmerianSwarm",
     "Name": "",
-    "GrantedEffect": 8162,
+    "GrantedEffect": 8176,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10423,7 +10423,7 @@
     "_index": 1120,
     "Id": "HarbingerOfMadness",
     "Name": "",
-    "GrantedEffect": 8164,
+    "GrantedEffect": 8178,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10463,7 +10463,7 @@
     "_index": 1124,
     "Id": "HerDeclarationSupport",
     "Name": "",
-    "GrantedEffect": 8191,
+    "GrantedEffect": 8205,
     "SupportText": "Supports [Persistent|Persistent] [Buff] Skills, causing enemies that enter your [Presence] to become [Intimidate|Intimidated] while the Skill is active.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10472,7 +10472,7 @@
     "_index": 1125,
     "Id": "PrototypeSeventeenSupport",
     "Name": "",
-    "GrantedEffect": 8192,
+    "GrantedEffect": 8206,
     "SupportText": "Supports non-[Channelling] skill you use yourself that [HitDamage|Hits] enemies, causing it to gain [Critical|Critical Hit] chance based on [Rage], but also remove all [Rage] upon [Critical|Critically Hitting].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10481,7 +10481,7 @@
     "_index": 1126,
     "Id": "SeraphsHeartSupport",
     "Name": "",
-    "GrantedEffect": 8193,
+    "GrantedEffect": 8207,
     "SupportText": "Supports [Persistent] [Buff] Skills, providing a chance for enemies to calculate their [HitDamage|Hits] as though your [Resistances] were 90% while the skill is active.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10490,7 +10490,7 @@
     "_index": 1127,
     "Id": "ArbitersCallingSupport",
     "Name": "",
-    "GrantedEffect": 8194,
+    "GrantedEffect": 8208,
     "SupportText": "[DNT] Description",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10499,7 +10499,7 @@
     "_index": 1128,
     "Id": "UhtredsRiteSupport",
     "Name": "",
-    "GrantedEffect": 8195,
+    "GrantedEffect": 8209,
     "SupportText": "Supports skills with Cooldowns, causing them to grant [OverflowingChalice|Overflowing Chalice] when used. Supported skills deal more damage during the effect of your Life Flask and have increased Mana Cost [Efficiency] during the effect of your Mana Flask.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10508,7 +10508,7 @@
     "_index": 1129,
     "Id": "WendigosAuthoritySupport",
     "Name": "",
-    "GrantedEffect": 8196,
+    "GrantedEffect": 8210,
     "SupportText": "[DNT] Description",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10517,7 +10517,7 @@
     "_index": 1130,
     "Id": "TrickstersShardSupport",
     "Name": "",
-    "GrantedEffect": 8197,
+    "GrantedEffect": 8211,
     "SupportText": "Supports non-instant [Spell|Spells] you cast yourself. Supported [Spell|Spells] will [Trigger] Fragment Self, creating a Fractured Mimic which will cast that [Spell] if you get enough of them.",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -10528,7 +10528,7 @@
     "_index": 1131,
     "Id": "ArbitersReachSupport",
     "Name": "",
-    "GrantedEffect": 8198,
+    "GrantedEffect": 8212,
     "SupportText": "Supports [Persistent|Persistent] [Buff|Buff] Skills, causing you periodically grant [Guard] to allies in your [Presence] while the Skill is active.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10537,7 +10537,7 @@
     "_index": 1132,
     "Id": "TangmazusThuribleSupport",
     "Name": "",
-    "GrantedEffect": 8199,
+    "GrantedEffect": 8213,
     "SupportText": "Supports Skills which summon [Companion|Companions] causing them to be [Gigantic] and gain [Evasion] and [Deflect|Deflection] based on your own.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10546,7 +10546,7 @@
     "_index": 1133,
     "Id": "WendigosPareidoliaSupport",
     "Name": "",
-    "GrantedEffect": 8200,
+    "GrantedEffect": 8214,
     "SupportText": "[DNT] Description",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10573,7 +10573,7 @@
     "_index": 1136,
     "Id": "EshsProwessSupport",
     "Name": "",
-    "GrantedEffect": 8275,
+    "GrantedEffect": 8289,
     "SupportText": "Supports [Lightning] skills that [HitDamage|Hit] targets, granting them an additional level and causing them to [BooleanDamageRoll|only roll the minimum or maximum value] for [Lightning] damage. Does not support skills which do not have levels.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10582,7 +10582,7 @@
     "_index": 1137,
     "Id": "BreachlordsRiftSupport",
     "Name": "",
-    "GrantedEffect": 8276,
+    "GrantedEffect": 8290,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing it to [ArmourBreak|Break Armour] of enemies it [Freeze|Freezes] or [Electrocute|Electrocutes].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10591,7 +10591,7 @@
     "_index": 1138,
     "Id": "BreachlordsAmalgamSupport",
     "Name": "",
-    "GrantedEffect": 8277,
+    "GrantedEffect": 8291,
     "SupportText": "Supports [Lightning] or [Cold] skills you use yourself which fire [Projectile|Projectiles] and do not already have cooldowns, adding a cooldown and making the [Projectile|Projectiles] return, piercing through targets as they do so.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10600,7 +10600,7 @@
     "_index": 1139,
     "Id": "VruunsAftermathSupport",
     "Name": "",
-    "GrantedEffect": 8278,
+    "GrantedEffect": 8292,
     "SupportText": "Supports [Warcry|Warcries], causing them to destroy [IceCrystals|Ice Crystals] and [IceFragment|Ice Fragments]. Supported Skills empower additional [Attack|Attacks] if they destroy enough [IceCrystals|Ice Crystals] and [IceFragment|Ice Fragments].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10609,7 +10609,7 @@
     "_index": 1140,
     "Id": "VruunsInevitabilitySupport",
     "Name": "",
-    "GrantedEffect": 8279,
+    "GrantedEffect": 8293,
     "SupportText": "Supports [Melee] [Attack] Skills. Supported Skills gain [Combo] when you successfully [Strike] Enemies with other [Melee] [Attack|Attacks]. Supported Skills expend their [Combo] when used, gaining more area of effect the higher [Combo] they had. Cannot support skills which already gain [Combo]. Cannot modify the Skills of [Minion|Minions].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10618,7 +10618,7 @@
     "_index": 1141,
     "Id": "UhtredsConstellationSupport",
     "Name": "",
-    "GrantedEffect": 8280,
+    "GrantedEffect": 8294,
     "SupportText": "Supports non-instant skills which have a cooldown, granting them two additional cooldown uses and more damage per different skill with a cooldown you have used recently.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10627,7 +10627,7 @@
     "_index": 1142,
     "Id": "MedvedsFellingSupport",
     "Name": "",
-    "GrantedEffect": 8281,
+    "GrantedEffect": 8295,
     "SupportText": "Supports [Melee|Melee Attacks] you use yourself, causing them to attack faster the more [Rage] you have and grant [Rage] on Hit, but also making you lose Life based on your [Rage] when using them. ",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10636,7 +10636,7 @@
     "_index": 1143,
     "Id": "VoranasSiegeSupport",
     "Name": "",
-    "GrantedEffect": 8282,
+    "GrantedEffect": 8296,
     "SupportText": "Supports skills which [HitDamage|Hit] targets and have an area of effect, increasing the affected area and causing it to [HitDamage|Hit] [Isolated] targets harder.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10645,7 +10645,7 @@
     "_index": 1144,
     "Id": "VoranasTouchSupport",
     "Name": "",
-    "GrantedEffect": 8283,
+    "GrantedEffect": 8297,
     "SupportText": "[DNT] Description",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10654,7 +10654,7 @@
     "_index": 1145,
     "Id": "StyrnsMountainSupport",
     "Name": "",
-    "GrantedEffect": 8284,
+    "GrantedEffect": 8298,
     "SupportText": "Supports Skills that Raise your Shield causing your other melee skills to deal more damage if you block.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10663,7 +10663,7 @@
     "_index": 1146,
     "Id": "StyrnsFerocitySupport",
     "Name": "",
-    "GrantedEffect": 8285,
+    "GrantedEffect": 8299,
     "SupportText": "Supports Shield Skills that [HitDamage|Hit] enemies, causing those Hits to [Crushed|Crush] their targets, additionally causing any [Physical|Physical Damage] [HitDamage|Hits] against those targets while [Crushed] to [ArmourBreak|Break their Armour].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10672,7 +10672,7 @@
     "_index": 1147,
     "Id": "KnightsAnthemSupport",
     "Name": "",
-    "GrantedEffect": 8286,
+    "GrantedEffect": 8300,
     "SupportText": "[DNT] Description",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10681,7 +10681,7 @@
     "_index": 1148,
     "Id": "CathasBrillianceSupport",
     "Name": "",
-    "GrantedEffect": 8287,
+    "GrantedEffect": 8301,
     "SupportText": "Supports skills which create [Companion|Companions], causing enemies near them to be [Blind|Blinded] and [Ignite|Ignited]. The damage of the [Ignite] is based on the Life of the supported [Minion].",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10690,7 +10690,7 @@
     "_index": 1149,
     "Id": "MorrigansInsightSupport",
     "Name": "",
-    "GrantedEffect": 8288,
+    "GrantedEffect": 8302,
     "SupportText": "Supports any skill that [HitDamage|Hits] enemies, causing them to deal more damage and trigger Nature's Exchange when consuming [Freeze] on enemies. Cannot support skills that [Consume|Consume] [Freeze|Freeze].",
     "SupportName": "",
     "AdditionalGrantedEffects": [
@@ -10701,7 +10701,7 @@
     "_index": 1150,
     "Id": "MhachasGuidanceSupport",
     "Name": "",
-    "GrantedEffect": 8289,
+    "GrantedEffect": 8303,
     "SupportText": "[DNT] Description",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10710,7 +10710,7 @@
     "_index": 1151,
     "Id": "GreybeardsFuseSupport",
     "Name": "",
-    "GrantedEffect": 8290,
+    "GrantedEffect": 8304,
     "SupportText": "[DNT] Description",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10719,7 +10719,7 @@
     "_index": 1152,
     "Id": "TulsAvalancheSupport",
     "Name": "",
-    "GrantedEffect": 8291,
+    "GrantedEffect": 8305,
     "SupportText": "Supports [Cascadable|Cascadable] [Spell|Spells] you cast yourself, [Seal|Sealing] them when you [Block], The [Seal|Seals] are broken when used, each making the [Spell] [Cascadable|Echo]. Cannot support skills with a Cooldown or which already gain Seals.",
     "SupportName": "",
     "AdditionalGrantedEffects": []
@@ -10974,7 +10974,7 @@
     "_index": 1179,
     "Id": "UniqueAtziriHerald",
     "Name": "",
-    "GrantedEffect": 8319,
+    "GrantedEffect": 8333,
     "SupportText": "",
     "SupportName": "",
     "AdditionalGrantedEffects": []

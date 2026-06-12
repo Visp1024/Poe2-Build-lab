@@ -18,6 +18,14 @@
 
   "tables": [
     {
+      "name": "Characters",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "Ascendancy",
+      "columns": ["Id", "Name"]
+    },
+    {
       "name": "PassiveSkills",
       "columns": [
         "Id",

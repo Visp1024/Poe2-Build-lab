@@ -411,67 +411,67 @@
   },
   {
     "_index": 82,
-    "BaseItemType": 5043,
-    "Tier": 1
-  },
-  {
-    "_index": 83,
-    "BaseItemType": 5044,
-    "Tier": 1
-  },
-  {
-    "_index": 84,
     "BaseItemType": 5045,
     "Tier": 1
   },
   {
-    "_index": 85,
+    "_index": 83,
     "BaseItemType": 5046,
     "Tier": 1
   },
   {
-    "_index": 86,
+    "_index": 84,
     "BaseItemType": 5047,
     "Tier": 1
   },
   {
-    "_index": 87,
+    "_index": 85,
     "BaseItemType": 5048,
     "Tier": 1
   },
   {
-    "_index": 88,
+    "_index": 86,
     "BaseItemType": 5049,
     "Tier": 1
   },
   {
-    "_index": 89,
+    "_index": 87,
     "BaseItemType": 5050,
     "Tier": 1
   },
   {
-    "_index": 90,
+    "_index": 88,
     "BaseItemType": 5051,
     "Tier": 1
   },
   {
-    "_index": 91,
+    "_index": 89,
     "BaseItemType": 5052,
     "Tier": 1
   },
   {
-    "_index": 92,
+    "_index": 90,
     "BaseItemType": 5053,
     "Tier": 1
   },
   {
-    "_index": 93,
+    "_index": 91,
     "BaseItemType": 5054,
     "Tier": 1
   },
   {
-    "_index": 94,
+    "_index": 92,
     "BaseItemType": 5055,
+    "Tier": 1
+  },
+  {
+    "_index": 93,
+    "BaseItemType": 5056,
+    "Tier": 1
+  },
+  {
+    "_index": 94,
+    "BaseItemType": 5057,
     "Tier": 1
   }
 ]

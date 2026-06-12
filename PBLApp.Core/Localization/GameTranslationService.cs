@@ -31,6 +31,7 @@ public sealed class GameTranslationService
     private Dictionary<string, string> _configLabels      = new(StringComparer.Ordinal);
     private Dictionary<string, string> _runes             = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, string> _calcLabels        = new(StringComparer.Ordinal);
+    private Dictionary<string, string> _classNames        = new(StringComparer.OrdinalIgnoreCase);
     private string _loadedLang = "";
 
     private GameTranslationService()
@@ -60,6 +61,7 @@ public sealed class GameTranslationService
             _configLabels      = new(StringComparer.Ordinal);
             _runes             = new(StringComparer.OrdinalIgnoreCase);
             _calcLabels        = new(StringComparer.Ordinal);
+            _classNames        = new(StringComparer.OrdinalIgnoreCase);
             return;
         }
 
@@ -80,6 +82,7 @@ public sealed class GameTranslationService
         _runes             = LoadMap($"PBLApp.ViewModels.Translations.runes_{lang}.json");
         _calcLabels        = LoadMap($"PBLApp.ViewModels.Translations.calc_labels_{lang}.json",
                                      StringComparer.Ordinal);
+        _classNames        = LoadMap($"PBLApp.ViewModels.Translations.class_names_{lang}.json");
     }
 
     /// <summary>Translate a CalcsTab / tree hover stat label (e.g. "Total Life",
@@ -697,11 +700,45 @@ public sealed class GameTranslationService
     public static string TTooltipLine(string line) => Instance.TooltipLine(line);
     public static string TTooltipType(string name) => Instance.TooltipType(name);
 
-    public string PassiveName(string englishName) =>
-        _passiveNames.TryGetValue(englishName, out var ru) ? ru : englishName;
+    public string PassiveName(string englishName)
+    {
+        if (_passiveNames.TryGetValue(englishName, out var ru)) return ru;
+        // ascendancy start nodes are named after the ascendancy itself
+        // (Invoker, Lich, Warbringer, ...) and live in class_names, not GGPK passives
+        return ClassOrAscendancyName(englishName);
+    }
 
-    public string SkillDescription(string englishDesc) =>
-        _skillDescriptions.TryGetValue(englishDesc, out var ru) ? ru : englishDesc;
+    public string SkillDescription(string englishDesc)
+    {
+        if (_skillDescriptions.TryGetValue(englishDesc, out var ru)) return ru;
+        // Lua-side descriptions occasionally carry trailing whitespace; JSON keys are trimmed
+        var trimmed = englishDesc.Trim();
+        if (_skillDescriptions.TryGetValue(trimmed, out ru)) return ru;
+
+        // Upstream PoB text can lag a game patch behind GGPK (wording edits in
+        // support descriptions). Among keys sharing the first 50 chars pick the
+        // longest common prefix; a tie means ambiguity — keep English.
+        if (trimmed.Length >= 50)
+        {
+            string? hit = null;
+            int bestLcp = 0;
+            bool tie = false;
+            foreach (var k in _skillDescriptions.Keys)
+            {
+                if (k.Length < 50 ||
+                    string.Compare(k, 0, trimmed, 0, 50, StringComparison.OrdinalIgnoreCase) != 0)
+                    continue;
+                int max = Math.Min(k.Length, trimmed.Length);
+                int lcp = 50;
+                while (lcp < max && char.ToLowerInvariant(k[lcp]) == char.ToLowerInvariant(trimmed[lcp]))
+                    lcp++;
+                if (lcp > bestLcp) { bestLcp = lcp; hit = k; tie = false; }
+                else if (lcp == bestLcp) tie = true;
+            }
+            if (hit != null && !tie) return _skillDescriptions[hit];
+        }
+        return englishDesc;
+    }
 
     // "Level: 20 (Max)"  →  "Уровень: 20 (Макс)"
     public string GemMetaLine(string line)
@@ -737,57 +774,13 @@ public sealed class GameTranslationService
     public string ConfigSection(string section) =>
         _configSections.TryGetValue(section, out var ru) ? ru : section;
 
-    // Small inline dict of class/ascendancy names — there are only 6 classes and
-    // ~20 ascendancies in PoE2, so no need for a separate JSON file.
-    // Keys are the English names from PoB game data.
-    private static readonly Dictionary<string, Dictionary<string, string>> _classAscNamesByLang = new()
-    {
-        ["ru"] = new(StringComparer.OrdinalIgnoreCase)
-        {
-            // Classes
-            ["Huntress"]   = "Охотница",
-            ["Warrior"]    = "Воин",
-            ["Mercenary"]  = "Наёмник",
-            ["Druid"]      = "Друид",
-            ["Witch"]      = "Ведьма",
-            ["Sorceress"]  = "Чародейка",
-            ["TEMPLAR"]    = "ЖРЕЦ",
-            // Generic
-            ["None"]       = "Нет",
-            // Huntress ascendancies
-            ["Amazon"]            = "Амазонка",
-            ["Ritualist"]         = "Ритуалистка",
-            // Warrior ascendancies
-            ["Titan"]             = "Титан",
-            ["Warbringer"]        = "Воитель",
-            ["Smith of Kitava"]   = "Кузнец Китавы",
-            // Mercenary ascendancies
-            ["Tactician"]         = "Тактик",
-            ["Witchhunter"]       = "Охотник на ведьм",
-            ["Gemling Legionnaire"] = "Самоцветный легионер",
-            // Druid ascendancies
-            ["Oracle"]            = "Оракул",
-            ["Shaman"]            = "Шаман",
-            // Witch ascendancies
-            ["Infernalist"]       = "Инферналистка",
-            ["Blood Mage"]        = "Кровавый маг",
-            ["Lich"]              = "Лич",
-            ["Abyssal Lich"]      = "Лич бездны",
-            // Sorceress ascendancies
-            ["Stormweaver"]       = "Ткач бури",
-            ["Chronomancer"]      = "Хрономанка",
-            ["Disciple of Varashta"] = "Послушница Варашты",
-        },
-    };
-
-    /// <summary>Translate a character class or ascendancy display name (e.g. "Warrior" → "Воин").</summary>
+    /// <summary>Translate a character class or ascendancy display name (e.g. "Warrior" → "Воин").
+    /// Backed by <c>class_names_{lang}.json</c>, generated by PBLExport from the GGPK
+    /// Characters + Ascendancy tables (official localisation, survives new leagues).</summary>
     public string ClassOrAscendancyName(string englishName)
     {
         if (string.IsNullOrEmpty(englishName)) return englishName;
-        if (_classAscNamesByLang.TryGetValue(_loadedLang, out var map)
-            && map.TryGetValue(englishName, out var t))
-            return t;
-        return englishName;
+        return _classNames.TryGetValue(englishName, out var t) ? t : englishName;
     }
 
     /// <summary>

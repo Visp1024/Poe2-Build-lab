@@ -5261,38 +5261,42 @@
   },
   {
     "_index": 1315,
-    "Id": "map_monster_potency"
+    "Id": "minion_catalyst"
   },
   {
     "_index": 1316,
-    "Id": "hilda_great_beast"
+    "Id": "map_monster_potency"
   },
   {
     "_index": 1317,
-    "Id": "strongbox_monster"
+    "Id": "hilda_great_beast"
   },
   {
     "_index": 1318,
-    "Id": "strongbox_robot_rare_guard"
+    "Id": "strongbox_monster"
   },
   {
     "_index": 1319,
-    "Id": "incursion_currency"
+    "Id": "strongbox_robot_rare_guard"
   },
   {
     "_index": 1320,
-    "Id": "vaal_beacon_chest"
+    "Id": "incursion_currency"
   },
   {
     "_index": 1321,
-    "Id": "expedition_gully_devourer_remnant"
+    "Id": "vaal_beacon_chest"
   },
   {
     "_index": 1322,
-    "Id": "pinnacle_unique"
+    "Id": "expedition_gully_devourer_remnant"
   },
   {
     "_index": 1323,
+    "Id": "pinnacle_unique"
+  },
+  {
+    "_index": 1324,
     "Id": "pinnacle_lineage"
   }
 ]
