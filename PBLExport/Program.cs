@@ -130,6 +130,23 @@ if (File.Exists(passiveEnPath) && File.Exists(passiveRuPath))
             passiveNameMap[enName] = ruName;
     }
 
+    // Hand translations for nodes GGG hasn't localised yet (RU == EN in GGPK
+    // as of 0.5.1). Re-checked on every regen: once official RU appears,
+    // the GGPK value wins because TryAdd doesn't overwrite it.
+    var handNames = new Dictionary<string, string>
+    {
+        ["Bond of the Ape"]   = "Узы обезьяны",
+        ["Bond of the Cat"]   = "Узы кошки",
+        ["Bond of the Mamba"] = "Узы мамбы",
+        ["Bond of the Owl"]   = "Узы совы",
+        ["Bond of the Viper"] = "Узы гадюки",
+        ["Bond of the Wolf"]  = "Узы волка",
+        ["Elemental"]         = "Стихии",
+        ["Physical"]          = "Физический урон",
+    };
+    foreach (var (en, ru) in handNames)
+        passiveNameMap.TryAdd(en, ru);
+
     WriteJson(Path.Combine(TransDir, "passive_names_ru.json"), passiveNameMap, opts);
 }
 else
@@ -179,11 +196,89 @@ if (File.Exists(skillEnPath) && File.Exists(skillRuPath))
             descMap[enDesc] = ruDesc;
     }
 
+    // Support gem descriptions live in GemEffects.SupportText, not ActiveSkills —
+    // without this block none of the ~490 support texts get translated.
+    var gemFxEnPath = Path.Combine(GgpkDir, "English", "GemEffects.json");
+    var gemFxRuPath = Path.Combine(GgpkDir, "Russian", "GemEffects.json");
+    if (File.Exists(gemFxEnPath) && File.Exists(gemFxRuPath))
+    {
+        var fxEn = JsonDocument.Parse(File.ReadAllText(gemFxEnPath)).RootElement;
+        var fxRu = JsonDocument.Parse(File.ReadAllText(gemFxRuPath)).RootElement;
+
+        var fxEnById = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var fx in fxEn.EnumerateArray())
+        {
+            if (!fx.TryGetProperty("Id", out var idEl)) continue;
+            if (!fx.TryGetProperty("SupportText", out var txtEl)) continue;
+            var id  = idEl.GetString() ?? "";
+            var txt = StripMarkup(txtEl.GetString() ?? "");
+            if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(txt))
+                fxEnById[id] = txt;
+        }
+
+        var before = descMap.Count;
+        foreach (var fx in fxRu.EnumerateArray())
+        {
+            if (!fx.TryGetProperty("Id", out var idEl)) continue;
+            if (!fx.TryGetProperty("SupportText", out var txtEl)) continue;
+            var id    = idEl.GetString() ?? "";
+            var ruTxt = StripMarkup(txtEl.GetString() ?? "");
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(ruTxt)) continue;
+            if (ruTxt.StartsWith("[DNT")) continue;
+
+            if (!fxEnById.TryGetValue(id, out var enTxt)) continue;
+            if (enTxt == ruTxt || enTxt.StartsWith("[DNT")) continue;
+            if (!descMap.ContainsKey(enTxt))
+                descMap[enTxt] = ruTxt;
+        }
+        Console.WriteLine($"  +{descMap.Count - before} support texts from GemEffects");
+    }
+    else
+    {
+        Console.WriteLine($"[SKIP] support texts — GemEffects export not found at {gemFxEnPath}");
+    }
+
     WriteJson(Path.Combine(TransDir, "skill_descriptions_ru.json"), descMap, opts);
 }
 else
 {
     Console.WriteLine($"[SKIP] skill_descriptions_ru.json — GGPK export not found at {skillEnPath}");
+}
+
+// ---------------------------------------------------------------------------
+// 5. class_names_ru.json  (Characters + Ascendancy tables — official RU names
+//    for classes and ascendancies; the UI Tree tab dropdowns use these)
+// ---------------------------------------------------------------------------
+var classMap = new SortedDictionary<string, string>(StringComparer.Ordinal);
+foreach (var tbl in new[] { "Characters", "Ascendancy" })
+{
+    var enPath = Path.Combine(GgpkDir, "English", tbl + ".json");
+    var ruPath = Path.Combine(GgpkDir, "Russian", tbl + ".json");
+    if (!File.Exists(enPath) || !File.Exists(ruPath))
+    {
+        Console.WriteLine($"[SKIP] class names — {tbl} export not found at {enPath}");
+        continue;
+    }
+    var enRows = JsonDocument.Parse(File.ReadAllText(enPath)).RootElement;
+    var ruRows = JsonDocument.Parse(File.ReadAllText(ruPath)).RootElement;
+    var ruByIdx = new Dictionary<int, string>();
+    foreach (var r in ruRows.EnumerateArray())
+        if (r.TryGetProperty("_index", out var ix) && r.TryGetProperty("Name", out var nm))
+            ruByIdx[ix.GetInt32()] = nm.GetString() ?? "";
+    foreach (var r in enRows.EnumerateArray())
+    {
+        if (!r.TryGetProperty("_index", out var ix) || !r.TryGetProperty("Name", out var nm)) continue;
+        var en = nm.GetString() ?? "";
+        var ru = ruByIdx.GetValueOrDefault(ix.GetInt32(), "");
+        if (string.IsNullOrEmpty(en) || string.IsNullOrEmpty(ru)) continue;
+        if (en.StartsWith("[DNT") || en == ru) continue;
+        classMap[en] = ru;
+    }
+}
+if (classMap.Count > 0)
+{
+    classMap.TryAdd("None", "Нет");
+    WriteJson(Path.Combine(TransDir, "class_names_ru.json"), classMap, opts);
 }
 
 Console.WriteLine("Done.");

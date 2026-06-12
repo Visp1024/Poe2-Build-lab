@@ -1,0 +1,187 @@
+[
+  {
+    "_index": 0,
+    "Id": "Marauder1",
+    "Name": "[DNT-UNUSED] Bait Fisher"
+  },
+  {
+    "_index": 1,
+    "Id": "Marauder2",
+    "Name": "[DNT-UNUSED] Handliner"
+  },
+  {
+    "_index": 2,
+    "Id": "Marauder3",
+    "Name": "[DNT-UNUSED] Rodman"
+  },
+  {
+    "_index": 3,
+    "Id": "Warrior1",
+    "Name": "Титан"
+  },
+  {
+    "_index": 4,
+    "Id": "Warrior2",
+    "Name": "Вестник войны"
+  },
+  {
+    "_index": 5,
+    "Id": "Warrior3",
+    "Name": "Кузнец Китавы"
+  },
+  {
+    "_index": 6,
+    "Id": "Ranger1",
+    "Name": "Снайпер"
+  },
+  {
+    "_index": 7,
+    "Id": "Ranger2",
+    "Name": "[DNT-UNUSED] Piscator"
+  },
+  {
+    "_index": 8,
+    "Id": "Ranger3",
+    "Name": "Следопыт"
+  },
+  {
+    "_index": 9,
+    "Id": "Huntress1",
+    "Name": "Амазонка"
+  },
+  {
+    "_index": 10,
+    "Id": "Huntress2",
+    "Name": "Ходящая среди духов"
+  },
+  {
+    "_index": 11,
+    "Id": "Huntress3",
+    "Name": "Ритуалист"
+  },
+  {
+    "_index": 12,
+    "Id": "Witch1",
+    "Name": "Инферналист"
+  },
+  {
+    "_index": 13,
+    "Id": "Witch2",
+    "Name": "Маг крови"
+  },
+  {
+    "_index": 14,
+    "Id": "Witch3",
+    "Name": "Лич"
+  },
+  {
+    "_index": 15,
+    "Id": "Witch3b",
+    "Name": "Лич Бездны"
+  },
+  {
+    "_index": 16,
+    "Id": "Sorceress1",
+    "Name": "Ткач бурь"
+  },
+  {
+    "_index": 17,
+    "Id": "Sorceress2",
+    "Name": "Хрономант"
+  },
+  {
+    "_index": 18,
+    "Id": "Sorceress3",
+    "Name": "Ученица Варашты"
+  },
+  {
+    "_index": 19,
+    "Id": "Duelist1",
+    "Name": "[DNT-UNUSED] Giller"
+  },
+  {
+    "_index": 20,
+    "Id": "Duelist2",
+    "Name": "[DNT-UNUSED] Filleter"
+  },
+  {
+    "_index": 21,
+    "Id": "Duelist3",
+    "Name": "[DNT-UNUSED] Waterman"
+  },
+  {
+    "_index": 22,
+    "Id": "Mercenary1",
+    "Name": "Тактик"
+  },
+  {
+    "_index": 23,
+    "Id": "Mercenary2",
+    "Name": "Охотник на ведьм"
+  },
+  {
+    "_index": 24,
+    "Id": "Mercenary3",
+    "Name": "Легионер каменитов"
+  },
+  {
+    "_index": 25,
+    "Id": "Templar1",
+    "Name": "[DNT-UNUSED] Seaman"
+  },
+  {
+    "_index": 26,
+    "Id": "Templar2",
+    "Name": "[DNT-UNUSED] Trawler"
+  },
+  {
+    "_index": 27,
+    "Id": "Templar3",
+    "Name": "[DNT-UNUSED] Boatman"
+  },
+  {
+    "_index": 28,
+    "Id": "Druid1",
+    "Name": "Оракул"
+  },
+  {
+    "_index": 29,
+    "Id": "Druid2",
+    "Name": "Шаман"
+  },
+  {
+    "_index": 30,
+    "Id": "Druid3",
+    "Name": "[DNT-UNUSED] Wildfowler"
+  },
+  {
+    "_index": 31,
+    "Id": "Shadow1",
+    "Name": "[DNT-UNUSED] Ice Fisher"
+  },
+  {
+    "_index": 32,
+    "Id": "Shadow2",
+    "Name": "[DNT-UNUSED] Longliner"
+  },
+  {
+    "_index": 33,
+    "Id": "Shadow3",
+    "Name": "[DNT-UNUSED] Dredger"
+  },
+  {
+    "_index": 34,
+    "Id": "Monk1",
+    "Name": "Мастер боевых искусств"
+  },
+  {
+    "_index": 35,
+    "Id": "Monk2",
+    "Name": "Заклинатель стихий"
+  },
+  {
+    "_index": 36,
+    "Id": "Monk3",
+    "Name": "Служитель Чаюлы"
+  }
+]

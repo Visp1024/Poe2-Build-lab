@@ -9059,7 +9059,7 @@
     "_index": 1132,
     "Id": "conductive_runes",
     "DisplayedName": "Conductive Runes",
-    "Description": "Spend [Ward|Runic Ward] to create a number of [Hazard|Hazardous] Runes in a cone in front of you, which arm after a time. After arming, these Runes will activate when enemies step on them, exploding to deal [Attack] damage and apply [Electrocute|Electrocution] buildup.",
+    "Description": "Spend [Ward|Runic Ward] to create a number of [Hazard|Hazardous] Runes in a cone in front of you, which arm after a time. After arming, these Runes will activate when enemies step on them, exploding to deal [Attack] damage that is not based on your [MartialWeapon|Weapon]'s damage and apply [Electrocute|Electrocution] buildup.",
     "ShortDescription": "Spend [Ward|Runic Ward] to create a series of [Hazard|Hazardous] Runes which, after arming, will explode to damage and [Electrocute] enemies that step on them.",
     "StatDescription": "Data/StatDescriptions/specific_skill_stat_descriptions/conductive_runes/statset_0.csd"
   },
