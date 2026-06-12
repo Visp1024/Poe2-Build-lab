@@ -277,6 +277,7 @@
   <data name="Sidebar_Armour"       xml:space="preserve"><value>Броня:</value></data>
   <data name="Sidebar_Eva"          xml:space="preserve"><value>Укл:</value></data>
   <data name="Sidebar_Spirit"       xml:space="preserve"><value>Дух:</value></data>
+  <data name="Sidebar_Darkness"     xml:space="preserve"><value>Тьма:</value></data>
 
   <!-- Items tab section headers and pool -->
   <data name="Item_EquippedHeader"  xml:space="preserve"><value>ЭКИПИРОВКА</value></data>

@@ -116,6 +116,8 @@
             <SolidColorBrush x:Key="StatManaBrush" Color="{StaticResource StatMana}" />
             <SolidColorBrush x:Key="StatArmourBrush" Color="{StaticResource StatArmour}" />
             <SolidColorBrush x:Key="StatEvasionBrush" Color="{StaticResource StatEvasion}" />
+            <!-- Darkness (Acolyte of Chayula resource) — PoB chaos colour. -->
+            <SolidColorBrush x:Key="StatDarknessBrush" Color="#D957B8" />
 
             <SolidColorBrush x:Key="AttrStrBrush" Color="{StaticResource AttrStr}" />
             <SolidColorBrush x:Key="AttrDexBrush" Color="{StaticResource AttrDex}" />
@@ -228,6 +230,8 @@
             <SolidColorBrush x:Key="StatManaBrush" Color="{StaticResource StatMana}" />
             <SolidColorBrush x:Key="StatArmourBrush" Color="{StaticResource StatArmour}" />
             <SolidColorBrush x:Key="StatEvasionBrush" Color="{StaticResource StatEvasion}" />
+            <!-- Darkness (Acolyte of Chayula resource) — PoB chaos colour. -->
+            <SolidColorBrush x:Key="StatDarknessBrush" Color="#D957B8" />
 
             <SolidColorBrush x:Key="AttrStrBrush" Color="{StaticResource AttrStr}" />
             <SolidColorBrush x:Key="AttrDexBrush" Color="{StaticResource AttrDex}" />
