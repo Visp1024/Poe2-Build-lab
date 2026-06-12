@@ -69,6 +69,7 @@
                          AllocatedIds="{Binding AllocatedIds}"
                          SearchText="{Binding SearchText}"
                          AscendancyFilter="{Binding AscendancyFilter}"
+                         ClassBackgroundImage="{Binding ClassBackgroundImage}"
                          AllocNodeCommand="{Binding AllocNodeCommand}"
                          DeallocNodeCommand="{Binding DeallocNodeCommand}"
                          RadiusEmitters="{Binding RadiusEmitters}"
