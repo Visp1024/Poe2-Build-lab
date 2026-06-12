@@ -59,9 +59,9 @@ public class AppTools(AppDriver driver)
                 BuildListViewModel bl => JsonSerializer.Serialize(new
                 {
                     page             = "BuildListPage",
-                    buildCount       = bl.Builds.Count,
-                    selectedBuild    = bl.SelectedBuild?.Name,
-                    canOpenBuild     = bl.OpenBuildCommand.CanExecute(null),
+                    buildCount       = bl.CurrentItems.Count,
+                    selectedBuild    = driver.SelectedBuildEntry?.Name,
+                    canOpenBuild     = driver.SelectedBuildEntry is { IsBuild: true },
                 },
                 Indent),
 
@@ -108,7 +108,7 @@ public class AppTools(AppDriver driver)
             if (driver.App.CurrentPage is not BuildListViewModel bl)
                 return Error("Not on BuildList page. Call app_reset first.");
 
-            var entries = Flatten(bl.Builds);
+            var entries = Flatten(bl.CurrentItems);
             return JsonSerializer.Serialize(entries, Indent);
         }
         catch (Exception ex) { return Error(ex); }
@@ -126,7 +126,7 @@ public class AppTools(AppDriver driver)
             if (driver.App.CurrentPage is not BuildListViewModel bl)
                 return Error("Not on BuildList page.");
 
-            var all = Flatten(bl.Builds).Where(e => !e.IsFolder).ToList();
+            var all = Flatten(bl.CurrentItems).Where(e => !e.IsFolder).ToList();
             var match = all.FirstOrDefault(e =>
                 e.Name.Equals(name, StringComparison.OrdinalIgnoreCase) ||
                 e.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
@@ -134,7 +134,7 @@ public class AppTools(AppDriver driver)
             if (match is null)
                 return Error($"No build matching '{name}'. Available: {string.Join(", ", all.Select(e => e.Name))}");
 
-            bl.SelectedBuild = match;
+            driver.SelectedBuildEntry = match;
             return $"Selected: {match.Name}";
         }
         catch (Exception ex) { return Error(ex); }
@@ -150,10 +150,10 @@ public class AppTools(AppDriver driver)
         {
             if (driver.App.CurrentPage is not BuildListViewModel bl)
                 return Error("Not on BuildList page.");
-            if (!bl.OpenBuildCommand.CanExecute(null))
-                return Error("No build selected or selected item is a folder.");
+            if (driver.SelectedBuildEntry is not { IsBuild: true } entry)
+                return Error("No build selected or selected item is a folder. Call app_select_build first.");
 
-            bl.OpenBuildCommand.Execute(null);
+            bl.OpenItemCommand.Execute(entry);
             return "Navigated to BuildPage. Call app_wait_for_build_load to wait for calc results.";
         }
         catch (Exception ex) { return Error(ex); }
