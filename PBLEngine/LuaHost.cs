@@ -930,6 +930,44 @@ public sealed class LuaHost : IDisposable
         return result is { Length: > 0 } ? result[0] : null;
     }
 
+    /// <summary>
+    /// Passive-point budget for the active spec, mirroring PoB's
+    /// buildMode:EstimatePlayerProgress: normal passives used vs. max, ascendancy
+    /// points, and the separate weapon-set point pools (whose max is raised by
+    /// Weapon Master / Witchhunter via PassivePointsToWeaponSetPoints).
+    /// </summary>
+    public PointUsage? GetPointUsage()
+    {
+        var result = State.DoString(@"
+            if not (build and build.spec and build.spec.CountAllocNodes) then return nil end
+            local used, asc, secAsc, sockets, ws1, ws2 = build.spec:CountAllocNodes()
+            local main    = build.calcsTab and build.calcsTab.mainOutput
+            local extra   = (main and main.ExtraPoints) or 0
+            local extraWS = (main and main.PassivePointsToWeaponSetPoints) or 0
+            local maxWS   = build.maxWeaponSets or 0
+            local normalPassives = used - math.min(ws1 or 0, ws2 or 0)
+            return {
+                normalPassives, 99 + maxWS + extra,
+                asc or 0, 8,
+                ws1 or 0, ws2 or 0, maxWS + extraWS, extraWS,
+            }
+        ");
+        if (result is { Length: > 0 } && result[0] is LuaTable t)
+        {
+            int N(object key) => t[key] is { } v ? Convert.ToInt32(v) : 0;
+            return new PointUsage(
+                PassivesUsed:         N(1L),
+                PassivesMax:          N(2L),
+                AscendancyUsed:       N(3L),
+                AscendancyMax:        N(4L),
+                WeaponSet1Used:       N(5L),
+                WeaponSet2Used:       N(6L),
+                WeaponSetMax:         N(7L),
+                ExtraWeaponSetPoints: N(8L));
+        }
+        return null;
+    }
+
     public Dictionary<string, object?> GetAllStats()
     {
         var dict = new Dictionary<string, object?>(StringComparer.Ordinal);

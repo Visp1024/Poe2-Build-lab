@@ -338,6 +338,9 @@
   <!-- Tree tab status -->
   <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Выбрано: {0}</value></data>
   <data name="Tree_NodesFmt"        xml:space="preserve"><value>Нодов: {0}</value></data>
+  <data name="Tree_PointsFmt"       xml:space="preserve"><value>Очки: {0} / {1}</value></data>
+  <data name="Tree_WeaponSetFmt"    xml:space="preserve"><value>Наборы оружия: {0} / {2} · {1} / {2}</value></data>
+  <data name="Tree_WeaponSetTip"    xml:space="preserve"><value>Очки пассивок наборов оружия (набор 1 · набор 2) из доступного пула.</value></data>
 
   <!-- Tree node hover tooltip -->
   <data name="Tree_Tip_AllocGives"      xml:space="preserve"><value>Выбор этой ноды даст:</value></data>
