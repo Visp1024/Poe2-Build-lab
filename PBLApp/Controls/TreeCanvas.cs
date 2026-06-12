@@ -144,6 +144,11 @@ public sealed class TreeCanvas : Control
     private Dictionary<string, (double cx, double cy, double tx, double ty, double k)> _ascendTransforms = new();
     private Dictionary<string, double> _ascendRadii = new();
 
+    // Radius (world units) of the main tree's innermost ring — the class-start
+    // nodes (~1443 in PoE2 0.5). The selected ascendancy plate is sized so its
+    // edge meets this ring, and its subtree is scaled to sit inside the plate.
+    private double _mainInnerRadius = 1450;
+
     // Cache for the "can allocate" set (nodes adjacent to any allocated node).
     // Recomputing this iterates every node × its neighbours — ~10-30 ms on the
     // full tree. We only need a refresh when AllocatedIds or Nodes change, not
@@ -265,6 +270,9 @@ public sealed class TreeCanvas : Control
         }
         else if (change.Property == AscendancyFilterProperty)
         {
+            // The selected ascendancy's subtree is re-centered to world (0,0),
+            // so its per-ascendancy transform depends on the active filter.
+            ComputeAscendOffsets();
             InvalidateVisual();
         }
         else if (change.Property == AssetStoreProperty)
@@ -1026,6 +1034,19 @@ public sealed class TreeCanvas : Control
         var nodes = Nodes;
         if (nodes == null) return;
         var bgs = AscendancyBackgrounds;
+        var filter = AscendancyFilter;
+
+        // Radius of the main tree's innermost ring (class-start nodes). The
+        // selected ascendancy plate is drawn out to this radius and its nodes
+        // are scaled to fit inside it.
+        double inner = double.MaxValue;
+        foreach (var n in nodes)
+        {
+            if (!string.IsNullOrEmpty(n.AscendancyName)) continue;
+            double r = Math.Sqrt(n.X * n.X + n.Y * n.Y);
+            if (r > 1 && r < inner) inner = r;
+        }
+        if (inner < double.MaxValue) _mainInnerRadius = inner;
 
         // Bounding box per ascendancy — its center keeps the cluster visually
         // centered in the circle (a centroid drifts toward dense node areas).
@@ -1057,14 +1078,21 @@ public sealed class TreeCanvas : Control
             double tx = 0, ty = 0, k = 1.0;
             if (bgs != null && bgs.TryGetValue(name, out var bg))
             {
-                tx = bg.X;
-                ty = bg.Y;
+                // The selected ascendancy's branch is drawn at the tree center
+                // (matching the center plate at world (0,0)); the others keep
+                // their class-circle position (they're hidden anyway).
+                bool isSelected = !string.IsNullOrEmpty(filter) && name == filter;
+                tx = isSelected ? 0 : bg.X;
+                ty = isSelected ? 0 : bg.Y;
                 // Fit inside the plate. Node positions shrink but icons keep
                 // their world size, so reserve a margin of one large notable
-                // frame (~180 world units) past the outermost node center.
-                double half = Math.Min(bg.Width, bg.Height) * 0.5;
-                if (maxR > 0 && half > 180)
-                    k = Math.Min(1.0, (half - 180) / maxR);
+                // frame past the outermost node center. The selected branch fits
+                // the big centered plate (radius = main inner ring); the others
+                // fit their own class-circle plate.
+                double half   = isSelected ? _mainInnerRadius : Math.Min(bg.Width, bg.Height) * 0.5;
+                double margin = isSelected ? 120 : 180;
+                if (maxR > 0 && half > margin)
+                    k = Math.Min(1.0, (half - margin) / maxR);
             }
             _ascendTransforms[name] = (cx, cy, tx, ty, k);
         }
@@ -1231,14 +1259,14 @@ public sealed class TreeCanvas : Control
         // no ascendancy is picked) at world (0,0) — mirrors original PoB, which
         // draws class.background at the tree center.
         {
+            // Both the class plate (no ascendancy picked) and the chosen
+            // ascendancy plate are blown up so their circular art meets the main
+            // tree's innermost (class-start) ring — the plate edge sits right
+            // against the surrounding start nodes.
             string centerImage = ClassBackgroundImage;
-            double w = 1500, h = 1500;
+            double w = _mainInnerRadius * 2, h = _mainInnerRadius * 2;
             if (!string.IsNullOrEmpty(selected) && bgs.TryGetValue(selected, out var selBg))
-            {
                 centerImage = selBg.Image;
-                w = selBg.Width;
-                h = selBg.Height;
-            }
             var centerSprite = assets.GetSprite(centerImage);
             if (centerSprite.HasValue)
             {
@@ -1251,6 +1279,12 @@ public sealed class TreeCanvas : Control
                     dc.DrawImage(cBmp, cSrc, rect);
             }
         }
+
+        // When an ascendancy is selected, only its branch (re-centered to world
+        // (0,0)) and the center plate above are shown; the surrounding class
+        // circles are hidden. With nothing selected, fall through and draw all
+        // class plates dimmed so the available ascendancy circles stay visible.
+        if (!string.IsNullOrEmpty(selected)) return;
 
         // Collapse plates sharing the same circle (replacement ascendancies).
         var byPos = new Dictionary<(long, long), AscendancyBgDto>();
