@@ -49,6 +49,9 @@ public sealed class TreeCanvas : Control
     public static readonly StyledProperty<IReadOnlyDictionary<string, AscendancyBgDto>?> AscendancyBackgroundsProperty =
         AvaloniaProperty.Register<TreeCanvas, IReadOnlyDictionary<string, AscendancyBgDto>?>(nameof(AscendancyBackgrounds));
 
+    public static readonly StyledProperty<string> ClassBackgroundImageProperty =
+        AvaloniaProperty.Register<TreeCanvas, string>(nameof(ClassBackgroundImage), "");
+
     /// <summary>Callback supplied by the view layer that fetches the modern
     /// hover-info packet (mod lines + stat diff + path distance) for a node
     /// via <c>LuaHost.GetNodeHoverInfo</c>. Hooked into Render via a small
@@ -101,6 +104,11 @@ public sealed class TreeCanvas : Control
     {
         get => GetValue(AscendancyBackgroundsProperty);
         set => SetValue(AscendancyBackgroundsProperty, value);
+    }
+    public string ClassBackgroundImage
+    {
+        get => GetValue(ClassBackgroundImageProperty);
+        set => SetValue(ClassBackgroundImageProperty, value);
     }
     public Func<int, NodeHoverInfo?>? HoverInfoProvider
     {
@@ -272,6 +280,10 @@ public sealed class TreeCanvas : Control
             // Subtree offsets target the background circles, so they depend on this dict.
             ComputeAscendOffsets();
             InvalidateStaticLayer();
+            InvalidateVisual();
+        }
+        else if (change.Property == ClassBackgroundImageProperty)
+        {
             InvalidateVisual();
         }
 
@@ -1214,6 +1226,31 @@ public sealed class TreeCanvas : Control
         var assets = AssetStore;
         var bgs = AscendancyBackgrounds;
         if (assets == null || bgs == null || bgs.Count == 0) return;
+
+        // Center plate: the chosen ascendancy's artwork (or the class plate when
+        // no ascendancy is picked) at world (0,0) — mirrors original PoB, which
+        // draws class.background at the tree center.
+        {
+            string centerImage = ClassBackgroundImage;
+            double w = 1500, h = 1500;
+            if (!string.IsNullOrEmpty(selected) && bgs.TryGetValue(selected, out var selBg))
+            {
+                centerImage = selBg.Image;
+                w = selBg.Width;
+                h = selBg.Height;
+            }
+            var centerSprite = assets.GetSprite(centerImage);
+            if (centerSprite.HasValue)
+            {
+                var (cBmp, cSrc) = centerSprite.Value;
+                double halfW = w * 0.5 * _scale;
+                double halfH = h * 0.5 * _scale;
+                var rect = new Rect(_offsetX - halfW, _offsetY - halfH, halfW * 2, halfH * 2);
+                if (!(rect.Right < 0 || rect.Left > Bounds.Width ||
+                      rect.Bottom < 0 || rect.Top > Bounds.Height))
+                    dc.DrawImage(cBmp, cSrc, rect);
+            }
+        }
 
         // Collapse plates sharing the same circle (replacement ascendancies).
         var byPos = new Dictionary<(long, long), AscendancyBgDto>();

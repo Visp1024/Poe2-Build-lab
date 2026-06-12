@@ -87,6 +87,11 @@ public partial class TreeTabViewModel : ViewModelBase
     public string AscendancyFilter =>
         SelectedAscend is { Id: > 0 } asc ? asc.Name : "";
 
+    /// <summary>Sprite name of the current class plate ("ClassesMonk", ...) drawn at
+    /// the tree center; the canvas prefers the chosen ascendancy's plate when set.</summary>
+    public string ClassBackgroundImage =>
+        SelectedClass != null ? "Classes" + SelectedClass.Name : "";
+
     // ── Search ─────────────────────────────────────────────────────────────
 
     [ObservableProperty] private string _searchText = "";
@@ -180,6 +185,7 @@ public partial class TreeTabViewModel : ViewModelBase
 
     partial void OnSelectedClassChanged(ClassDisplayVm? value)
     {
+        OnPropertyChanged(nameof(ClassBackgroundImage));
         if (value == null || _suppressClassChangeCheck) return;
 
         // Ask for confirmation when user has manually allocated nodes
