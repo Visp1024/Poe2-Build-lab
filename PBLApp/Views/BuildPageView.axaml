@@ -150,11 +150,21 @@
                                Foreground="{DynamicResource StatEvasionBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="6"
+                            IsVisible="{Binding !Build.HasDarkness}">
                     <TextBlock Text="{loc:Tr Sidebar_Spirit}" Classes="caption" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Build.Spirit, StringFormat={}{0:N0}}"
                                Classes="num-md"
                                Foreground="{DynamicResource AttrIntBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+                <!-- Darkness replaces Spirit for Acolyte of Chayula (Embrace the Darkness). -->
+                <StackPanel Orientation="Horizontal" Spacing="6"
+                            IsVisible="{Binding Build.HasDarkness}">
+                    <TextBlock Text="{loc:Tr Sidebar_Darkness}" Classes="caption" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Build.Darkness, StringFormat={}{0:N0}}"
+                               Classes="num-md"
+                               Foreground="{DynamicResource StatDarknessBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
 

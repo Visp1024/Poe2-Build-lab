@@ -55,6 +55,26 @@ public sealed class BuildModel : INotifyPropertyChanged
     private double _spirit;
     public double Spirit { get => _spirit; private set => Set(ref _spirit, value); }
 
+    // Darkness is the Acolyte of Chayula resource that replaces Spirit when
+    // "Embrace the Darkness" is allocated (Spirit then reads 0). Surfaced so the
+    // sidebar can swap the Spirit readout for a Darkness one.
+    private double _darkness;
+    public double Darkness
+    {
+        get => _darkness;
+        private set
+        {
+            Set(ref _darkness, value);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasDarkness)));
+        }
+    }
+
+    private double _reservedDarkness;
+    public double ReservedDarkness { get => _reservedDarkness; private set => Set(ref _reservedDarkness, value); }
+
+    /// <summary>True for Acolyte of Chayula builds that converted Spirit into Darkness.</summary>
+    public bool HasDarkness => _darkness > 0;
+
     private double _physicalReduction;
     public double PhysicalReduction { get => _physicalReduction; private set => Set(ref _physicalReduction, value); }
 
@@ -114,6 +134,8 @@ public sealed class BuildModel : INotifyPropertyChanged
         Armour            = ReadDouble("Armour");
         Evasion           = ReadDouble("Evasion");
         Spirit            = ReadDouble("Spirit");
+        Darkness          = ReadDouble("Darkness");
+        ReservedDarkness  = ReadDouble("ReservedDarkness");
         PhysicalReduction = ReadDouble("PhysicalReduction");
     }
 
