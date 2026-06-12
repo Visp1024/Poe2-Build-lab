@@ -2,6 +2,8 @@
 
 Параллельный паритет-тест: прогоняет один и тот же build XML через **оригинальный PoB** (LuaJIT runtime, `runtime/<exe>`) и **наш PBLEngine** (NLua 5.4), сверяет stats. Канонический способ проверить, что наша 5.4-переадаптация не сломала calc.
 
+**Текущий статус (2026-06-12, PoE2 0.20.0): 11/11 билдов — полный паритет** (3 локальных + 8 community, ~9000 сравнений stat'ов, 0 mismatches). Первый найденный parity-баг (`Int/StrRequirementsOnWeapon` ×2) исправлен в `eb79ef1c6` — см. раздел «Findings» ниже.
+
 ## Компоненты
 
 ```
@@ -69,33 +71,40 @@ dotnet run --project PBLParity -- "C:\path\build.xml" --max=20
 python tools/parity/fetch_community_builds.py --count 10 --out tools/parity/community_builds
 ```
 
-Текущий снимок (8 разноклассовых билдов):
+Текущий снимок (8 разноклассовых билдов, после фикса `eb79ef1c6`):
 
 | Build (pobarchives ID) | Level / Class | Stats | Match | Mismatch |
 |------------------------|---------------|-------|-------|----------|
 | `3MrEDKwx` | L97 Druid/Oracle           | 853 | 853 | 0 ✓ |
-| `3icirQcy` | L97 Druid/Oracle           | 851 | 848 | **3** ✗ |
-| `9T3EGRVR` | L15 Druid/Oracle           | 797 | 796 | **1** ✗ |
-| `BJXPrbg9` | L82 Huntress/Ritualist     | 692 | 690 | **2** ✗ |
+| `3icirQcy` | L97 Druid/Oracle           | 851 | 851 | 0 ✓ |
+| `9T3EGRVR` | L15 Druid/Oracle           | 797 | 797 | 0 ✓ |
+| `BJXPrbg9` | L82 Huntress/Ritualist     | 692 | 692 | 0 ✓ |
 | `CqX3fXBg` | L97 Sorceress/Stormweaver  | 847 | 847 | 0 ✓ |
 | `D4F8P8DU` | L95 Sorceress/Chronomancer | 837 | 837 | 0 ✓ |
 | `FtcWJKWW` | L89 Witch/Infernalist      | 865 | 865 | 0 ✓ |
 | `Hfk8mUNU` | L94 Mercenary/Witchhunter  | 781 | 781 | 0 ✓ |
 
-**5/8 идеальный паритет**, **3/8 валятся на одной семье stat'ов** — `Int/StrRequirementsOnWeapon`. Все три провала имеют значение ≈ 2× оригинала (74→157, 58→122, 24→48).
+XML-фикстуры закоммичены в `tools/parity/community_builds/` — будущие upstream-синки можно прогонять на ровно том же входе. Прогнать весь набор:
 
-### Известный bug (FIRST PARITY FINDING)
+```pwsh
+Get-ChildItem tools/parity/community_builds/*.xml | ForEach-Object {
+    pwsh ./scripts/parity.ps1 -Build $_.FullName
+}
+```
 
-`src/Modules/CalcPerform.lua:1832` — `req = m_floor(reqSource[attr] * reqMultWeapon)`.
+## Findings
 
-`reqMultWeapon` собирается из `calcLib.mod(modDB, nil, "GlobalAttributeRequirements", "GlobalItemAttributeRequirements", "GlobalWeaponAttributeRequirements")` (line 1795).
+### #1 — `Int/StrRequirementsOnWeapon` ×2 (RESOLVED, `eb79ef1c6`)
 
-Этот мульт в наших NLua-расчётах даёт ~2.0 для некоторых билдов, тогда как оригинальный LuaJIT — 1.0. Сценарий триггерится конкретными items (вероятно weapons с attribute-requirement модами). Тестовые билды `New Build 1-3` не задевают этот path — нужен реальный community-билд с правильным weapon mod для воспроизведения.
+**Симптом:** на первом прогоне community-свипа 3/8 билдов расходились на одной семье stat'ов — `Int/StrRequirementsOnWeapon` со значением ≈ 2× оригинала (74→157, 58→122, 24→48). Локальные `New Build 1-3` баг не триггерили — у них нет оружия с гранящими скиллы range-модами.
 
-To-do (отдельная сессия):
-1. Минимальный repro билд (только weapon + соответствующие моды).
-2. Trace `calcLib.mod` поведения обеих движков на этих модах.
-3. Скорее всего связано с тем, как NLua обрабатывает multi-key mod-lookups вида `("A", "B", "C")` — может суммировать там где LuaJIT берёт max.
+**Первая гипотеза была неверной:** подозревали `calcLib.mod` multi-key lookup в `CalcPerform.lua:1795` (max vs sum). На деле `reqMultWeapon` был невиновен.
+
+**Реальная причина:** `src/Modules/ItemTools.lua:applyRange` интерполирует range-моды вида `(1-20)` и `tostring()`'ит округлённый результат обратно в строку для повторного матча ModParser'ом. В LuaJIT 5.1 integer-valued float печатается как `"11"`, в Lua 5.4 — как `"11.0"`. Integer-only паттерны ModParser (`grants skill: level (%d+) (.+)`) не матчат `"Level 11.0"`, ребилд молча проваливается, и modList сохраняет level=20 от раннего безусловного range=1 парса в `Item.lua` — гранящиеся скиллы оказываются на max level, и их attribute requirements взлетают.
+
+**Фикс:** прогонять каждое значение, рендерящееся обратно в строку, через `math.tointeger` (3 места в `applyRange`). Тот же класс багов, что и полифилл `math.tointeger` в `src/Launch.lua` и фикс `CalcOffence.lua:2660`: Lua 5.4 различает integer/float там, где LuaJIT их схлопывает, и расхождение утекает через string formatting.
+
+**Мораль:** community-свип поймал баг на первом же прогоне, который синтетические фикстуры не задевали. Разнообразие реальных билдов — основная ценность этого набора.
 
 ## Известные ограничения
 

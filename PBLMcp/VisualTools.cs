@@ -428,7 +428,7 @@ public class VisualTools
     [Description(
         "Switch the character class on the Tree tab (partial name match). " +
         "In IPC mode the confirm-dialog is auto-bypassed even if nodes are allocated. " +
-        "Available classes: Huntress, Warrior, Mercenary, Druid, Witch, Sorceress.")]
+        "Available classes: Witch, Ranger, Warrior, Sorceress, Huntress, Mercenary, Monk, Druid.")]
     public async Task<string> VisualTreeSelectClass(
         [Description("Class name (partial match).")] string name)
     {

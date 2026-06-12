@@ -1966,11 +1966,31 @@ public sealed class LuaHost : IDisposable
         var classes = new List<ClassEntry>();
         var result = State.DoString(@"
             if not (build and build.spec and build.spec.tree) then return nil end
+            -- tree.classes is keyed by integerId with gaps (0_4: 1,2,6..11), so
+            -- ipairs would stop at the first hole; collect and sort keys instead
+            local ids = {}
+            for classId in pairs(build.spec.tree.classes) do
+                table.insert(ids, classId)
+            end
+            table.sort(ids)
             local out = {}
-            for classId, cls in ipairs(build.spec.tree.classes) do
-                local ascends = {{ 0, 'None' }}
-                for ascId, asc in ipairs(cls.ascendancies or {}) do
-                    table.insert(ascends, { ascId, asc.name or ('Ascend '..ascId) })
+            for _, classId in ipairs(ids) do
+                local cls = build.spec.tree.classes[classId]
+                -- PassiveTree puts 'None' at key 0 of the same ascendancies table;
+                -- include it via pairs, but seed it if a tree version lacks it
+                local ascends = {}
+                local ascIds = {}
+                for ascId in pairs(cls.ascendancies or {}) do
+                    table.insert(ascIds, ascId)
+                end
+                table.sort(ascIds)
+                if ascIds[1] ~= 0 then
+                    table.insert(ascends, { 0, 'None' })
+                end
+                for _, ascId in ipairs(ascIds) do
+                    local asc = cls.ascendancies[ascId]
+                    local name = asc.name or ('Ascend '..ascId)
+                    table.insert(ascends, { ascId, name })
                 end
                 table.insert(out, { classId, cls.name or ('Class '..classId), ascends })
             end
