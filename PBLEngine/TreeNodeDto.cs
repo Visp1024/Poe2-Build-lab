@@ -1,5 +1,16 @@
 namespace PBLEngine;
 
+/// <summary>Ascendancy background plate from tree data: sprite name, world
+/// center position and world size (uniform 1500x1500 in tree 0_5).</summary>
+public record AscendancyBgDto(
+    string Id,
+    string Image,
+    double X,
+    double Y,
+    double Width,
+    double Height
+);
+
 public record TreeNodeDto(
     int      Id,
     double   X,
