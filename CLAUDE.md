@@ -145,6 +145,7 @@ PBLEngine/        Shared class library — NLua host, BuildModel
 PBLApp.Core/      MVVM ViewModels — no Avalonia dependency
 PBLApp/           Avalonia 12 UI (XAML views, ViewLocator)
 PBLMcp/           MCP stdio server for agent testing
+PBLParity/        Console tool: orig PoB vs PBLEngine stat comparison (see tools/parity/README.md)
 ```
 
 ### Build & Run
@@ -212,3 +213,20 @@ host.Initialize(FindRepoRoot());
 **MCP registration** (Claude Code): registered via `claude mcp add` from repo root. Config in `.claude/settings.local.json`.
 
 **Startup latency:** LuaHost init takes ~35-45s on first call. `app_wait_for_ready` must be called first; init runs eagerly in background from process start.
+
+### PBLParity (parity testing vs original PoB)
+
+**Full docs: [`tools/parity/README.md`](tools/parity/README.md).** Runs the same build XML through both engines and diffs all stats — the canonical check that the Lua 5.4 port hasn't broken calc. **Run a parity sweep after any upstream sync or change to `src/Modules/Calc*.lua` / `ItemTools.lua` / compat shims.**
+
+```powershell
+pwsh ./scripts/parity.ps1                            # all builds in %LOCALAPPDATA%\PathOfBuilding2\Builds
+pwsh ./scripts/parity.ps1 -Build "C:\path\build.xml" # single build
+dotnet run --project PBLParity -- "build.xml" --max=20  # direct, more flags via --help
+```
+
+How it works:
+1. **Orig PoB**: launches `runtime/<exe>` with env vars `POB_PARITY_BUILD/OUT/SCRIPT`; a hook in `src/Launch.lua` (after `main:Init`) runs `tools/parity/dump_stats.lua`, which loads the build, dumps `mainOutput`+`calcsOutput` to JSON, and exits (~3-5s, the PoB window flashes briefly — no headless mode).
+2. **PBLEngine**: in-process `LuaHost.LoadBuildFromXml` + `GetAllStats`.
+3. **Diff**: per-key, relative tolerance for numbers (default `1e-6`). Exit codes: 0 = parity, 2 = drift, 1 = system error. ±Inf/NaN normalized (orig serializes them as quoted strings, NLua returns IEEE doubles).
+
+Fixtures: 8 real community builds (PoE2 0.20.0) committed in `tools/parity/community_builds/`, fetched via `tools/parity/fetch_community_builds.py` (pobarchives.com → pobb.in/raw → base64+zlib → XML). Status as of 2026-06: **11/11 builds full parity** (~9000 stat comparisons). The sweep caught its first real bug (`ItemTools.applyRange` float-tostring, fixed in `eb79ef1c6`) on its very first run — keep the fixture set when syncing upstream.

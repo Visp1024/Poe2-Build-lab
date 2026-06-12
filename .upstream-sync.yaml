@@ -14,13 +14,13 @@ last_synced_date: 2026-06-11
 
 # Пути в upstream, которые мы тянем 3-way патчем.
 # Avalonia/UI и runtime/*.dll НЕ трогаем.
+# ВАЖНО: src/ целиком, а не список подкаталогов — при первом big-bang синке
+# перечень подкаталогов пропустил корневые файлы src/ (GameVersions.lua не
+# получил регистрацию дерева 0_5, HeadlessWrapper.lua — wipeGlobalCache в
+# newBuild, LaunchServer.lua — IPv4-фикс). Форк-только файлы внутри src/ это
+# не задевает: патч строится из diff upstream'а, наших файлов там нет.
 sync_paths:
-  - src/Modules/
-  - src/Classes/
-  - src/Data/
-  - src/TreeData/
-  - src/Export/
-  - src/Skins/
+  - src/
   - runtime/lua/
   - manifest.xml
   - changelog.txt
