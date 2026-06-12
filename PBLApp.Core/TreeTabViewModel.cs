@@ -73,7 +73,7 @@ public partial class TreeTabViewModel : ViewModelBase
 
     // ── Ascendancy backgrounds ─────────────────────────────────────────────
 
-    public IReadOnlyDictionary<string, (double X, double Y)> AscendancyBackgrounds { get; }
+    public IReadOnlyDictionary<string, AscendancyBgDto> AscendancyBackgrounds { get; }
 
     // ── Class & ascendancy selection ───────────────────────────────────────
 

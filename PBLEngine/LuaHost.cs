@@ -2080,10 +2080,12 @@ public sealed class LuaHost : IDisposable
         return raw is { Length: >= 1 } && raw[0] is string s ? s : "";
     }
 
-    /// <summary>Returns background center world-positions keyed by ascendancy id (e.g. "Oracle").</summary>
-    public Dictionary<string, (double X, double Y)> GetAscendancyBackgrounds()
+    /// <summary>Returns background plates (sprite + world pos/size) keyed by ascendancy id (e.g. "Oracle").
+    /// Positions/sizes come from tree data (classes[].ascendancies[].background); the
+    /// background coords are world-space (tree.scaleImage == 1 in PoE2 PoB).</summary>
+    public Dictionary<string, AscendancyBgDto> GetAscendancyBackgrounds()
     {
-        var result = new Dictionary<string, (double, double)>(StringComparer.OrdinalIgnoreCase);
+        var result = new Dictionary<string, AscendancyBgDto>(StringComparer.OrdinalIgnoreCase);
         var raw = State.DoString(@"
             if not (build and build.spec and build.spec.tree) then return nil end
             local tree = build.spec.tree
@@ -2091,19 +2093,26 @@ public sealed class LuaHost : IDisposable
             for _, cls in pairs(tree.classes or {}) do
                 for _, ascend in ipairs(cls.classes or {}) do
                     if ascend.id and ascend.background then
-                        out[ascend.id] = { ascend.background.x or 0, ascend.background.y or 0 }
+                        out[ascend.id] = {
+                            ascend.background.x or 0,
+                            ascend.background.y or 0,
+                            ascend.background.image or ('Classes' .. ascend.id),
+                            ascend.background.width or 1500,
+                            ascend.background.height or 1500,
+                        }
                     end
                 end
             end
             return out
         ");
         if (raw is not { Length: >= 1 } || raw[0] is not LuaTable tbl) return result;
+        static double Num(object? v) => v is double d ? d : v is long l ? l : 0.0;
         foreach (var k in tbl.Keys)
         {
             if (k is not string name || tbl[k] is not LuaTable row) continue;
-            var x = row[1L] is double dx ? dx : row[1L] is long lx ? (double)lx : 0.0;
-            var y = row[2L] is double dy ? dy : row[2L] is long ly ? (double)ly : 0.0;
-            result[name] = (x, y);
+            var image = row[3L] as string ?? "Classes" + name;
+            result[name] = new AscendancyBgDto(
+                name, image, Num(row[1L]), Num(row[2L]), Num(row[4L]), Num(row[5L]));
         }
         return result;
     }

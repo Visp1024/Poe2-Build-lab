@@ -46,8 +46,8 @@ public sealed class TreeCanvas : Control
     public static readonly StyledProperty<IReadOnlyList<RadiusEmitter>?> RadiusEmittersProperty =
         AvaloniaProperty.Register<TreeCanvas, IReadOnlyList<RadiusEmitter>?>(nameof(RadiusEmitters));
 
-    public static readonly StyledProperty<IReadOnlyDictionary<string, (double X, double Y)>?> AscendancyBackgroundsProperty =
-        AvaloniaProperty.Register<TreeCanvas, IReadOnlyDictionary<string, (double X, double Y)>?>(nameof(AscendancyBackgrounds));
+    public static readonly StyledProperty<IReadOnlyDictionary<string, AscendancyBgDto>?> AscendancyBackgroundsProperty =
+        AvaloniaProperty.Register<TreeCanvas, IReadOnlyDictionary<string, AscendancyBgDto>?>(nameof(AscendancyBackgrounds));
 
     /// <summary>Callback supplied by the view layer that fetches the modern
     /// hover-info packet (mod lines + stat diff + path distance) for a node
@@ -97,7 +97,7 @@ public sealed class TreeCanvas : Control
         get => GetValue(RadiusEmittersProperty);
         set => SetValue(RadiusEmittersProperty, value);
     }
-    public IReadOnlyDictionary<string, (double X, double Y)>? AscendancyBackgrounds
+    public IReadOnlyDictionary<string, AscendancyBgDto>? AscendancyBackgrounds
     {
         get => GetValue(AscendancyBackgroundsProperty);
         set => SetValue(AscendancyBackgroundsProperty, value);
@@ -130,8 +130,11 @@ public sealed class TreeCanvas : Control
 
     private TreeNodeDto? _hoveredNode;
     private Dictionary<int, TreeNodeDto>             _nodeById      = new();
-    private Dictionary<string, (double dx, double dy)> _ascendOffsets = new();
-    private Dictionary<string, double>              _ascendRadii   = new();
+    // Per-ascendancy transform: subtree centroid (cx,cy) maps to the background
+    // circle center (tx,ty); k shrinks node positions around the center so the
+    // subtree fits inside the plate.
+    private Dictionary<string, (double cx, double cy, double tx, double ty, double k)> _ascendTransforms = new();
+    private Dictionary<string, double> _ascendRadii = new();
 
     // Cache for the "can allocate" set (nodes adjacent to any allocated node).
     // Recomputing this iterates every node × its neighbours — ~10-30 ms on the
@@ -266,6 +269,9 @@ public sealed class TreeCanvas : Control
         }
         else if (change.Property == AscendancyBackgroundsProperty)
         {
+            // Subtree offsets target the background circles, so they depend on this dict.
+            ComputeAscendOffsets();
+            InvalidateStaticLayer();
             InvalidateVisual();
         }
 
@@ -324,9 +330,8 @@ public sealed class TreeCanvas : Control
             _canAllocAllocRef = null;
         }
 
-        // ── Ascendancy background image ────────────────────────────────────
-        if (!string.IsNullOrEmpty(filter))
-            DrawAscendancyBackground(dc, filter);
+        // ── Ascendancy background plates ────────────────────────────────────
+        DrawAscendancyBackgrounds(dc, filter);
 
         // ── Static connection layer (cached bitmap) ────────────────────────
         // Draw the ~5000 baseline (ConnPen) lines as a single textured rect.
@@ -978,15 +983,16 @@ public sealed class TreeCanvas : Control
         string.IsNullOrEmpty(node.AscendancyName) ||
         (!string.IsNullOrEmpty(filter) && node.AscendancyName == filter);
 
-    // Effective world-space position after ascendancy offset
+    // Effective world-space position after the ascendancy transform (recenter
+    // into the background circle + shrink to fit inside the plate).
     private (double wx, double wy) EffectiveWorld(TreeNodeDto node)
     {
         double wx = node.X, wy = node.Y;
         if (!string.IsNullOrEmpty(node.AscendancyName) &&
-            _ascendOffsets.TryGetValue(node.AscendancyName, out var off))
+            _ascendTransforms.TryGetValue(node.AscendancyName, out var t))
         {
-            wx += off.dx;
-            wy += off.dy;
+            wx = t.tx + (node.X - t.cx) * t.k;
+            wy = t.ty + (node.Y - t.cy) * t.k;
         }
         return (wx, wy);
     }
@@ -997,30 +1003,36 @@ public sealed class TreeCanvas : Control
         return (wx * _scale + _offsetX, wy * _scale + _offsetY);
     }
 
-    // Compute per-ascendancy translation to bring each sub-tree centroid to (0,0),
-    // and the max distance from centroid (used as background half-size).
+    // Compute per-ascendancy transform that brings each sub-tree centroid to the
+    // center of its background circle (tree-data position next to the class start)
+    // and shrinks the subtree, if needed, so it stays inside the plate.
+    // Ascendancies without a known background fall back to world (0,0), unscaled.
     private void ComputeAscendOffsets()
     {
-        _ascendOffsets.Clear();
+        _ascendTransforms.Clear();
         _ascendRadii.Clear();
         var nodes = Nodes;
         if (nodes == null) return;
+        var bgs = AscendancyBackgrounds;
 
-        var groups = new Dictionary<string, (double sumX, double sumY, int cnt)>();
+        // Bounding box per ascendancy — its center keeps the cluster visually
+        // centered in the circle (a centroid drifts toward dense node areas).
+        var groups = new Dictionary<string, (double minX, double minY, double maxX, double maxY)>();
         foreach (var n in nodes)
         {
             if (string.IsNullOrEmpty(n.AscendancyName)) continue;
             if (!groups.TryGetValue(n.AscendancyName, out var g))
-                g = (0, 0, 0);
-            groups[n.AscendancyName] = (g.sumX + n.X, g.sumY + n.Y, g.cnt + 1);
+                g = (double.MaxValue, double.MaxValue, double.MinValue, double.MinValue);
+            groups[n.AscendancyName] = (
+                Math.Min(g.minX, n.X), Math.Min(g.minY, n.Y),
+                Math.Max(g.maxX, n.X), Math.Max(g.maxY, n.Y));
         }
         foreach (var (name, g) in groups)
         {
-            double cx = g.sumX / g.cnt;
-            double cy = g.sumY / g.cnt;
-            _ascendOffsets[name] = (-cx, -cy);
+            double cx = (g.minX + g.maxX) * 0.5;
+            double cy = (g.minY + g.maxY) * 0.5;
 
-            // Compute max node distance from centroid for background sizing
+            // Max node distance from the box center (world units).
             double maxR = 0;
             foreach (var n in nodes!)
             {
@@ -1029,6 +1041,20 @@ public sealed class TreeCanvas : Control
                 if (d > maxR) maxR = d;
             }
             _ascendRadii[name] = maxR;
+
+            double tx = 0, ty = 0, k = 1.0;
+            if (bgs != null && bgs.TryGetValue(name, out var bg))
+            {
+                tx = bg.X;
+                ty = bg.Y;
+                // Fit inside the plate. Node positions shrink but icons keep
+                // their world size, so reserve a margin of one large notable
+                // frame (~180 world units) past the outermost node center.
+                double half = Math.Min(bg.Width, bg.Height) * 0.5;
+                if (maxR > 0 && half > 180)
+                    k = Math.Min(1.0, (half - 180) / maxR);
+            }
+            _ascendTransforms[name] = (cx, cy, tx, ty, k);
         }
     }
 
@@ -1177,30 +1203,49 @@ public sealed class TreeCanvas : Control
 
     // ── Ascendancy background ──────────────────────────────────────────────
 
-    private void DrawAscendancyBackground(DrawingContext dc, string ascendancyName)
+    /// <summary>Draw every ascendancy background plate at its tree-data position
+    /// (the circle adjacent to each class start), all at the uniform data size
+    /// (1500×1500 world units). The selected ascendancy is bright, the rest are
+    /// dimmed — mirrors original PoB's PassiveTreeView behaviour. Plates that
+    /// share one circle (replacement ascendancies like Lich / Abyssal Lich)
+    /// collapse to a single image, preferring the selected one.</summary>
+    private void DrawAscendancyBackgrounds(DrawingContext dc, string selected)
     {
         var assets = AssetStore;
-        if (assets == null) return;
+        var bgs = AscendancyBackgrounds;
+        if (assets == null || bgs == null || bgs.Count == 0) return;
 
-        var spriteKey = "Classes" + ascendancyName;
-        var sprite = assets.GetSprite(spriteKey);
-        if (!sprite.HasValue) return;
+        // Collapse plates sharing the same circle (replacement ascendancies).
+        var byPos = new Dictionary<(long, long), AscendancyBgDto>();
+        foreach (var bg in bgs.Values)
+        {
+            var key = ((long)Math.Round(bg.X), (long)Math.Round(bg.Y));
+            if (!byPos.TryGetValue(key, out var cur) ||
+                bg.Id.Equals(selected, StringComparison.OrdinalIgnoreCase))
+                byPos[key] = bg;
+            else if (cur.Id.Equals(selected, StringComparison.OrdinalIgnoreCase))
+                { /* keep the selected one */ }
+        }
 
-        var (bmp, src) = sprite.Value;
+        foreach (var bg in byPos.Values)
+        {
+            var sprite = assets.GetSprite(bg.Image);
+            if (!sprite.HasValue) continue;
+            var (bmp, src) = sprite.Value;
 
-        // After ComputeAscendOffsets, each ascendancy centroid maps to world (0,0).
-        // World (0,0) → screen = (_offsetX, _offsetY).
-        double cx = _offsetX;
-        double cy = _offsetY;
+            double halfW = bg.Width  * 0.5 * _scale;
+            double halfH = bg.Height * 0.5 * _scale;
+            double cx = bg.X * _scale + _offsetX;
+            double cy = bg.Y * _scale + _offsetY;
 
-        // Half-size = max node distance from centroid × padding factor
-        double nodeRadius = _ascendRadii.TryGetValue(ascendancyName, out var r) ? r : 800.0;
-        double half = nodeRadius * 1.4 * _scale;
+            var destRect = new Rect(cx - halfW, cy - halfH, halfW * 2, halfH * 2);
+            if (destRect.Right < 0 || destRect.Left > Bounds.Width ||
+                destRect.Bottom < 0 || destRect.Top > Bounds.Height) continue;
 
-        var destRect = new Rect(cx - half, cy - half, half * 2, half * 2);
-
-        using (dc.PushOpacity(0.85))
-            dc.DrawImage(bmp, src, destRect);
+            bool isSelected = bg.Id.Equals(selected, StringComparison.OrdinalIgnoreCase);
+            using (dc.PushOpacity(isSelected ? 1.0 : 0.5))
+                dc.DrawImage(bmp, src, destRect);
+        }
     }
 
     // ── Jewel radius visualization ─────────────────────────────────────────
