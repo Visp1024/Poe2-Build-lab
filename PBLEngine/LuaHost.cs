@@ -207,7 +207,17 @@ public sealed class LuaHost : IDisposable
                         break
                     end
                 end
-                table.insert(out, { i, name, strip(group.label or ''), enabled, isTrigger })
+                -- Granted groups (from a tree node or item) carry group.source +
+                -- group.sourceNode/sourceItem. Surface a readable source label so
+                -- the UI can mark them non-removable and show their origin.
+                local source = tostring(group.source or '')
+                local sourceLabel = ''
+                if group.sourceNode then
+                    sourceLabel = strip(group.sourceNode.dn or group.sourceNode.name or '')
+                elseif group.sourceItem then
+                    sourceLabel = strip(group.sourceItem.name or group.sourceItem.title or '')
+                end
+                table.insert(out, { i, name, strip(group.label or ''), enabled, isTrigger, source, sourceLabel })
             end
             return out
         ");
@@ -221,7 +231,9 @@ public sealed class LuaHost : IDisposable
                 var label    = row[3L] as string   ?? "";
                 var enabled  = row[4L] is long en  && en == 1L;
                 var isTrigger = row[5L] is long tr && tr == 1L;
-                groups.Add(new SkillGroupEntry(idx, name, label, enabled, isTrigger));
+                var source      = row[6L] as string ?? "";
+                var sourceLabel = row[7L] as string ?? "";
+                groups.Add(new SkillGroupEntry(idx, name, label, enabled, isTrigger, source, sourceLabel));
             }
         }
         return groups;
