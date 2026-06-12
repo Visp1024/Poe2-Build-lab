@@ -198,7 +198,7 @@ public class LocTools(AppDriver driver)
                 btnOpen      = LocalizationService.Get("Btn_OpenBuild"),
                 btnDelete    = LocalizationService.Get("Btn_Delete"),
                 emptyHint    = LocalizationService.Get("List_Empty"),
-                builds       = bl.Builds.Select(b => new
+                builds       = bl.CurrentItems.Select(b => new
                 {
                     name     = b.Name,
                     isFolder = b.IsFolder,
