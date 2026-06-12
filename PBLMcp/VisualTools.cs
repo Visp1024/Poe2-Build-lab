@@ -258,6 +258,40 @@ public class VisualTools
 
     [McpServerTool]
     [Description(
+        "Read the PoB-styled display tooltip of EVERY equipped item (incl. jewel sockets) " +
+        "and every pool item at once, without changing the current selection. Returns " +
+        "{slots:[{slot,displayName,lines:[...]}], pool:[{id,name,equippedSlot,lines:[...]}]}. " +
+        "Each line has kind/size/centered/block/plain text and coloured segments. Use to " +
+        "audit all tooltips in one call instead of selecting items one by one.")]
+    public async Task<string> VisualItemsGetAllTooltips()
+    {
+        try { return await IpcClient.CallAsync("GET", "/items/all-tooltips"); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Report the equip-compatible (drag-highlight) target slots PoB accepts for an item. " +
+        "Honours keystone/ascendancy rules: e.g. a Focus is only valid in Weapon 2 while a " +
+        "Staff is equipped if Instruments of Power is allocated; Giant's Blood enables dual " +
+        "one-handers, etc. Pass a pool item id, or an equipped slot name, or neither to get " +
+        "the map for every pool item ({pool:[{id,name,equippedSlot,slots:[...]}]}).")]
+    public async Task<string> VisualItemsCompatibleSlots(
+        [Description("Pool item id. Optional.")] int? id = null,
+        [Description("Equipped slot name (returns OTHER slots the item could move to). Optional.")] string? slot = null)
+    {
+        try
+        {
+            object body = id.HasValue ? new { id = id.Value }
+                        : !string.IsNullOrEmpty(slot) ? new { slot }
+                        : new { };
+            return await IpcClient.CallAsync("POST", "/items/compatible-slots", body);
+        }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
         "Switch the right pane from the styled display tooltip to the inline editor for the " +
         "currently selected item. Requires an item to be selected (slot with an item, or pool item).")]
     public async Task<string> VisualItemsEditCurrent()

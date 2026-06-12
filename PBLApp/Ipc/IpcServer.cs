@@ -136,6 +136,8 @@ public sealed class IpcServer
                 "/items/unequip"      => await OnUi(() => ItemsUnequip(body)),
                 "/items/get-editor"   => await OnUi(GetEditorState),
                 "/items/get-tooltip"  => await OnUi(GetTooltipState),
+                "/items/all-tooltips" => await OnUi(AllTooltips),
+                "/items/compatible-slots" => await OnUi(() => CompatibleSlots(body)),
                 "/items/edit-current" => await OnUi(EditCurrentItem),
                 "/items/cancel-edit"  => await OnUi(CancelEdit),
                 "/items/editor-save"             => await OnUi(EditorSave),
@@ -527,16 +529,100 @@ public sealed class IpcServer
         {
             isOpen = true,
             lineCount = tt.Lines.Count,
-            lines = tt.Lines.Select(l => new
-            {
-                kind     = l.Kind,
-                size     = l.Size,
-                centered = l.Centered,
-                block    = l.Block,
-                plain    = l.PlainText,
-                segments = l.Segments.Select(s => new { text = s.Text, color = s.ColorHex }).ToArray(),
-            }).ToArray(),
+            lines = SerializeTooltipLines(tt),
         };
+    }
+
+    private static object[] SerializeTooltipLines(PBLApp.ViewModels.ItemTooltipViewModel tt)
+        => tt.Lines.Select(l => new
+        {
+            kind     = l.Kind,
+            size     = l.Size,
+            centered = l.Centered,
+            block    = l.Block,
+            plain    = l.PlainText,
+            segments = l.Segments.Select(s => new { text = s.Text, color = s.ColorHex }).ToArray(),
+        }).ToArray();
+
+    /// <summary>Builds the display tooltip for every equipped slot and every pool item,
+    /// without disturbing the current selection. Lets inspection tooling read all
+    /// tooltips at once for verification.</summary>
+    private static object AllTooltips()
+    {
+        if (GetItemsVm() is not { } v) return new { error = "ItemsTab not ready." };
+
+        var slotTooltips = new List<object>();
+        foreach (var s in AllSlots(v))
+        {
+            if (s.IsEmpty) continue;
+            var tt = v.BuildTooltipFor(null, s.SlotName);
+            if (tt is null) continue;
+            slotTooltips.Add(new
+            {
+                slot = s.SlotName, displayName = s.DisplayName,
+                lineCount = tt.Lines.Count, lines = SerializeTooltipLines(tt),
+            });
+        }
+        foreach (var j in v.JewelSlots)
+        {
+            if (j.IsEmpty) continue;
+            var tt = v.BuildTooltipFor(null, j.SlotName);
+            if (tt is null) continue;
+            slotTooltips.Add(new
+            {
+                slot = j.SlotName, displayName = j.DisplayName,
+                lineCount = tt.Lines.Count, lines = SerializeTooltipLines(tt),
+            });
+        }
+
+        var poolTooltips = new List<object>();
+        foreach (var p in v.ItemPool)
+        {
+            var tt = v.BuildTooltipFor(p.ItemId, null);
+            if (tt is null) continue;
+            poolTooltips.Add(new
+            {
+                id = p.ItemId, name = p.Name, equippedSlot = p.EquippedSlot,
+                lineCount = tt.Lines.Count, lines = SerializeTooltipLines(tt),
+            });
+        }
+
+        return new { ok = true, slots = slotTooltips.ToArray(), pool = poolTooltips.ToArray() };
+    }
+
+    /// <summary>Reports the equip-compatible (drag-highlight) target slots PoB would
+    /// accept for an item — honouring keystone/ascendancy flags such as Instruments of
+    /// Power (Focus into Weapon 2 with a Staff) and Giant's Blood. Body: optional
+    /// {"id": poolItemId} or {"slot": equippedSlotName}; with neither, returns the map
+    /// for every pool item.</summary>
+    private static object CompatibleSlots(string body)
+    {
+        if (GetItemsVm() is not { } v) return new { error = "ItemsTab not ready." };
+        var req = string.IsNullOrWhiteSpace(body)
+            ? new Dictionary<string, JsonElement>()
+            : JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+
+        if (req.TryGetValue("id", out var ie) && ie.ValueKind == JsonValueKind.Number)
+        {
+            int id = ie.GetInt32();
+            var entry = v.ItemPool.FirstOrDefault(e => e.ItemId == id);
+            if (entry is null) return new { error = $"Pool item id={id} not found." };
+            return new { ok = true, id, name = entry.Name, equippedSlot = entry.EquippedSlot,
+                         slots = v.CompatibleSlotsForPool(id).OrderBy(s => s).ToArray() };
+        }
+        if (req.TryGetValue("slot", out var se) && se.ValueKind == JsonValueKind.String)
+        {
+            var slot = se.GetString() ?? "";
+            return new { ok = true, slot,
+                         slots = v.CompatibleSlotsForSlot(slot).OrderBy(s => s).ToArray() };
+        }
+
+        var all = v.ItemPool.Select(p => new
+        {
+            id = p.ItemId, name = p.Name, equippedSlot = p.EquippedSlot,
+            slots = v.CompatibleSlotsForPool(p.ItemId).OrderBy(s => s).ToArray(),
+        }).ToArray();
+        return new { ok = true, pool = all };
     }
 
     private static object EditCurrentItem()

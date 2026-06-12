@@ -566,6 +566,33 @@ public partial class ItemsTabViewModel : ViewModelBase
         catch { return ""; }
     }
 
+    /// <summary>Builds a display tooltip (with the per-slot delta block when a slot is
+    /// given) for an arbitrary pool item or equipped slot WITHOUT changing the current
+    /// UI selection. Used by IPC inspection tooling to read any item's tooltip.
+    /// Pass <paramref name="slotName"/> to resolve the equipped item in that slot, or
+    /// <paramref name="itemId"/> to address a pool item directly. Returns null if the
+    /// item can't be resolved or has no tooltip.</summary>
+    public ItemTooltipViewModel? BuildTooltipFor(int? itemId, string? slotName)
+    {
+        try
+        {
+            int id = itemId ?? -1;
+            if (id < 0 && !string.IsNullOrEmpty(slotName))
+            {
+                var poolEntry = ItemPool.FirstOrDefault(e => e.EquippedSlot == slotName);
+                if (poolEntry is null) return null;
+                id = poolEntry.ItemId;
+            }
+            if (id < 0) return null;
+            var lines = _host.GetItemTooltipLines(id, slotName);
+            if (lines.Count == 0) return null;
+            var vm = new ItemTooltipViewModel();
+            vm.Load(lines);
+            return vm;
+        }
+        catch { return null; }
+    }
+
     partial void OnSelectedSlotNameChanged(string slotName)
     {
         foreach (var slot in _allSlots)
