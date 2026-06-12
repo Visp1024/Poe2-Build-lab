@@ -119,5 +119,6 @@ public record BaseDefaults(
 public record RuneEntry(
     string Name,
     IReadOnlyList<string> SlotTypes,           // e.g. ["helmet"], ["weapon", "caster"]
-    IReadOnlyDictionary<string, IReadOnlyList<string>> ModsByType   // per slot-type → mod lines
+    IReadOnlyDictionary<string, IReadOnlyList<string>> ModsByType,   // per slot-type → mod lines
+    string AugType = ""   // socketable augment category: Rune | SoulCore | Idol | AbyssalEye | CongealedMist
 );

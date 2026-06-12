@@ -1881,7 +1881,7 @@ public sealed class LuaHost : IDisposable
             if not (data and data.itemMods and data.itemMods.Runes) then return nil end
             local out = {}
             for runeName, slots in pairs(data.itemMods.Runes) do
-                local entry = { runeName, {}, {} }   -- {name, slotTypes[], modsByType{slot,mods[]}}
+                local entry = { runeName, {}, {}, '' }   -- {name, slotTypes[], modsByType{slot,mods[]}, augType}
                 local types = {}
                 for slotType, slotData in pairs(slots) do
                     table.insert(types, slotType)
@@ -1891,6 +1891,8 @@ public sealed class LuaHost : IDisposable
                         table.insert(mods, mod)
                     end
                     entry[3][slotType] = mods
+                    -- augment category (Rune / SoulCore / Idol / ...) is the same across slot types
+                    if entry[4] == '' and slotData.type then entry[4] = tostring(slotData.type) end
                 end
                 entry[2] = types
                 table.insert(out, entry)
@@ -1917,7 +1919,8 @@ public sealed class LuaHost : IDisposable
                         foreach (var mk in mt.Keys) if (mt[mk] is string ms) mods.Add(ms);
                     modsByType[slot] = mods;
                 }
-            list.Add(new RuneEntry(name, slotTypes, modsByType));
+            var augType = e[4] as string ?? "";
+            list.Add(new RuneEntry(name, slotTypes, modsByType, augType));
         }
         list.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
         return list;
