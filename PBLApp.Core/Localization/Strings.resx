@@ -59,6 +59,7 @@
   <data name="Skill_AddSupportTip" xml:space="preserve"><value>+ add support</value></data>
   <data name="Skill_AddNew"       xml:space="preserve"><value>+ Add Skill</value></data>
   <data name="Skill_PickerTitle"  xml:space="preserve"><value>Choose active skill</value></data>
+  <data name="Skill_GrantedBy"    xml:space="preserve"><value>From: {0}</value></data>
 
   <!-- Build list grid -->
   <data name="List_BuildsRoot"    xml:space="preserve"><value>Builds</value></data>

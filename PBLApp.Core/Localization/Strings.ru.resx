@@ -59,6 +59,7 @@
   <data name="Skill_AddSupportTip" xml:space="preserve"><value>+ добавить саппорт</value></data>
   <data name="Skill_AddNew"       xml:space="preserve"><value>+ Добавить умение</value></data>
   <data name="Skill_PickerTitle"  xml:space="preserve"><value>Выберите активное умение</value></data>
+  <data name="Skill_GrantedBy"    xml:space="preserve"><value>От: {0}</value></data>
 
   <!-- Сетка билдов -->
   <data name="List_BuildsRoot"    xml:space="preserve"><value>Билды</value></data>

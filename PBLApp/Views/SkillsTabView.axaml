@@ -246,7 +246,7 @@
                                         </Border>
                                     </ToolTip>
                                 </ToolTip.Tip>
-                                <Grid ColumnDefinitions="18,*" Height="30">
+                                <Grid ColumnDefinitions="18,*,Auto" Height="30">
                                     <TextBlock Grid.Column="0" Text="★"
                                                Foreground="{DynamicResource Brand400Brush}"
                                                IsVisible="{Binding IsMain}"
@@ -257,6 +257,15 @@
                                                FontSize="14" FontWeight="Medium"
                                                VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis" />
+                                    <!-- Granted-by badge: a lock glyph marking the
+                                         group as non-removable; tooltip names the
+                                         ascendancy node / item that grants it. -->
+                                    <TextBlock Grid.Column="2" Text="🔒"
+                                               IsVisible="{Binding IsGranted}"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               FontSize="11" Margin="6,0,4,0"
+                                               VerticalAlignment="Center"
+                                               ToolTip.Tip="{Binding SourceBadge}" />
                                 </Grid>
                             </Border>
                         </DataTemplate>

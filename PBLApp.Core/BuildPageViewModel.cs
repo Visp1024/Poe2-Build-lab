@@ -133,10 +133,15 @@ public partial class BuildPageViewModel : ViewModelBase
             SkillsTab = new SkillsTabViewModel(host, model,
                 onStatsChanged:  () => CalcsTab.Refresh(),
                 onGroupsChanged: () => { CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); });
+            // SkillsTab?.Refresh() re-queries the granted-skill groups: allocating
+            // a granting node, changing class/ascendancy, or equipping an item that
+            // grants a skill adds/removes source groups in the engine, and the
+            // Skills tab must rebuild its list to reflect that (otherwise old
+            // class's granted skills linger and new ones never appear).
             ItemsTab  = new ItemsTabViewModel(host, model,
-                onStatsChanged: () => CalcsTab.Refresh());
+                onStatsChanged: () => { CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); });
             TreeTab   = new TreeTabViewModel(host,
-                onStatsChanged: () => { model.Refresh(); CalcsTab.Refresh(); });
+                onStatsChanged: () => { model.Refresh(); CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); });
             NotesTab  = new NotesTabViewModel(model, xmlPath);
             ConfigTab = new ConfigTabViewModel(host, model);
             ImportTab = new ImportTabViewModel(host, model, xmlPath);

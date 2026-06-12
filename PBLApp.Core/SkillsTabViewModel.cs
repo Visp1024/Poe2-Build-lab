@@ -298,6 +298,19 @@ public partial class SkillGroupViewModel : ObservableObject
 
     public ObservableCollection<GemViewModel> SupportSlots { get; } = [];
 
+    /// <summary>True when this group is granted by a tree node / item (the calc
+    /// engine regenerates it on every recalc). Such groups can't be removed and
+    /// show their origin instead.</summary>
+    public bool   IsGranted   { get; }
+    /// <summary>Display name of the granting source (e.g. the ascendancy node), or "".</summary>
+    public string SourceLabel { get; }
+    public bool   CanRemove   => !IsGranted;
+    /// <summary>Localised "From: <node>" badge shown on granted groups.</summary>
+    public string SourceBadge => IsGranted
+        ? string.Format(LocalizationService.Get("Skill_GrantedBy"),
+                        GameTranslationService.TPassiveName(SourceLabel))
+        : "";
+
     public IRelayCommand AddGemCommand     { get; }
     public IRelayCommand RemoveGroupCommand { get; }
 
@@ -312,8 +325,11 @@ public partial class SkillGroupViewModel : ObservableObject
         _isTrigger = entry.IsTrigger;
         _syncing = false;
 
+        IsGranted   = !string.IsNullOrEmpty(entry.Source);
+        SourceLabel = entry.SourceLabel;
+
         AddGemCommand      = new RelayCommand(() => _parent.AddGem(Index));
-        RemoveGroupCommand = new RelayCommand(() => _parent.RemoveGroup(Index));
+        RemoveGroupCommand = new RelayCommand(() => _parent.RemoveGroup(Index), () => CanRemove);
 
         RebuildGems(gems);
     }
