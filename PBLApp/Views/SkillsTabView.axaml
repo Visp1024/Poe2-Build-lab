@@ -430,11 +430,10 @@
             <Border Grid.Row="1" Background="{DynamicResource BgSurfaceBrush}" Padding="4,3"
                     BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,0,0,1"
                     IsVisible="{Binding SelectedGroup, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <Grid ColumnDefinitions="26,*,90,90,28">
+                <Grid ColumnDefinitions="26,*,90,90">
                     <TextBlock Grid.Column="1" Text="{loc:Tr Skill_ColSupport}" Classes="col-header" Margin="2,0" />
                     <TextBlock Grid.Column="2" Text="{loc:Tr Skill_ColLevel}"   Classes="col-header" HorizontalAlignment="Center" />
                     <TextBlock Grid.Column="3" Text="{loc:Tr Skill_ColQuality}" Classes="col-header" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="4" Text="{loc:Tr Skill_ColOn}"      Classes="col-header" HorizontalAlignment="Center" />
                 </Grid>
             </Border>
 
@@ -471,7 +470,7 @@
                                         </Border>
                                     </ToolTip>
                                 </ToolTip.Tip>
-                                <Grid ColumnDefinitions="26,*,90,90,28" VerticalAlignment="Center">
+                                <Grid ColumnDefinitions="26,*,90,90" VerticalAlignment="Center">
 
                                     <!-- Remove (hidden for empty slots) -->
                                     <Button Grid.Column="0"
@@ -555,30 +554,23 @@
                                         </Button.Flyout>
                                     </Button>
 
-                                    <!-- Level -->
+                                    <!-- Level — only shown for filled slots -->
                                     <NumericUpDown Grid.Column="2"
                                                    Classes="gem-spin"
                                                    Value="{Binding Level, Mode=TwoWay}"
-                                                   IsEnabled="{Binding !IsEmpty}"
+                                                   IsVisible="{Binding !IsEmpty}"
                                                    Minimum="1" Maximum="40" Increment="1"
                                                    FormatString="0" ShowButtonSpinner="True"
                                                    Width="88" Height="28" />
 
-                                    <!-- Quality -->
+                                    <!-- Quality — only shown for filled slots -->
                                     <NumericUpDown Grid.Column="3"
                                                    Classes="gem-spin"
                                                    Value="{Binding Quality, Mode=TwoWay}"
-                                                   IsEnabled="{Binding !IsEmpty}"
+                                                   IsVisible="{Binding !IsEmpty}"
                                                    Minimum="0" Maximum="30" Increment="5"
                                                    FormatString="0" ShowButtonSpinner="True"
                                                    Width="88" Height="28" />
-
-                                    <!-- Enabled -->
-                                    <CheckBox Grid.Column="4"
-                                              IsChecked="{Binding IsEnabled, Mode=TwoWay}"
-                                              IsEnabled="{Binding !IsEmpty}"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
                                 </Grid>
                             </Border>
                         </DataTemplate>
