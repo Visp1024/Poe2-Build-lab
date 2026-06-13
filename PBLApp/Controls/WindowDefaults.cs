@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Platform;
 
 namespace PBLApp.Controls;
 
@@ -40,13 +41,21 @@ public static class WindowDefaults
 
     private static void OnOpened(Window w)
     {
-        var screen = w.Screens.Primary ?? w.Screens.ScreenFromWindow(w);
+        var saved = LoadFor(w.GetType().Name);
+
+        // Pick the screen the window should restore onto: the monitor that
+        // contained its saved position (so a window closed on a secondary
+        // display reopens there), falling back to the current/primary screen.
+        Screen? screen = null;
+        if (saved is not null)
+            screen = w.Screens.ScreenFromPoint(new PixelPoint(saved.X, saved.Y));
+        screen ??= w.Screens.ScreenFromWindow(w) ?? w.Screens.Primary;
         if (screen is null) return;
+
         var scale = screen.Scaling > 0 ? screen.Scaling : 1.0;
         var maxW  = screen.WorkingArea.Width  / scale;
         var maxH  = screen.WorkingArea.Height / scale;
 
-        var saved = LoadFor(w.GetType().Name);
         if (saved is not null)
         {
             // Restore size, clamped to current screen.
