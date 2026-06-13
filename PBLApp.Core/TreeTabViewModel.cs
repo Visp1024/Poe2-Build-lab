@@ -209,6 +209,20 @@ public partial class TreeTabViewModel : ViewModelBase
     private readonly System.Timers.Timer _statsDebounce = new(120) { AutoReset = false };
     private System.Action? _statsDispatcher;
 
+    // ── Async optimistic allocation ────────────────────────────────────────
+    // spec:AllocNode / spec:DeallocNode cost ~130 ms each (intrinsic upstream
+    // path/depends rebuild). Running them on the UI thread froze it per click.
+    // Instead we update the allocated set optimistically (C# predicts the path)
+    // and repaint instantly, then run the heavy Lua on a background thread,
+    // serialized by a semaphore so NLua is never touched concurrently. While a
+    // background op runs, _toggleBusy makes the hover provider skip its Lua call
+    // (the only other tree Lua the UI thread would issue). The real state is
+    // reconciled from Lua once the burst drains.
+    private readonly SemaphoreSlim _luaQueue = new(1, 1);
+    private volatile bool _toggleBusy;
+    private int _pendingToggles;
+    private Dictionary<int, TreeNodeDto>? _nodeIndex;
+
     // ── Constructor ────────────────────────────────────────────────────────
 
     public TreeTabViewModel(LuaHost host, Action? onStatsChanged = null, Action? onItemsChanged = null)
@@ -332,55 +346,132 @@ public partial class TreeTabViewModel : ViewModelBase
         var node = Nodes.FirstOrDefault(n => n.Id == nodeId);
         if (node == null) return;
 
-        bool isAllocated = AllocatedIds.Contains(nodeId);
-
-        if (isAllocated)
+        // Attribute nodes route through the attribute picker and are rare. Still
+        // gate their Lua behind the same queue so they never overlap a running
+        // background toggle.
+        if (node.IsAttribute && SelectAttribute != null)
         {
-            // LMB on already-allocated attribute node → let user change the attribute
-            if (node.IsAttribute && SelectAttribute != null)
+            bool wasAlloc = AllocatedIds.Contains(nodeId);
+            int attrIndex = await SelectAttribute();
+            if (attrIndex == 0) return;
+            await _luaQueue.WaitAsync();
+            try
             {
-                int attrIndex = await SelectAttribute();
-                if (attrIndex == 0) return;
-                int r = _host.ChangeAttributeNode(nodeId, attrIndex);
-                if (r != 0) { RefreshNodes(); _onStatsChanged?.Invoke(); }
+                _toggleBusy = true;
+                int r = await Task.Run(() => wasAlloc
+                    ? _host.ChangeAttributeNode(nodeId, attrIndex)
+                    : _host.AllocAttributeNode(nodeId, attrIndex));
+                if (r != 0) await Task.Run(() => _host.RecalcStats());
+                _toggleBusy = false;
+                if (r != 0) { RefreshNodes(); RefreshPointUsage(); _onStatsChanged?.Invoke(); }
             }
-            // LMB on any other allocated node → ignore (use RMB to dealloc)
+            finally { _toggleBusy = false; _luaQueue.Release(); }
+            return;
         }
-        else
-        {
-            // Allocate the node
-            int result;
-            bool fullRefresh = false;
 
-            if (node.IsAttribute && SelectAttribute != null)
-            {
-                int attrIndex = await SelectAttribute();
-                if (attrIndex == 0) return;
-                result = _host.AllocAttributeNode(nodeId, attrIndex);
-                fullRefresh = true; // name/stats change after attribute switch
-            }
-            else
-            {
-                result = _host.AllocNode(nodeId, deferRecalc: true);
-            }
+        // Already allocated, non-attribute → LMB is a no-op (RMB deallocates).
+        if (AllocatedIds.Contains(nodeId)) return;
 
-            if (result != 0)
-            {
-                if (fullRefresh) RefreshNodes(); else RefreshAllocated();
-                ScheduleStatsRefresh();
-            }
-        }
+        // Optimistic: predict the path C#-side and paint it allocated now, then
+        // run the real allocation in the background.
+        var path = PredictAllocPath(nodeId);
+        if (path.Count == 0) return;
+        var set = new HashSet<int>(AllocatedIds);
+        foreach (var p in path) set.Add(p);
+        AllocatedIds = set;
+
+        Interlocked.Increment(ref _pendingToggles);
+        _ = RunBackgroundToggle(nodeId, allocate: true);
     }
 
     private Task DeallocNodeAsync(int nodeId, CancellationToken ct = default)
     {
-        int result = _host.DeallocNode(nodeId, deferRecalc: true);
-        if (result != 0)
-        {
-            RefreshAllocated();
-            ScheduleStatsRefresh();
-        }
+        if (!AllocatedIds.Contains(nodeId)) return Task.CompletedTask;
+
+        // Optimistic: drop the node now (dependents are corrected on reconcile).
+        var set = new HashSet<int>(AllocatedIds);
+        set.Remove(nodeId);
+        AllocatedIds = set;
+
+        Interlocked.Increment(ref _pendingToggles);
+        _ = RunBackgroundToggle(nodeId, allocate: false);
         return Task.CompletedTask;
+    }
+
+    /// <summary>Shortest path (node ids) from the allocated tree to
+    /// <paramref name="target"/> over node links — what <c>spec:AllocNode</c>
+    /// will allocate. Empty when unreachable. Main-tree ↔ ascendancy boundary
+    /// is not crossed. Used to paint the allocation optimistically.</summary>
+    private List<int> PredictAllocPath(int target)
+    {
+        var byId = _nodeIndex ??= Nodes.ToDictionary(n => n.Id);
+        if (!byId.TryGetValue(target, out var tNode)) return [];
+        var alloc = AllocatedIds;
+        if (alloc.Count == 0 || alloc.Contains(target)) return [];
+
+        var visited = new HashSet<int>(alloc);
+        var parent  = new Dictionary<int, int>();
+        var queue   = new Queue<int>(alloc);
+        bool found  = false;
+        while (queue.Count > 0)
+        {
+            int cur = queue.Dequeue();
+            if (cur == target) { found = true; break; }
+            if (!byId.TryGetValue(cur, out var curNode)) continue;
+            bool curAsc = !string.IsNullOrEmpty(curNode.AscendancyName);
+            foreach (var lid in curNode.LinkedIds)
+            {
+                if (!visited.Add(lid)) continue;
+                if (!byId.TryGetValue(lid, out var lnode)) continue;
+                if (curAsc != !string.IsNullOrEmpty(lnode.AscendancyName)) continue;
+                parent[lid] = cur;
+                queue.Enqueue(lid);
+            }
+        }
+        if (!found) return [];
+        var path = new List<int> { target };
+        int n = target;
+        while (parent.TryGetValue(n, out var p)) { if (alloc.Contains(p)) break; path.Add(p); n = p; }
+        return path;
+    }
+
+    /// <summary>Runs the heavy <c>spec:AllocNode/DeallocNode</c> on a background
+    /// thread, serialized so NLua is single-threaded, then (when the burst has
+    /// drained) recalcs stats and reconciles the allocated set from Lua.</summary>
+    private async Task RunBackgroundToggle(int nodeId, bool allocate)
+    {
+        await _luaQueue.WaitAsync();
+        try
+        {
+            _toggleBusy = true;
+            await Task.Run(() =>
+            {
+                if (allocate) _host.AllocNode(nodeId, deferRecalc: true);
+                else          _host.DeallocNode(nodeId, deferRecalc: true);
+            });
+            _toggleBusy = false;
+
+            // Only the last toggle of a burst pays the stats recalc + reconcile.
+            bool last = Volatile.Read(ref _pendingToggles) <= 1;
+            if (last)
+            {
+                _toggleBusy = true;
+                await Task.Run(() => _host.RecalcStats());
+                _toggleBusy = false;
+
+                // Back on the UI thread, semaphore still held → no concurrent Lua.
+                RefreshAllocated();
+                RefreshPointUsage();
+                _onStatsChanged?.Invoke();
+            }
+        }
+        catch { /* best-effort; reconcile below restores truth */ }
+        finally
+        {
+            _toggleBusy = false;
+            Interlocked.Decrement(ref _pendingToggles);
+            _luaQueue.Release();
+        }
     }
 
     /// <summary>Test/IPC hook: toggle a node (alloc if unallocated, else dealloc)
@@ -451,7 +542,12 @@ public partial class TreeTabViewModel : ViewModelBase
     /// <summary>Fetch the modern hover-info packet (mod text, stat diff,
     /// path distance) for a tree node. Used by <c>TreeCanvas</c> to populate
     /// the new hover tooltip.</summary>
-    public NodeHoverInfo? GetNodeHoverInfo(int nodeId) => _host.GetNodeHoverInfo(nodeId);
+    // Skip the Lua hover lookup while a background toggle owns the Lua state —
+    // the canvas falls back to the node's cached stats, so no concurrent NLua.
+    public NodeHoverInfo? GetNodeHoverInfo(int nodeId) =>
+        _toggleBusy ? null : _host.GetNodeHoverInfo(nodeId);
+
+    partial void OnNodesChanged(IReadOnlyList<TreeNodeDto> value) => _nodeIndex = null;
 
     private void RefreshAllocated()
     {
