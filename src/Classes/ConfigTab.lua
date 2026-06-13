@@ -909,6 +909,73 @@ function ConfigTabClass:BuildModList()
 			end
 		end
 	end
+	-- Runic Meridians body tattoos (kept out of the user-facing Custom Modifiers field)
+	self:ApplyTattooMods(modList)
+end
+
+-- ── Runic Meridians (Martial Artist) "tattoo" Rune sockets ──────────────────
+-- The ascendancy grants Rune-only sockets on your body, independent of equipment:
+-- 1 Helmet, 2 Body Armour, 1 Gloves, 1 Boots (5 total). Selections persist as a
+-- newline-positional string in input.tattooRunes; their mods are parsed via the
+-- standard ModParser and injected into the config modList (source "Tattoo"),
+-- exactly like Custom Modifiers but without showing them in that text field.
+local tattooSlotTypes = { "helmet", "body armour", "body armour", "gloves", "boots" }
+
+function ConfigTabClass:TattooSlotTypes()
+	return tattooSlotTypes
+end
+
+-- True when Runic Meridians is allocated (the node has no mods, so match by name —
+-- node.dn is the English tree source, stable across UI languages).
+function ConfigTabClass:TattoosAvailable()
+	local spec = self.build.spec
+	if not (spec and spec.allocNodes) then return false end
+	for _, node in pairs(spec.allocNodes) do
+		if node.dn == "Runic Meridians" or node.name == "Runic Meridians" then
+			return true
+		end
+	end
+	return false
+end
+
+function ConfigTabClass:ApplyTattooMods(modList)
+	local input = self.configSets[self.activeConfigSetId].input
+	local raw = input.tattooRunes
+	if not raw or raw == "" then return end
+	if not self:TattoosAvailable() then return end
+	local runes = self.build.data and self.build.data.itemMods and self.build.data.itemMods.Runes
+	if not runes then return end
+	-- Pipe-delimited positional encoding (rune names never contain '|'); avoids any
+	-- XML attribute newline-normalization issues when saved as an Input string.
+	local i = 0
+	for runeName in (raw.."|"):gmatch("([^|]*)|") do
+		i = i + 1
+		local slotType = tattooSlotTypes[i]
+		if slotType and runeName ~= "" then
+			local runeData = runes[runeName]
+			if runeData then
+				-- Resolve mod lines for this socket's slot type, with the same generic
+				-- fallback the item rune picker uses (armour pieces -> "armour" etc.).
+				local lines
+				for _, st in ipairs({ slotType, "armour", "caster", "weapon", "focus" }) do
+					if type(runeData[st]) == "table" and runeData[st][1] then
+						lines = runeData[st]
+						break
+					end
+				end
+				if lines then
+					for _, modLine in ipairs(lines) do
+						local mods = modLib.parseMod(modLine)
+						if mods then
+							for _, mod in ipairs(mods) do
+								modList:AddMod(modLib.setSource(mod, "Tattoo"))
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 function ConfigTabClass:ImportCalcSettings()

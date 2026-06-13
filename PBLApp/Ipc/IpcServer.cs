@@ -138,6 +138,8 @@ public sealed class IpcServer
                 "/items/get-tooltip"  => await OnUi(GetTooltipState),
                 "/items/all-tooltips" => await OnUi(AllTooltips),
                 "/items/compatible-slots" => await OnUi(() => CompatibleSlots(body)),
+                "/items/tattoo-state" => await OnUi(TattooState),
+                "/items/set-tattoo"   => await OnUi(() => SetTattoo(body)),
                 "/items/edit-current" => await OnUi(EditCurrentItem),
                 "/items/cancel-edit"  => await OnUi(CancelEdit),
                 "/items/editor-save"             => await OnUi(EditorSave),
@@ -595,6 +597,37 @@ public sealed class IpcServer
     /// Power (Focus into Weapon 2 with a Staff) and Giant's Blood. Body: optional
     /// {"id": poolItemId} or {"slot": equippedSlotName}; with neither, returns the map
     /// for every pool item.</summary>
+    private static object TattooState()
+    {
+        if (GetItemsVm() is not { } v) return new { error = "ItemsTab not ready." };
+        var t = v.Tattoos;
+        return new
+        {
+            available = t.Available,
+            sockets = t.Sockets.Select(s => new
+            {
+                index    = s.Index,
+                slotType = s.SlotType,
+                label    = s.SlotTypeLabel,
+                rune     = s.SelectedRune?.Name ?? "",
+                options  = s.AvailableRunes.Count,
+            }).ToArray(),
+        };
+    }
+
+    private static object SetTattoo(string body)
+    {
+        if (GetItemsVm() is not { } v) return new { error = "ItemsTab not ready." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        if (!req.TryGetValue("index", out var ie) || ie.ValueKind != JsonValueKind.Number)
+            return new { error = "Missing 'index' (1-based number)." };
+        var rune = req.TryGetValue("rune", out var re) && re.ValueKind == JsonValueKind.String
+            ? re.GetString() ?? "" : "";
+        if (!v.Tattoos.Available) return new { error = "Tattoos not available (Runic Meridians not allocated)." };
+        v.Tattoos.SetSocketRune(ie.GetInt32(), rune);
+        return new { ok = true };
+    }
+
     private static object CompatibleSlots(string body)
     {
         if (GetItemsVm() is not { } v) return new { error = "ItemsTab not ready." };
