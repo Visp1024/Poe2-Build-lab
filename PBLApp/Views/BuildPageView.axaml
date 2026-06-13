@@ -9,6 +9,11 @@
              x:DataType="vm:BuildPageViewModel"
              Background="{DynamicResource BgBaseBrush}">
 
+    <UserControl.Resources>
+        <!-- MDI "open-in-new": detach tab into its own window. -->
+        <StreamGeometry x:Key="IconPopOut">M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z</StreamGeometry>
+    </UserControl.Resources>
+
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Header bar -->
@@ -283,19 +288,28 @@
                         <Setter Property="Background" Value="{DynamicResource Brand100Brush}" />
                         <Setter Property="Foreground" Value="{DynamicResource Brand400Brush}" />
                     </Style>
-                    <Style Selector="Button.popout">
+                    <!-- Detach-to-window affordance. Border + PointerPressed (no Flyout,
+                         fixed size) per the house icon-button style — not a Button. -->
+                    <Style Selector="Border.popout">
+                        <Setter Property="Width" Value="20" />
+                        <Setter Property="Height" Value="20" />
+                        <Setter Property="CornerRadius" Value="6" />
                         <Setter Property="Background" Value="Transparent" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
-                        <Setter Property="Padding" Value="4,0" />
-                        <Setter Property="MinWidth" Value="0" />
-                        <Setter Property="MinHeight" Value="0" />
-                        <Setter Property="FontSize" Value="11" />
+                        <Setter Property="Cursor" Value="Hand" />
                         <Setter Property="VerticalAlignment" Value="Center" />
-                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="0,3,0,0" />
                     </Style>
-                    <Style Selector="Button.popout:pointerover /template/ ContentPresenter">
+                    <Style Selector="Border.popout:pointerover">
                         <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+                    </Style>
+                    <Style Selector="Border.popout PathIcon">
+                        <Setter Property="Width" Value="11" />
+                        <Setter Property="Height" Value="11" />
+                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                    </Style>
+                    <Style Selector="Border.popout:pointerover PathIcon">
                         <Setter Property="Foreground" Value="{DynamicResource Brand500Brush}" />
                     </Style>
                 </DockPanel.Styles>
@@ -309,9 +323,11 @@
                                      IsVisible="{Binding !IsItemsPoppedOut}">
                             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                 <TextBlock Text="{loc:Tr Tab_Items}" VerticalAlignment="Center" />
-                                <Button Classes="popout" Content="&#x2197;" Tag="Items"
-                                        Click="PopOutTab_Click"
-                                        ToolTip.Tip="{loc:Tr Tab_PopOut}" />
+                                <Border Classes="popout" Tag="Items"
+                                        PointerPressed="PopOutTab_Pressed"
+                                        ToolTip.Tip="{loc:Tr Tab_PopOut}">
+                                    <PathIcon Data="{StaticResource IconPopOut}" />
+                                </Border>
                             </StackPanel>
                         </RadioButton>
                         <RadioButton Classes="tab" GroupName="MainTabs"
@@ -319,9 +335,11 @@
                                      IsVisible="{Binding !IsTreePoppedOut}">
                             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                 <TextBlock Text="{loc:Tr Tab_Tree}" VerticalAlignment="Center" />
-                                <Button Classes="popout" Content="&#x2197;" Tag="Tree"
-                                        Click="PopOutTab_Click"
-                                        ToolTip.Tip="{loc:Tr Tab_PopOut}" />
+                                <Border Classes="popout" Tag="Tree"
+                                        PointerPressed="PopOutTab_Pressed"
+                                        ToolTip.Tip="{loc:Tr Tab_PopOut}">
+                                    <PathIcon Data="{StaticResource IconPopOut}" />
+                                </Border>
                             </StackPanel>
                         </RadioButton>
                         <RadioButton Classes="tab" GroupName="MainTabs"
@@ -329,9 +347,11 @@
                                      IsVisible="{Binding !IsSkillsPoppedOut}">
                             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                 <TextBlock Text="{loc:Tr Tab_Skills}" VerticalAlignment="Center" />
-                                <Button Classes="popout" Content="&#x2197;" Tag="Skills"
-                                        Click="PopOutTab_Click"
-                                        ToolTip.Tip="{loc:Tr Tab_PopOut}" />
+                                <Border Classes="popout" Tag="Skills"
+                                        PointerPressed="PopOutTab_Pressed"
+                                        ToolTip.Tip="{loc:Tr Tab_PopOut}">
+                                    <PathIcon Data="{StaticResource IconPopOut}" />
+                                </Border>
                             </StackPanel>
                         </RadioButton>
                         <RadioButton Classes="tab" GroupName="MainTabs"
@@ -339,9 +359,11 @@
                                      IsVisible="{Binding !IsCalcsPoppedOut}">
                             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                 <TextBlock Text="{loc:Tr Tab_Calcs}" VerticalAlignment="Center" />
-                                <Button Classes="popout" Content="&#x2197;" Tag="Calcs"
-                                        Click="PopOutTab_Click"
-                                        ToolTip.Tip="{loc:Tr Tab_PopOut}" />
+                                <Border Classes="popout" Tag="Calcs"
+                                        PointerPressed="PopOutTab_Pressed"
+                                        ToolTip.Tip="{loc:Tr Tab_PopOut}">
+                                    <PathIcon Data="{StaticResource IconPopOut}" />
+                                </Border>
                             </StackPanel>
                         </RadioButton>
                         <RadioButton Classes="tab" GroupName="MainTabs"

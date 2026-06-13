@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using PBLApp.Core.Localization;
@@ -65,10 +66,11 @@ public partial class BuildPageView : UserControl
             LocalizationService.Instance.SetLanguage(tag);
     }
 
-    private void PopOutTab_Click(object? sender, RoutedEventArgs e)
+    private void PopOutTab_Pressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is not Button { Tag: string key }) return;
+        if (sender is not Control { Tag: string key }) return;
         if (DataContext is not BuildPageViewModel vm) return;
+        e.Handled = true;   // don't let the press bubble to the host RadioButton tab
 
         object? content = key switch
         {
