@@ -371,7 +371,8 @@ public partial class ItemEditorViewModel : ViewModelBase
     public int  MaxPrefixes => Rarity switch { ItemRarity.Rare => 3, ItemRarity.Magic => 1, _ => 0 };
     public int  MaxSuffixes => Rarity switch { ItemRarity.Rare => 3, ItemRarity.Magic => 1, _ => 0 };
     public string PrefixSuffixLabel =>
-        $"Prefix: {PrefixCount}/{MaxPrefixes}   Suffix: {SuffixCount}/{MaxSuffixes}";
+        string.Format(LocalizationService.Get("Editor_PrefixSuffixLabel"),
+                      PrefixCount, MaxPrefixes, SuffixCount, MaxSuffixes);
 
     // ── Base selection ───────────────────────────────────────────────────────
 
@@ -393,7 +394,10 @@ public partial class ItemEditorViewModel : ViewModelBase
     public IEnumerable<BaseItemEntry> FilteredBases =>
         string.IsNullOrWhiteSpace(BaseSearch)
             ? Bases
-            : Bases.Where(b => b.Name.Contains(BaseSearch, StringComparison.OrdinalIgnoreCase));
+            : Bases.Where(b =>
+                b.Name.Contains(BaseSearch, StringComparison.OrdinalIgnoreCase) ||
+                GameTranslationService.Instance.Item(b.Name)
+                    .Contains(BaseSearch, StringComparison.OrdinalIgnoreCase));
 
     // ── Item details ────────────────────────────────────────────────────────
 
@@ -516,16 +520,16 @@ public partial class ItemEditorViewModel : ViewModelBase
     // They serve as the placeholder/comparison for the editable Base* override.
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasArmour), nameof(HasAnyBaseStat), nameof(IsArmourOverridden), nameof(EffectiveArmour))]
+    [NotifyPropertyChangedFor(nameof(HasArmour), nameof(HasAnyBaseStat), nameof(IsArmourOverridden), nameof(EffectiveArmour), nameof(DefaultArmourHint))]
     private int _defaultArmour = 0;
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasEvasion), nameof(HasAnyBaseStat), nameof(IsEvasionOverridden), nameof(EffectiveEvasion))]
+    [NotifyPropertyChangedFor(nameof(HasEvasion), nameof(HasAnyBaseStat), nameof(IsEvasionOverridden), nameof(EffectiveEvasion), nameof(DefaultEvasionHint))]
     private int _defaultEvasion = 0;
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasEnergyShield), nameof(HasAnyBaseStat), nameof(IsEnergyShieldOverridden), nameof(EffectiveEnergyShield))]
+    [NotifyPropertyChangedFor(nameof(HasEnergyShield), nameof(HasAnyBaseStat), nameof(IsEnergyShieldOverridden), nameof(EffectiveEnergyShield), nameof(DefaultEnergyShieldHint))]
     private int _defaultEnergyShield = 0;
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasWard), nameof(HasAnyBaseStat), nameof(IsWardOverridden), nameof(EffectiveWard))]
+    [NotifyPropertyChangedFor(nameof(HasWard), nameof(HasAnyBaseStat), nameof(IsWardOverridden), nameof(EffectiveWard), nameof(DefaultWardHint))]
     private int _defaultWard = 0;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSpirit), nameof(HasAnyBaseStat), nameof(IsSpiritOverridden))]
@@ -533,6 +537,12 @@ public partial class ItemEditorViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasCharmSlots), nameof(HasAnyBaseStat), nameof(IsCharmSlotsOverridden))]
     private int _defaultCharmSlots = 0;
+
+    // Localized "(base: N)" hints shown next to each defence stat row.
+    public string DefaultArmourHint       => string.Format(LocalizationService.Get("Editor_BaseValueHint"), DefaultArmour);
+    public string DefaultEvasionHint      => string.Format(LocalizationService.Get("Editor_BaseValueHint"), DefaultEvasion);
+    public string DefaultEnergyShieldHint => string.Format(LocalizationService.Get("Editor_BaseValueHint"), DefaultEnergyShield);
+    public string DefaultWardHint         => string.Format(LocalizationService.Get("Editor_BaseValueHint"), DefaultWard);
 
     /// <summary>True if the editor's value diverges from the intrinsic default → emit override on save.</summary>
     public bool IsArmourOverridden       => BaseArmour       > 0 && BaseArmour       != DefaultArmour;
@@ -663,7 +673,11 @@ public partial class ItemEditorViewModel : ViewModelBase
             ? _allUniques
             : _allUniques.Where(u =>
                 u.Name.Contains(UniqueSearch, StringComparison.OrdinalIgnoreCase) ||
-                u.BaseName.Contains(UniqueSearch, StringComparison.OrdinalIgnoreCase));
+                u.BaseName.Contains(UniqueSearch, StringComparison.OrdinalIgnoreCase) ||
+                GameTranslationService.Instance.Unique(u.Name)
+                    .Contains(UniqueSearch, StringComparison.OrdinalIgnoreCase) ||
+                GameTranslationService.Instance.Item(u.BaseName)
+                    .Contains(UniqueSearch, StringComparison.OrdinalIgnoreCase));
 
     // ── Implicits (read-only from base; unique items put theirs in ExplicitMods) ────
 
@@ -841,7 +855,16 @@ public partial class ItemEditorViewModel : ViewModelBase
         ToggleAffixPickerCommand = new RelayCommand(() => IsAffixPickerOpen = !IsAffixPickerOpen);
 
         LocalizationService.Instance.LanguageChanged += (_, _) =>
+        {
             OnPropertyChanged(nameof(EditorTitle));
+            OnPropertyChanged(nameof(PrefixSuffixLabel));
+            OnPropertyChanged(nameof(DefaultArmourHint));
+            OnPropertyChanged(nameof(DefaultEvasionHint));
+            OnPropertyChanged(nameof(DefaultEnergyShieldHint));
+            OnPropertyChanged(nameof(DefaultWardHint));
+            OnPropertyChanged(nameof(FilteredBases));
+            OnPropertyChanged(nameof(FilteredUniques));
+        };
 
         SetNormalCommand = new RelayCommand(() => Rarity = ItemRarity.Normal);
         SetMagicCommand  = new RelayCommand(() => Rarity = ItemRarity.Magic);
@@ -1737,12 +1760,12 @@ public partial class ItemEditorViewModel : ViewModelBase
 
         if (IsUnique && SelectedUnique is null)
         {
-            SaveError = "Select a unique item first";
+            SaveError = LocalizationService.Get("Editor_SaveSelectUnique");
             return;
         }
         if (!IsUnique && SelectedBase is null && string.IsNullOrEmpty(_fallbackBaseName))
         {
-            SaveError = "Select a base item first";
+            SaveError = LocalizationService.Get("Editor_SaveSelectBase");
             return;
         }
 
@@ -1752,12 +1775,12 @@ public partial class ItemEditorViewModel : ViewModelBase
         if (_editingItemId.HasValue)
         {
             ok = _host.UpdateItemFromText(_editingItemId.Value, raw);
-            if (!ok) SaveError = "Failed to update item — check format";
+            if (!ok) SaveError = LocalizationService.Get("Editor_SaveUpdateFailed");
         }
         else
         {
             ok = _host.ImportItemFromText(raw);
-            if (!ok) SaveError = "Failed to create item — check format";
+            if (!ok) SaveError = LocalizationService.Get("Editor_SaveCreateFailed");
         }
 
         if (ok) _onClose(this, true);

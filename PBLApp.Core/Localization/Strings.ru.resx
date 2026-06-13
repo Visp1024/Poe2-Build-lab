@@ -348,6 +348,17 @@
   <data name="Editor_StatWard"      xml:space="preserve"><value>Защита</value></data>
   <data name="Editor_StatSpirit"    xml:space="preserve"><value>Дух</value></data>
   <data name="Editor_StatCharmSlots" xml:space="preserve"><value>Слотов оберегов</value></data>
+  <data name="Editor_SearchBases"   xml:space="preserve"><value>&#x1F50D; Поиск баз...</value></data>
+  <data name="Editor_SearchUniques" xml:space="preserve"><value>&#x1F50D; Поиск уникальных предметов...</value></data>
+  <data name="Editor_SearchMods"    xml:space="preserve"><value>&#x1F50D; Поиск модов...</value></data>
+  <data name="Editor_SearchCorruption" xml:space="preserve"><value>&#x1F50D; Поиск осквернений...</value></data>
+  <data name="Editor_AddMod"        xml:space="preserve"><value>+ Добавить мод</value></data>
+  <data name="Editor_BaseValueHint" xml:space="preserve"><value>(база: {0})</value></data>
+  <data name="Editor_PrefixSuffixLabel" xml:space="preserve"><value>Префикс: {0}/{1}   Суффикс: {2}/{3}</value></data>
+  <data name="Editor_SaveSelectUnique" xml:space="preserve"><value>Сначала выберите уникальный предмет</value></data>
+  <data name="Editor_SaveSelectBase" xml:space="preserve"><value>Сначала выберите базу предмета</value></data>
+  <data name="Editor_SaveUpdateFailed" xml:space="preserve"><value>Не удалось обновить предмет — проверьте формат</value></data>
+  <data name="Editor_SaveCreateFailed" xml:space="preserve"><value>Не удалось создать предмет — проверьте формат</value></data>
 
   <!-- Tree tab status -->
   <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Выбрано: {0}</value></data>

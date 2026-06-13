@@ -31,6 +31,15 @@ public static class TooltipKindConverter
     /// <summary>Translate a rune / soul core / idol name via runes_ru.json.</summary>
     public static readonly IValueConverter TranslateRune = new TranslateRuneConverter();
 
+    /// <summary>Translate an item base name via items_ru.json.</summary>
+    public static readonly IValueConverter TranslateItem = new TranslateItemConverter();
+
+    /// <summary>Translate a unique item name via unique_names_ru.json.</summary>
+    public static readonly IValueConverter TranslateUnique = new TranslateUniqueConverter();
+
+    /// <summary>Translate an item-editor category ("Body Armour: Armour/Evasion").</summary>
+    public static readonly IValueConverter TranslateItemCategory = new TranslateItemCategoryConverter();
+
     /// <summary>Maps a socketable-augment category (Rune/SoulCore/Idol/AbyssalEye/CongealedMist)
     /// to a short localized badge label.</summary>
     public static readonly IValueConverter RuneAugTypeLabel = new RuneAugTypeLabelConverter();
@@ -91,6 +100,30 @@ public static class TooltipKindConverter
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
             => value is string s ? GameTranslationService.Instance.Rune(s) : value;
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
+    private sealed class TranslateItemConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => value is string s ? GameTranslationService.Instance.Item(s) : value;
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
+    private sealed class TranslateUniqueConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => value is string s ? GameTranslationService.Instance.Unique(s) : value;
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
+    private sealed class TranslateItemCategoryConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => value is string s ? GameTranslationService.Instance.ItemCategory(s) : value;
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
             => throw new NotSupportedException();
     }

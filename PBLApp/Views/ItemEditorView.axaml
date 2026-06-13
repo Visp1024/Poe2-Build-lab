@@ -255,12 +255,19 @@
                                   SelectedItem="{Binding SelectedCategory}"
                                   Classes="ed-combo"
                                   HorizontalAlignment="Stretch"
-                                  Margin="0,0,0,8"/>
+                                  Margin="0,0,0,8">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding Converter={x:Static vm:TooltipKindConverter.TranslateItemCategory}}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
 
                         <TextBlock Text="{loc:Tr Editor_BaseItem}" Classes="sec-label"/>
                         <TextBox Text="{Binding BaseSearch}"
                                  Classes="ed-input"
-                                 Watermark="🔍 Search bases..."
+                                 Watermark="{loc:Tr Editor_SearchBases}"
                                  Margin="0,0,0,4"/>
 
                         <Border Background="{DynamicResource BgBaseBrush}"
@@ -273,7 +280,7 @@
                                             <Button Classes="list-btn"
                                                     Command="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).SelectBaseCommand}"
                                                     CommandParameter="{Binding}">
-                                                <TextBlock Text="{Binding Name}"
+                                                <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.TranslateItem}}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"
                                                            TextTrimming="CharacterEllipsis"/>
                                             </Button>
@@ -291,7 +298,7 @@
                         <TextBlock Text="{loc:Tr Editor_UniqueItem}" Classes="sec-label"/>
                         <TextBox Text="{Binding UniqueSearch}"
                                  Classes="ed-input"
-                                 Watermark="🔍 Search unique items..."
+                                 Watermark="{loc:Tr Editor_SearchUniques}"
                                  Margin="0,0,0,4"/>
 
                         <Border Background="{DynamicResource BgBaseBrush}"
@@ -305,10 +312,10 @@
                                                     Command="{Binding $parent[UserControl].((vm:ItemEditorViewModel)DataContext).SelectUniqueCommand}"
                                                     CommandParameter="{Binding}">
                                                 <StackPanel Spacing="1">
-                                                    <TextBlock Text="{Binding Name}"
+                                                    <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.TranslateUnique}}"
                                                                Foreground="{DynamicResource StatArmourBrush}" FontSize="13"
                                                                TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Text="{Binding BaseName}"
+                                                    <TextBlock Text="{Binding BaseName, Converter={x:Static vm:TooltipKindConverter.TranslateItem}}"
                                                                Foreground="{DynamicResource TextMutedBrush}" FontSize="14"
                                                                TextTrimming="CharacterEllipsis"/>
                                                 </StackPanel>
@@ -329,7 +336,7 @@
                         <TextBlock Text="{loc:Tr Editor_SelectedBase}" Classes="sec-label"/>
                         <Border Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource AttrIntBrush}" BorderThickness="1"
                                 CornerRadius="3" Padding="8,4">
-                            <TextBlock Text="{Binding SelectedBase.Name}"
+                            <TextBlock Text="{Binding SelectedBase.Name, Converter={x:Static vm:TooltipKindConverter.TranslateItem}}"
                                        Foreground="{DynamicResource AttrIntBrush}" FontSize="14" FontWeight="SemiBold"/>
                         </Border>
                     </StackPanel>
@@ -341,9 +348,9 @@
                         <Border Background="{DynamicResource TooltipStatBoxBgBrush}" BorderBrush="{DynamicResource StatArmourBrush}" BorderThickness="1"
                                 CornerRadius="3" Padding="8,4">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding SelectedUnique.Name}"
+                                <TextBlock Text="{Binding SelectedUnique.Name, Converter={x:Static vm:TooltipKindConverter.TranslateUnique}}"
                                            Foreground="{DynamicResource StatArmourBrush}" FontSize="14" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding SelectedUnique.BaseName}"
+                                <TextBlock Text="{Binding SelectedUnique.BaseName, Converter={x:Static vm:TooltipKindConverter.TranslateItem}}"
                                            Foreground="{DynamicResource TextMutedBrush}" FontSize="14"/>
                             </StackPanel>
                         </Border>
@@ -440,7 +447,7 @@
                                Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="0" Grid.Column="2" IsVisible="{Binding HasArmour}"
-                               Text="{Binding DefaultArmour, StringFormat='(база: {0})'}"
+                               Text="{Binding DefaultArmourHint}"
                                Foreground="{DynamicResource TextMutedBrush}" FontSize="14"
                                VerticalAlignment="Center" Margin="0,0,0,0"/>
 
@@ -453,7 +460,7 @@
                                Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="2" IsVisible="{Binding HasEvasion}"
-                               Text="{Binding DefaultEvasion, StringFormat='(база: {0})'}"
+                               Text="{Binding DefaultEvasionHint}"
                                Foreground="{DynamicResource TextMutedBrush}" FontSize="14"
                                VerticalAlignment="Center"/>
 
@@ -466,7 +473,7 @@
                                Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="2" Grid.Column="2" IsVisible="{Binding HasEnergyShield}"
-                               Text="{Binding DefaultEnergyShield, StringFormat='(база: {0})'}"
+                               Text="{Binding DefaultEnergyShieldHint}"
                                Foreground="{DynamicResource TextMutedBrush}" FontSize="14"
                                VerticalAlignment="Center"/>
 
@@ -479,7 +486,7 @@
                                Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="3" Grid.Column="2" IsVisible="{Binding HasWard}"
-                               Text="{Binding DefaultWard, StringFormat='(база: {0})'}"
+                               Text="{Binding DefaultWardHint}"
                                Foreground="{DynamicResource TextMutedBrush}" FontSize="14"
                                VerticalAlignment="Center"/>
 
@@ -527,7 +534,7 @@
                         <Button Grid.Column="2"
                                 IsVisible="{Binding IsNotUnique}"
                                 IsEnabled="{Binding CanEditMods}"
-                                Content="+ Add Mod"
+                                Content="{loc:Tr Editor_AddMod}"
                                 Command="{Binding ToggleAffixPickerCommand}"
                                 Classes="rarity-btn"
                                 Classes.active="{Binding IsAffixPickerOpen}"
@@ -564,7 +571,7 @@
                                 <TextBox Grid.Column="1"
                                          Text="{Binding ModSearch}"
                                          Classes="ed-input"
-                                         Watermark="🔍 Search mods..."
+                                         Watermark="{loc:Tr Editor_SearchMods}"
                                          Margin="8,0,0,0"/>
                             </Grid>
                             <Border Background="{DynamicResource BgBaseBrush}"
@@ -622,7 +629,7 @@
                             <TextBox DockPanel.Dock="Top"
                                      Text="{Binding CorruptionSearch}"
                                      Classes="ed-input"
-                                     Watermark="🔍 Search corruption..."
+                                     Watermark="{loc:Tr Editor_SearchCorruption}"
                                      Margin="0,0,0,6"/>
                             <Border Background="{DynamicResource BgBaseBrush}"
                                     BorderBrush="#DD0022" BorderThickness="1">
