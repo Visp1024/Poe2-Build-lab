@@ -940,6 +940,7 @@ public sealed class IpcServer
             searchText      = t.SearchText,
             nodeCount       = t.NodeCount,
             allocatedCount  = t.AllocatedCount,
+            isToggleBusy    = t.IsToggleBusy,
         };
     }
 

@@ -37,6 +37,12 @@ public sealed class TreeCanvas : Control
     public static readonly StyledProperty<string> AscendancyFilterProperty =
         AvaloniaProperty.Register<TreeCanvas, string>(nameof(AscendancyFilter), "");
 
+    /// <summary>True while a background alloc/dealloc + recalc is running, so the
+    /// hover tooltip shows a loading spinner where the (Lua-computed) stat diff
+    /// will appear once it settles.</summary>
+    public static readonly StyledProperty<bool> IsBusyProperty =
+        AvaloniaProperty.Register<TreeCanvas, bool>(nameof(IsBusy));
+
     public static readonly StyledProperty<ICommand?> AllocNodeCommandProperty =
         AvaloniaProperty.Register<TreeCanvas, ICommand?>(nameof(AllocNodeCommand));
 
@@ -87,6 +93,11 @@ public sealed class TreeCanvas : Control
     {
         get => GetValue(AscendancyFilterProperty);
         set => SetValue(AscendancyFilterProperty, value);
+    }
+    public bool IsBusy
+    {
+        get => GetValue(IsBusyProperty);
+        set => SetValue(IsBusyProperty, value);
     }
     public ICommand? AllocNodeCommand
     {
@@ -171,6 +182,10 @@ public sealed class TreeCanvas : Control
     private TreeViewPersistence.View? _pendingView;
     private readonly DispatcherTimer _saveViewTimer;
 
+    // ── Loading spinner (shown in the tooltip while a toggle's Lua is running) ─
+    private readonly DispatcherTimer _spinnerTimer;
+    private double _spinnerAngle;
+
     public TreeCanvas()
     {
         _pendingView = TreeViewPersistence.Load();
@@ -178,10 +193,21 @@ public sealed class TreeCanvas : Control
         _saveViewTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
         _saveViewTimer.Tick += (_, _) => { _saveViewTimer.Stop(); SaveCurrentView(); };
 
+        _spinnerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(60) };
+        _spinnerTimer.Tick += (_, _) => { _spinnerAngle += 0.5; InvalidateVisual(); };
+
         // Re-read from disk when re-attached only if we haven't already restored
         // (a reused instance keeps its in-memory view); save on leave.
         AttachedToVisualTree += (_, _) => _pendingView ??= TreeViewPersistence.Load();
-        DetachedFromVisualTree += (_, _) => SaveCurrentView();
+        DetachedFromVisualTree += (_, _) => { SaveCurrentView(); _spinnerTimer.Stop(); };
+    }
+
+    // Spin only while busy AND hovering a node (the tooltip is what shows it).
+    private void UpdateSpinnerTimer()
+    {
+        bool want = IsBusy && _hoveredNode != null;
+        if (want && !_spinnerTimer.IsEnabled) _spinnerTimer.Start();
+        else if (!want && _spinnerTimer.IsEnabled) _spinnerTimer.Stop();
     }
 
     private void SaveCurrentView()
@@ -343,6 +369,11 @@ public sealed class TreeCanvas : Control
         }
         else if (change.Property == SearchTextProperty)
         {
+            InvalidateVisual();
+        }
+        else if (change.Property == IsBusyProperty)
+        {
+            UpdateSpinnerTimer();
             InvalidateVisual();
         }
         else if (change.Property == AscendancyFilterProperty)
@@ -639,7 +670,12 @@ public sealed class TreeCanvas : Control
 
         // ── Hover info panel ───────────────────────────────────────────────
         if (_hoveredNode != null)
-            DrawHoverInfo(dc, _hoveredNode, alloc?.Contains(_hoveredNode.Id) == true);
+        {
+            // Points-to-node from the C# path (instant — shown even while the
+            // Lua stat diff is still loading). 0 when allocated / unreachable.
+            int csPathDist = hoverPath is { Count: > 1 } ? hoverPath.Count - 1 : 0;
+            DrawHoverInfo(dc, _hoveredNode, alloc?.Contains(_hoveredNode.Id) == true, csPathDist, IsBusy);
+        }
     }
 
     // ── Node drawing ───────────────────────────────────────────────────────
@@ -903,13 +939,14 @@ public sealed class TreeCanvas : Control
         return ft2.Height;
     }
 
-    private void DrawHoverInfo(DrawingContext dc, TreeNodeDto node, bool alloc)
+    private void DrawHoverInfo(DrawingContext dc, TreeNodeDto node, bool alloc, int csPathDist, bool busy)
     {
         // Try fetching the modern hover packet (mod text + stat diff + path).
         // Cache the result while the cursor stays on the same node and the
-        // alloc set doesn't change.
+        // alloc set doesn't change. While a toggle's Lua is in flight we don't
+        // query it (it would be stale) — show the mods + a loading spinner.
         NodeHoverInfo? info = null;
-        if (HoverInfoProvider != null)
+        if (HoverInfoProvider != null && !busy)
         {
             if (_hoverCacheNodeId == node.Id
                 && ReferenceEquals(_hoverCacheAllocRef, AllocatedIds))
@@ -1036,6 +1073,7 @@ public sealed class TreeCanvas : Control
             }
         }
 
+        int spinnerBlockIndex = -1;
         if (info != null)
         {
             // If the node has mods but no measurable diff (e.g. specialty
@@ -1052,18 +1090,31 @@ public sealed class TreeCanvas : Control
                 { MaxTextWidth = contentW };
                 blocks.Add((noteFt, TextMutedC, SecGap));
             }
+        }
+        else if (busy)
+        {
+            // Stat diff is still computing on the background Lua thread — show a
+            // spinner (drawn in the paint loop over the leading indent).
+            var calcFt = new FormattedText("      " + LocalizationService.Get("Tree_Tip_Calculating"),
+                CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                smallFace, 12, new SolidColorBrush(TextSecondaryC))
+            { MaxTextWidth = contentW };
+            blocks.Add((calcFt, TextSecondaryC, SecGap));
+            spinnerBlockIndex = blocks.Count - 1;
+        }
 
-            // Path distance footer.
-            if (info.PathDist > 0)
-            {
-                var pathStr = info.PathDist == 1
-                    ? LocalizationService.Get("Tree_Tip_OnePoint")
-                    : string.Format(LocalizationService.Get("Tree_Tip_PointsFmt"), info.PathDist);
-                var pathFt = new FormattedText(pathStr, CultureInfo.InvariantCulture,
-                    FlowDirection.LeftToRight, smallFace, 12, new SolidColorBrush(TextMutedC))
-                { MaxTextWidth = contentW };
-                blocks.Add((pathFt, TextMutedC, SecGap));
-            }
+        // Points-to-node footer. Use the Lua value when present, else the
+        // instant C# path distance so it shows even while the diff is loading.
+        int pathDist = info?.PathDist ?? csPathDist;
+        if (pathDist > 0)
+        {
+            var pathStr = pathDist == 1
+                ? LocalizationService.Get("Tree_Tip_OnePoint")
+                : string.Format(LocalizationService.Get("Tree_Tip_PointsFmt"), pathDist);
+            var pathFt = new FormattedText(pathStr, CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight, smallFace, 12, new SolidColorBrush(TextMutedC))
+            { MaxTextWidth = contentW };
+            blocks.Add((pathFt, TextMutedC, SecGap));
         }
 
         // ── Layout & paint ─────────────────────────────────────────────────
@@ -1088,11 +1139,29 @@ public sealed class TreeCanvas : Control
         dc.DrawRectangle(HoverBgBrush, HoverBorderPen, new Rect(px, py, panelW, panelH), 6, 6);
 
         double ty = py + Pad;
-        foreach (var (ft, _, topGap) in blocks)
+        for (int i = 0; i < blocks.Count; i++)
         {
+            var (ft, _, topGap) = blocks[i];
             ty += topGap;
             dc.DrawText(ft, new Point(px + Pad, ty));
+            if (i == spinnerBlockIndex)
+                DrawSpinner(dc, px + Pad + 7, ty + ft.Height / 2, 6, _spinnerAngle);
             ty += ft.Height + LineGap;
+        }
+    }
+
+    // Small rotating spinner: a fading trail of dots around a circle.
+    private static void DrawSpinner(DrawingContext dc, double cx, double cy, double r, double angle)
+    {
+        const int dots = 8;
+        for (int i = 0; i < dots; i++)
+        {
+            double a = angle + i * (2 * Math.PI / dots);
+            double x = cx + Math.Cos(a) * r;
+            double y = cy + Math.Sin(a) * r;
+            byte alpha = (byte)(40 + 215 * i / (dots - 1));
+            var brush = new SolidColorBrush(Color.FromArgb(alpha, Brand400C.R, Brand400C.G, Brand400C.B));
+            dc.DrawEllipse(brush, null, new Point(x, y), 1.6, 1.6);
         }
     }
 
@@ -1182,6 +1251,7 @@ public sealed class TreeCanvas : Control
         if (closest != _hoveredNode)
         {
             _hoveredNode = closest;
+            UpdateSpinnerTimer();
             InvalidateVisual();
         }
     }

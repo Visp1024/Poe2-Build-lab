@@ -383,6 +383,7 @@
   <data name="Tree_Tip_PathAllocGives"  xml:space="preserve"><value>Allocating the path to this node gives you:</value></data>
   <data name="Tree_Tip_PathUnallocGives" xml:space="preserve"><value>Unallocating this node and its dependents gives you:</value></data>
   <data name="Tree_Tip_NoChange"        xml:space="preserve"><value>No measurable change for current build</value></data>
+  <data name="Tree_Tip_Calculating"     xml:space="preserve"><value>Calculating…</value></data>
   <data name="Tree_Tip_PointsFmt"       xml:space="preserve"><value>{0} points to allocate</value></data>
   <data name="Tree_Tip_OnePoint"        xml:space="preserve"><value>1 point to allocate</value></data>
   <data name="Tree_Tip_PerPointFmt"     xml:space="preserve"><value>per pt</value></data>

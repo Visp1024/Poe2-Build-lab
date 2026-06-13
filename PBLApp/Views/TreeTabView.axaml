@@ -89,6 +89,7 @@
                          Nodes="{Binding Nodes}"
                          AllocatedIds="{Binding AllocatedIds}"
                          SearchText="{Binding SearchText}"
+                         IsBusy="{Binding IsToggleBusy}"
                          AscendancyFilter="{Binding AscendancyFilter}"
                          ClassBackgroundImage="{Binding ClassBackgroundImage}"
                          AllocNodeCommand="{Binding AllocNodeCommand}"

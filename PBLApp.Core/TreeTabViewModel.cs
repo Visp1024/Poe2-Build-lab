@@ -215,11 +215,11 @@ public partial class TreeTabViewModel : ViewModelBase
     // Instead we update the allocated set optimistically (C# predicts the path)
     // and repaint instantly, then run the heavy Lua on a background thread,
     // serialized by a semaphore so NLua is never touched concurrently. While a
-    // background op runs, _toggleBusy makes the hover provider skip its Lua call
+    // background op runs, IsToggleBusy makes the hover provider skip its Lua call
     // (the only other tree Lua the UI thread would issue). The real state is
     // reconciled from Lua once the burst drains.
     private readonly SemaphoreSlim _luaQueue = new(1, 1);
-    private volatile bool _toggleBusy;
+    [ObservableProperty] private bool _isToggleBusy;   // bound to TreeCanvas.IsBusy for the loading spinner
     private int _pendingToggles;
     private Dictionary<int, TreeNodeDto>? _nodeIndex;
 
@@ -357,15 +357,15 @@ public partial class TreeTabViewModel : ViewModelBase
             await _luaQueue.WaitAsync();
             try
             {
-                _toggleBusy = true;
+                IsToggleBusy = true;
                 int r = await Task.Run(() => wasAlloc
                     ? _host.ChangeAttributeNode(nodeId, attrIndex)
                     : _host.AllocAttributeNode(nodeId, attrIndex));
                 if (r != 0) await Task.Run(() => _host.RecalcStats());
-                _toggleBusy = false;
+                IsToggleBusy = false;
                 if (r != 0) { RefreshNodes(); RefreshPointUsage(); _onStatsChanged?.Invoke(); }
             }
-            finally { _toggleBusy = false; _luaQueue.Release(); }
+            finally { IsToggleBusy = false; _luaQueue.Release(); }
             return;
         }
 
@@ -381,6 +381,7 @@ public partial class TreeTabViewModel : ViewModelBase
         AllocatedIds = set;
 
         Interlocked.Increment(ref _pendingToggles);
+        IsToggleBusy = true;
         _ = RunBackgroundToggle(nodeId, allocate: true);
     }
 
@@ -394,6 +395,7 @@ public partial class TreeTabViewModel : ViewModelBase
         AllocatedIds = set;
 
         Interlocked.Increment(ref _pendingToggles);
+        IsToggleBusy = true;
         _ = RunBackgroundToggle(nodeId, allocate: false);
         return Task.CompletedTask;
     }
@@ -443,21 +445,19 @@ public partial class TreeTabViewModel : ViewModelBase
         await _luaQueue.WaitAsync();
         try
         {
-            _toggleBusy = true;
+            // IsToggleBusy stays true for the whole burst (set on enqueue, cleared
+            // when the queue drains) so the spinner doesn't flicker between ops.
             await Task.Run(() =>
             {
                 if (allocate) _host.AllocNode(nodeId, deferRecalc: true);
                 else          _host.DeallocNode(nodeId, deferRecalc: true);
             });
-            _toggleBusy = false;
 
             // Only the last toggle of a burst pays the stats recalc + reconcile.
             bool last = Volatile.Read(ref _pendingToggles) <= 1;
             if (last)
             {
-                _toggleBusy = true;
                 await Task.Run(() => _host.RecalcStats());
-                _toggleBusy = false;
 
                 // Back on the UI thread, semaphore still held → no concurrent Lua.
                 RefreshAllocated();
@@ -468,9 +468,9 @@ public partial class TreeTabViewModel : ViewModelBase
         catch { /* best-effort; reconcile below restores truth */ }
         finally
         {
-            _toggleBusy = false;
-            Interlocked.Decrement(ref _pendingToggles);
             _luaQueue.Release();
+            if (Interlocked.Decrement(ref _pendingToggles) == 0)
+                IsToggleBusy = false;
         }
     }
 
@@ -545,7 +545,7 @@ public partial class TreeTabViewModel : ViewModelBase
     // Skip the Lua hover lookup while a background toggle owns the Lua state —
     // the canvas falls back to the node's cached stats, so no concurrent NLua.
     public NodeHoverInfo? GetNodeHoverInfo(int nodeId) =>
-        _toggleBusy ? null : _host.GetNodeHoverInfo(nodeId);
+        IsToggleBusy ? null : _host.GetNodeHoverInfo(nodeId);
 
     partial void OnNodesChanged(IReadOnlyList<TreeNodeDto> value) => _nodeIndex = null;
 
