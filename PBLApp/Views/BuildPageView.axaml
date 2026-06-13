@@ -129,6 +129,15 @@
                                Foreground="{DynamicResource StatEsBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
+                <!-- Runic Ward — shown only for builds that stack it (HasWard). -->
+                <StackPanel Orientation="Horizontal" Spacing="6"
+                            IsVisible="{Binding Build.HasWard}">
+                    <TextBlock Text="{loc:Tr Sidebar_Ward}" Classes="caption" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Build.Ward, StringFormat={}{0:N0}}"
+                               Classes="num-md"
+                               Foreground="{DynamicResource StatWardBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <TextBlock Text="{loc:Tr Sidebar_Mana}" Classes="caption" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding Build.Mana, StringFormat={}{0:N0}}"

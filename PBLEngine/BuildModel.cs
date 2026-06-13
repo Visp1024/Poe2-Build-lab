@@ -46,6 +46,23 @@ public sealed class BuildModel : INotifyPropertyChanged
     private double _energyShield;
     public double EnergyShield { get => _energyShield; private set => Set(ref _energyShield, value); }
 
+    // Runic Ward (PoB internal name "Ward") — a separate defensive pool, present
+    // only on builds that stack it. Surfaced conditionally (HasWard) so the
+    // sidebar can hide it for the vast majority of builds that have none.
+    private double _ward;
+    public double Ward
+    {
+        get => _ward;
+        private set
+        {
+            Set(ref _ward, value);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasWard)));
+        }
+    }
+
+    /// <summary>True when the build has any Runic Ward to show.</summary>
+    public bool HasWard => _ward > 0;
+
     private double _armour;
     public double Armour { get => _armour; private set => Set(ref _armour, value); }
 
@@ -131,6 +148,7 @@ public sealed class BuildModel : INotifyPropertyChanged
         Life              = ReadDouble("Life");
         Mana              = ReadDouble("Mana");
         EnergyShield      = ReadDouble("EnergyShield");
+        Ward              = ReadDouble("Ward");
         Armour            = ReadDouble("Armour");
         Evasion           = ReadDouble("Evasion");
         Spirit            = ReadDouble("Spirit");

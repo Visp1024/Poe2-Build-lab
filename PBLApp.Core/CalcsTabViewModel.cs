@@ -178,6 +178,10 @@ public partial class CalcsTabViewModel : ViewModelBase
             ("Row_ESRegen",         "EnergyShieldRegenRecovery", "/s"),
             ("Row_ESRegenPct",      "EnergyShieldRegenPercent",  "%"),
         ]),
+        ("Stat_Ward", [
+            ("Row_Ward",            "Ward",                 ""),
+            ("Row_WardRechargeDelay", "WardRechargeDelay",  "s"),
+        ]),
         ("Stat_Armour", [
             ("Row_Armour",          "Armour",               ""),
             ("Row_PhysReduction",   "PhysicalReduction",    "%"),
@@ -229,7 +233,10 @@ public partial class CalcsTabViewModel : ViewModelBase
 
         foreach (var (sectionKey, rows) in Layout)
         {
-            var section = new StatSectionViewModel(sectionKey);
+            // Runic Ward is niche — gate its whole section on Ward > 0 so it
+            // doesn't show a row of zeroes on the vast majority of builds.
+            var gate = sectionKey == "Stat_Ward" ? "Ward" : null;
+            var section = new StatSectionViewModel(sectionKey, gate);
             foreach (var (rowKey, key, suffix) in rows)
                 section.Rows.Add(new StatRowViewModel(rowKey, key, suffix));
             Sections.Add(section);
@@ -303,8 +310,11 @@ public partial class CalcsTabViewModel : ViewModelBase
     {
         var stats = _build.AllStats;
         foreach (var section in Sections)
+        {
             foreach (var row in section.Rows)
                 row.UpdateValue(stats);
+            section.UpdateVisibility(stats);
+        }
 
         RefreshSkillDetailPanel();
     }

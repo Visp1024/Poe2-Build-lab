@@ -136,6 +136,7 @@
   <data name="Stat_Life"          xml:space="preserve"><value>Life</value></data>
   <data name="Stat_Mana"          xml:space="preserve"><value>Mana</value></data>
   <data name="Stat_EnergyShield"  xml:space="preserve"><value>Energy Shield</value></data>
+  <data name="Stat_Ward"          xml:space="preserve"><value>Runic Ward</value></data>
   <data name="Stat_Armour"        xml:space="preserve"><value>Armour</value></data>
   <data name="Stat_Evasion"       xml:space="preserve"><value>Evasion</value></data>
   <data name="Stat_BlockDeflect"  xml:space="preserve"><value>Block / Deflect</value></data>
@@ -202,6 +203,8 @@
   <data name="Row_ES"                 xml:space="preserve"><value>Energy Shield</value></data>
   <data name="Row_ESRegen"            xml:space="preserve"><value>ES Regen</value></data>
   <data name="Row_ESRegenPct"         xml:space="preserve"><value>ES % Regen</value></data>
+  <data name="Row_Ward"               xml:space="preserve"><value>Runic Ward</value></data>
+  <data name="Row_WardRechargeDelay"  xml:space="preserve"><value>Ward Recharge Delay</value></data>
   <data name="Row_Armour"             xml:space="preserve"><value>Armour</value></data>
   <data name="Row_PhysReduction"      xml:space="preserve"><value>Phys. Reduction</value></data>
   <data name="Row_PhysDmgRedHit"      xml:space="preserve"><value>Phys. Dmg. Red. When Hit</value></data>
@@ -273,6 +276,7 @@
   <data name="Sidebar_DPS"          xml:space="preserve"><value>DPS:</value></data>
   <data name="Sidebar_Life"         xml:space="preserve"><value>Life:</value></data>
   <data name="Sidebar_ES"           xml:space="preserve"><value>ES:</value></data>
+  <data name="Sidebar_Ward"         xml:space="preserve"><value>Ward:</value></data>
   <data name="Sidebar_Mana"         xml:space="preserve"><value>Mana:</value></data>
   <data name="Sidebar_Armour"       xml:space="preserve"><value>Armour:</value></data>
   <data name="Sidebar_Eva"          xml:space="preserve"><value>Eva:</value></data>
