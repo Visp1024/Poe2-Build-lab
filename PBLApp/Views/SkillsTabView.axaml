@@ -6,6 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
              xmlns:loc="using:PBLApp.Localization"
              xmlns:ctl="using:PBLApp.Controls"
+             xmlns:conv="using:PBLApp.Converters"
              x:Class="PBLApp.Views.SkillsTabView"
              x:DataType="vm:SkillsTabViewModel">
 
@@ -173,6 +174,57 @@
         </Style>
         <Style Selector="Button.support-cell:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+        </Style>
+
+        <!-- ── Support-picker attribute tabs (Border, so the highlight + top accent
+             span the full tab width; SukiTheme Button would shrink-wrap them) ── -->
+        <Style Selector="Border.attr-tab">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="BorderThickness" Value="0,2,0,0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Padding" Value="0,6,0,5" />
+        </Style>
+        <Style Selector="Border.attr-tab:pointerover">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+        </Style>
+        <Style Selector="Border.attr-tab.active">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+        </Style>
+        <Style Selector="Border.attr-tab.t-all.active"><Setter Property="BorderBrush" Value="{DynamicResource Brand400Brush}" /></Style>
+        <Style Selector="Border.attr-tab.t-str.active"><Setter Property="BorderBrush" Value="{DynamicResource AttrStrBrush}" /></Style>
+        <Style Selector="Border.attr-tab.t-dex.active"><Setter Property="BorderBrush" Value="{DynamicResource AttrDexBrush}" /></Style>
+        <Style Selector="Border.attr-tab.t-int.active"><Setter Property="BorderBrush" Value="{DynamicResource AttrIntBrush}" /></Style>
+
+        <Style Selector="Border.attr-tab TextBlock.glyph">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Border.attr-tab.t-all TextBlock.glyph"><Setter Property="Foreground" Value="{DynamicResource Brand400Brush}" /></Style>
+        <Style Selector="Border.attr-tab.t-str TextBlock.glyph"><Setter Property="Foreground" Value="{DynamicResource AttrStrBrush}" /></Style>
+        <Style Selector="Border.attr-tab.t-dex TextBlock.glyph"><Setter Property="Foreground" Value="{DynamicResource AttrDexBrush}" /></Style>
+        <Style Selector="Border.attr-tab.t-int TextBlock.glyph"><Setter Property="Foreground" Value="{DynamicResource AttrIntBrush}" /></Style>
+
+        <Style Selector="Border.attr-tab TextBlock.lbl">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+        </Style>
+        <Style Selector="Border.attr-tab.active TextBlock.lbl"><Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" /></Style>
+
+        <Style Selector="Border.attr-tab TextBlock.have">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+        <Style Selector="Border.attr-tab.t-all TextBlock.have"><Setter Property="Foreground" Value="{DynamicResource Brand400Brush}" /></Style>
+        <Style Selector="Border.attr-tab.t-str TextBlock.have"><Setter Property="Foreground" Value="{DynamicResource AttrStrBrush}" /></Style>
+        <Style Selector="Border.attr-tab.t-dex TextBlock.have"><Setter Property="Foreground" Value="{DynamicResource AttrDexBrush}" /></Style>
+        <Style Selector="Border.attr-tab.t-int TextBlock.have"><Setter Property="Foreground" Value="{DynamicResource AttrIntBrush}" /></Style>
+        <Style Selector="Border.attr-tab TextBlock.max">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
         </Style>
     </UserControl.Styles>
 
@@ -532,11 +584,70 @@
                                                                  PlaceholderText="search…"
                                                                  Margin="0,0,0,6"
                                                                  KeyDown="SupportPickerSearch_KeyDown" />
+
+                                                        <!-- Attribute filter tabs (installed / max). Hidden in trigger Skills mode. -->
+                                                        <Border DockPanel.Dock="Bottom"
+                                                                Background="{DynamicResource BgMantleBrush}"
+                                                                BorderBrush="{DynamicResource BorderStrongBrush}"
+                                                                BorderThickness="0,1,0,0" Margin="0,6,0,0"
+                                                                IsVisible="{Binding !SkillsMode}">
+                                                            <Grid ColumnDefinitions="*,*,*,*">
+                                                                <Border Grid.Column="0" Classes="attr-tab t-all" Tag="All"
+                                                                        Classes.active="{Binding Tab, Converter={x:Static conv:EnumEqualsConverter.Instance}, ConverterParameter=All}"
+                                                                        PointerPressed="AttrTab_Pressed">
+                                                                    <StackPanel Spacing="2">
+                                                                        <TextBlock Classes="glyph" Text="∗" />
+                                                                        <TextBlock Classes="lbl" Text="Все" />
+                                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                            <TextBlock Classes="have" Text="{Binding TabAllHave}" />
+                                                                            <TextBlock Classes="max" Text="{Binding TabAllMax, StringFormat='/{0}'}" />
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <Border Grid.Column="1" Classes="attr-tab t-str" Tag="Str"
+                                                                        Classes.active="{Binding Tab, Converter={x:Static conv:EnumEqualsConverter.Instance}, ConverterParameter=Str}"
+                                                                        PointerPressed="AttrTab_Pressed">
+                                                                    <StackPanel Spacing="2">
+                                                                        <TextBlock Classes="glyph" Text="С" />
+                                                                        <TextBlock Classes="lbl" Text="Сила" />
+                                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                            <TextBlock Classes="have" Text="{Binding TabStrHave}" />
+                                                                            <TextBlock Classes="max" Text="{Binding TabStrMax, StringFormat='/{0}'}" />
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <Border Grid.Column="2" Classes="attr-tab t-dex" Tag="Dex"
+                                                                        Classes.active="{Binding Tab, Converter={x:Static conv:EnumEqualsConverter.Instance}, ConverterParameter=Dex}"
+                                                                        PointerPressed="AttrTab_Pressed">
+                                                                    <StackPanel Spacing="2">
+                                                                        <TextBlock Classes="glyph" Text="Л" />
+                                                                        <TextBlock Classes="lbl" Text="Ловкость" />
+                                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                            <TextBlock Classes="have" Text="{Binding TabDexHave}" />
+                                                                            <TextBlock Classes="max" Text="{Binding TabDexMax, StringFormat='/{0}'}" />
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <Border Grid.Column="3" Classes="attr-tab t-int" Tag="Int"
+                                                                        Classes.active="{Binding Tab, Converter={x:Static conv:EnumEqualsConverter.Instance}, ConverterParameter=Int}"
+                                                                        PointerPressed="AttrTab_Pressed">
+                                                                    <StackPanel Spacing="2">
+                                                                        <TextBlock Classes="glyph" Text="И" />
+                                                                        <TextBlock Classes="lbl" Text="Интеллект" />
+                                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                            <TextBlock Classes="have" Text="{Binding TabIntHave}" />
+                                                                            <TextBlock Classes="max" Text="{Binding TabIntMax, StringFormat='/{0}'}" />
+                                                                        </StackPanel>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </Grid>
+                                                        </Border>
+
                                                         <ListBox Name="SupportPickerList"
                                                                  ItemsSource="{Binding FilteredGemNames}"
                                                                  Background="Transparent"
                                                                  BorderThickness="0"
-                                                                 DoubleTapped="SupportPickerList_DoubleTapped"
+                                                                 Tapped="SupportPickerList_Tapped"
                                                                  KeyDown="SupportPickerList_KeyDown">
                                                             <ListBox.ItemTemplate>
                                                                 <DataTemplate x:DataType="vm:GemNameItem">
