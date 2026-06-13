@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PathBuildLab — переработка фирменного стиля (мокап A / B)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   PathBuildLab — brand restyle mockup
+   Single file. Top toggle switches skin A (token-bound) / B (free/bold).
+   Each skin renders a working window: click tabs / nav to switch screens.
+   Source of truth for A's tokens: PBLApp/Themes/Tokens.*.axaml
+   ===================================================================== */
+
+/* ---- Base tokens (shared dark foundation, mirrors Tokens.Colors Dark) ---- */
+:root{
+  --bg-base:#0E0F13; --bg-mantle:#15171D; --bg-surface:#1C1F27;
+  --bg-raised:#262A35; --bg-overlay:#353A48;
+  --border-subtle:#2A2E3A; --border-strong:#3E4456;
+
+  --text-primary:#E4E7EE; --text-secondary:#A8B0BD; --text-muted:#6E7689;
+  --text-disabled:#4A5161; --text-on-brand:#1A1408;
+
+  --brand-100:#2D2415; --brand-400:#D9B670; --brand-500:#C9A24E; --brand-600:#A8842E;
+
+  --info:#6FA8DC; --success:#7FC78A; --warning:#E8B763; --danger:#D87171;
+
+  --stat-dps:#E07A8E; --stat-life:#7FC78A; --stat-es:#6FA8DC;
+  --stat-mana:#8AA6F5; --stat-armour:#E8B763; --stat-evasion:#B69CE8;
+  --stat-spirit:#C9A24E;
+
+  --rar-normal:#C8C8C8; --rar-magic:#8888FF; --rar-rare:#FFFF77;
+  --rar-unique:#AF6025; --rar-relic:#82AD6A;
+
+  --el-phys:#C8C8C8; --el-fire:#E5703A; --el-cold:#5AB7E0;
+  --el-light:#F1D33F; --el-chaos:#D957B8;
+
+  --attr-str:#F38BA8; --attr-dex:#A6E3A1; --attr-int:#89B4FA;
+
+  --tip-gold:#A8824B; --tip-brown:#5A3F1F; --tip-sep:#3A2A18; --tip-box:#2D1F1A;
+  --confirm-bg:#1E3A2F; --confirm-hover:#2A4A3A;
+
+  /* spacing / radius / type scale (mirrors Tokens.Sizes / Tokens.Typography) */
+  --space-xs:4px; --space-sm:8px; --space-md:12px; --space-lg:16px;
+  --space-xl:24px; --space-2xl:32px;
+  --radius-sm:4px; --radius-md:6px; --radius-lg:8px; --radius-xl:12px;
+
+  --fs-display:28px; --fs-h1:22px; --fs-h2:18px; --fs-h3:15px;
+  --fs-body:14px; --fs-body-sm:13px; --fs-caption:11px;
+  --fs-num-lg:24px; --fs-num-md:14px;
+
+  --font-ui:'Inter','Segoe UI',Arial,sans-serif;
+  --font-mono:'JetBrains Mono','Cascadia Code',Consolas,monospace;
+  --font-display:'Inter','Segoe UI',Arial,sans-serif;
+}
+
+/* ---- Variant B: bolder skin — engraved gold gothic, layered surfaces ---- */
+[data-variant="b"]{
+  --bg-base:#0B0A08; --bg-mantle:#13110C; --bg-surface:#1A1711;
+  --bg-raised:#241F16; --bg-overlay:#322A1C;
+  --border-subtle:#2C2517; --border-strong:#48391F;
+  --text-primary:#EDE6D6; --text-secondary:#B6AC95; --text-muted:#7C725C;
+  --brand-400:#E8C77A; --brand-500:#D4A94E; --brand-600:#A8842E;
+  --font-display:'Cinzel','Inter',serif;
+}
+
+/* ===================== reset / page shell ===================== */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-ui);
+  background:var(--bg-base);
+  color:var(--text-primary);
+  font-size:var(--fs-body);
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+[data-variant="b"] body, body[data-variant="b"]{
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(201,162,78,.07), transparent 60%),
+    radial-gradient(80% 60% at 50% 120%, rgba(0,0,0,.6), transparent 60%),
+    var(--bg-base);
+}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+
+/* ===================== top control bar ===================== */
+.control{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:var(--space-lg);
+  padding:var(--space-md) var(--space-xl);
+  background:rgba(14,15,19,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border-subtle);
+}
+.control .mark{display:flex;align-items:baseline;gap:8px;font-weight:700;letter-spacing:.5px}
+.control .mark b{color:var(--brand-400);font-family:var(--font-display);font-size:18px}
+.control .mark span{color:var(--text-muted);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+.control .spacer{flex:1}
+.seg{display:inline-flex;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:999px;padding:3px}
+.seg button{
+  appearance:none;border:0;cursor:pointer;font:inherit;font-weight:600;
+  padding:7px 18px;border-radius:999px;background:transparent;color:var(--text-secondary);
+  transition:.18s;
+}
+.seg button.on{background:var(--brand-500);color:var(--text-on-brand)}
+.seg button:not(.on):hover{color:var(--text-primary)}
+.control .hint{color:var(--text-muted);font-size:12px}
+
+/* show only the active variant window */
+.window{display:none}
+body[data-variant="a"] #win-a{display:block}
+body[data-variant="b"] #win-b{display:block}
+
+.stage{padding:var(--space-2xl) var(--space-xl) 64px}
+.stage-inner{max-width:1480px;margin:0 auto}
+.section-label{
+  font-size:var(--fs-caption);letter-spacing:3px;text-transform:uppercase;
+  color:var(--text-muted);margin:0 0 var(--space-md);font-weight:600;
+}
+[data-variant="b"] .section-label{color:var(--brand-600)}
+.block-title{
+  font-family:var(--font-display);font-size:var(--fs-h1);margin:0 0 var(--space-lg);
+  color:var(--text-primary);
+}
+[data-variant="b"] .block-title{
+  letter-spacing:1px;
+  background:linear-gradient(180deg,var(--brand-400),var(--brand-600));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 1px 0 rgba(0,0,0,.6);
+}
+
+/* ===================== STYLE GUIDE ===================== */
+.guide{margin-bottom:56px}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--space-lg)}
+.swatch{border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-surface)}
+.swatch .chip{height:56px}
+.swatch .meta{padding:8px 10px}
+.swatch .meta .nm{font-size:12px;font-weight:600}
+.swatch .meta .hx{font-size:11px;color:var(--text-muted);font-family:var(--font-mono)}
+
+.type-row{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--border-subtle)}
+.type-row .tag{width:120px;color:var(--text-muted);font-size:11px;font-family:var(--font-mono);flex:none}
+
+.tile-row{display:flex;flex-wrap:wrap;gap:var(--space-md);align-items:center}
+
+/* shared component primitives (reused across screens) */
+.btn{appearance:none;border:1px solid var(--border-strong);background:var(--bg-raised);color:var(--text-primary);
+  font:inherit;font-weight:600;font-size:var(--fs-body-sm);padding:9px 16px;border-radius:var(--radius-md);cursor:pointer;transition:.16s}
+.btn:hover{border-color:var(--brand-600);background:var(--bg-overlay)}
+.btn.primary{background:var(--brand-500);border-color:var(--brand-500);color:var(--text-on-brand)}
+.btn.primary:hover{background:var(--brand-400);border-color:var(--brand-400)}
+.btn.confirm{background:var(--confirm-bg);border-color:#2c5544;color:#bfe6d2}
+.btn.confirm:hover{background:var(--confirm-hover)}
+.btn.danger{color:var(--danger);border-color:transparent;background:transparent}
+.btn.ghost{background:transparent;border-color:var(--border-subtle)}
+[data-variant="b"] .btn.primary{
+  background:linear-gradient(180deg,var(--brand-400),var(--brand-600));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 2px 8px rgba(0,0,0,.4);
+}
+
+.cell{display:flex;align-items:center;height:36px;padding:0 12px;background:var(--bg-surface);
+  border:1px solid var(--border-subtle);border-radius:var(--radius-md);color:var(--text-secondary);
+  font-size:var(--fs-body-sm);min-width:160px;justify-content:space-between;gap:8px;cursor:pointer}
+.cell:hover{border-color:var(--border-strong)}
+.cell .cv{color:var(--text-primary)}
+.cell .ar{color:var(--text-muted)}
+
+.statchip{display:flex;flex-direction:column;gap:1px;padding:6px 12px;border-radius:var(--radius-md);
+  background:var(--bg-surface);border:1px solid var(--border-subtle);min-width:74px}
+.statchip .l{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)}
+.statchip .v{font-family:var(--font-mono);font-weight:600;font-size:15px;color:var(--text-primary)}
+
+/* card / panel — the single reused panel language */
+.card{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden}
+.card>.hd{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg-mantle);
+  border-bottom:1px solid var(--border-subtle);cursor:pointer}
+.card>.hd .dot{width:7px;height:7px;border-radius:50%;background:var(--brand-500);flex:none}
+.card>.hd .t{font-size:var(--fs-body-sm);font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--text-secondary)}
+.card>.hd .cv{margin-left:auto;color:var(--text-muted);font-size:12px}
+[data-variant="b"] .card{box-shadow:0 1px 0 rgba(232,199,122,.06) inset,0 8px 24px -16px #000}
+[data-variant="b"] .card>.hd{
+  background:linear-gradient(180deg,rgba(212,169,78,.10),transparent);
+  border-bottom:1px solid var(--border-strong);
+}
+[data-variant="b"] .card>.hd .t{color:var(--brand-400)}
+
+.kv{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.03)}
+.kv:last-child{border-bottom:0}
+.kv .k{color:var(--text-secondary);font-size:var(--fs-body-sm)}
+.kv .v{font-family:var(--font-mono);font-size:var(--fs-body-sm);color:var(--text-primary)}
+.kv .v.dim{color:var(--text-disabled)}
+
+/* ===================== APP WINDOW CHROME ===================== */
+.app{border:1px solid var(--border-strong);border-radius:var(--radius-lg);overflow:hidden;
+  background:var(--bg-base);box-shadow:0 30px 80px -40px #000;margin-top:var(--space-lg)}
+
+/* header — three zones: identity · stat HUD · tabs */
+.hdr{background:var(--bg-mantle);border-bottom:1px solid var(--border-subtle)}
+.hdr .row1{display:flex;align-items:center;gap:var(--space-md);padding:10px var(--space-lg)}
+.brand-mark{display:flex;align-items:center;gap:9px;padding-right:14px;margin-right:4px;border-right:1px solid var(--border-subtle)}
+.brand-mark .glyph{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;
+  background:linear-gradient(150deg,var(--brand-400),var(--brand-600));color:#1a1408;font-weight:800;font-family:var(--font-display)}
+.brand-mark .wm{font-family:var(--font-display);font-weight:700;color:var(--brand-400);letter-spacing:.5px}
+.hdr .back{display:flex;align-items:center;gap:6px}
+.hdr .bname{font-family:var(--font-display);font-weight:700;font-size:var(--fs-h3);color:var(--text-primary)}
+.hdr .lbl{color:var(--text-muted);font-size:12px;margin-left:6px}
+.hdr .spacer{flex:1}
+
+.hud{display:flex;gap:var(--space-sm);padding:0 var(--space-lg) 12px;flex-wrap:wrap;align-items:center}
+.hud .skill-sel{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hud .star{color:var(--brand-400)}
+
+/* tab bar (A) */
+.tabs{display:flex;gap:2px;padding:0 var(--space-lg);border-top:1px solid var(--border-subtle);background:var(--bg-base)}
+.tabs .tab{display:flex;align-items:center;gap:7px;padding:11px 16px;cursor:pointer;color:var(--text-secondary);
+  font-weight:600;font-size:var(--fs-body-sm);border-bottom:2px solid transparent}
+.tabs .tab .ic{opacity:.55}
+.tabs .tab:hover{color:var(--text-primary)}
+.tabs .tab.on{color:var(--brand-400);border-bottom-color:var(--brand-500)}
+
+/* screen body */
+.body{min-height:560px;padding:var(--space-lg)}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ===== Builds screen ===== */
+.builds-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg)}
+.builds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:var(--space-lg)}
+.build-card{border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-surface);cursor:pointer;transition:.18s}
+.build-card:hover{border-color:var(--brand-600);transform:translateY(-2px)}
+.build-card .art{height:128px;position:relative;display:grid;place-items:center}
+.build-card .art .ring{width:78px;height:78px;border-radius:50%;border:2px solid rgba(255,255,255,.12)}
+.build-card .ft{padding:10px 12px;border-top:1px solid var(--border-subtle)}
+.build-card .ft .nm{font-weight:600;font-size:var(--fs-body-sm)}
+.build-card .ft .sub{color:var(--text-muted);font-size:12px;margin-top:2px}
+.build-card.new{display:grid;place-items:center;color:var(--brand-400);border-style:dashed;border-color:var(--border-strong);min-height:166px}
+.build-card.new .plus{font-size:32px;font-family:var(--font-display)}
+[data-variant="b"] .build-card .art{box-shadow:inset 0 -40px 50px -30px #000}
+
+/* ===== Items screen ===== */
+.items-wrap{display:grid;grid-template-columns:minmax(420px,1fr) minmax(320px,420px);gap:var(--space-xl)}
+.paperdoll{display:grid;gap:var(--space-md);
+  grid-template-columns:repeat(4,1fr);
+  grid-template-areas:
+   "wpn helm helm wpn2"
+   "wpn ring1 amu wpn2"
+   "glov body body boot"
+   "ring2 body body belt"
+   "f1 f2 f3 ."}
+.slot{border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--bg-surface);
+  aspect-ratio:1/1;display:grid;place-items:center;position:relative;cursor:pointer;transition:.16s}
+.slot .ph{color:var(--text-disabled);font-size:11px;text-align:center;padding:6px}
+.slot:hover{border-color:var(--brand-500)}
+.slot.filled .gem{width:62%;height:62%;border-radius:8px;background:linear-gradient(150deg,#3a3326,#1a1611)}
+.slot.r-unique{border-color:var(--rar-unique);box-shadow:0 0 0 1px rgba(175,96,37,.4) inset}
+.slot.r-magic{border-color:var(--rar-magic)}
+.slot.r-rare{border-color:var(--rar-rare)}
+.slot.r-relic{border-color:var(--rar-relic)}
+.slot[data-a="wpn"]{grid-area:wpn} .slot[data-a="wpn2"]{grid-area:wpn2}
+.slot[data-a="helm"]{grid-area:helm} .slot[data-a="body"]{grid-area:body}
+.slot[data-a="amu"]{grid-area:amu} .slot[data-a="ring1"]{grid-area:ring1}
+.slot[data-a="ring2"]{grid-area:ring2} .slot[data-a="glov"]{grid-area:glov}
+.slot[data-a="belt"]{grid-area:belt} .slot[data-a="boot"]{grid-area:boot}
+.slot[data-a="f1"]{grid-area:f1} .slot[data-a="f2"]{grid-area:f2} .slot[data-a="f3"]{grid-area:f3}
+.slot .tag{position:absolute;top:5px;left:6px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)}
+.editor{border:1px dashed var(--border-strong);border-radius:var(--radius-md);display:grid;place-items:center;text-align:center;padding:var(--space-xl)}
+.editor .hint{color:var(--text-muted);font-size:var(--fs-body-sm);margin-bottom:var(--space-lg);max-width:240px}
+.pool{margin-top:var(--space-lg)}
+.pool .pool-row{display:flex;gap:var(--space-sm);margin-top:var(--space-sm)}
+.pool .mini{width:46px;height:46px;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);background:var(--bg-surface)}
+
+/* ===== Skills screen ===== */
+.skills-wrap{display:grid;grid-template-columns:280px 1fr;gap:var(--space-lg)}
+.sk-list{border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--bg-surface);overflow:hidden;display:flex;flex-direction:column}
+.sk-list .lh{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid var(--border-subtle)}
+.sk-list .lh .t{font-size:var(--fs-caption);letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
+.sk-item{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;border-left:2px solid transparent;font-size:var(--fs-body-sm)}
+.sk-item:hover{background:var(--bg-raised)}
+.sk-item.on{background:var(--bg-raised);border-left-color:var(--brand-500)}
+.sk-item.on .nm{color:var(--brand-400)}
+.sk-item .lock{margin-left:auto;color:var(--text-disabled);font-size:11px}
+.sk-item.locked{color:var(--text-muted)}
+.sk-detail{border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--bg-surface);padding:var(--space-lg)}
+.sk-detail .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg)}
+.sk-detail .dh .nm{font-family:var(--font-display);font-size:var(--fs-h3);color:var(--brand-400)}
+.sk-detail .lvl{display:flex;align-items:center;gap:14px;color:var(--text-muted);font-size:12px}
+.sk-detail .lvl .pair{display:flex;align-items:center;gap:6px}
+.sk-detail .lvl .pair .num{color:var(--text-primary)}
+.supp{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.supp .x{width:24px;height:24px;display:grid;place-items:center;border-radius:var(--radius-sm);color:var(--text-muted);cursor:pointer}
+.supp .x:hover{background:var(--bg-overlay);color:var(--danger)}
+.supp .scell{flex:1;display:flex;align-items:center;justify-content:space-between;height:38px;padding:0 12px;
+  background:var(--bg-mantle);border:1px solid var(--border-subtle);border-radius:var(--radius-md)}
+.supp .scell.empty{color:var(--text-muted)}
+.supp .scell .gname{font-weight:500}
+
+/* ===== Calcs screen ===== */
+.calcs-top{display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-lg)}
+.search{flex:1;display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;background:var(--bg-surface);
+  border:1px solid var(--border-subtle);border-radius:var(--radius-md);color:var(--text-muted)}
+.calcs-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-lg);align-items:start}
+.calcs-col{display:flex;flex-direction:column;gap:var(--space-md)}
+.col-label{font-size:var(--fs-caption);letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px}
+
+/* ===================== VARIANT B — vertical nav rail ===================== */
+.shellB{display:grid;grid-template-columns:84px 1fr}
+.rail{background:linear-gradient(180deg,var(--bg-mantle),var(--bg-base));border-right:1px solid var(--border-strong);
+  padding:var(--space-md) 0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.rail .rmark{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;margin-bottom:var(--space-lg);
+  background:linear-gradient(150deg,var(--brand-400),var(--brand-600));color:#1a1408;font-weight:800;font-family:var(--font-display);font-size:18px;
+  box-shadow:0 4px 14px -4px rgba(212,169,78,.5)}
+.rnav{width:100%;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 8px}
+.rnav .ri{width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;border-radius:var(--radius-md);
+  cursor:pointer;color:var(--text-muted);position:relative;transition:.16s}
+.rnav .ri .ic{width:22px;height:22px}
+.rnav .ri .cap{font-size:10px;letter-spacing:.3px}
+.rnav .ri:hover{color:var(--text-secondary);background:rgba(212,169,78,.06)}
+.rnav .ri.on{color:var(--brand-400)}
+.rnav .ri.on::before{content:"";position:absolute;left:-8px;top:8px;bottom:8px;width:3px;border-radius:3px;
+  background:linear-gradient(180deg,var(--brand-400),var(--brand-600));box-shadow:0 0 10px var(--brand-500)}
+.ornament{display:flex;align-items:center;gap:10px;color:var(--tip-gold);margin:2px 0 14px}
+.ornament::before,.ornament::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--tip-gold),transparent)}
+.ornament .dia{width:7px;height:7px;transform:rotate(45deg);background:var(--brand-500)}
+
+/* delta mini-bar on HUD (B) */
+[data-variant="b"] .statchip{background:linear-gradient(180deg,rgba(212,169,78,.05),transparent);border-color:var(--border-strong)}
+.statchip .bar{height:3px;border-radius:3px;margin-top:5px;background:var(--border-strong);overflow:hidden}
+.statchip .bar i{display:block;height:100%;background:currentColor;border-radius:3px}
+
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.app{position:relative}
+
+@media (max-width:1100px){
+  .items-wrap{grid-template-columns:1fr}
+  .calcs-cols{grid-template-columns:1fr}
+  .skills-wrap{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body data-variant="a">
+
+<!-- ============ TOP CONTROL BAR ============ -->
+<div class="control">
+  <div class="mark"><b>PathBuildLab</b><span>restyle mockup</span></div>
+  <div class="spacer"></div>
+  <span class="hint">Скин:</span>
+  <div class="seg" id="variantSeg">
+    <button data-v="a" class="on">Вариант A · на токенах</button>
+    <button data-v="b">Вариант B · свободный</button>
+  </div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- ===========================  VARIANT A  ============================ -->
+<!-- ==================================================================== -->
+<div class="window" id="win-a">
+<div class="stage"><div class="stage-inner">
+
+  <!-- STYLE GUIDE A -->
+  <div class="guide">
+    <p class="section-label">Style Guide</p>
+    <h2 class="block-title">Вариант A — эволюция на существующих токенах</h2>
+    <p style="color:var(--text-secondary);max-width:720px;margin-bottom:24px">
+      Собран только из значений <code>Tokens.Colors/Sizes/Typography.axaml</code>. Каждый цвет, отступ и радиус —
+      готовая XAML-переменная, поэтому переносится в Avalonia один-в-один. Золото работает «золотой нитью»:
+      бренд, активное состояние и главное действие.
+    </p>
+
+    <p class="section-label">Поверхности и бренд</p>
+    <div class="guide-grid" style="margin-bottom:32px">
+      <div class="swatch"><div class="chip" style="background:var(--bg-base)"></div><div class="meta"><div class="nm">BgBase</div><div class="hx">#0E0F13</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--bg-surface)"></div><div class="meta"><div class="nm">BgSurface</div><div class="hx">#1C1F27</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--bg-raised)"></div><div class="meta"><div class="nm">BgRaised</div><div class="hx">#262A35</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--brand-400)"></div><div class="meta"><div class="nm">Brand400</div><div class="hx">#D9B670</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--brand-500)"></div><div class="meta"><div class="nm">Brand500</div><div class="hx">#C9A24E</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--brand-600)"></div><div class="meta"><div class="nm">Brand600</div><div class="hx">#A8842E</div></div></div>
+    </div>
+
+    <p class="section-label">Семантика · стат-цвета · редкости</p>
+    <div class="guide-grid" style="margin-bottom:32px">
+      <div class="swatch"><div class="chip" style="background:var(--stat-dps)"></div><div class="meta"><div class="nm">Stat / DPS</div><div class="hx">#E07A8E</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--stat-life)"></div><div class="meta"><div class="nm">Stat / Life</div><div class="hx">#7FC78A</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--stat-es)"></div><div class="meta"><div class="nm">Stat / ES</div><div class="hx">#6FA8DC</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--stat-armour)"></div><div class="meta"><div class="nm">Stat / Armour</div><div class="hx">#E8B763</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--rar-unique)"></div><div class="meta"><div class="nm">Rarity Unique</div><div class="hx">#AF6025</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--rar-rare)"></div><div class="meta"><div class="nm">Rarity Rare</div><div class="hx">#FFFF77</div></div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:8px">
+      <div>
+        <p class="section-label">Типографика</p>
+        <div class="type-row"><span class="tag">Display 28</span><span style="font-family:var(--font-display);font-size:28px;font-weight:700">Mercenary</span></div>
+        <div class="type-row"><span class="tag">H1 22</span><span style="font-size:22px;font-weight:700">Заголовок раздела</span></div>
+        <div class="type-row"><span class="tag">Body 14</span><span>Основной текст интерфейса</span></div>
+        <div class="type-row"><span class="tag">NumLg 24 mono</span><span class="num" style="font-size:24px;font-weight:600">1 822</span></div>
+        <div class="type-row"><span class="tag">Caption 11</span><span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">Сопротивления</span></div>
+      </div>
+      <div>
+        <p class="section-label">Компоненты</p>
+        <div class="tile-row" style="margin-bottom:14px">
+          <button class="btn primary">Сохранить</button>
+          <button class="btn">Импорт / Экспорт</button>
+          <button class="btn ghost">Заметки</button>
+          <button class="btn danger">Удалить</button>
+        </div>
+        <div class="tile-row" style="margin-bottom:14px">
+          <div class="statchip"><span class="l">Жизнь</span><span class="v" style="color:var(--stat-life)">1 822</span></div>
+          <div class="statchip"><span class="l">ЭЩ</span><span class="v" style="color:var(--stat-es)">221</span></div>
+          <div class="statchip"><span class="l">Броня</span><span class="v" style="color:var(--stat-armour)">3 302</span></div>
+        </div>
+        <div class="tile-row">
+          <div class="cell"><span class="cv">Тактик</span><span class="ar">⌄</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP WINDOW A -->
+  <p class="section-label">Рабочее окно · экраны переключаются вкладками</p>
+  <div class="app">
+    <div class="hdr">
+      <div class="row1">
+        <div class="brand-mark"><div class="glyph">P</div><span class="wm">PathBuildLab</span></div>
+        <button class="btn ghost back">← Назад</button>
+        <span class="bname">Mercenary — Tactician</span><span class="lbl">L62</span>
+        <div class="spacer"></div>
+        <div class="cell" style="min-width:140px"><span class="ar" style="color:var(--text-muted)">Класс</span><span class="cv">Наёмник</span></div>
+        <div class="cell" style="min-width:150px"><span class="ar" style="color:var(--text-muted)">Восх.</span><span class="cv">Тактик</span></div>
+        <button class="btn ghost">Заметки</button>
+        <button class="btn">Импорт / Экспорт</button>
+        <div class="cell" style="min-width:84px"><span class="cv">RU</span><span class="ar">⌄</span></div>
+        <button class="btn primary">Сохранить</button>
+      </div>
+      <div class="hud">
+        <div class="statchip"><span class="l">ДПС</span><span class="v" style="color:var(--stat-dps)">0</span></div>
+        <div class="statchip"><span class="l">Жизнь</span><span class="v" style="color:var(--stat-life)">1 822</span></div>
+        <div class="statchip"><span class="l">ЭЩ</span><span class="v" style="color:var(--stat-es)">221</span></div>
+        <div class="statchip"><span class="l">Мана</span><span class="v" style="color:var(--stat-mana)">605</span></div>
+        <div class="statchip"><span class="l">Броня</span><span class="v" style="color:var(--stat-armour)">3 302</span></div>
+        <div class="statchip"><span class="l">Укл.</span><span class="v" style="color:var(--stat-evasion)">21</span></div>
+        <div class="statchip"><span class="l">Дух</span><span class="v" style="color:var(--stat-spirit)">266</span></div>
+        <div class="skill-sel">
+          <span class="star">★</span>
+          <div class="cell" style="min-width:220px"><span class="cv">Огневая поддержка</span><span class="ar">⌄</span></div>
+        </div>
+      </div>
+      <div class="tabs" data-tabs="a">
+        <div class="tab on" data-screen="builds">⊞ Билды</div>
+        <div class="tab" data-screen="items">◈ Предметы <span class="ic">↗</span></div>
+        <div class="tab" data-screen="tree">⟡ Дерево <span class="ic">↗</span></div>
+        <div class="tab" data-screen="skills">✦ Умения <span class="ic">↗</span></div>
+        <div class="tab" data-screen="calcs">∑ Расчёты <span class="ic">↗</span></div>
+        <div class="tab" data-screen="config">⚙ Настройки</div>
+      </div>
+    </div>
+
+    <div class="body" data-body="a">
+      <!-- Builds -->
+      <section class="screen on" data-screen="builds">
+        <div class="builds-top"><h3 class="block-title" style="margin:0">Билды</h3>
+          <div class="tile-row"><div class="cell" style="min-width:120px"><span class="cv">Имя</span><span class="ar">⌄</span></div></div></div>
+        <div class="builds-grid" id="buildsA"></div>
+      </section>
+      <!-- Items -->
+      <section class="screen" data-screen="items">
+        <p class="col-label">Экипировка</p>
+        <div class="items-wrap">
+          <div class="paperdoll" id="dollA"></div>
+          <div>
+            <div class="editor">
+              <div class="hint">Выберите слот или предмет в пуле, чтобы отредактировать его</div>
+              <button class="btn confirm">＋ Создать предмет</button>
+            </div>
+            <div class="pool">
+              <p class="col-label">Базовые самоцветы</p>
+              <div class="pool-row"><div class="mini"></div><div class="mini"></div><div class="mini"></div></div>
+              <p class="col-label" style="margin-top:16px">Пул предметов</p>
+              <div class="tile-row" style="margin-top:8px"><button class="btn confirm">＋ Создать</button><button class="btn">⤓ Импорт</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Tree placeholder -->
+      <section class="screen" data-screen="tree">
+        <div class="editor" style="min-height:480px"><div class="hint">Экран «Дерево пассивок» вне рамок этого мокапа</div></div>
+      </section>
+      <!-- Skills -->
+      <section class="screen" data-screen="skills">
+        <div class="skills-wrap">
+          <div class="sk-list" id="skListA"></div>
+          <div class="sk-detail" id="skDetailA"></div>
+        </div>
+      </section>
+      <!-- Calcs -->
+      <section class="screen" data-screen="calcs">
+        <div class="calcs-top">
+          <div class="search">⌕ <span>Поиск параметра…</span></div>
+          <button class="btn ghost">Компактно</button><button class="btn ghost">Свернуть всё</button>
+        </div>
+        <div class="calcs-cols" id="calcsA"></div>
+      </section>
+      <!-- Config placeholder -->
+      <section class="screen" data-screen="config">
+        <div class="editor" style="min-height:480px"><div class="hint">Экран «Настройки» вне рамок этого мокапа</div></div>
+      </section>
+    </div>
+  </div>
+
+</div></div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- ===========================  VARIANT B  ============================ -->
+<!-- ==================================================================== -->
+<div class="window" id="win-b">
+<div class="stage"><div class="stage-inner">
+
+  <!-- STYLE GUIDE B -->
+  <div class="guide">
+    <p class="section-label">Style Guide</p>
+    <h2 class="block-title">Вариант B — свободный, тёмное фэнтези с гравированным золотом</h2>
+    <p style="color:var(--text-secondary);max-width:740px;margin-bottom:24px">
+      Шаг за рамки текущих токенов: дисплейная антиква <b>Cinzel</b>, тёплая угольно-золотая база, гравировка и
+      градиент на брендовых элементах, орнаментальные разделители в духе игровых тултипов, вертикальный
+      nav-rail вместо верхних вкладок и стат-HUD с дельта-индикатором. Часть значений — новые токены (помечены B-only).
+    </p>
+
+    <p class="section-label">Поверхности и бренд (B-only тёплая база)</p>
+    <div class="guide-grid" style="margin-bottom:32px">
+      <div class="swatch"><div class="chip" style="background:var(--bg-base)"></div><div class="meta"><div class="nm">BgBase·B</div><div class="hx">#0B0A08</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--bg-surface)"></div><div class="meta"><div class="nm">BgSurface·B</div><div class="hx">#1A1711</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--bg-raised)"></div><div class="meta"><div class="nm">BgRaised·B</div><div class="hx">#241F16</div></div></div>
+      <div class="swatch"><div class="chip" style="background:linear-gradient(180deg,#E8C77A,#A8842E)"></div><div class="meta"><div class="nm">Brand gradient</div><div class="hx">400 → 600</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--tip-gold)"></div><div class="meta"><div class="nm">Ornament gold</div><div class="hx">#A8824B</div></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--tip-box)"></div><div class="meta"><div class="nm">Stat box</div><div class="hx">#2D1F1A</div></div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+      <div>
+        <p class="section-label">Типографика</p>
+        <div class="ornament"><span class="dia"></span></div>
+        <div class="type-row"><span class="tag">Cinzel 28</span><span style="font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:1px">MERCENARY</span></div>
+        <div class="type-row"><span class="tag">Cinzel 18</span><span style="font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:1px;color:var(--brand-400)">Огневая поддержка</span></div>
+        <div class="type-row"><span class="tag">Body 14 Inter</span><span>Основной текст интерфейса</span></div>
+        <div class="type-row"><span class="tag">NumLg mono</span><span class="num" style="font-size:24px;font-weight:600;color:var(--brand-400)">1 822</span></div>
+      </div>
+      <div>
+        <p class="section-label">Компоненты</p>
+        <div class="tile-row" style="margin-bottom:14px">
+          <button class="btn primary">Сохранить</button>
+          <button class="btn">Импорт / Экспорт</button>
+          <button class="btn ghost">Заметки</button>
+        </div>
+        <div class="tile-row" style="margin-bottom:14px">
+          <div class="statchip" style="color:var(--stat-dps)"><span class="l">ДПС</span><span class="v">128 540</span><span class="bar"><i style="width:72%"></i></span></div>
+          <div class="statchip" style="color:var(--stat-life)"><span class="l">Жизнь</span><span class="v">1 822</span><span class="bar"><i style="width:55%"></i></span></div>
+          <div class="statchip" style="color:var(--stat-es)"><span class="l">ЭЩ</span><span class="v">221</span><span class="bar"><i style="width:18%"></i></span></div>
+        </div>
+        <div class="ornament"><span class="dia"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP WINDOW B -->
+  <p class="section-label">Рабочее окно · навигация вертикальным nav-rail</p>
+  <div class="app">
+    <div class="grain"></div>
+    <div class="shellB">
+      <!-- rail -->
+      <nav class="rail">
+        <div class="rmark">P</div>
+        <div class="rnav" data-tabs="b">
+          <div class="ri on" data-screen="builds"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="cap">Билды</span></div>
+          <div class="ri" data-screen="items"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg><span class="cap">Предметы</span></div>
+          <div class="ri" data-screen="tree"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="5" r="2.4"/><circle cx="5" cy="18" r="2.4"/><circle cx="19" cy="18" r="2.4"/><path d="M12 7v5M12 12l-5 4M12 12l5 4"/></svg><span class="cap">Дерево</span></div>
+          <div class="ri" data-screen="skills"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l2.4 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.6-.5z"/></svg><span class="cap">Умения</span></div>
+          <div class="ri" data-screen="calcs"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 5l7 7-7 7h16"/></svg><span class="cap">Расчёты</span></div>
+          <div class="ri" data-screen="config"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg><span class="cap">Настройки</span></div>
+        </div>
+      </nav>
+
+      <!-- main -->
+      <div>
+        <div class="hdr">
+          <div class="row1">
+            <button class="btn ghost back">← Назад</button>
+            <span class="bname" style="font-family:var(--font-display);letter-spacing:1px">MERCENARY — TACTICIAN</span><span class="lbl">L62</span>
+            <div class="spacer"></div>
+            <div class="cell" style="min-width:140px"><span class="ar" style="color:var(--text-muted)">Класс</span><span class="cv">Наёмник</span></div>
+            <div class="cell" style="min-width:150px"><span class="ar" style="color:var(--text-muted)">Восх.</span><span class="cv">Тактик</span></div>
+            <button class="btn ghost">Заметки</button>
+            <button class="btn">Импорт / Экспорт</button>
+            <button class="btn primary">Сохранить</button>
+          </div>
+          <div class="hud">
+            <div class="statchip" style="color:var(--stat-dps)"><span class="l">ДПС</span><span class="v">0</span><span class="bar"><i style="width:4%"></i></span></div>
+            <div class="statchip" style="color:var(--stat-life)"><span class="l">Жизнь</span><span class="v">1 822</span><span class="bar"><i style="width:55%"></i></span></div>
+            <div class="statchip" style="color:var(--stat-es)"><span class="l">ЭЩ</span><span class="v">221</span><span class="bar"><i style="width:18%"></i></span></div>
+            <div class="statchip" style="color:var(--stat-mana)"><span class="l">Мана</span><span class="v">605</span><span class="bar"><i style="width:42%"></i></span></div>
+            <div class="statchip" style="color:var(--stat-armour)"><span class="l">Броня</span><span class="v">3 302</span><span class="bar"><i style="width:66%"></i></span></div>
+            <div class="statchip" style="color:var(--stat-evasion)"><span class="l">Укл.</span><span class="v">21</span><span class="bar"><i style="width:8%"></i></span></div>
+            <div class="statchip" style="color:var(--stat-spirit)"><span class="l">Дух</span><span class="v">266</span><span class="bar"><i style="width:50%"></i></span></div>
+            <div class="skill-sel"><span class="star">★</span>
+              <div class="cell" style="min-width:220px;background:var(--tip-box);border-color:var(--tip-brown)"><span class="cv" style="color:var(--brand-400)">Огневая поддержка</span><span class="ar">⌄</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="body" data-body="b">
+          <!-- Builds -->
+          <section class="screen on" data-screen="builds">
+            <div class="builds-top"><h3 class="block-title" style="margin:0">Билды</h3>
+              <div class="tile-row"><div class="cell" style="min-width:120px;background:var(--tip-box);border-color:var(--tip-brown)"><span class="cv">Имя</span><span class="ar">⌄</span></div></div></div>
+            <div class="ornament"><span class="dia"></span></div>
+            <div class="builds-grid" id="buildsB"></div>
+          </section>
+          <!-- Items -->
+          <section class="screen" data-screen="items">
+            <p class="col-label">Экипировка</p>
+            <div class="items-wrap">
+              <div class="paperdoll" id="dollB"></div>
+              <div>
+                <div class="editor" style="border-color:var(--tip-brown)">
+                  <div class="hint">Выберите слот или предмет в пуле, чтобы отредактировать его</div>
+                  <button class="btn confirm">＋ Создать предмет</button>
+                </div>
+                <div class="pool">
+                  <div class="ornament"><span class="dia"></span></div>
+                  <p class="col-label">Базовые самоцветы</p>
+                  <div class="pool-row"><div class="mini"></div><div class="mini"></div><div class="mini"></div></div>
+                  <p class="col-label" style="margin-top:16px">Пул предметов</p>
+                  <div class="tile-row" style="margin-top:8px"><button class="btn confirm">＋ Создать</button><button class="btn">⤓ Импорт</button></div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="screen" data-screen="tree">
+            <div class="editor" style="min-height:460px;border-color:var(--tip-brown)"><div class="hint">Экран «Дерево пассивок» вне рамок этого мокапа</div></div>
+          </section>
+          <!-- Skills -->
+          <section class="screen" data-screen="skills">
+            <div class="skills-wrap">
+              <div class="sk-list" id="skListB"></div>
+              <div class="sk-detail" id="skDetailB" style="border-color:var(--tip-brown)"></div>
+            </div>
+          </section>
+          <!-- Calcs -->
+          <section class="screen" data-screen="calcs">
+            <div class="calcs-top">
+              <div class="search" style="background:var(--tip-box);border-color:var(--tip-brown)">⌕ <span>Поиск параметра…</span></div>
+              <button class="btn ghost">Компактно</button><button class="btn ghost">Свернуть всё</button>
+            </div>
+            <div class="calcs-cols" id="calcsB"></div>
+          </section>
+          <section class="screen" data-screen="config">
+            <div class="editor" style="min-height:460px;border-color:var(--tip-brown)"><div class="hint">Экран «Настройки» вне рамок этого мокапа</div></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div></div>
+</div>
+
+<script>
+/* ---------------- shared content data (from the live RU client) ---------------- */
+const CLASS_COLORS = {Druid:'#7FC78A',Huntress:'#A6E3A1',Mercenary:'#E8B763',Sorceress:'#89B4FA',Witch:'#D957B8'};
+const BUILDS = [
+  ['Druid','Oracle',93],['Druid','Bloodmoon',97],['Huntress','Amazon',91],
+  ['Mercenary','Gemling',88],['Mercenary','Tactician',62],['Sorceress','Chronomancer',90],
+  ['Sorceress','Stormweaver',94],['Witch','Abyssal Lich',96],['Witch','Infernalist',84],
+];
+const SLOTS = [
+  ['wpn','Оружие','r-unique',1],['helm','Шлем','r-rare',1],['amu','Амулет','r-rare',1],['wpn2','Оружие 2','r-magic',1],
+  ['ring1','Кольцо','r-magic',1],['body','Доспех','r-rare',1],['ring2','Кольцо','r-unique',1],
+  ['glov','Перчатки','r-rare',1],['belt','Пояс','r-magic',1],['boot','Сапоги','r-rare',1],
+  ['f1','Фласка','r-unique',1],['f2','Фласка','',0],['f3','Фласка','r-magic',1],
+];
+const SK_GROUPS = [
+  ['Огневая поддержка','int',1,0],['Спасение от холода','es',0,0],['Поднять щит','str',0,0],
+  ['Скелет-снайпер','dex',0,0],['Подношение боли','dps',0,0],['Скелет-клерик','es',0,0],
+  ['Волчья стая','dps',0,0],['Скелет-поджигатель','dps',0,0],['Скелет-разоритель','es',0,0],
+  ['Уязвимость к стихиям','es',0,0],['Огневая поддержка','int',0,1],['Спасение от холода','es',0,1],['Поднять щит','str',0,1],
+];
+const SK_COLORS={int:'var(--attr-int)',str:'var(--attr-str)',dex:'var(--attr-dex)',es:'var(--stat-es)',dps:'var(--stat-dps)'};
+const SUPPORTS=[['Приказание II','var(--attr-int)'],['Власть огня','var(--stat-dps)'],['Громадные приспешники','var(--attr-int)']];
+const CALCS = [
+  ['Атака',[
+    ['ДПС навыка',[['Общий ДПС','0','--text-disabled'],['Совокупный ДПС','0','--text-disabled'],['Средний урон','0','--text-disabled'],['ДПС с ДоТ','—','--text-disabled'],['Общий ДПС ДоТ','0','--text-disabled'],['ДПС пронзания','—','--text-disabled']]],
+    ['Диапазоны урона',[['Физ. мин','0','--el-phys'],['Физ. макс','0','--el-phys'],['Молния','0','--el-light'],['Холод','0','--el-cold'],['Огонь','0','--el-fire'],['Хаос','0','--el-chaos']]],
+    ['Попадание',[['Шанс попасть','100,0%','--success']]],
+  ]],
+  ['Ресурсы',[
+    ['Характеристики',[['Сила','231','--attr-str'],['Ловкость','45','--attr-dex'],['Интеллект','103','--attr-int']]],
+    ['Жизнь',[['Жизнь','1 822','--stat-life'],['Незарезерв. жизнь','1 822','--stat-life'],['Регенерация','34,90','--text-primary'],['% регенерации','1,9%','--text-secondary'],['Вампиризм','0','--text-disabled']]],
+    ['Мана',[['Мана','605','--stat-mana'],['Стоимость','0','--text-disabled'],['Регенерация','34,60','--text-primary'],['Вампиризм','0','--text-disabled']]],
+    ['Энергетический щит',[['Эн. щит','221','--stat-es'],['Регенерация','0','--text-disabled'],['% регенерации','0,0%','--text-disabled']]],
+  ]],
+  ['Защита',[
+    ['Сопротивления',[['Огню','63,0%','--el-fire'],['Макс. огню','—','--text-disabled'],['Холоду','55,0%','--el-cold'],['Макс. холоду','—','--text-disabled'],['Молнии','38,0%','--el-light'],['Макс. молнии','—','--text-disabled'],['Хаосу','0,0%','--el-chaos'],['Макс. хаосу','—','--text-disabled']]],
+    ['Броня',[['Броня','3 302','--stat-armour'],['Сниж. физ. урона','—','--text-disabled'],['Сниж. при ударе','—','--text-disabled']]],
+    ['Уклонение',[['Уклонение','21','--stat-evasion'],['Шанс уклонения','0,0%','--text-disabled'],['От снарядов','0,0%','--text-disabled']]],
+    ['Блок / Отражение',[['Шанс блока','30,0%','--stat-es']]],
+  ]],
+];
+
+/* ---------------- renderers ---------------- */
+function renderBuilds(el){
+  el.innerHTML = BUILDS.map(([cls,asc,lvl])=>{
+    const c=CLASS_COLORS[cls];
+    return `<div class="build-card">
+      <div class="art" style="background:radial-gradient(70% 80% at 50% 35%, ${c}22, transparent 70%), var(--bg-mantle)">
+        <div class="ring" style="border-color:${c}66;box-shadow:0 0 24px -6px ${c}55"></div>
+      </div>
+      <div class="ft"><div class="nm">${cls} — ${asc}</div><div class="sub">Ур. ${lvl}</div></div>
+    </div>`;
+  }).join('') + `<div class="build-card new"><div><div class="plus">＋</div><div>Создать билд</div></div></div>`;
+}
+function renderDoll(el){
+  el.innerHTML = SLOTS.map(([a,name,rar,filled])=>
+    `<div class="slot ${rar} ${filled?'filled':''}" data-a="${a}">
+       <span class="tag">${name}</span>
+       ${filled?'<div class="gem"></div>':`<span class="ph">${name}</span>`}
+     </div>`).join('');
+}
+function renderSkList(el){
+  el.innerHTML = `<div class="lh"><span class="t">Умения</span><button class="btn ghost" style="padding:5px 12px">Удалить</button></div>`
+   + SK_GROUPS.map(([nm,col,active,locked],i)=>
+     `<div class="sk-item ${active?'on':''} ${locked?'locked':''}" data-i="${i}">
+        ${active?'<span style="color:var(--brand-400)">★</span>':''}
+        <span class="nm" style="color:${locked?'var(--text-muted)':SK_COLORS[col]}">${nm}</span>
+        ${locked?'<span class="lock">🔒</span>':''}
+      </div>`).join('')
+   + `<div style="margin-top:auto;padding:12px"><button class="btn confirm" style="width:100%">＋ Добавить умение</button></div>`;
+}
+function renderSkDetail(el){
+  el.innerHTML = `
+    <div class="dh">
+      <span class="nm">Огневая поддержка</span>
+      <div class="lvl">
+        <span class="pair">Ур. <span class="cell" style="min-width:60px;height:30px"><span class="num">14</span><span class="ar">⌃⌄</span></span></span>
+        <span class="pair">Ка. <span class="cell" style="min-width:60px;height:30px"><span class="num">0</span><span class="ar">⌃⌄</span></span></span>
+        <span class="pair">Вкл. <span style="width:18px;height:18px;border-radius:4px;background:var(--brand-500);color:#1a1408;display:inline-grid;place-items:center;font-size:11px">✓</span></span>
+      </div>
+    </div>
+    <p class="col-label">Поддержка</p>
+    ${SUPPORTS.map(([nm,col])=>`<div class="supp"><span class="x">✕</span><div class="scell"><span class="gname" style="color:${col}">${nm}</span><span class="ar" style="color:var(--text-muted)">⌄</span></div></div>`).join('')}
+    <div class="supp"><span class="x" style="opacity:.3">✕</span><div class="scell empty"><span>＋ добавить саппорт</span><span class="ar">⌄</span></div></div>
+    <div class="supp"><span class="x" style="opacity:.3">✕</span><div class="scell empty"><span>＋ добавить саппорт</span><span class="ar">⌄</span></div></div>`;
+}
+function renderCalcs(el){
+  el.innerHTML = CALCS.map(([col,cards])=>`
+    <div class="calcs-col"><p class="col-label">${col}</p>
+      ${cards.map(([title,rows])=>`
+        <div class="card"><div class="hd"><span class="dot"></span><span class="t">${title}</span><span class="cv">⌄</span></div>
+          ${rows.map(([k,v,c])=>`<div class="kv"><span class="k">${k}</span><span class="v" style="color:var(${c})">${v}</span></div>`).join('')}
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+['A','B'].forEach(s=>{
+  renderBuilds(document.getElementById('builds'+s));
+  renderDoll(document.getElementById('doll'+s));
+  renderSkList(document.getElementById('skList'+s));
+  renderSkDetail(document.getElementById('skDetail'+s));
+  renderCalcs(document.getElementById('calcs'+s));
+});
+
+/* ---------------- interactions ---------------- */
+// variant toggle
+document.getElementById('variantSeg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  document.body.dataset.variant=b.dataset.v;
+  document.querySelectorAll('#variantSeg button').forEach(x=>x.classList.toggle('on',x===b));
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+// screen switching (works for both top-tabs and rail)
+document.querySelectorAll('[data-tabs]').forEach(nav=>{
+  const key=nav.dataset.tabs.toUpperCase();
+  const body=document.querySelector(`[data-body="${nav.dataset.tabs}"]`);
+  nav.addEventListener('click',e=>{
+    const t=e.target.closest('[data-screen]'); if(!t)return;
+    nav.querySelectorAll('[data-screen]').forEach(x=>x.classList.toggle('on',x===t));
+    body.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.dataset.screen===t.dataset.screen));
+  });
+});
+// skill list selection
+document.querySelectorAll('.sk-list').forEach(list=>{
+  list.addEventListener('click',e=>{
+    const it=e.target.closest('.sk-item'); if(!it||it.classList.contains('locked'))return;
+    list.querySelectorAll('.sk-item').forEach(x=>x.classList.remove('on'));
+    it.classList.add('on');
+  });
+});
+// card collapse (cosmetic)
+document.querySelectorAll('.app').forEach(app=>{
+  app.addEventListener('click',e=>{
+    const hd=e.target.closest('.card>.hd'); if(!hd)return;
+    const card=hd.parentElement;
+    card.querySelectorAll('.kv').forEach(kv=>kv.style.display=kv.style.display==='none'?'':'none');
+  });
+});
+</script>
+</body>
+</html>
