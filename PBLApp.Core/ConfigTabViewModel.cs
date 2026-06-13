@@ -34,10 +34,9 @@ public partial class ConfigSectionViewModel : ObservableObject
 
 public class ConfigTabViewModel : ViewModelBase
 {
-    public IReadOnlyList<ConfigSectionViewModel> Sections      { get; }
-    public IReadOnlyList<ConfigSectionViewModel> LeftSections  { get; }
-    public IReadOnlyList<ConfigSectionViewModel> MiddleSections { get; }
-    public IReadOnlyList<ConfigSectionViewModel> RightSections { get; }
+    /// <summary>All config sections in PoB order. The view flows them into a
+    /// space-filling masonry (same compact look as the Calcs tab).</summary>
+    public IReadOnlyList<ConfigSectionViewModel> Sections { get; }
 
     public ConfigTabViewModel(LuaHost host, BuildModel build)
     {
@@ -50,26 +49,5 @@ public class ConfigTabViewModel : ViewModelBase
                 g.Select(o => new ConfigOptionViewModel(o, host, build))))
             .Where(s => s.Options.Count > 0)
             .ToList();
-
-        // Greedy balance: place each section (in original order) into whichever
-        // column is currently shortest, weighting `text` rows as roughly 8 lines
-        // (the multi-line Custom Modifiers textarea is ~160 px tall vs. ~22 px
-        // for a typical option row).
-        var columns = new[] { new List<ConfigSectionViewModel>(), new List<ConfigSectionViewModel>(), new List<ConfigSectionViewModel>() };
-        var heights = new int[3];
-        foreach (var section in Sections)
-        {
-            int idx = 0;
-            for (int i = 1; i < 3; i++)
-                if (heights[i] < heights[idx]) idx = i;
-            columns[idx].Add(section);
-            heights[idx] += Weight(section) + 2; // +2 for section header + bottom margin
-        }
-        LeftSections   = columns[0];
-        MiddleSections = columns[1];
-        RightSections  = columns[2];
     }
-
-    private static int Weight(ConfigSectionViewModel s) =>
-        s.Options.Sum(o => o.Type == "text" ? 8 : 1);
 }
