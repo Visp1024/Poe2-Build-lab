@@ -1,8 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Documents;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using PBLApp.Core.Localization;
 using PBLApp.ViewModels;
 using System;
@@ -170,6 +172,8 @@ public sealed class IpcServer
                 "/tree/pan"               => await OnUi(() => TreePan(body)),
                 "/tree/open-jewel-picker" => await OnUi(() => TreeOpenJewelPicker(body)),
                 "/tree/pick-jewel"        => await OnUi(() => TreePickJewel(body)),
+                "/skills/tooltips"        => await OnUi(SkillsTooltips),
+                "/ui/text"                => await OnUi(() => DumpUiText(body)),
                 _ => new { error = $"Unknown endpoint: {path}" }
             };
 
@@ -604,6 +608,134 @@ public sealed class IpcServer
         }
 
         return new { ok = true, slots = slotTooltips.ToArray(), pool = poolTooltips.ToArray() };
+    }
+
+    // ── Skills tooltips ────────────────────────────────────────────────────
+    // Returns the EXACT text rendered in each gem's hover tooltip. The tooltip
+    // is a hover-only popup, so we read the same GemTooltipEntry list the view
+    // binds to (built by SkillsTabViewModel.ProcessTooltipLines) and concatenate
+    // each entry's rendered segments — identical to what the View draws.
+
+    private static SkillsTabViewModel? GetSkillsVm()
+        => (GetMainVm()?.CurrentPage as BuildPageViewModel)?.SkillsTab;
+
+    private static object SkillsTooltips()
+    {
+        if (GetSkillsVm() is not { } v) return new { error = "SkillsTab not ready." };
+
+        var groups = new List<object>();
+        foreach (var g in v.Groups)
+        {
+            var gems = new List<object>();
+            void AddGem(GemViewModel? gem)
+            {
+                if (gem is null || gem.GemIndex <= 0) return;
+                gem.RefreshTooltip();   // same code path the view uses on hover
+                var lines = SerializeGemTooltip(gem.TooltipEntries);
+                gems.Add(new
+                {
+                    name        = gem.CommittedName,
+                    displayName = GameTranslationService.TGem(gem.CommittedName),
+                    gemIndex    = gem.GemIndex,
+                    lineCount   = lines.Length,
+                    lines,
+                });
+            }
+            AddGem(g.ActiveGem);
+            foreach (var s in g.SupportSlots) AddGem(s);
+
+            groups.Add(new
+            {
+                index     = g.Index,
+                isMain    = g.IsMain,
+                activeGem = g.ActiveGemName,
+                gems      = gems.ToArray(),
+            });
+        }
+        return new { ok = true, groups = groups.ToArray() };
+    }
+
+    private static object[] SerializeGemTooltip(System.Collections.Generic.IReadOnlyList<GemTooltipEntry>? entries)
+    {
+        if (entries is null) return Array.Empty<object>();
+        return entries.Select(e => new
+        {
+            isSep = e.IsSep,
+            text  = e.IsSep ? "" : RenderedTextOf(e),
+        }).ToArray();
+    }
+
+    // The view renders the per-entry Segments (via InlinesHelper); concatenating
+    // their text reproduces exactly what reaches the screen. Falls back to the
+    // whole-line Text when no segments were built.
+    private static string RenderedTextOf(GemTooltipEntry e)
+        => e.Segments is { Count: > 0 } segs
+            ? string.Concat(segs.Select(s => s.Text))
+            : e.Text;
+
+    // ── Generic rendered-text dump ─────────────────────────────────────────
+    // Walks the live visual tree(s) and returns the actual text of every visible
+    // TextBlock / TextBox — the real strings going to render (translated where the
+    // app translates them), for any on-screen field. Note: tree-canvas node labels
+    // are immediate-mode drawn (no TextBlock) and are NOT included here — use
+    // /tree/hover-node or /skills/tooltips for those.
+    private static object DumpUiText(string body)
+    {
+        var win = GetMainWindow();
+        if (win is null) return new { error = "No main window." };
+
+        var items = new List<object>();
+        CollectText(win, items, "MainWindow");
+
+        // Any other open windows (modal dialogs: confirm / choose-attribute, etc.).
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desk)
+            foreach (var w in desk.Windows)
+                if (!ReferenceEquals(w, win))
+                    CollectText(w, items, w.Title ?? w.GetType().Name);
+
+        return new { ok = true, count = items.Count, items = items.ToArray() };
+    }
+
+    private static void CollectText(Visual root, List<object> items, string scope)
+    {
+        foreach (var v in root.GetVisualDescendants())
+        {
+            if (v is not Control c || !c.IsEffectivelyVisible) continue;
+
+            string? text = v switch
+            {
+                TextBlock tb => InlineOrText(tb),
+                TextBox  txt => txt.Text,
+                _            => null,
+            };
+            if (string.IsNullOrWhiteSpace(text)) continue;
+
+            items.Add(new { scope, type = v.GetType().Name, name = c.Name, text });
+        }
+    }
+
+    private static string? InlineOrText(TextBlock tb)
+    {
+        if (tb.Inlines is { Count: > 0 } inlines)
+        {
+            var sb = new StringBuilder();
+            AppendInlines(sb, inlines);
+            if (sb.Length > 0) return sb.ToString();
+        }
+        return tb.Text;
+    }
+
+    private static void AppendInlines(StringBuilder sb, InlineCollection inlines)
+    {
+        foreach (var inl in inlines)
+        {
+            switch (inl)
+            {
+                case Run r:        sb.Append(r.Text); break;
+                case LineBreak:    sb.Append('\n');   break;
+                case Span sp:      AppendInlines(sb, sp.Inlines); break;
+            }
+        }
     }
 
     /// <summary>Reports the equip-compatible (drag-highlight) target slots PoB would

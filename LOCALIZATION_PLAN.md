@@ -175,25 +175,16 @@ Stat_Eva    = "Eva"          / "Укл."
 
 ## ПРИОРИТЕТ 2 — Средние задачи (несколько часов) 🟡
 
-### 2.1 Стат-описания скиллов: specific_skill_stat_descriptions
-**Проблема:** `gem_stats_templates.json` содержит только generic файлы из repoe-fork.
-В repoe-fork есть ещё `specific_skill_stat_descriptions/<skill_name>.min.json` (70+ файлов, специфические переопределения для каждого скилла).
-Некоторые стат-строки специфичных скиллов могут не переводиться, падая в English fallback.
+### ~~2.1 / 2.2 Стат-описания гемов~~ ✅ ВЫПОЛНЕНО 2026-06-13 (источник переключён repoe-fork → GGPK .csd)
+**Что было сломано:** repoe-fork **убрал русскую локализацию** stat_translations — путь `/poe2/Russian/...` теперь отдаёт 404 (английский `/poe2/...` ещё 200). Поэтому `gen_gem_stats_ru.py` молча генерировал EN-only: в шипнутом `gem_stats_templates.json` (13163 записи) было **0 RU-вариантов**, и статы гемов в тултипах практически не переводились (116/289 строк на английском, билд Witch-Infernalist).
 
-**Решение:** расширить `gen_gem_stats_ru.py` — перечислить/скачать все файлы из `specific_skill_stat_descriptions/` и добавить в JSON.
-Ожидаемый размер добавки: +2000-5000 записей, +500-1000 КБ к `gem_stats_templates.json`.
+**Решение:** новый генератор **`PBLExport/gen_gem_stats_csd.py`** — берёт RU из тех же GGPK `.csd` (StatDescriptions), что и `gen_passive_nodes_csd.py`. Блоки `.csd` ключатся по stat-id и содержат EN+RU шаблоны с той же моделью плейсхолдеров/handler'ов/условий, что понимает `StatDescriptionEngine`, поэтому скрипт эмитит **ту же схему** (`i`/`en`/`ru`, `t`/`f`/`h`/`c`). Merge сохраняет прежние записи для id-tuple, которых нет в `.csd` (без регрессии). Это закрыло и generic stat_descriptions (2.2) — он среди `.csd` (приоритет последний).
 
-Скрипт для получения списка файлов:
-```
-https://repoe-fork.github.io/poe2/Russian/stat_translations/specific_skill_stat_descriptions/
-```
+**Результат:** 13167 записей, **12984 с RU** (было 0), файл 2.36→4.97 МБ. Непереведённых строк тултипов: 116→37, из них реально английских всего **5** (спецстаты одного навыка Demon Form).
 
-### 2.2 Стат-описания из stat_descriptions.min.json
-**Проблема:** Общий файл `stat_descriptions.min.json` (10090 записей) исключён из `gem_stats_templates.json` из-за размера (добавил бы ~3.5 МБ).
-Некоторые generic стат-строки (не специфичные для гемов) могут не переводиться.
+**Остаток (нужен ре-экспорт GGPK):** per-skill оверрайды (`specific_skill_stat_descriptions/*.csd`, напр. «… while in Demon Form») не входят в `ggpk_export/config.json` "files" → не выгружены. `gen_gem_stats_csd.py` уже авто-подхватывает `*specific_skill_stat_descriptions*.csd` (высший приоритет): добавить их в экспорт, `npx pathofexile-dat export`, затем перезапустить генератор — гэп закроется без правок кода.
 
-**Решение — вариант А:** включить полностью (+3.5 МБ → итого ~4.7 МБ embedded).
-**Решение — вариант Б:** профилировать реальные пропуски — запустить с логированием unmatched статов, добавить только нужные.
+Регенерация: `python PBLExport/gen_gem_stats_csd.py` (нужны только локальные `.csd` в `ggpk_export/files/`).
 
 ### ~~2.3 Флейвор-текст гемов (описание лора)~~ ✅ ВЫПОЛНЕНО
 `skill_descriptions_ru.json` — 691 запись из GGPK `ActiveSkills.datc64`. Тултип гема теперь показывает описание на русском (`GameTranslationService.TSkillDescription`).
@@ -230,22 +221,30 @@ https://repoe-fork.github.io/poe2/Russian/stat_translations/specific_skill_stat_
 | `PBLExport/gen_passive_nodes_csd.py` | дополняет `passive_nodes_ru.json` | **GGPK .csd** (EN+RU шаблоны; канонический путь) |
 | `PBLExport/gen_passive_ru.py` | `passive_nodes_ru.json` | repoe-fork stat_translations — **сломан** (формат изменился), заменён csd-генератором |
 | `PBLExport/gen_passive_names_ru.py` | `passive_names_ru.json` | repoe-fork skills.min.json — **сломан** (404), заменён Program.cs |
-| `PBLExport/gen_gem_stats_ru.py` | `gem_stats_templates.json` | repoe-fork stat_translations (gem files) |
+| `PBLExport/gen_gem_stats_csd.py` | `gem_stats_templates.json` | **GGPK .csd** (EN+RU; канонический — repoe-fork RU теперь 404) |
+| `PBLExport/gen_gem_stats_ru.py` | `gem_stats_templates.json` | repoe-fork — **RU удалён (404)**, заменён csd-генератором |
 | `PBLExport/Program.cs` | `passive_names_ru.json`, `skill_descriptions_ru.json` (ActiveSkills + GemEffects.SupportText), `class_names_ru.json` (Characters + Ascendancy) | GGPK tables (pathofexile-dat export) |
 | `tools/loc_coverage.py` | — (метрика покрытия трёх слоёв) | tree.json + Skills/*.lua против Translations/*.json |
 
+> ⚠️ **Источник RU: GGPK `.csd`, НЕ repoe-fork.** repoe-fork удалил русскую локализацию
+> (`https://repoe-fork.github.io/poe2/Russian/...` → 404; английский `/poe2/...` ещё жив).
+> Все RU-генераторы на repoe-fork (`gen_passive_ru.py`, `gen_passive_names_ru.py`,
+> `gen_gem_stats_ru.py`) **устарели** — RU теперь тянется из `.csd`, выгружаемых
+> pathofexile-dat в `PBLExport/ggpk_export/files/` (см. `config.json` → "files").
+
 Для регенерации при обновлении данных игры:
 ```bash
-# Из GGPK (нужен Steam с PoE2)
+# 1. Из GGPK (нужен Steam с PoE2) — выгружает .csd (EN+RU) и таблицы
 cd PBLExport/ggpk_export
 npx pathofexile-dat export --config config.json --output-dir tables
 cd ..
-dotnet run --project .    # PBLExport/Program.cs → пишет в PBLApp.Core/Translations/
 
-# Из repoe-fork (только интернет)
-python gen_passive_ru.py
-python gen_passive_names_ru.py
-python gen_gem_stats_ru.py
+# 2. Таблицы → passive_names / skill_descriptions / class_names / items и т.д.
+dotnet run --project .                 # PBLExport/Program.cs
+
+# 3. .csd → стат-шаблоны (только локальные .csd, без интернета)
+python gen_passive_nodes_csd.py        # passive_nodes_ru.json
+python gen_gem_stats_csd.py            # gem_stats_templates.json (RU из .csd)
 ```
 
 ---
@@ -262,8 +261,14 @@ npx pathofexile-dat export --config config.json --output-dir tables
 
 # 2. Пересобрать все Translation-файлы
 cd ..
-dotnet run --project .    # PBLExport/Program.cs → пишет в PBLApp.Core/Translations/
+dotnet run --project .                 # PBLExport/Program.cs → PBLApp.Core/Translations/
+python gen_passive_nodes_csd.py        # стат-строки нод (RU из .csd)
+python gen_gem_stats_csd.py            # стат-шаблоны гемов (RU из .csd)
 ```
+
+> Чтобы закрыть per-skill оверрайды (напр. «… while in Demon Form»): добавить
+> `Data/StatDescriptions/specific_skill_stat_descriptions/*.csd` в `config.json` "files",
+> ре-экспортнуть, перезапустить `gen_gem_stats_csd.py` (он их авто-подхватит).
 
 ---
 
@@ -308,7 +313,7 @@ Avalonia сбрасывает `SelectedIndex` в 0 при первом ренд�
 
 ---
 
-*Обновлено: 2026-06-12*
+*Обновлено: 2026-06-13*
 
 <!-- Changelog:
 2026-05-24 — Исправлены баги языкового сервиса:
