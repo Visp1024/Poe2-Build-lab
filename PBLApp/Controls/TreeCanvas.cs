@@ -546,8 +546,7 @@ public sealed class TreeCanvas : Control
 
             bool isAlloc  = alloc?.Contains(node.Id) == true;
             bool isCan    = canAlloc?.Contains(node.Id) == true;
-            bool isSearch = search.Length > 0 &&
-                            node.Name.Contains(search, StringComparison.OrdinalIgnoreCase);
+            bool isSearch = search.Length > 0 && NodeMatchesSearch(node, search);
 
             DrawNode(dc, node, sx, sy, r, isAlloc, isCan, isSearch, node == _hoveredNode);
         }
@@ -1236,6 +1235,19 @@ public sealed class TreeCanvas : Control
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────
+
+    // Search matches a node when the typed text is contained in either its
+    // English name or its name translated into the current UI language, so the
+    // search box works bilingually (EN + the language set in settings) at once.
+    private static bool NodeMatchesSearch(TreeNodeDto node, string search)
+    {
+        if (node.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+            return true;
+        var localized = GameTranslationService.TPassiveName(node.Name);
+        return !string.IsNullOrEmpty(localized)
+            && !localized.Equals(node.Name, StringComparison.Ordinal)
+            && localized.Contains(search, StringComparison.OrdinalIgnoreCase);
+    }
 
     // Returns true for main-tree nodes always; for ascendancy nodes only when their name matches filter
     private bool IsNodeVisible(TreeNodeDto node, string filter) =>
