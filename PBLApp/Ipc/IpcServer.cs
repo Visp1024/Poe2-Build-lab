@@ -162,6 +162,7 @@ public sealed class IpcServer
                 "/tree/state"             => await OnUi(TreeState),
                 "/tree/set-search"        => await OnUi(() => TreeSetSearch(body)),
                 "/tree/hover-node"        => await OnUi(() => TreeHoverNode(body)),
+                "/tree/node-text"         => await OnUi(() => TreeNodeText(body)),
                 "/tree/toggle-node"       => await OnUiAsync(() => TreeToggleNode(body)),
                 "/tree/select-class"      => await OnUi(() => TreeSelectClass(body)),
                 "/tree/select-ascendancy" => await OnUi(() => TreeSelectAscendancy(body)),
@@ -1107,6 +1108,71 @@ public sealed class IpcServer
         return res is { } r
             ? new { ok = true, id = r.Id, name = r.Name, pathLen = r.PathLen }
             : new { error = "No hover candidate (no allocated nodes?)." };
+    }
+
+    // Returns the REAL translated text of a passive-node tooltip — the same
+    // strings TreeCanvas draws (node name via TPassiveName, each stat line via
+    // TPassiveStat). Canvas labels are immediate-mode drawn so /ui/text can't
+    // see them; this is the faithful-text route for tree-node translation audits.
+    // Body: {"nodeId": N} for one node, or omit to dump every allocated node.
+    // Each line carries raw + translated so callers can spot still-English text.
+    private static object TreeNodeText(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        var req = string.IsNullOrWhiteSpace(body)
+            ? new Dictionary<string, JsonElement>()
+            : JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+
+        IEnumerable<int> ids = req.TryGetValue("nodeId", out var n) && n.ValueKind == JsonValueKind.Number
+            ? new[] { n.GetInt32() }
+            : t.AllocatedIds.OrderBy(x => x);
+
+        static bool LooksUntranslated(string raw, string tr)
+            => string.Equals(raw, tr, StringComparison.Ordinal)
+               && System.Text.RegularExpressions.Regex.IsMatch(tr, "[A-Za-z]");
+
+        var nodes = new List<object>();
+        int modTotal = 0, modUntr = 0, nameUntr = 0;
+        foreach (var id in ids)
+        {
+            var info = t.GetNodeHoverInfo(id);
+            if (info is null) continue;
+
+            var nameTr = GameTranslationService.TPassiveName(info.Name);
+            bool nameBad = LooksUntranslated(info.Name, nameTr);
+            if (nameBad) nameUntr++;
+
+            var mods = (info.Mods ?? Array.Empty<string>()).Select(raw =>
+            {
+                var tr = GameTranslationService.TPassiveStat(raw);
+                bool bad = LooksUntranslated(raw, tr);
+                modTotal++;
+                if (bad) modUntr++;
+                return new { raw, translated = tr, untranslated = bad };
+            }).ToArray();
+
+            nodes.Add(new
+            {
+                id = info.NodeId,
+                nameRaw          = info.Name,
+                name             = nameTr,
+                nameUntranslated = nameBad,
+                type             = info.Type,
+                ascendancy       = info.AscendancyName,
+                allocated        = info.IsAllocated,
+                mods,
+            });
+        }
+
+        return new
+        {
+            ok = true,
+            count = nodes.Count,
+            namesUntranslated = nameUntr,
+            modsTotal = modTotal,
+            modsUntranslated = modUntr,
+            nodes = nodes.ToArray(),
+        };
     }
 
     private static object TreeSelectClass(string body)
