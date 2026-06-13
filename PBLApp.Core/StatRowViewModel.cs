@@ -13,14 +13,23 @@ public partial class StatRowViewModel : ViewModelBase
     public string Label => LocalizationService.Get(_labelKey);
     public string StatKey { get; }
 
+    /// <summary>Theme resource key for the value colour (e.g. "StatDpsBrush", "ElFireBrush").
+    /// Resolved to an IBrush in XAML via TooltipKindConverter.BrushKey.</summary>
+    public string ColorKey { get; }
+
     [ObservableProperty] private string _value = "—";
     [ObservableProperty] private bool _isSelected;
 
-    public StatRowViewModel(string labelKey, string statKey, string suffix = "")
+    /// <summary>True when an active search filter doesn't match this row — the row is
+    /// dimmed (not hidden) so the layout stays stable while searching.</summary>
+    [ObservableProperty] private bool _isDimmed;
+
+    public StatRowViewModel(string labelKey, string statKey, string suffix = "", string colorKey = "TextPrimaryBrush")
     {
         _labelKey = labelKey;
         StatKey   = statKey;
         _suffix   = suffix;
+        ColorKey  = colorKey;
         LocalizationService.Instance.LanguageChanged += (_, _) => OnPropertyChanged(nameof(Label));
     }
 

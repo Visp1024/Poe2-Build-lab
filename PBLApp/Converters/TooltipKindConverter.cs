@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -46,6 +47,27 @@ public static class TooltipKindConverter
 
     /// <summary>Maps a socketable-augment category to a distinct badge colour.</summary>
     public static readonly IValueConverter RuneAugTypeBrush = new RuneAugTypeBrushConverter();
+
+    /// <summary>Resolves a theme resource key (e.g. "StatDpsBrush") to its IBrush from the
+    /// active application theme. Used by CalcsTab to colour stat values/headers per domain
+    /// without the VM (which has no Avalonia dependency) holding brushes directly.</summary>
+    public static readonly IValueConverter BrushKey = new BrushKeyConverter();
+
+    private sealed class BrushKeyConverter : IValueConverter
+    {
+        private static readonly IBrush Fallback = new SolidColorBrush(Color.Parse("#E4E7EE"));
+
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            var app = Avalonia.Application.Current;
+            if (app is not null && value is string key && key.Length > 0
+                && app.TryGetResource(key, app.ActualThemeVariant, out var res) && res is IBrush b)
+                return b;
+            return Fallback;
+        }
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
 
     private sealed class RuneAugTypeLabelConverter : IValueConverter
     {

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PathBuildLab — Расчёты (смелый вариант)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     BOLD variant — "Arcane Command Deck".
+     Aesthetic: PoE engraved-gold occult HUD. Dominant gold accent on
+     near-black base, Cinzel display caps, JetBrains Mono numerals,
+     glowing focal DPS, notched frames, faint arcane radial atmosphere.
+     Tokens still drawn from the app palette so it stays on-brand.
+     ───────────────────────────────────────────────────────────── */
+  :root {
+    --bg-base:#0B0C10; --bg-mantle:#13141A; --bg-surface:#1A1C24;
+    --bg-raised:#23262F; --border:#2A2E3A; --border-strong:#3E4456;
+
+    --text-primary:#E8EAF0; --text-secondary:#A8B0BD; --text-muted:#6E7689;
+
+    --gold:#C9A24E; --gold-bright:#E9C877; --gold-deep:#8A6A22; --gold-glow:rgba(201,162,78,.55);
+
+    --dps:#FF6F86; --dps-glow:rgba(255,111,134,.45);
+    --life:#7FC78A; --es:#6FA8DC; --mana:#8AA6F5; --armour:#E8B763; --evasion:#B69CE8; --ward:#FFFF77;
+    --str:#F38BA8; --dex:#A6E3A1; --int:#89B4FA;
+    --fire:#E8B763; --cold:#6FA8DC; --light:#F3D86B; --chaos:#D957B8; --phys:#C8C8C8;
+
+    --mono:'JetBrains Mono','Cascadia Code',monospace;
+    --disp:'Cinzel',serif;
+    --ui:'Inter','Segoe UI',sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { height:100%; }
+  body {
+    font-family:var(--ui); color:var(--text-primary); font-size:13px;
+    background:
+      radial-gradient(1200px 600px at 18% -8%, rgba(201,162,78,.10), transparent 60%),
+      radial-gradient(900px 500px at 95% 0%, rgba(255,111,134,.07), transparent 55%),
+      var(--bg-base);
+    -webkit-font-smoothing:antialiased;
+  }
+  /* faint grain overlay */
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; opacity:.035; z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap { position:relative; z-index:1; height:100vh; display:flex; flex-direction:column; }
+
+  /* ════ HERO COMMAND BAND ════ */
+  .hero {
+    display:flex; align-items:stretch; gap:0;
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg, rgba(201,162,78,.06), transparent);
+  }
+  .hero .dps {
+    padding:18px 28px 16px; position:relative;
+    border-right:1px solid var(--border);
+    min-width:330px;
+  }
+  .hero .dps .eyebrow {
+    font-family:var(--disp); font-weight:600; font-size:11px; letter-spacing:.32em;
+    text-transform:uppercase; color:var(--gold); margin-bottom:2px;
+  }
+  .hero .dps .big {
+    font-family:var(--mono); font-weight:700; font-size:54px; line-height:1; color:var(--dps);
+    text-shadow:0 0 24px var(--dps-glow); letter-spacing:-.01em;
+  }
+  .hero .dps .sub { font-family:var(--mono); font-size:12px; color:var(--text-muted); margin-top:6px; }
+  .hero .dps .sub b { color:var(--text-secondary); font-weight:500; }
+  /* notch corner */
+  .hero .dps::after {
+    content:''; position:absolute; right:-1px; bottom:-1px; width:14px; height:14px;
+    border-right:2px solid var(--gold); border-bottom:2px solid var(--gold); opacity:.6;
+  }
+
+  .hero .gauges {
+    flex:1; display:grid; grid-template-columns:repeat(4,1fr); align-items:center;
+  }
+  .gauge { padding:14px 18px; border-right:1px solid var(--border); height:100%; display:flex; flex-direction:column; justify-content:center; }
+  .gauge:last-child { border-right:0; }
+  .gauge .g-label { font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted); margin-bottom:5px; }
+  .gauge .g-val { font-family:var(--mono); font-size:22px; font-weight:700; line-height:1; }
+  .gauge .bar { height:3px; border-radius:2px; background:var(--bg-raised); margin-top:8px; overflow:hidden; }
+  .gauge .bar i { display:block; height:100%; border-radius:2px; }
+
+  /* ════ CONTROL STRIP ════ */
+  .strip {
+    display:flex; align-items:center; gap:14px; padding:9px 20px;
+    border-bottom:1px solid var(--border); background:var(--bg-mantle);
+  }
+  .strip .ctx { font-family:var(--disp); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--text-secondary); }
+  .strip .ctx b { color:var(--gold-bright); }
+  .spacer { flex:1; }
+  .cmd {
+    position:relative; width:320px; height:34px;
+    border:1px solid var(--border-strong); border-radius:3px; background:var(--bg-surface);
+    display:flex; align-items:center;
+  }
+  .cmd:focus-within { border-color:var(--gold); box-shadow:0 0 0 1px var(--gold-glow); }
+  .cmd .prompt { font-family:var(--mono); color:var(--gold); padding:0 4px 0 12px; font-size:13px; }
+  .cmd input {
+    flex:1; height:100%; border:0; outline:0; background:transparent;
+    color:var(--text-primary); font-family:var(--mono); font-size:13px; padding-right:12px;
+  }
+  .cmd input::placeholder { color:var(--text-muted); }
+  .toolbtn {
+    font-family:var(--disp); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    height:34px; padding:0 14px; border:1px solid var(--border-strong); border-radius:3px;
+    background:var(--bg-surface); color:var(--gold); cursor:pointer;
+  }
+  .toolbtn:hover { background:var(--bg-raised); border-color:var(--gold-deep); }
+
+  /* ════ BOARD ════ */
+  .board { flex:1; overflow:auto; padding:16px 20px 28px; column-count:3; column-gap:16px; }
+  @media (max-width:1250px){ .board{ column-count:2; } }
+  @media (max-width:820px){ .board{ column-count:1; } }
+
+  .panel {
+    break-inside:avoid; margin:0 0 16px; position:relative;
+    background:linear-gradient(180deg, var(--bg-mantle), var(--bg-surface));
+    border:1px solid var(--border);
+    /* engraved gold hairline at top via accent */
+  }
+  .panel::before {
+    content:''; position:absolute; left:0; right:0; top:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--accent,var(--gold)) 18%, var(--accent,var(--gold)) 82%, transparent);
+    opacity:.7;
+  }
+  /* notched corners */
+  .panel::after {
+    content:''; position:absolute; left:-1px; top:-1px; width:10px; height:10px;
+    border-left:2px solid var(--accent,var(--gold)); border-top:2px solid var(--accent,var(--gold)); opacity:.7;
+  }
+  .p-head {
+    display:flex; align-items:center; gap:10px; padding:9px 13px; cursor:pointer; user-select:none;
+  }
+  .p-head .chev { color:var(--text-muted); font-size:9px; transition:transform .15s; }
+  .panel.collapsed .chev { transform:rotate(-90deg); }
+  .p-head .ptitle {
+    flex:1; font-family:var(--disp); font-weight:700; font-size:13px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--accent,var(--gold));
+  }
+  .p-head .pbadge { font-family:var(--mono); font-size:10px; color:var(--text-muted); letter-spacing:.05em; }
+  .p-body { padding:2px 0 8px; }
+  .panel.collapsed .p-body { display:none; }
+
+  .ln { display:flex; align-items:center; padding:4px 14px; cursor:pointer; border-left:2px solid transparent; }
+  .ln:hover { background:rgba(201,162,78,.06); }
+  .ln.sel { background:rgba(201,162,78,.12); border-left-color:var(--gold); }
+  .ln .k { flex:1; color:var(--text-secondary); font-size:12px; }
+  .ln .v { font-family:var(--mono); font-size:13px; font-weight:500; color:var(--vc,var(--text-primary)); white-space:nowrap; }
+
+  /* damage matrix */
+  .mx { padding:4px 14px 8px; }
+  .mx .h, .mx .r { display:grid; grid-template-columns:1fr 60px 60px; gap:10px; }
+  .mx .h span { font-family:var(--disp); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); padding-bottom:3px; }
+  .mx .h span+span, .mx .r span+span { text-align:right; }
+  .mx .sep { height:1px; background:var(--border); margin:2px 0 4px; }
+  .mx .r { padding:2px 0; cursor:pointer; }
+  .mx .r:hover { background:rgba(201,162,78,.06); }
+  .mx .r .t { font-size:12px; }
+  .mx .r .n { font-family:var(--mono); font-size:12px; }
+
+  /* search dim + mark */
+  .ln.dim, .mx .r.dim { opacity:.14; }
+  .panel.dim { opacity:.4; }
+  mark { background:rgba(201,162,78,.32); color:var(--gold-bright); border-radius:2px; padding:0 1px; }
+
+  /* drawer */
+  .scrim { position:fixed; inset:0; background:rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:.18s; z-index:20; }
+  .scrim.open { opacity:1; pointer-events:auto; }
+  .drawer {
+    position:fixed; top:0; right:0; height:100%; width:430px; z-index:21;
+    background:var(--bg-mantle); border-left:2px solid var(--gold-deep);
+    transform:translateX(100%); transition:transform .22s cubic-bezier(.4,0,.2,1);
+    display:flex; flex-direction:column; box-shadow:-16px 0 48px rgba(0,0,0,.5);
+  }
+  .drawer.open { transform:translateX(0); }
+  .d-head { padding:16px 18px; border-bottom:1px solid var(--border); position:relative; background:linear-gradient(180deg, rgba(201,162,78,.08), transparent); }
+  .d-head .dt { font-family:var(--disp); font-weight:700; font-size:15px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-bright); }
+  .d-head .dv { font-family:var(--mono); font-weight:700; font-size:30px; color:var(--dps); text-shadow:0 0 18px var(--dps-glow); margin-top:4px; }
+  .d-head .x { position:absolute; top:14px; right:14px; width:28px; height:28px; border:1px solid var(--border-strong); border-radius:3px; background:transparent; color:var(--text-muted); cursor:pointer; font-size:15px; }
+  .d-head .x:hover { color:var(--gold); border-color:var(--gold-deep); }
+  .d-body { padding:16px 18px; overflow:auto; flex:1; }
+  .st { font-family:var(--disp); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin:0 0 9px; }
+  .calcbox { border:1px solid var(--border); border-left:2px solid var(--gold-deep); background:var(--bg-surface); padding:11px 13px; margin-bottom:18px; }
+  .cl { font-family:var(--mono); font-size:12px; color:var(--text-secondary); padding:2px 0; }
+  .cl .op { color:var(--gold); } .cl .res { color:var(--dps); font-weight:600; }
+  table.mt { width:100%; border-collapse:collapse; }
+  table.mt th { font-family:var(--disp); font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); text-align:left; padding:0 8px 5px 0; border-bottom:1px solid var(--border); }
+  table.mt td { font-size:11px; padding:4px 8px 4px 0; }
+  table.mt td.v { font-family:var(--mono); color:var(--dps); }
+  table.mt td.ty { color:var(--armour); }
+  table.mt td.src { color:var(--int); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="dps">
+      <div class="eyebrow">Полный DPS</div>
+      <div class="big">487.2k</div>
+      <div class="sub">Совмещённый <b>512.9k</b> · Ср. удар <b>8 942</b></div>
+    </div>
+    <div class="gauges">
+      <div class="gauge"><div class="g-label">Здоровье</div><div class="g-val" style="color:var(--life)">1 842</div><div class="bar"><i style="width:90%;background:var(--life)"></i></div></div>
+      <div class="gauge"><div class="g-label">Энергощит</div><div class="g-val" style="color:var(--es)">3 920</div><div class="bar"><i style="width:100%;background:var(--es)"></i></div></div>
+      <div class="gauge"><div class="g-label">Мана</div><div class="g-val" style="color:var(--mana)">1 204</div><div class="bar"><i style="width:65%;background:var(--mana)"></i></div></div>
+      <div class="gauge"><div class="g-label">Сопротивления</div><div class="g-val" style="color:var(--gold-bright)">75/75/76</div><div class="bar"><i style="width:100%;background:var(--gold)"></i></div></div>
+    </div>
+  </div>
+
+  <!-- CONTROL STRIP -->
+  <div class="strip">
+    <span class="ctx">Активный навык — <b>Искра</b></span>
+    <div class="spacer"></div>
+    <div class="cmd"><span class="prompt">›</span><input id="search" placeholder="фильтр статов…" autocomplete="off"></div>
+    <button class="toolbtn" id="expandAll">Свернуть всё</button>
+  </div>
+
+  <!-- BOARD -->
+  <div class="board" id="board">
+
+    <div class="panel" data-acc="--dps">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Урон удара</span><span class="pbadge">по типам</span></div>
+      <div class="p-body">
+        <div class="mx">
+          <div class="h"><span>Тип</span><span>Мин</span><span>Макс</span></div>
+          <div class="sep"></div>
+          <div class="r" data-stat="Физический"><span class="t" style="color:var(--phys)">Физический</span><span class="n" style="color:var(--phys)">12</span><span class="n" style="color:var(--phys)">38</span></div>
+          <div class="r" data-stat="Молния"><span class="t" style="color:var(--light)">Молния</span><span class="n" style="color:var(--light)">214</span><span class="n" style="color:var(--light)">3 980</span></div>
+          <div class="r" data-stat="Холод"><span class="t" style="color:var(--cold)">Холод</span><span class="n" style="color:var(--cold)">0</span><span class="n" style="color:var(--cold)">0</span></div>
+          <div class="r" data-stat="Огонь"><span class="t" style="color:var(--fire)">Огонь</span><span class="n" style="color:var(--fire)">0</span><span class="n" style="color:var(--fire)">0</span></div>
+          <div class="r" data-stat="Хаос"><span class="t" style="color:var(--chaos)">Хаос</span><span class="n" style="color:var(--chaos)">0</span><span class="n" style="color:var(--chaos)">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--dps">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Скорость и попадание</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Скорость каста"><span class="k">Скорость каста</span><span class="v">5.74 /с</span></div>
+        <div class="ln" data-stat="Время каста"><span class="k">Время каста</span><span class="v">0.17 с</span></div>
+        <div class="ln" data-stat="Шанс попадания"><span class="k">Шанс попадания</span><span class="v">100.0%</span></div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--dps">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Криты</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Шанс крита"><span class="k">Шанс крита</span><span class="v">38.6%</span></div>
+        <div class="ln" data-stat="Множитель крита"><span class="k">Множитель крита</span><span class="v">2.50x</span></div>
+        <div class="ln" data-stat="Эффект крита"><span class="k">Эффект крита</span><span class="v">1.00x</span></div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--dps">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Состояния</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Шанс шока"><span class="k">Шанс шока</span><span class="v">100.0%</span></div>
+        <div class="ln" data-stat="Эффект шока"><span class="k">Эффект шока</span><span class="v">35.0%</span></div>
+        <div class="ln" data-stat="Заморозка при ударе"><span class="k">Заморозка при ударе</span><span class="v">12.0%</span></div>
+        <div class="ln" data-stat="Накопление оглушения"><span class="k">Накопление оглушения</span><span class="v">428</span></div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--gold">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Атрибуты</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Сила"><span class="k">Сила</span><span class="v" style="--vc:var(--str)">98</span></div>
+        <div class="ln" data-stat="Ловкость"><span class="k">Ловкость</span><span class="v" style="--vc:var(--dex)">112</span></div>
+        <div class="ln" data-stat="Интеллект"><span class="k">Интеллект</span><span class="v" style="--vc:var(--int)">384</span></div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--life">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Здоровье</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Здоровье"><span class="k">Здоровье</span><span class="v" style="--vc:var(--life)">1 842</span></div>
+        <div class="ln" data-stat="Не зарезервировано"><span class="k">Не зарезервировано</span><span class="v" style="--vc:var(--life)">1 657</span></div>
+        <div class="ln" data-stat="Реген здоровья"><span class="k">Реген</span><span class="v" style="--vc:var(--life)">62.4 /с</span></div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--mana">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Мана</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Мана"><span class="k">Мана</span><span class="v" style="--vc:var(--mana)">1 204</span></div>
+        <div class="ln" data-stat="Стоимость маны"><span class="k">Стоимость</span><span class="v" style="--vc:var(--mana)">18</span></div>
+        <div class="ln" data-stat="Реген маны"><span class="k">Реген</span><span class="v" style="--vc:var(--mana)">142.8 /с</span></div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--es">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Энергощит</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Энергощит"><span class="k">Энергощит</span><span class="v" style="--vc:var(--es)">3 920</span></div>
+        <div class="ln" data-stat="Реген энергощита"><span class="k">Реген</span><span class="v" style="--vc:var(--es)">8.0%</span></div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--es">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Сопротивления</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Сопр огню"><span class="k">Огонь</span><span class="v" style="--vc:var(--fire)">75.0%</span></div>
+        <div class="ln" data-stat="Сопр холоду"><span class="k">Холод</span><span class="v" style="--vc:var(--cold)">75.0%</span></div>
+        <div class="ln" data-stat="Сопр молнии"><span class="k">Молния</span><span class="v" style="--vc:var(--light)">76.0%</span></div>
+        <div class="ln" data-stat="Сопр хаосу"><span class="k">Хаос</span><span class="v" style="--vc:var(--chaos)">-12.0%</span></div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--armour">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Броня и уклонение</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Броня"><span class="k">Броня</span><span class="v" style="--vc:var(--armour)">1 204</span></div>
+        <div class="ln" data-stat="Снижение физ"><span class="k">Снижение физ.</span><span class="v" style="--vc:var(--armour)">14.2%</span></div>
+        <div class="ln" data-stat="Уклонение"><span class="k">Уклонение</span><span class="v" style="--vc:var(--evasion)">4 820</span></div>
+        <div class="ln" data-stat="Шанс уклонения"><span class="k">Шанс уклонения</span><span class="v" style="--vc:var(--evasion)">42.0%</span></div>
+      </div>
+    </div>
+
+    <div class="panel" data-acc="--es">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Макс. полученный удар</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Макс физ"><span class="k">Физический</span><span class="v" style="--vc:var(--phys)">3 240</span></div>
+        <div class="ln" data-stat="Макс огонь"><span class="k">Огонь</span><span class="v" style="--vc:var(--fire)">5 110</span></div>
+        <div class="ln" data-stat="Макс холод"><span class="k">Холод</span><span class="v" style="--vc:var(--cold)">5 110</span></div>
+        <div class="ln" data-stat="Макс молния"><span class="k">Молния</span><span class="v" style="--vc:var(--light)">5 280</span></div>
+        <div class="ln" data-stat="Макс хаос"><span class="k">Хаос</span><span class="v" style="--vc:var(--chaos)">1 620</span></div>
+      </div>
+    </div>
+
+    <div class="panel collapsed" data-acc="--gold">
+      <div class="p-head"><span class="chev">▼</span><span class="ptitle">Заряды</span><span class="pbadge">свёрнуто</span></div>
+      <div class="p-body">
+        <div class="ln" data-stat="Выносливости"><span class="k">Выносливости</span><span class="v">0 / 3</span></div>
+        <div class="ln" data-stat="Ярости"><span class="k">Ярости</span><span class="v">3 / 3</span></div>
+        <div class="ln" data-stat="Энергии"><span class="k">Энергии</span><span class="v">3 / 3</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <div class="d-head">
+    <div class="dt" id="dt">Полный DPS</div>
+    <div class="dv" id="dv">487.2k</div>
+    <button class="x" id="dClose">✕</button>
+  </div>
+  <div class="d-body">
+    <div class="st">Вычисление</div>
+    <div class="calcbox">
+      <div class="cl">Средний урон удара: <span class="res">8 942</span></div>
+      <div class="cl"><span class="op">×</span> Скорость каста: 5.74</div>
+      <div class="cl"><span class="op">×</span> Шанс попадания: 1.00</div>
+      <div class="cl"><span class="op">×</span> Множитель шока: 1.35</div>
+      <div class="cl"><span class="op">=</span> <span class="res">487 240</span> → <span class="res">487.2k</span></div>
+    </div>
+    <div class="st">Источники модификаторов</div>
+    <table class="mt">
+      <thead><tr><th>Значение</th><th>Тип</th><th>Источник</th><th>Название</th></tr></thead>
+      <tbody>
+        <tr><td class="v">+180%</td><td class="ty">INC</td><td class="src">Дерево</td><td>Heart of the Storm</td></tr>
+        <tr><td class="v">+44%</td><td class="ty">INC</td><td class="src">Предмет</td><td>Посох молний</td></tr>
+        <tr><td class="v">×1.35</td><td class="ty">MORE</td><td class="src">Камень</td><td>Контролируемое разрушение</td></tr>
+        <tr><td class="v">×1.20</td><td class="ty">MORE</td><td class="src">Восхождение</td><td>Stormweaver</td></tr>
+      </tbody>
+    </table>
+  </div>
+</aside>
+
+<script>
+  document.querySelectorAll('.panel').forEach(p => {
+    const acc = p.getAttribute('data-acc');
+    if (acc) p.style.setProperty('--accent', `var(${acc})`);
+    p.querySelector('.p-head').addEventListener('click', () => p.classList.toggle('collapsed'));
+  });
+  const expandBtn = document.getElementById('expandAll');
+  expandBtn.addEventListener('click', () => {
+    const anyCol = [...document.querySelectorAll('.panel')].some(c => c.classList.contains('collapsed'));
+    document.querySelectorAll('.panel').forEach(c => c.classList.toggle('collapsed', !anyCol));
+    expandBtn.textContent = anyCol ? 'Свернуть всё' : 'Развернуть всё';
+  });
+
+  const search = document.getElementById('search');
+  function applySearch(q){
+    q = q.trim().toLowerCase();
+    document.querySelectorAll('.panel').forEach(panel=>{
+      let any=false;
+      panel.querySelectorAll('.ln, .mx .r').forEach(row=>{
+        const label=(row.getAttribute('data-stat')||row.textContent).toLowerCase();
+        const hit = q==='' || label.includes(q);
+        row.classList.toggle('dim', !hit && q!=='');
+        const lbl=row.querySelector('.k')||row.querySelector('.t');
+        if(lbl){
+          const raw=lbl.getAttribute('data-raw')||lbl.textContent;
+          lbl.setAttribute('data-raw',raw);
+          lbl.innerHTML=(q&&hit)?raw.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'ig'),'<mark>$1</mark>'):raw;
+        }
+        if(hit) any=true;
+      });
+      panel.classList.toggle('dim', q!=='' && !any);
+    });
+  }
+  search.addEventListener('input', e=>applySearch(e.target.value));
+
+  const drawer=document.getElementById('drawer'), scrim=document.getElementById('scrim');
+  const dt=document.getElementById('dt'), dv=document.getElementById('dv');
+  function open(label,val){ dt.textContent=label; dv.textContent=val; drawer.classList.add('open'); scrim.classList.add('open'); }
+  function close(){ drawer.classList.remove('open'); scrim.classList.remove('open'); document.querySelectorAll('.ln.sel').forEach(r=>r.classList.remove('sel')); }
+  document.querySelectorAll('.ln, .mx .r').forEach(row=>{
+    row.addEventListener('click',()=>{
+      document.querySelectorAll('.ln.sel').forEach(r=>r.classList.remove('sel'));
+      row.classList.add('sel');
+      const label=row.getAttribute('data-stat')||'Стат';
+      const v=row.querySelector('.v')||row.querySelector('.n');
+      open(label, v?v.textContent:'');
+    });
+  });
+  document.getElementById('dClose').addEventListener('click',close);
+  scrim.addEventListener('click',close);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') close(); });
+</script>
+</body>
+</html>
