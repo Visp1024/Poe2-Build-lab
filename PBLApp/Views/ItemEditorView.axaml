@@ -11,47 +11,47 @@
 
     <UserControl.Styles>
 
-        <!-- Tooltip-style frame (matches ItemTooltipView) -->
+        <!-- House-style card frame (matches Calcs/Config; replaces the old gold game frame) -->
         <Style Selector="Border.tooltip-frame">
-            <Setter Property="Background" Value="{DynamicResource TooltipBgBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderGoldBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="CornerRadius" Value="2"/>
-            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,12"/>
         </Style>
         <Style Selector="Border.tooltip-inset">
-            <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderBrownBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="1"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Background" Value="Transparent"/>
         </Style>
         <Style Selector="Border.tooltip-sep">
             <Setter Property="Height" Value="1"/>
-            <Setter Property="Background" Value="{DynamicResource TooltipBorderBrownBrush}"/>
-            <Setter Property="Margin" Value="0,6,0,6"/>
+            <Setter Property="Background" Value="{DynamicResource BorderSubtleBrush}"/>
+            <Setter Property="Margin" Value="0,7,0,7"/>
         </Style>
 
-        <!-- Rarity toggle button -->
+        <!-- Rarity toggle button — house segmented look -->
         <Style Selector="Button.rarity-btn">
-            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
             <Setter Property="Padding" Value="14,6"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial"/>
         </Style>
         <Style Selector="Button.rarity-btn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}"/>
         </Style>
         <Style Selector="Button.rarity-btn.active">
-            <Setter Property="BorderBrush" Value="{DynamicResource AttrIntBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand500Brush}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
         </Style>
         <Style Selector="Button.rarity-btn.active /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}"/>
         </Style>
 
         <!-- Flat list item rows -->
@@ -73,35 +73,39 @@
             <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}"/>
         </Style>
 
-        <!-- Section label -->
+        <!-- Unified section header — one size/weight/colour for every section title
+             in the editor (Mods, Runes, Category, Base, Selected …) so they stop "dancing". -->
         <Style Selector="TextBlock.sec-label">
-            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="LetterSpacing" Value="0.4"/>
             <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial"/>
             <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
 
         <!-- Small text input -->
         <Style Selector="TextBox.ed-input">
-            <Setter Property="Background" Value="{DynamicResource BgBaseBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
+            <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="9,5"/>
         </Style>
         <Style Selector="TextBox.ed-input:focus /template/ Border#PART_BorderElement">
-            <Setter Property="BorderBrush" Value="{DynamicResource AttrIntBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand500Brush}"/>
         </Style>
 
         <!-- ComboBox style -->
         <Style Selector="ComboBox.ed-combo">
-            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
+            <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="14"/>
         </Style>
 
         <!-- Action button -->
@@ -521,7 +525,7 @@
                     <!-- Mods toolbar — Add Mod button + prefix/suffix counter -->
                     <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,6">
                         <TextBlock Grid.Column="0" Text="{loc:Tr Editor_Mods}"
-                                   Foreground="{DynamicResource TextMutedBrush}" FontSize="14" FontWeight="Bold"
+                                   Classes="sec-label"
                                    VerticalAlignment="Center" Margin="0"/>
                         <Border Grid.Column="1"
                                 IsVisible="{Binding IsNotUnique}"
@@ -688,9 +692,9 @@
                             <ItemsControl ItemsSource="{Binding ExplicitMods}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="vm:ExplicitModViewModel">
-                                        <Border BorderBrush="{DynamicResource TooltipSeparatorBrush}" BorderThickness="0,0,0,1"
+                                        <Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1"
                                                 Background="{Binding RowBackgroundColor, Converter={x:Static vm:TooltipKindConverter.HexToBrush}}"
-                                                Padding="6,6,6,6">
+                                                Padding="6,5,6,5">
                                             <Grid ColumnDefinitions="3,16,*,Auto" ColumnSpacing="8">
                                                 <!-- Corruption accent stripe — vivid red left edge for corruption mods only -->
                                                 <Border Grid.Column="0"
@@ -709,23 +713,23 @@
                                                            Margin="0,2,0,0"/>
 
                                                 <!-- Mod text + slider -->
-                                                <StackPanel Grid.Column="2" Spacing="5">
+                                                <StackPanel Grid.Column="2" Spacing="4">
 
                                                     <!-- Plain text -->
                                                     <TextBlock IsVisible="{Binding !HasColoredValue}"
                                                                Text="{Binding TranslatedText}"
-                                                               Foreground="{DynamicResource RarityMagicBrush}" FontSize="13"
+                                                               Foreground="{DynamicResource RarityMagicBrush}" FontSize="14" FontWeight="Medium"
                                                                TextWrapping="Wrap"/>
 
                                                     <!-- Split text with colored number -->
                                                     <StackPanel IsVisible="{Binding HasColoredValue}"
                                                                 Orientation="Horizontal" Spacing="0">
                                                         <TextBlock Text="{Binding TranslatedPartBefore}"
-                                                                   Foreground="{DynamicResource RarityMagicBrush}" FontSize="13"/>
+                                                                   Foreground="{DynamicResource RarityMagicBrush}" FontSize="14" FontWeight="Medium"/>
                                                         <TextBlock Text="{Binding PartNumber}"
-                                                                   Foreground="{DynamicResource Brand400Brush}" FontSize="13" FontWeight="Bold"/>
+                                                                   Foreground="{DynamicResource Brand400Brush}" FontSize="14" FontWeight="Bold"/>
                                                         <TextBlock Text="{Binding TranslatedPartAfter}"
-                                                                   Foreground="{DynamicResource RarityMagicBrush}" FontSize="13"/>
+                                                                   Foreground="{DynamicResource RarityMagicBrush}" FontSize="14" FontWeight="Medium"/>
                                                     </StackPanel>
 
                                                     <!-- Slider for numeric ranges. Margin on the slider gives the
@@ -733,7 +737,7 @@
                                                          clipped by the parent panel padding. -->
                                                     <Grid IsVisible="{Binding HasSlider}"
                                                           ColumnDefinitions="Auto,*,Auto"
-                                                          Margin="0,4,8,2">
+                                                          Margin="0,3,4,1">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{Binding SliderMin, StringFormat='{}{0:0.##}'}"
                                                                    Foreground="{DynamicResource TextMutedBrush}" FontSize="14"

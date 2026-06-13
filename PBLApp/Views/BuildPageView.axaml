@@ -368,7 +368,9 @@
                         </RadioButton>
                         <RadioButton Classes="tab" GroupName="MainTabs"
                                      IsChecked="{Binding IsConfigTab, Mode=TwoWay}"
-                                     IsVisible="{Binding ConfigTab, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                     IsVisible="{Binding ConfigTab, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                     VerticalAlignment="Stretch"
+                                     VerticalContentAlignment="Center">
                             <TextBlock Text="{loc:Tr Tab_Config}" VerticalAlignment="Center" />
                         </RadioButton>
                     </StackPanel>

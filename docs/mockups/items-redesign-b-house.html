@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Предметы — Вариант B (house-style тултип)</title>
+<style>
+  :root{
+    --bg-base:#0E0F13; --bg-mantle:#15171D; --bg-surface:#1C1F27; --bg-raised:#262A35; --bg-overlay:#353A48;
+    --border-subtle:#2A2E3A; --border-strong:#3E4456;
+    --text-primary:#E4E7EE; --text-secondary:#A8B0BD; --text-muted:#6E7689;
+    --brand400:#D9B670; --brand500:#C9A24E; --brand100:#2D2415;
+    --confirm-bg:#1E3A2F; --confirm-hover:#2A4A3A; --danger:#D87171;
+    --life:#7FC78A; --es:#6FA8DC; --mana:#8AA6F5; --armour:#E8B763;
+    --el-fire:#E5703A; --el-cold:#5AB7E0; --el-light:#F1D33F; --el-chaos:#D957B8;
+    --r-normal:#C8C8C8; --r-magic:#8888FF; --r-rare:#FFFF77; --r-unique:#AF6025;
+    --mod:#8888FF; --enchant:#74C7EC; --corrupt:#D20000;
+    --font-ui:'Inter','Segoe UI',Arial,sans-serif; --font-mono:'Cascadia Code','Consolas',monospace; --radius:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg-base);color:var(--text-primary);font-family:var(--font-ui);font-size:14px;padding:24px;-webkit-font-smoothing:antialiased}
+  .stage{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+  .statelabel{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-top:14px}
+  .variant-note{font-size:12px;color:var(--text-secondary);background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius);padding:8px 12px;line-height:1.5}
+  .variant-note b{color:var(--brand400)}
+
+  .rightpanel{background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:var(--radius);overflow:hidden}
+  .rp-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;height:46px;padding:0 12px;background:var(--bg-mantle);border-bottom:1px solid var(--border-subtle)}
+  .rp-toolbar .ttl{margin-right:auto;font-size:14px;font-weight:600;color:var(--text-secondary)}
+  .btn{height:32px;padding:0 15px;border-radius:var(--radius);border:1px solid var(--border-subtle);background:var(--bg-surface);color:var(--text-secondary);font-size:13px;font-weight:500;font-family:var(--font-ui);cursor:pointer}
+  .btn:hover{background:var(--bg-raised);color:var(--text-primary)}
+  .btn.accent{border-color:var(--brand500);color:var(--brand400)}
+  .btn.save{border-color:#3a6b52;background:var(--confirm-bg);color:#bfe8cf}
+  .btn.save:hover{background:var(--confirm-hover)}
+  .rp-body{padding:16px}
+
+  /* ============ VARIANT B — house-style tooltip card ============ */
+  .ttH{background:var(--bg-mantle);border:1px solid var(--border-subtle);border-left:3px solid var(--r-rare);border-radius:var(--radius);max-width:480px;margin:0 auto;overflow:hidden}
+  .ttH-head{padding:13px 16px 12px;background:linear-gradient(180deg,rgba(255,255,119,.05),transparent)}
+  .ttH .chip{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1A1408;background:var(--r-rare);padding:2px 7px;border-radius:4px;margin-bottom:7px}
+  .ttH .nm{font-size:21px;font-weight:700;color:var(--text-primary);line-height:1.2}
+  .ttH .bs{font-size:15px;font-weight:500;color:var(--text-secondary);margin-top:2px}
+  .ttH-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:11px 16px 4px}
+  .ttH-props{padding:2px 16px 6px}
+  .ttH .pr{display:flex;justify-content:space-between;font-size:14px;font-weight:500;padding:3px 0;color:var(--text-secondary)}
+  .ttH .pr b{font-family:var(--font-mono);font-weight:700;font-size:14px}
+  .ttH .pr b.es{color:var(--es)} .ttH .pr b.brand{color:var(--brand400)}
+  .ttH-req{padding:0 16px 6px;font-size:14px;font-weight:500;color:var(--text-secondary)}
+  .ttH-req b{color:var(--text-primary);font-family:var(--font-mono);font-weight:700}
+  .ttH-mods{padding:2px 16px 14px}
+  .ttH .mod{font-size:15px;color:var(--text-primary);font-weight:500;line-height:1.6;padding:2px 0}
+  .ttH .mod b{font-family:var(--font-mono);font-weight:700;color:var(--text-primary)}
+  .ttH .mod.implicit{color:var(--text-secondary)}
+  .ttH .mod .fire{color:var(--el-fire)} .ttH .mod .cold{color:var(--el-cold)} .ttH .mod .life{color:var(--life)} .ttH .mod .es{color:var(--es)} .ttH .mod .mana{color:var(--mana)}
+  .ttH .divline{height:1px;background:var(--border-subtle);margin:8px 16px}
+  .ttH .corrupt-chip{display:inline-block;margin:0 16px 14px;font-size:11px;font-weight:700;color:#fff;background:var(--corrupt);padding:2px 8px;border-radius:4px}
+
+  /* ============ EDITOR (house style — shared) ============ */
+  .seg{display:flex;border:1px solid var(--border-subtle);border-radius:var(--radius);overflow:hidden}
+  .seg button{flex:1;height:34px;border:0;background:var(--bg-surface);color:var(--text-secondary);font-size:13px;font-weight:500;font-family:var(--font-ui);cursor:pointer;border-right:1px solid var(--border-subtle)}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:var(--bg-raised);color:var(--text-primary);font-weight:700}
+  .seg button.r-rare.on{color:var(--r-rare)}
+  .field{margin-bottom:13px}
+  .field>label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:5px;font-weight:700}
+  .inp{width:100%;height:34px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius);color:var(--text-primary);font-size:14px;padding:0 10px;font-family:var(--font-ui)}
+  .inp:focus{outline:none;border-color:var(--brand500)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ecard{background:var(--bg-mantle);border:1px solid var(--border-subtle);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+  .ecard-h{display:flex;align-items:center;gap:8px;height:34px;padding:0 11px;background:var(--bg-raised);border-left:3px solid var(--accent,var(--brand400))}
+  .ecard-h .t{flex:1;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--accent,var(--brand400))}
+  .ecard-h .count{font-family:var(--font-mono);font-size:12px;color:var(--text-muted)}
+  .ecard-h .add{width:24px;height:24px;border-radius:4px;border:0;background:transparent;color:var(--text-muted);cursor:pointer;font-size:16px}
+  .ecard-h .add:hover{background:var(--bg-overlay);color:var(--text-primary)}
+  .ecard-b{padding:8px 11px}
+  .affix{padding:8px 0;border-bottom:1px solid var(--border-subtle)}
+  .affix:last-child{border-bottom:0}
+  .affix-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .affix-name{flex:1;font-size:12px;font-weight:500;color:var(--text-muted)}
+  .affix-tier{font-family:var(--font-mono);font-size:11px;color:var(--brand400);background:var(--brand100);padding:1px 6px;border-radius:3px}
+  .affix-del{color:var(--text-muted);cursor:pointer;font-size:14px}
+  .affix-del:hover{color:var(--danger)}
+  .affix-mod{font-size:14px;font-weight:500;color:var(--text-primary);margin-bottom:6px}
+  .affix-mod b{color:var(--mod);font-family:var(--font-mono);font-weight:700}
+  .sliderrow{display:flex;align-items:center;gap:9px}
+  input[type=range]{flex:1;accent-color:var(--brand500);height:4px}
+  .sliderrow .rng{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);min-width:58px;text-align:right}
+  .flags{display:flex;gap:18px;padding:4px 2px 2px}
+  .flag{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:500;color:var(--text-secondary);cursor:pointer}
+  .flag .box{width:16px;height:16px;border-radius:4px;border:1px solid var(--border-strong);background:var(--bg-surface)}
+  .flag.on .box{background:var(--brand500);border-color:var(--brand500)}
+  .flag.corrupt.on .box{background:var(--corrupt);border-color:var(--corrupt)}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <div class="variant-note"><b>Вариант B — house-style.</b> Тултип становится плоской карточкой как в Calcs/Config: BgMantle + BorderSubtle, акцент-полоса слева по редкости, чип редкости, секции «Свойства/Требования/Модификаторы», числа подсвечены токенами приложения (ЭЩ голубой, сопр. по стихиям, жизнь зелёная). Заголовки модов нейтральные.</div>
+
+  <div class="statelabel">Режим просмотра — тултип</div>
+  <div class="rightpanel">
+    <div class="rp-toolbar">
+      <button class="btn accent">✎ Редактировать</button>
+    </div>
+    <div class="rp-body">
+      <div class="ttH">
+        <div class="ttH-head">
+          <span class="chip">Редкий</span>
+          <div class="nm">Договор</div>
+          <div class="bs">Алтарная одежда</div>
+        </div>
+        <div class="ttH-sec">Свойства</div>
+        <div class="ttH-props">
+          <div class="pr"><span>Качество</span><b class="brand">+20%</b></div>
+          <div class="pr"><span>Энергетический щит</span><b class="es">277</b></div>
+        </div>
+        <div class="ttH-sec">Требования</div>
+        <div class="ttH-req">Ур. <b>78</b> · <b>277</b> Инт</div>
+        <div class="divline"></div>
+        <div class="ttH-sec">Имплицит</div>
+        <div class="ttH-mods" style="padding-bottom:6px">
+          <div class="mod implicit">20% увеличение длительности негативных состояний</div>
+        </div>
+        <div class="ttH-sec">Модификаторы</div>
+        <div class="ttH-mods">
+          <div class="mod">+<b class="fire">24%</b> к сопротивлению огню</div>
+          <div class="mod">+<b class="cold">31%</b> к сопротивлению холоду</div>
+          <div class="mod">+<b class="life">80</b> к максимуму здоровья</div>
+          <div class="mod"><b class="es">118%</b> увеличение энергетического щита</div>
+          <div class="mod">+<b class="mana">18</b> к максимуму маны</div>
+        </div>
+        <span class="corrupt-chip">Осквернён</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="statelabel">Режим создания / правки предмета</div>
+  <div class="rightpanel">
+    <div class="rp-toolbar">
+      <span class="ttl">Правка предмета</span>
+      <button class="btn">Отмена</button>
+      <button class="btn save">Сохранить</button>
+    </div>
+    <div class="rp-body">
+      <div class="field"><label>Название</label><input class="inp" value="Договор"></div>
+      <div class="field"><label>Редкость</label>
+        <div class="seg">
+          <button>Обычный</button><button>Магический</button><button class="r-rare on">Редкий</button><button>Уникальный</button>
+        </div>
+      </div>
+      <div class="field"><label>База</label><input class="inp" value="Алтарная одежда (Энергощит)"></div>
+      <div class="row2">
+        <div class="field"><label>Уровень предмета</label><input class="inp" value="85"></div>
+        <div class="field"><label>Качество</label><input class="inp" value="20%"></div>
+      </div>
+
+      <div class="ecard" style="--accent:var(--enchant)">
+        <div class="ecard-h"><span class="t">Имплицит</span></div>
+        <div class="ecard-b">
+          <div class="affix"><div class="affix-mod">20% увеличение длительности негативных состояний</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="100"><span class="rng">20%</span></div></div>
+        </div>
+      </div>
+      <div class="ecard" style="--accent:var(--mod)">
+        <div class="ecard-h"><span class="t">Префиксы</span><span class="count">2 / 3</span><button class="add">＋</button></div>
+        <div class="ecard-b">
+          <div class="affix"><div class="affix-top"><span class="affix-name">of the Titan</span><span class="affix-tier">T1</span><span class="affix-del">✕</span></div>
+            <div class="affix-mod">+<b>80</b> к максимуму здоровья</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="72"><span class="rng">79–84</span></div></div>
+          <div class="affix"><div class="affix-top"><span class="affix-name">Resplendent</span><span class="affix-tier">T2</span><span class="affix-del">✕</span></div>
+            <div class="affix-mod"><b>118%</b> увеличение энергетического щита</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="60"><span class="rng">109–120</span></div></div>
+        </div>
+      </div>
+      <div class="ecard" style="--accent:var(--mod)">
+        <div class="ecard-h"><span class="t">Суффиксы</span><span class="count">2 / 3</span><button class="add">＋</button></div>
+        <div class="ecard-b">
+          <div class="affix"><div class="affix-top"><span class="affix-name">of the Salamander</span><span class="affix-tier">T3</span><span class="affix-del">✕</span></div>
+            <div class="affix-mod">+<b>24%</b> к сопротивлению огню</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="55"><span class="rng">24–29%</span></div></div>
+          <div class="affix"><div class="affix-top"><span class="affix-name">of the Tundra</span><span class="affix-tier">T2</span><span class="affix-del">✕</span></div>
+            <div class="affix-mod">+<b>31%</b> к сопротивлению холоду</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="68"><span class="rng">30–35%</span></div></div>
+        </div>
+      </div>
+      <div class="ecard" style="--accent:var(--brand400)">
+        <div class="ecard-h"><span class="t">Сокеты рун</span><span class="count">1 / 2</span><button class="add">＋</button></div>
+        <div class="ecard-b"><div class="affix" style="border:0">
+          <div class="affix-top"><span class="affix-name">Сокет 1</span><span class="affix-del">✕</span></div>
+          <select class="inp"><option>Рунка железа — +12 к броне</option></select></div></div>
+      </div>
+      <div class="flags">
+        <div class="flag corrupt on"><span class="box"></span>Осквернён</div>
+        <div class="flag"><span class="box"></span>Отзеркален</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
