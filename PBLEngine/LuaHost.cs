@@ -2365,6 +2365,39 @@ public sealed class LuaHost : IDisposable
         return raw is { Length: >= 1 } && raw[0] is string s ? s : "";
     }
 
+    /// <summary>Current character level (1-100). Drives requirements and level-scaled stats.</summary>
+    public int GetCharacterLevel()
+    {
+        var raw = State.DoString(@"
+            if build and build.characterLevel then return build.characterLevel end
+            return 1
+        ");
+        if (raw is { Length: >= 1 })
+            return raw[0] switch { long l => (int)l, double d => (int)d, _ => 1 };
+        return 1;
+    }
+
+    /// <summary>Set the character level and recalc. Mirrors the EditControl handler in
+    /// Build.lua: clamps 1-100, rebuilds the config mod list, sets the dirty flags, and
+    /// disables auto-level mode (manual edit). Triggers OnFrame to refresh all outputs.</summary>
+    public void SetCharacterLevel(int level)
+    {
+        if (level < 1) level = 1;
+        if (level > 100) level = 100;
+        State["_charLevel"] = (double)level;
+        State.DoString(@"
+            if build then
+                build.characterLevel = math.floor(_charLevel)
+                if build.configTab then build.configTab:BuildModList() end
+                build.modFlag = true
+                build.buildFlag = true
+                build.characterLevelAutoMode = false
+            end
+            runCallback('OnFrame')
+        ");
+        State["_charLevel"] = null;
+    }
+
     /// <summary>Returns background plates (sprite + world pos/size) keyed by ascendancy id (e.g. "Oracle").
     /// Positions/sizes come from tree data (classes[].ascendancies[].background); the
     /// background coords are world-space (tree.scaleImage == 1 in PoE2 PoB).</summary>

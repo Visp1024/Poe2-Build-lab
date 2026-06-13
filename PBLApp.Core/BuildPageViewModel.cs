@@ -105,6 +105,23 @@ public partial class BuildPageViewModel : ViewModelBase
 
     public IRelayCommand BackCommand { get; }
 
+    /// <summary>Character level (1-100). Bound to the level editor in the header; setting it
+    /// pushes to the engine, recalcs, and silently persists (manual level edits should stick).</summary>
+    [ObservableProperty]
+    private int _characterLevel = 1;
+
+    partial void OnCharacterLevelChanged(int value)
+    {
+        if (_host is null || Build is null) return;
+        _host.SetCharacterLevel(value);
+        Build.Refresh();
+        CalcsTab?.Refresh();
+        SkillsTab?.Refresh();
+        _ = AutoSaveAsync();
+    }
+
+    private LuaHost? _host;
+
     private readonly string _xmlPath;
 
     public BuildPageViewModel(Task<LuaHost> hostTask, BuildEntryViewModel entry, Action goBack)
@@ -120,6 +137,7 @@ public partial class BuildPageViewModel : ViewModelBase
         try
         {
             var host = await hostTask;
+            _host = host;
             var xml = await File.ReadAllTextAsync(xmlPath);
             var model = new BuildModel(host);
             await Task.Run(() => model.LoadBuildFromXml(xml, BuildName));
@@ -146,6 +164,10 @@ public partial class BuildPageViewModel : ViewModelBase
             NotesTab  = new NotesTabViewModel(model, xmlPath);
             ConfigTab = new ConfigTabViewModel(host, model);
             ImportTab = new ImportTabViewModel(host, model, xmlPath);
+            // Seed the level from the loaded build without triggering OnCharacterLevelChanged
+            // (direct field write) — otherwise we'd re-apply + flip auto-mode on every load.
+            _characterLevel = host.GetCharacterLevel();
+            OnPropertyChanged(nameof(CharacterLevel));
             OnPropertyChanged(nameof(Build));
             OnPropertyChanged(nameof(CalcsTab));
             OnPropertyChanged(nameof(SkillsTab));

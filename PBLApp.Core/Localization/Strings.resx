@@ -41,6 +41,7 @@
   <!-- Tree tab -->
   <data name="Tree_Class"         xml:space="preserve"><value>Class:</value></data>
   <data name="Tree_Asc"           xml:space="preserve"><value>Ascendancy:</value></data>
+  <data name="Tree_Level"         xml:space="preserve"><value>Level:</value></data>
   <data name="Tree_Search"        xml:space="preserve"><value>Search:</value></data>
   <data name="Tree_PhNodeName"    xml:space="preserve"><value>node name&#x2026;</value></data>
   <data name="Tree_Hint"          xml:space="preserve"><value>Drag=pan &#xB7; Wheel=zoom &#xB7; Click=toggle node</value></data>

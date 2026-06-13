@@ -65,19 +65,22 @@
                                   DisplayMemberBinding="{Binding DisplayName}"
                                   Width="220"/>
                     </StackPanel>
+
+                    <!-- Character level editor (manual edits disable PoB auto-level scaling). -->
+                    <StackPanel Orientation="Horizontal" Spacing="6"
+                                IsVisible="{Binding Build, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <TextBlock Text="{loc:Tr Tree_Level}" Classes="caption" VerticalAlignment="Center"/>
+                        <NumericUpDown Value="{Binding CharacterLevel}"
+                                       Minimum="1" Maximum="100" Increment="1"
+                                       FormatString="0"
+                                       Width="120"
+                                       VerticalAlignment="Center"/>
+                    </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
                             VerticalAlignment="Center">
-                    <Button Content="{loc:Tr Tab_Notes}"
-                            Click="OpenNotes_Click"
-                            IsVisible="{Binding NotesTab, Converter={x:Static ObjectConverters.IsNotNull}}" />
-                    <!-- Tab_Config moved into the tab strip (left side, separated) — see PopOutTab-row below. -->
-                    <Button Content="{loc:Tr Tab_ImportExport}"
-                            Click="OpenImportExport_Click"
-                            IsVisible="{Binding ImportTab, Converter={x:Static ObjectConverters.IsNotNull}}" />
-                    <Border Width="1" Height="22"
-                            Background="{DynamicResource BorderStrongBrush}"
-                            VerticalAlignment="Center" />
+                    <!-- Tab_Notes / Tab_ImportExport buttons moved into the tab strip (right side)
+                         — see the tab-row Grid below. Tab_Config also lives in the tab strip. -->
                     <TextBlock Text="{loc:Tr List_Language}"
                                Classes="caption"
                                VerticalAlignment="Center" />
@@ -317,7 +320,8 @@
                 <Border DockPanel.Dock="Top"
                         BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="0,0,0,1">
-                    <StackPanel Orientation="Horizontal" Spacing="0">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="0">
                         <RadioButton Classes="tab" GroupName="MainTabs"
                                      IsChecked="{Binding IsItemsTab, Mode=TwoWay}"
                                      IsVisible="{Binding !IsItemsPoppedOut}">
@@ -374,6 +378,19 @@
                             <TextBlock Text="{loc:Tr Tab_Config}" VerticalAlignment="Center" />
                         </RadioButton>
                     </StackPanel>
+
+                    <!-- Notes / Import-Export: open their own windows; parked at the right
+                         end of the tab strip (moved here from the header). -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                                VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Button Content="{loc:Tr Tab_Notes}"
+                                Click="OpenNotes_Click"
+                                IsVisible="{Binding NotesTab, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        <Button Content="{loc:Tr Tab_ImportExport}"
+                                Click="OpenImportExport_Click"
+                                IsVisible="{Binding ImportTab, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    </StackPanel>
+                  </Grid>
                 </Border>
 
                 <ContentControl Content="{Binding CurrentTabContent}" />
