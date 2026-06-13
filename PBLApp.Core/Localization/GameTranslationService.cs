@@ -216,6 +216,21 @@ public sealed class GameTranslationService
     {
         if (string.IsNullOrEmpty(line) || _loadedLang == "en") return line;
 
+        // 0) High-specificity hybrid handlers, run first so the magic-name / template
+        //    steps below can't short-circuit them. PoB's Lua layer localises the gem
+        //    name / ailment keyword but leaves the English wrapper, so we patch the wrapper.
+        const string grantsP = "Grants Skill: Level ";
+        if (line.StartsWith(grantsP, StringComparison.Ordinal))
+        {
+            var rest = line[grantsP.Length..];        // "18 <gem>"
+            var sp = rest.IndexOf(' ');
+            if (sp > 0)
+                return $"Дарует навык: уровень {rest[..sp]} {Gem(rest[(sp + 1)..])}";
+        }
+        var buildup = Regex.Match(line, @"^(\d+)% increased (.+) Buildup$");
+        if (buildup.Success && _ailmentGenitive.TryGetValue(buildup.Groups[2].Value, out var ailRu))
+            return $"{buildup.Groups[1].Value}% увелич. накопления {ailRu}";
+
         // 1) exact: passive stats, item names, unique names, then built-in item-mod patterns.
         if (_passiveStats.TryGetValue(line, out var ru)) return ru;
         if (_items.TryGetValue(line, out ru)) return ru;
@@ -310,15 +325,6 @@ public sealed class GameTranslationService
                 return rup + TooltipLine(line[en.Length..]);
         }
 
-        // 7) "Grants Skill: Level N <skill>" — translate the gem name
-        var grantsMatch = Regex.Match(line, @"^Grants Skill: Level (\d+(?:-\d+)?|\(\d+-\d+\))\s+(.+)$");
-        if (grantsMatch.Success)
-        {
-            var lvl = grantsMatch.Groups[1].Value;
-            var gem = grantsMatch.Groups[2].Value;
-            return $"Дарует навык: уровень {lvl} {Gem(gem)}";
-        }
-
         // 8) "(Not supported in PoB yet)" suffix — translate the rest and append the marker
         const string notSupported = " (Not supported in PoB yet)";
         if (line.EndsWith(notSupported, StringComparison.Ordinal))
@@ -401,6 +407,11 @@ public sealed class GameTranslationService
         ["Flail"]             = "Цеп",
         ["Focus"]             = "Сосредоточение",
         ["Buckler"]           = "Баклер",
+        // equipment slot names (used by the equip/remove delta headers)
+        ["Weapon 1"]          = "Оружие 1",
+        ["Weapon 2"]          = "Оружие 2",
+        ["Weapon 1 Swap"]     = "Оружие 1 (смена)",
+        ["Weapon 2 Swap"]     = "Оружие 2 (смена)",
     };
 
     // Common item-mod patterns. Keys are number-redacted (digits → '#'). The
@@ -578,12 +589,46 @@ public sealed class GameTranslationService
         ["#% increased Critical Spell Damage Bonus"] = "#% увелич. бонуса крит. урона заклинаний",
         ["#% reduced Ignite Duration on you"] = "#% уменьш. длительности поджигов на вас",
         ["#% increased Elemental Damage"]     = "#% увелич. стих. урона",
+        // combined attributes
+        ["+# to Strength and Intelligence"]   = "+# к силе и интеллекту",
+        ["+# to Strength and Dexterity"]      = "+# к силе и ловкости",
+        ["+# to Dexterity and Intelligence"]  = "+# к ловкости и интеллекту",
+        // flat defences / skill levels
+        ["+# to Armour"]                      = "+# к броне",
+        ["+# to Evasion Rating"]              = "+# к уклонению",
+        ["+# to Level of all Projectile Skills"] = "+# к уровню всех навыков снарядов",
+        ["+# to Level of all Melee Skills"]      = "+# к уровню всех навыков ближнего боя",
+        // damage / chaos
+        ["#% increased Chaos Damage"]         = "#% увелич. урона хаосом",
+        ["Adds # to # Physical Damage to Attacks"]  = "Добавляет #-# физ. урона к атакам",
+        ["Adds # to # Fire Damage to Attacks"]      = "Добавляет #-# огн. урона к атакам",
+        ["Adds # to # Cold Damage to Attacks"]      = "Добавляет #-# хол. урона к атакам",
+        ["Adds # to # Lightning Damage to Attacks"] = "Добавляет #-# молн. урона к атакам",
+        // ailments
+        ["#% increased Magnitude of Ailments you inflict"] = "#% увелич. величины наносимых вами состояний",
+        // (ailment "… Buildup" lines are handled by the dedicated regex in TooltipLine,
+        //  which copes with PoB's EN/RU-hybrid wording)
+        // recovery / regen
+        ["# Life Regeneration per second"]    = "# восстановления здоровья в секунду",
+        ["# Mana Regeneration per second"]    = "# восстановления маны в секунду",
+        ["#% increased Amount Recovered"]     = "#% увелич. восстанавливаемого количества",
+        // minions / allies
+        ["Minions have #% increased Critical Hit Chance"] = "Прислужники имеют #% увелич. шанса крит. удара",
+        ["Minions deal #% increased Damage"]  = "Прислужники наносят #% больше урона",
+        ["Allies in your Presence Regenerate # Life per second"] = "Союзники рядом восстанавливают # здоровья в секунду",
+        // crafting meta-mods
+        ["-# Prefix Modifier allowed"]        = "-# к числу доступных префиксов",
+        ["-# Suffix Modifier allowed"]        = "-# к числу доступных суффиксов",
+        // bonded conditional inner stats
+        ["Break Armour on Critical Hit with Spells equal to #% of Physical Damage dealt"]
+            = "Ломает броню при крит. ударе чарами в размере #% нанесённого физ. урона",
     };
 
     /// <summary>Exact (no-number) item-mod translations, e.g. boolean flags.</summary>
     private static readonly Dictionary<string, string> _itemModExact = new(StringComparer.Ordinal)
     {
         ["Cannot be Frozen"]              = "Невозможно заморозить",
+        ["Cannot be Stunned"]             = "Невозможно оглушить",
         ["Cannot be Shocked"]             = "Невозможно поразить молнией",
         ["Cannot be Ignited"]             = "Невозможно поджечь",
         ["Cannot be Poisoned"]            = "Невозможно отравить",
@@ -603,6 +648,13 @@ public sealed class GameTranslationService
             = "Срабатывает при низком запасе здоровья",
         ["Used when you reach Low Mana"]
             = "Срабатывает при низком запасе маны",
+        ["Used when you become Frozen"]   = "Срабатывает при заморозке",
+        ["Used when you become Stunned"]  = "Срабатывает при оглушении",
+        ["Used when you become Chilled"]  = "Срабатывает при охлаждении",
+        ["Used when you are Ignited"]     = "Срабатывает при поджоге",
+        ["Used when you are Shocked"]     = "Срабатывает при поражении молнией",
+        ["Used when you are affected by a Slow"] = "Срабатывает при замедлении",
+        ["Effective flask stats:"]        = "Эффективные характеристики флакона:",
         ["Upgrades Radius to Large"]      = "Увеличивает радиус до большого",
         ["Upgrades Radius to Medium"]     = "Увеличивает радиус до среднего",
         ["Upgrades Radius to Very Large"] = "Увеличивает радиус до очень большого",
@@ -623,6 +675,20 @@ public sealed class GameTranslationService
     private static readonly Dictionary<string, string> _attrTokens = new(StringComparer.Ordinal)
     {
         ["Str"] = "силы", ["Dex"] = "ловкости", ["Int"] = "интеллекта",
+    };
+
+    // Ailment names in the genitive case for "increased <Ailment> Buildup" lines.
+    // Keyed by both the English keyword and PoB's already-localised Russian form,
+    // since PoB hands us a hybrid line ("71% increased Заморозка Buildup").
+    private static readonly Dictionary<string, string> _ailmentGenitive = new(StringComparer.Ordinal)
+    {
+        ["Freeze"] = "заморозки",       ["Заморозка"] = "заморозки",
+        ["Ignite"] = "поджога",         ["Поджог"] = "поджога",
+        ["Shock"] = "шока",             ["Шок"] = "шока",
+        ["Chill"] = "охлаждения",       ["Охлаждение"] = "охлаждения",
+        ["Bleed"] = "кровотечения",     ["Bleeding"] = "кровотечения", ["Кровотечение"] = "кровотечения",
+        ["Poison"] = "отравления",      ["Отравление"] = "отравления",
+        ["Electrocution"] = "электрошока", ["Электрошок"] = "электрошока",
     };
 
     // Delta-block stat labels (without the leading +/- value).
@@ -677,11 +743,31 @@ public sealed class GameTranslationService
         ["Movement Speed Modifier"] = "Модификатор скорости передвижения",
         ["Phys. Damage Reduction"] = "Снижение физ. урона",
         ["Presence Radius"]       = "Радиус присутствия",
+        // offence deltas
+        ["Average Hit"]           = "Средний удар",
+        ["Crit Chance"]           = "Шанс крит. удара",
+        ["Crit Multiplier"]       = "Множитель крит. урона",
+        ["Cast Rate"]             = "Скорость сотворения",
+        ["Attack Rate"]           = "Скорость атаки",
+        ["Mana Cost"]             = "Стоимость маны",
+        ["Mana Cost per second"]  = "Стоимость маны в секунду",
+        ["Skill Movement Speed"]  = "Скорость передвижения умения",
+        ["Deflection Rating"]     = "Рейтинг отражения",
     };
 
+    private static readonly Regex SocketSlotRx = new(@"^Socket #(\d+)$", RegexOptions.Compiled);
+
     /// <summary>Resolve a slot/type token used inside tooltip lines; falls back to original.</summary>
-    public string TooltipType(string name) =>
-        _tooltipTypes.TryGetValue(name, out var ru) ? ru : name;
+    public string TooltipType(string name)
+    {
+        if (_tooltipTypes.TryGetValue(name, out var ru)) return ru;
+        if (_loadedLang != "en")
+        {
+            var m = SocketSlotRx.Match(name);
+            if (m.Success) return $"Сокет #{m.Groups[1].Value}";
+        }
+        return name;
+    }
 
     /// <summary>
     /// Try to translate a magic item name "&lt;Prefix&gt; &lt;BaseName&gt; of &lt;Suffix&gt;"
