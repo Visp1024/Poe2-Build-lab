@@ -130,6 +130,8 @@
   <data name="Calc_Search"        xml:space="preserve"><value>Поиск параметра…</value></data>
   <data name="Calc_CollapseAll"   xml:space="preserve"><value>Свернуть всё</value></data>
   <data name="Calc_ExpandAll"     xml:space="preserve"><value>Развернуть всё</value></data>
+  <data name="Calc_DensityCompact" xml:space="preserve"><value>Компактно</value></data>
+  <data name="Calc_DensityLarge"   xml:space="preserve"><value>Крупно</value></data>
 
   <!-- Calcs stat section labels -->
   <data name="Stat_SkillDPS"      xml:space="preserve"><value>ДПС навыка</value></data>

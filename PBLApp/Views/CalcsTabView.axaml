@@ -6,6 +6,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
              xmlns:loc="using:PBLApp.Localization"
+             xmlns:ctl="using:PBLApp.Controls"
              x:Class="PBLApp.Views.CalcsTabView"
              x:DataType="vm:CalcsTabViewModel">
 
@@ -13,6 +14,51 @@
         <StreamGeometry x:Key="IconChevronDown">M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z</StreamGeometry>
         <StreamGeometry x:Key="IconSearch">M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z</StreamGeometry>
         <StreamGeometry x:Key="IconClose">M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z</StreamGeometry>
+
+        <!-- One stat card (section header + rows). Shared by the large (domain-column)
+             and compact (masonry) layouts so the two only differ in container + density. -->
+        <DataTemplate x:Key="SectionCard" x:DataType="vm:StatSectionViewModel">
+            <Border Classes="card"
+                    Classes.dim="{Binding !MatchesFilter}"
+                    IsVisible="{Binding IsVisible}">
+                <StackPanel>
+                    <!-- Header -->
+                    <Border Classes="card-head"
+                            BorderThickness="3,0,0,0"
+                            BorderBrush="{Binding AccentKey, Converter={x:Static vm:TooltipKindConverter.BrushKey}}"
+                            PointerPressed="SectionHeader_PointerPressed">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <PathIcon Grid.Column="0" Classes="chev"
+                                      Classes.collapsed="{Binding IsCollapsed}"
+                                      Data="{StaticResource IconChevronDown}"
+                                      Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="{Binding Label}"
+                                       FontSize="13" FontWeight="Bold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{Binding AccentKey, Converter={x:Static vm:TooltipKindConverter.BrushKey}}" />
+                        </Grid>
+                    </Border>
+                    <!-- Rows -->
+                    <ItemsControl ItemsSource="{Binding Rows}"
+                                  IsVisible="{Binding !IsCollapsed}"
+                                  Margin="0,3,0,3">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:StatRowViewModel">
+                                <Border Classes="statrow"
+                                        Classes.selected="{Binding IsSelected}"
+                                        Classes.dim="{Binding IsDimmed}">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Text="{Binding Label}" Classes="rlabel" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="rval"
+                                                   Foreground="{Binding ColorKey, Converter={x:Static vm:TooltipKindConverter.BrushKey}}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
     </UserControl.Resources>
 
     <UserControl.Styles>
@@ -89,6 +135,23 @@
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
+        <!-- ── Compact density overrides (applied to the masonry ItemsControl) ── -->
+        <Style Selector="ItemsControl.dense Border.card">
+            <Setter Property="Margin" Value="0" />
+        </Style>
+        <Style Selector="ItemsControl.dense Border.card-head">
+            <Setter Property="Height" Value="27" />
+        </Style>
+        <Style Selector="ItemsControl.dense Border.statrow">
+            <Setter Property="Padding" Value="9,2" />
+        </Style>
+        <Style Selector="ItemsControl.dense TextBlock.rlabel">
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style Selector="ItemsControl.dense TextBlock.rval">
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
         <!-- ── Toolbar ── -->
         <Style Selector="TextBox.search">
             <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
@@ -158,7 +221,7 @@
                     BorderBrush="{DynamicResource BorderSubtleBrush}"
                     BorderThickness="0,0,0,1"
                     Padding="12,7">
-                <Grid ColumnDefinitions="*,Auto,Auto">
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                     <!-- search -->
                     <Panel Grid.Column="1" Margin="0,0,8,0">
                         <TextBox Classes="search" Text="{Binding SearchText}"
@@ -168,8 +231,14 @@
                                   HorizontalAlignment="Left" VerticalAlignment="Center"
                                   Margin="9,0,0,0" IsHitTestVisible="False" />
                     </Panel>
+                    <!-- density toggle: checked = compact; label shows the active mode -->
+                    <ToggleSwitch Grid.Column="2" Margin="0,0,12,0"
+                                  VerticalAlignment="Center"
+                                  IsChecked="{Binding IsCompact}"
+                                  OnContent="{loc:Tr Calc_DensityCompact}"
+                                  OffContent="{loc:Tr Calc_DensityLarge}" />
                     <!-- collapse / expand all -->
-                    <Button Grid.Column="2" Classes="toolbtn" Command="{Binding ToggleAllCommand}">
+                    <Button Grid.Column="3" Classes="toolbtn" Command="{Binding ToggleAllCommand}">
                         <Panel>
                             <TextBlock Text="{loc:Tr Calc_CollapseAll}" IsVisible="{Binding !AllCollapsed}" />
                             <TextBlock Text="{loc:Tr Calc_ExpandAll}" IsVisible="{Binding AllCollapsed}" />
@@ -178,68 +247,37 @@
                 </Grid>
             </Border>
 
-            <!-- Board: three fixed domain columns -->
+            <!-- Board: large = fixed domain columns, compact = 4-col masonry -->
             <ScrollViewer Padding="12">
-                <ItemsControl ItemsSource="{Binding Columns}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Columns="3" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:StatColumnViewModel">
-                            <StackPanel Margin="0,0,12,0">
-                                <TextBlock Text="{Binding Title}" Classes="col-title" />
-                                <ItemsControl ItemsSource="{Binding Sections}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:StatSectionViewModel">
-                                            <Border Classes="card"
-                                                    Classes.dim="{Binding !MatchesFilter}"
-                                                    IsVisible="{Binding IsVisible}">
-                                                <StackPanel>
-                                                    <!-- Header -->
-                                                    <Border Classes="card-head"
-                                                            BorderThickness="3,0,0,0"
-                                                            BorderBrush="{Binding AccentKey, Converter={x:Static vm:TooltipKindConverter.BrushKey}}"
-                                                            PointerPressed="SectionHeader_PointerPressed">
-                                                        <Grid ColumnDefinitions="Auto,*">
-                                                            <PathIcon Grid.Column="0" Classes="chev"
-                                                                      Classes.collapsed="{Binding IsCollapsed}"
-                                                                      Data="{StaticResource IconChevronDown}"
-                                                                      Margin="0,0,8,0" VerticalAlignment="Center" />
-                                                            <TextBlock Grid.Column="1" Text="{Binding Label}"
-                                                                       FontSize="13" FontWeight="Bold"
-                                                                       VerticalAlignment="Center"
-                                                                       Foreground="{Binding AccentKey, Converter={x:Static vm:TooltipKindConverter.BrushKey}}" />
-                                                        </Grid>
-                                                    </Border>
-                                                    <!-- Rows -->
-                                                    <ItemsControl ItemsSource="{Binding Rows}"
-                                                                  IsVisible="{Binding !IsCollapsed}"
-                                                                  Margin="0,3,0,3">
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate x:DataType="vm:StatRowViewModel">
-                                                                <Border Classes="statrow"
-                                                                        Classes.selected="{Binding IsSelected}"
-                                                                        Classes.dim="{Binding IsDimmed}">
-                                                                    <Grid ColumnDefinitions="*,Auto">
-                                                                        <TextBlock Text="{Binding Label}" Classes="rlabel" />
-                                                                        <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="rval"
-                                                                                   Foreground="{Binding ColorKey, Converter={x:Static vm:TooltipKindConverter.BrushKey}}" />
-                                                                    </Grid>
-                                                                </Border>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <Panel>
+                    <!-- LARGE: spacious fixed 3 domain columns with titles -->
+                    <ItemsControl ItemsSource="{Binding Columns}" IsVisible="{Binding !IsCompact}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:StatColumnViewModel">
+                                <StackPanel Margin="0,0,12,0">
+                                    <TextBlock Text="{Binding Title}" Classes="col-title" />
+                                    <ItemsControl ItemsSource="{Binding Sections}"
+                                                  ItemTemplate="{StaticResource SectionCard}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- COMPACT: tighter cards flowing into a 4-column masonry that fills space -->
+                    <ItemsControl ItemsSource="{Binding Sections}" IsVisible="{Binding IsCompact}"
+                                  Classes="dense" ItemTemplate="{StaticResource SectionCard}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ctl:MasonryPanel ColumnCount="4" ColumnSpacing="8" RowSpacing="8" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </Panel>
             </ScrollViewer>
         </DockPanel>
 
