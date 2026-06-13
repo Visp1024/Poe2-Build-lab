@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using PBLApp.Controls;
@@ -31,10 +32,49 @@ public partial class TreeTabView : UserControl
             {
                 canvas.AssetStore        = _store;
                 canvas.HoverInfoProvider = vm.GetNodeHoverInfo;
+
+                // Bridge the programmatic view controls (used by IPC tree tools).
+                vm.GetCanvasView   = canvas.GetViewState;
+                vm.SetCanvasView   = canvas.SetViewState;
+                vm.FocusCanvasNode = canvas.FocusNode;
+                vm.ZoomCanvas      = canvas.ZoomBy;
+                vm.PanCanvas       = canvas.PanByPixels;
+
+                // Clicking an allocated jewel socket opens the in-tree jewel picker.
+                canvas.SocketClicked = OnSocketClicked;
+                // Bridge for IPC test tools to open the picker programmatically.
+                vm.TriggerSocketPicker = canvas.TriggerSocketClick;
             }
 
             vm.ConfirmClassChange = ShowClassChangeConfirmAsync;
             vm.SelectAttribute    = ShowAttributeSelectAsync;
+        }
+    }
+
+    private void OnSocketClicked(int nodeId, Point pt)
+    {
+        if (DataContext is not TreeTabViewModel vm) return;
+        // Place the picker just below-right of the socket, clamped to stay on-screen.
+        var canvas = this.FindControl<TreeCanvas>("TreeCanvasControl");
+        double maxX = (canvas?.Bounds.Width  ?? 1920) - 310;
+        double maxY = (canvas?.Bounds.Height ?? 1000) - 390;
+        vm.JewelPickerX = Math.Max(4, Math.Min(pt.X + 14, maxX));
+        vm.JewelPickerY = Math.Max(4, Math.Min(pt.Y + 14, maxY));
+        vm.OpenJewelPicker(nodeId);
+    }
+
+    private void JewelPickerDismiss_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (DataContext is TreeTabViewModel vm) vm.CloseJewelPickerCommand.Execute(null);
+    }
+
+    private void JewelPicker_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is ListBox lb && lb.SelectedItem is JewelPickerOptionVm opt
+            && DataContext is TreeTabViewModel vm)
+        {
+            vm.PickJewelCommand.Execute(opt);
+            lb.SelectedItem = null;   // reset so the same row can be chosen again later
         }
     }
 

@@ -517,6 +517,95 @@ public class VisualTools
         catch (Exception ex) { return Error(ex); }
     }
 
+    // ── Tree view control (zoom / pan / focus a node for screenshots) ────────
+
+    [McpServerTool]
+    [Description(
+        "Read the passive tree viewport: current zoom 'scale' and the world coords " +
+        "(centerX, centerY) under the viewport centre. Use before set-view to capture, " +
+        "tweak, then restore a framing.")]
+    public async Task<string> VisualTreeGetView()
+    {
+        try { return await IpcClient.CallAsync("GET", "/tree/view"); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Set the passive tree viewport directly. Any argument left null keeps its current " +
+        "value. 'scale' is pixels-per-world-unit (~0.12 fits the whole tree; ~0.6-1.0 is a " +
+        "close-up); centerX/centerY are world coords to place under the viewport centre. " +
+        "Returns the resulting view.")]
+    public async Task<string> VisualTreeSetView(
+        [Description("Zoom (pixels per world unit), e.g. 0.6 for a close-up. Null = keep.")] double? scale = null,
+        [Description("World X to centre on. Null = keep.")] double? centerX = null,
+        [Description("World Y to centre on. Null = keep.")] double? centerY = null)
+    {
+        try { return await IpcClient.CallAsync("POST", "/tree/set-view", new { scale, centerX, centerY }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Centre the passive tree on a node (by numeric node id) and optionally zoom in, " +
+        "so a screenshot frames that node and its surroundings. Pass scale ~0.6-1.0 for a " +
+        "readable close-up. Ideal for inspecting a jewel socket and its radius ring. " +
+        "Returns the resulting view, or an error if the node id is absent.")]
+    public async Task<string> VisualTreeFocusNode(
+        [Description("Numeric passive-tree node id to centre on.")] int nodeId,
+        [Description("Zoom (pixels per world unit) to apply, e.g. 0.6. Null = keep current zoom.")] double? scale = null)
+    {
+        try { return await IpcClient.CallAsync("POST", "/tree/focus-node", new { nodeId, scale }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Zoom the passive tree by a multiplicative factor around the viewport centre " +
+        "(1.15 = one wheel notch in, 0.87 = one notch out). Returns the resulting view.")]
+    public async Task<string> VisualTreeZoom(
+        [Description("Zoom factor: >1 zooms in, <1 zooms out.")] double factor)
+    {
+        try { return await IpcClient.CallAsync("POST", "/tree/zoom", new { factor }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Scroll (pan) the passive tree by a screen-pixel delta. Positive dx moves the tree " +
+        "content right, positive dy moves it down. Returns the resulting view.")]
+    public async Task<string> VisualTreePan(
+        [Description("Horizontal scroll in pixels.")] double dx,
+        [Description("Vertical scroll in pixels.")] double dy)
+    {
+        try { return await IpcClient.CallAsync("POST", "/tree/pan", new { dx, dy }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Open the in-tree jewel picker for an allocated jewel-socket node (as if the user " +
+        "clicked it), so a screenshot shows the dropdown of socketable jewels (pool + already " +
+        "socketed). Returns the option list. The node must be an allocated Socket.")]
+    public async Task<string> VisualTreeOpenJewelPicker(
+        [Description("Numeric jewel-socket node id.")] int nodeId)
+    {
+        try { return await IpcClient.CallAsync("POST", "/tree/open-jewel-picker", new { nodeId }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Choose a jewel in the currently-open in-tree jewel picker by item id (0 = empty the " +
+        "socket). If that jewel is in another socket the two swap. Call " +
+        "visual_tree_open_jewel_picker first. Mirrors the user clicking a row in the picker.")]
+    public async Task<string> VisualTreePickJewel(
+        [Description("Pool/socketed jewel item id, or 0 to empty the socket.")] int itemId)
+    {
+        try { return await IpcClient.CallAsync("POST", "/tree/pick-jewel", new { itemId }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────
 
     private static string FindRepoRoot()

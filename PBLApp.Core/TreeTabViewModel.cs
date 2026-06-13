@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PBLApp.Core.Localization;
+using PBLApp.Core.Items;
 using PBLEngine;
 using System;
 using System.Collections.Generic;
@@ -54,6 +55,7 @@ public partial class TreeTabViewModel : ViewModelBase
 {
     private readonly LuaHost _host;
     private readonly Action? _onStatsChanged;
+    private readonly Action? _onItemsChanged;
 
     // ── Tree nodes ─────────────────────────────────────────────────────────
 
@@ -63,6 +65,19 @@ public partial class TreeTabViewModel : ViewModelBase
     [ObservableProperty]
     private IReadOnlyList<(int NodeId, double RadiusWorld)> _radiusEmitters
         = Array.Empty<(int, double)>();
+
+    /// <summary>Persistent radius rings for allocated jewel sockets that hold a
+    /// radius jewel. Outer/Inner are world units; Variable marks Thread-of-Hope-like
+    /// annulus jewels (Inner &gt; 0).</summary>
+    [ObservableProperty]
+    private IReadOnlyList<(int NodeId, double Outer, double Inner, bool Variable)> _jewelRadii
+        = Array.Empty<(int, double, double, bool)>();
+
+    /// <summary>Jewel art to paint on each allocated socket that holds a jewel, so
+    /// the socketed jewel is visible on the tree.</summary>
+    [ObservableProperty]
+    private IReadOnlyList<(int NodeId, string BaseName, string Title, bool Unique)> _jewelIcons
+        = Array.Empty<(int, string, string, bool)>();
 
     public int NodeCount      => Nodes.Count;
     public int AllocatedCount => AllocatedIds.Count;
@@ -153,6 +168,28 @@ public partial class TreeTabViewModel : ViewModelBase
     /// </summary>
     public Func<Task<int>>? SelectAttribute { get; set; }
 
+    // ── View-control bridge (set by TreeTabView, driven by the IPC tools) ──
+    // The tree's zoom / pan / focus live in the TreeCanvas (View layer); these
+    // callbacks let the ViewModel (and through it, IPC automation) drive them.
+
+    /// <summary>Reads the canvas view as (scale, worldCenterX, worldCenterY).</summary>
+    public Func<(double Scale, double CenterX, double CenterY)>? GetCanvasView { get; set; }
+
+    /// <summary>Sets zoom and/or world-centre on the canvas (null = keep current).</summary>
+    public Action<double?, double?, double?>? SetCanvasView { get; set; }
+
+    /// <summary>Centres + optionally zooms the canvas on a node id. Returns false if absent.</summary>
+    public Func<int, double?, bool>? FocusCanvasNode { get; set; }
+
+    /// <summary>Multiplies zoom around the viewport centre.</summary>
+    public Action<double>? ZoomCanvas { get; set; }
+
+    /// <summary>Scrolls the canvas by a screen-pixel delta.</summary>
+    public Action<double, double>? PanCanvas { get; set; }
+
+    /// <summary>Programmatically open the jewel picker for a socket node (IPC test hook).</summary>
+    public Action<int>? TriggerSocketPicker { get; set; }
+
     private ClassDisplayVm? _lastAppliedClass;
     private bool _suppressClassChangeCheck;
 
@@ -169,10 +206,11 @@ public partial class TreeTabViewModel : ViewModelBase
 
     // ── Constructor ────────────────────────────────────────────────────────
 
-    public TreeTabViewModel(LuaHost host, Action? onStatsChanged = null)
+    public TreeTabViewModel(LuaHost host, Action? onStatsChanged = null, Action? onItemsChanged = null)
     {
         _host           = host;
         _onStatsChanged = onStatsChanged;
+        _onItemsChanged = onItemsChanged;
         RepoRoot        = host.RepoRoot;
         TreeVersion     = host.GetTreeVersion();
 
@@ -190,6 +228,8 @@ public partial class TreeTabViewModel : ViewModelBase
         _nodes          = nodes;
         _allocatedIds   = allocated;
         _radiusEmitters = _host.GetRadiusEmitters();
+        _jewelRadii     = _host.GetSocketedJewelRadii();
+        _jewelIcons     = _host.GetSocketedJewelIcons();
 
         AscendancyBackgrounds = _host.GetAscendancyBackgrounds();
 
@@ -344,6 +384,8 @@ public partial class TreeTabViewModel : ViewModelBase
         Nodes          = nodes;
         AllocatedIds   = allocated;
         RadiusEmitters = _host.GetRadiusEmitters();
+        JewelRadii     = _host.GetSocketedJewelRadii();
+        JewelIcons     = _host.GetSocketedJewelIcons();
         OnPropertyChanged(nameof(NodeCount));
         OnPropertyChanged(nameof(NodesLabel));
         OnPropertyChanged(nameof(AllocatedCount));
@@ -380,8 +422,111 @@ public partial class TreeTabViewModel : ViewModelBase
         var (alloc, emitters) = _host.GetAllocatedAndEmitters();
         AllocatedIds   = alloc;
         RadiusEmitters = emitters;
+        // Allocating / deallocating a socket adds or removes its jewel ring + art.
+        JewelRadii     = _host.GetSocketedJewelRadii();
+        JewelIcons     = _host.GetSocketedJewelIcons();
         OnPropertyChanged(nameof(AllocatedCount));
         OnPropertyChanged(nameof(AllocatedLabel));
         RefreshPointUsage();
     }
+
+    /// <summary>Re-query the socketed jewel visuals (radius rings + socket art).
+    /// Called by the build page after an Items-tab operation (socketing / removing
+    /// a jewel) that the tree would otherwise not learn about.</summary>
+    public void RefreshJewelRadii()
+    {
+        JewelRadii = _host.GetSocketedJewelRadii();
+        JewelIcons = _host.GetSocketedJewelIcons();
+    }
+
+    // ── In-tree jewel picker ───────────────────────────────────────────────
+    // Clicking an allocated jewel socket opens a small picker listing every jewel
+    // (pool + already socketed). Choosing one sockets it here; choosing one that's
+    // already in another socket swaps the two.
+
+    public ObservableCollection<JewelPickerOptionVm> JewelPickerOptions { get; } = [];
+
+    [ObservableProperty] private bool _isJewelPickerOpen;
+    [ObservableProperty] private string _jewelPickerTitle = "";
+    [ObservableProperty] private double _jewelPickerX;
+    [ObservableProperty] private double _jewelPickerY;
+
+    private int _jewelPickerNodeId;
+
+    /// <summary>Populate and open the jewel picker for the given socket node.</summary>
+    public void OpenJewelPicker(int nodeId)
+    {
+        _jewelPickerNodeId = nodeId;
+        JewelPickerTitle = LocalizationService.Get("Tree_JewelPicker_Title");
+
+        var jewels = _host.GetSocketableJewels();
+        JewelPickerOptions.Clear();
+
+        // "Empty" first — current selection when the socket holds nothing.
+        bool socketEmpty = !jewels.Any(j => j.CurrentSocketNodeId == nodeId);
+        JewelPickerOptions.Add(new JewelPickerOptionVm
+        {
+            ItemId      = 0,
+            DisplayName = LocalizationService.Get("Tree_JewelPicker_Empty"),
+            NameColor   = "#9AA4B2",
+            IsCurrent   = socketEmpty,
+        });
+
+        // Current socket's jewel first, then pool jewels, then jewels in other sockets.
+        foreach (var j in jewels
+                     .OrderBy(j => j.CurrentSocketNodeId == nodeId ? 0 : j.CurrentSocketNodeId == 0 ? 1 : 2)
+                     .ThenBy(j => j.Name, StringComparer.OrdinalIgnoreCase))
+        {
+            bool isCurrent = j.CurrentSocketNodeId == nodeId;
+            bool elsewhere = j.CurrentSocketNodeId != 0 && !isCurrent;
+            var unique     = j.Rarity is "UNIQUE" or "RELIC" ? j.Name : null;
+            JewelPickerOptions.Add(new JewelPickerOptionVm
+            {
+                ItemId      = j.ItemId,
+                DisplayName = string.IsNullOrEmpty(j.Name) ? j.BaseName : j.Name,
+                NameColor   = ItemSlotViewModel.RarityToColor(j.Rarity),
+                IconPath    = ItemIconService.Instance.Resolve(j.BaseName, unique),
+                StatusText  = isCurrent ? LocalizationService.Get("Tree_JewelPicker_Current")
+                            : elsewhere ? LocalizationService.Get("Tree_JewelPicker_OtherSocket")
+                            : "",
+                IsCurrent   = isCurrent,
+            });
+        }
+
+        IsJewelPickerOpen = true;
+    }
+
+    [RelayCommand]
+    private void PickJewel(JewelPickerOptionVm? option)
+    {
+        IsJewelPickerOpen = false;
+        if (option == null || option.IsCurrent) return;   // no change
+
+        _host.SetSocketJewel(_jewelPickerNodeId, option.ItemId);
+        RefreshJewelRadii();          // socket art + radius ring
+        _onStatsChanged?.Invoke();    // stats / sidebar / calcs
+        _onItemsChanged?.Invoke();    // Items-tab jewel slot panel
+    }
+
+    [RelayCommand]
+    private void CloseJewelPicker() => IsJewelPickerOpen = false;
+
+    /// <summary>Pick a jewel by item id from the currently-open picker (IPC test hook).</summary>
+    public void PickJewelById(int itemId) =>
+        PickJewel(JewelPickerOptions.FirstOrDefault(o => o.ItemId == itemId));
+}
+
+/// <summary>One row in the in-tree jewel picker.</summary>
+public sealed class JewelPickerOptionVm
+{
+    public int     ItemId      { get; init; }
+    public string  DisplayName { get; init; } = "";
+    public string  NameColor   { get; init; } = "#CDD6F4";
+    public string? IconPath    { get; init; }
+    public bool    HasIcon     => !string.IsNullOrEmpty(IconPath);
+    public string  StatusText  { get; init; } = "";
+    public bool    HasStatus   => !string.IsNullOrEmpty(StatusText);
+    /// <summary>True for the jewel already in this socket (or "Empty" when the
+    /// socket is empty) — selecting it is a no-op.</summary>
+    public bool    IsCurrent   { get; init; }
 }

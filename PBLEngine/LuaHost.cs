@@ -1320,6 +1320,103 @@ public sealed class LuaHost : IDisposable
         TriggerRecalc();
     }
 
+    /// <summary>Returns every Jewel item in the build (pool + socketed), with the
+    /// node id of the socket it currently occupies (0 = in the pool). Drives the
+    /// in-tree jewel picker.</summary>
+    public List<SocketableJewel> GetSocketableJewels()
+    {
+        var list = new List<SocketableJewel>();
+        var result = State.DoString(@"
+            if not (build and build.itemsTab) then return {} end
+            local itemsTab = build.itemsTab
+            local function strip(s)
+                if not s then return '' end
+                return tostring(s):gsub('%^x%x%x%x%x%x%x?',''):gsub('%^%d',''):gsub('%^_?x%x+','')
+            end
+            -- itemId -> socket node id (only jewel-socket slots)
+            local socketOf = {}
+            for slotName, slot in pairs(itemsTab.slots) do
+                local id = slot and slot.selItemId
+                if type(id) == 'number' and id > 0 then
+                    local nid = tostring(slotName):match('^Jewel (%d+)$')
+                    if nid then socketOf[id] = tonumber(nid) end
+                end
+            end
+            local out = {}
+            for _, itemId in ipairs(itemsTab.itemOrderList) do
+                local item = itemsTab.items[itemId]
+                if item and item.type == 'Jewel' then
+                    table.insert(out, {
+                        itemId,
+                        strip(item.name or ''),
+                        strip(item.baseName or ''),
+                        item.rarity or 'NORMAL',
+                        socketOf[itemId] or 0
+                    })
+                end
+            end
+            return out
+        ");
+        if (result is { Length: > 0 } && result[0] is LuaTable tbl)
+        {
+            foreach (var k in tbl.Keys)
+            {
+                if (tbl[k] is not LuaTable row) continue;
+                var id       = row[1L] is long li ? (int)li : 0;
+                var name     = row[2L] as string ?? "";
+                var baseName = row[3L] as string ?? "";
+                var rarity   = row[4L] as string ?? "NORMAL";
+                var sockNid  = row[5L] is long sl ? (int)sl : (row[5L] is double sd ? (int)sd : 0);
+                if (id > 0) list.Add(new SocketableJewel(id, name, baseName, rarity, sockNid));
+            }
+        }
+        return list;
+    }
+
+    /// <summary>Sets the jewel in tree socket <paramref name="nodeId"/> to
+    /// <paramref name="itemId"/> (0 = empty it). If that jewel currently sits in a
+    /// different socket, the two sockets swap their contents; otherwise the jewel
+    /// previously here returns to the pool. Mirrors PoB drag-and-drop between
+    /// sockets.</summary>
+    public void SetSocketJewel(int nodeId, int itemId)
+    {
+        State["_sjNode"] = (long)nodeId;
+        State["_sjItem"] = (long)itemId;
+        State.DoString(@"
+            if not (build and build.itemsTab) then return end
+            local slots = build.itemsTab.slots
+            local targetName = 'Jewel ' .. _sjNode
+            local target = slots[targetName]
+            if not target then return end
+            local oldItemId = (type(target.selItemId) == 'number' and target.selItemId) or 0
+            if oldItemId == _sjItem then return end  -- no-op
+
+            -- Find whether the chosen jewel is currently in another socket.
+            local sourceName = nil
+            if _sjItem and _sjItem > 0 then
+                for slotName, slot in pairs(slots) do
+                    if slotName ~= targetName and slot.selItemId == _sjItem
+                       and tostring(slotName):match('^Jewel %d+$') then
+                        sourceName = slotName
+                        break
+                    end
+                end
+            end
+
+            target:SetSelItemId(_sjItem)
+            if sourceName then
+                -- swap: the jewel that was here moves to the chosen jewel's old socket
+                slots[sourceName]:SetSelItemId(oldItemId)
+            end
+            build.itemsTab:PopulateSlots()
+            build.itemsTab:AddUndoState()
+            build.buildFlag = true
+        ");
+        State["_sjNode"] = null;
+        State["_sjItem"] = null;
+        TriggerRecalc();
+    }
+
     /// <summary>
     /// Returns the names of every equipment slot the given pool item is valid for,
     /// as judged by PoB's own <c>ItemsTab:IsItemValidForSlot</c>. This honours
@@ -2735,6 +2832,110 @@ public sealed class LuaHost : IDisposable
                 if (allocTbl[k] is long al) allocated.Add((int)al);
 
         return (nodes, allocated);
+    }
+
+    /// <summary>
+    /// Returns the radius ring(s) to draw for every allocated jewel socket that
+    /// currently holds a jewel with a radius (Against the Darkness, Heroic
+    /// Tragedy, Controlled Metamorphosis, ...). Outer/Inner are in tree world
+    /// units, already multiplied by PassiveTreeJewelDistanceMultiplier (1.2), so
+    /// the canvas only has to apply <c>_scale</c>. <c>Inner</c> is &gt; 0 only for
+    /// Variable (Thread-of-Hope-like) jewels, which draw an annulus; standard
+    /// jewels return Inner == 0 and draw a full disc. Mirrors the
+    /// <c>drawJewelRadius</c> path in <c>PassiveTreeView.lua</c>.
+    /// </summary>
+    public List<(int NodeId, double Outer, double Inner, bool Variable)> GetSocketedJewelRadii()
+    {
+        var result = new List<(int, double, double, bool)>();
+
+        var raw = State.DoString(@"
+            if not (build and build.spec and build.itemsTab and build.data) then return nil end
+            local mult = (data.gameConstants and data.gameConstants['PassiveTreeJewelDistanceMultiplier']) or 1.2
+            local out = {}
+            for nid, node in pairs(build.spec.nodes) do
+                if node.type == 'Socket' and build.spec.allocNodes[nid] then
+                    local socket, jewel = build.itemsTab:GetSocketAndJewelForNodeID(nid)
+                    if jewel and jewel.jewelRadiusIndex then
+                        local rad = build.data.jewelRadius[jewel.jewelRadiusIndex]
+                        if rad then
+                            local isVar = (jewel.jewelRadiusLabel == 'Variable')
+                            table.insert(out, {
+                                nid,
+                                (rad.outer or 0) * mult,
+                                (isVar and (rad.inner or 0) or 0) * mult,
+                                isVar and 1 or 0
+                            })
+                        end
+                    end
+                end
+            end
+            return out
+        ");
+
+        if (raw is not { Length: >= 1 } || raw[0] is not LuaTable tbl)
+            return result;
+
+        foreach (var k in tbl.Keys)
+        {
+            if (tbl[k] is not LuaTable row) continue;
+            var nodeId = row[1L] is long li ? (int)li : 0;
+            var outer  = row[2L] is double od ? od : row[2L] is long ol ? (double)ol : 0.0;
+            var inner  = row[3L] is double id ? id : row[3L] is long il ? (double)il : 0.0;
+            var variable = (row[4L] is long vl && vl != 0) || (row[4L] is double vd && vd != 0);
+            if (nodeId != 0 && outer > 0) result.Add((nodeId, outer, inner, variable));
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Returns the jewel art to paint on each allocated jewel socket that holds a
+    /// jewel, so a socketed jewel is visible on the tree (mirrors PoB drawing the
+    /// jewel's <c>baseName</c> / unique <c>title</c> as the socket overlay). The
+    /// canvas resolves <c>Title</c> first for uniques (if its sprite exists), else
+    /// <c>BaseName</c>. Only allocated sockets are returned, matching PoB.
+    /// </summary>
+    public List<(int NodeId, string BaseName, string Title, bool Unique)> GetSocketedJewelIcons()
+    {
+        var result = new List<(int, string, string, bool)>();
+
+        var raw = State.DoString(@"
+            if not (build and build.spec and build.itemsTab) then return nil end
+            local function strip(s)
+                if not s then return '' end
+                return tostring(s):gsub('%^x%x%x%x%x%x%x?',''):gsub('%^%d','')
+            end
+            local out = {}
+            for nid, node in pairs(build.spec.nodes) do
+                if (node.type == 'Socket' or node.containJewelSocket) and build.spec.allocNodes[nid] then
+                    local socket, jewel = build.itemsTab:GetSocketAndJewelForNodeID(nid)
+                    if jewel then
+                        table.insert(out, {
+                            nid,
+                            strip(jewel.baseName or ''),
+                            strip(jewel.title or jewel.name or ''),
+                            (jewel.rarity == 'UNIQUE') and 1 or 0
+                        })
+                    end
+                end
+            end
+            return out
+        ");
+
+        if (raw is not { Length: >= 1 } || raw[0] is not LuaTable tbl)
+            return result;
+
+        foreach (var k in tbl.Keys)
+        {
+            if (tbl[k] is not LuaTable row) continue;
+            var nodeId   = row[1L] is long li ? (int)li : 0;
+            var baseName = row[2L] as string ?? "";
+            var title    = row[3L] as string ?? "";
+            var unique   = (row[4L] is long ul && ul != 0) || (row[4L] is double ud && ud != 0);
+            if (nodeId != 0) result.Add((nodeId, baseName, title, unique));
+        }
+
+        return result;
     }
 
     /// <summary>

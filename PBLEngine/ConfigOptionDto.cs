@@ -104,6 +104,17 @@ public record JewelSocketEntry(
     ItemEntry? Item       // null if socket empty
 );
 
+/// <summary>A jewel item that can go into a tree socket — used by the in-tree
+/// jewel picker. <see cref="CurrentSocketNodeId"/> is 0 when the jewel is in the
+/// item pool (not socketed), otherwise the node id of the socket it occupies.</summary>
+public record SocketableJewel(
+    int    ItemId,
+    string Name,
+    string BaseName,
+    string Rarity,
+    int    CurrentSocketNodeId
+);
+
 /// <summary>Intrinsic base defence/utility values from data.itemBases[baseName].</summary>
 public record BaseDefaults(
     int Armour,

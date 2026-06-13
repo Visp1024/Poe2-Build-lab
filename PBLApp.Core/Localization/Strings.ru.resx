@@ -356,6 +356,12 @@
   <data name="Tree_WeaponSetFmt"    xml:space="preserve"><value>Наборы оружия: {0} / {2} · {1} / {2}</value></data>
   <data name="Tree_WeaponSetTip"    xml:space="preserve"><value>Очки пассивок наборов оружия (набор 1 · набор 2) из доступного пула.</value></data>
 
+  <!-- In-tree jewel picker -->
+  <data name="Tree_JewelPicker_Title"       xml:space="preserve"><value>Вставить самоцвет</value></data>
+  <data name="Tree_JewelPicker_Empty"       xml:space="preserve"><value>(пусто)</value></data>
+  <data name="Tree_JewelPicker_Current"     xml:space="preserve"><value>текущий</value></data>
+  <data name="Tree_JewelPicker_OtherSocket" xml:space="preserve"><value>в другом сокете</value></data>
+
   <!-- Tree node hover tooltip -->
   <data name="Tree_Tip_AllocGives"      xml:space="preserve"><value>Выбор этой ноды даст:</value></data>
   <data name="Tree_Tip_UnallocGives"    xml:space="preserve"><value>Отмена этой ноды даст:</value></data>
