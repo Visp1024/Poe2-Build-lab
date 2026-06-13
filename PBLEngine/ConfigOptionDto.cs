@@ -123,6 +123,12 @@ public record TattooState(bool Available, IReadOnlyList<TattooSocket> Sockets);
 /// boots) and the currently socketed rune name ("" = empty).</summary>
 public record TattooSocket(int Index, string SlotType, string RuneName);
 
+/// <summary>State of the Crystalline Phylactery (Lich) node. <see cref="Available"/> is true
+/// while the node is allocated; <see cref="JewelName"/> is the jewel socketed into its tree
+/// jewel socket (or "" if none) — read-only, drives the "×2 effect" hint. The jewel itself is
+/// socketed through the normal jewel-socket UI.</summary>
+public record PhylacteryState(bool Available, string JewelName);
+
 /// <summary>One rune entry from data.itemMods.Runes.</summary>
 public record RuneEntry(
     string Name,

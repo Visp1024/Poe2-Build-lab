@@ -295,6 +295,18 @@ public class VisualTools
 
     [McpServerTool]
     [Description(
+        "Read the Crystalline Phylactery (Lich) state: whether the node is allocated and the " +
+        "name of the jewel socketed into its tree jewel socket (whose bonuses the engine then " +
+        "applies at 2× effect). Socket the jewel via the normal jewel-socket UI. " +
+        "Returns {available, jewel}.")]
+    public async Task<string> VisualItemsPhylacteryState()
+    {
+        try { return await IpcClient.CallAsync("GET", "/items/phylactery-state"); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
         "Report the equip-compatible (drag-highlight) target slots PoB accepts for an item. " +
         "Honours keystone/ascendancy rules: e.g. a Focus is only valid in Weapon 2 while a " +
         "Staff is equipped if Instruments of Power is allocated; Giant's Blood enables dual " +

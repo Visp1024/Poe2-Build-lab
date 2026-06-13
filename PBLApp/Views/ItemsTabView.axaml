@@ -783,6 +783,25 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- ── CRYSTALLINE PHYLACTERY (Lich) ─────────────────
+                             The node is a normal tree jewel socket; the user sockets a
+                             non-Unique jewel through the usual jewel-socket UI and the engine
+                             applies its bonuses a second time (the node's 100% increased
+                             effect, via ConfigTab:ApplyPhylacteryMods). This is a read-only
+                             reminder. Hidden unless the node is allocated. -->
+                        <Border Margin="0,12,0,0" IsVisible="{Binding Phylactery.Available}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{loc:Tr Phylactery_PanelTitle}" Classes="section-header"/>
+                                <TextBlock Text="{Binding Phylactery.StatusText}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12"
+                                           TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                <TextBlock Text="{loc:Tr Phylactery_Hint}"
+                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="10"
+                                           FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+
 
                         <!-- ── ITEM POOL section ─────────────────────────── -->
                         <Border Margin="0,12,0,0" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
