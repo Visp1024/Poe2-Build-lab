@@ -30,9 +30,10 @@
   <data name="Tab_PopOut"         xml:space="preserve"><value>Open in separate window</value></data>
 
   <!-- Build list -->
-  <data name="List_Title"         xml:space="preserve"><value>PoE2 Build Lab &#x2014; Builds</value></data>
+  <data name="List_Title"         xml:space="preserve"><value>Builds</value></data>
   <data name="List_Empty"         xml:space="preserve"><value>No builds found. Click &#xAB;New Build&#xBB; to create one.</value></data>
   <data name="List_Language"      xml:space="preserve"><value>Language:</value></data>
+  <data name="List_LevelAbbr"     xml:space="preserve"><value>Lvl</value></data>
 
   <!-- Build page -->
   <data name="Page_Loading"       xml:space="preserve"><value>Loading build...</value></data>

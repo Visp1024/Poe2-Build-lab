@@ -42,6 +42,9 @@ public partial class BuildListViewModel : ViewModelBase
         _hostTask = hostTask;
         _openBuild = openBuild;
         _currentFolder = GetBuildsPath();
+        // Rebuild the cards on language switch so the class/ascendancy subtitles
+        // re-translate (the list also offers the language selector).
+        PBLApp.Core.Localization.LocalizationService.Instance.LanguageChanged += (_, _) => Refresh();
         Refresh();
     }
 
@@ -52,43 +55,21 @@ public partial class BuildListViewModel : ViewModelBase
     {
         var root = GetBuildsPath();
         Directory.CreateDirectory(root);
-        if (!IsInsideRoot(_currentFolder, root))
-            _currentFolder = root;
+        _currentFolder = root;
 
+        // Flat list: every build under the root, including ones nested in
+        // sub-folders, shown together (no folder navigation).
         CurrentItems.Clear();
-        if (Directory.Exists(_currentFolder))
+        if (Directory.Exists(root))
         {
-            foreach (var sub in Directory.GetDirectories(_currentFolder).OrderBy(Path.GetFileName))
-                CurrentItems.Add(new BuildEntryViewModel(Path.GetFileName(sub)!, sub, BuildEntryKind.Folder));
-            foreach (var file in Directory.GetFiles(_currentFolder, "*.xml").OrderBy(Path.GetFileNameWithoutExtension))
+            foreach (var file in Directory.GetFiles(root, "*.xml", SearchOption.AllDirectories)
+                                          .OrderBy(Path.GetFileNameWithoutExtension, StringComparer.OrdinalIgnoreCase))
                 CurrentItems.Add(new BuildEntryViewModel(Path.GetFileNameWithoutExtension(file)!, file, BuildEntryKind.Build));
         }
-        CurrentItems.Add(new BuildEntryViewModel("", _currentFolder, BuildEntryKind.Create));
+        CurrentItems.Add(new BuildEntryViewModel("", root, BuildEntryKind.Create));
 
         IsEmpty = CurrentItems.Count <= 1; // only the Create placeholder
-        RebuildBreadcrumb();
-    }
-
-    private void RebuildBreadcrumb()
-    {
-        var root = GetBuildsPath();
-        var segments = new List<BreadcrumbSegment>();
-        var path = _currentFolder;
-
-        while (!string.IsNullOrEmpty(path) && IsInsideRoot(path, root) && !string.Equals(path, root, StringComparison.OrdinalIgnoreCase))
-        {
-            segments.Insert(0, new BreadcrumbSegment(Path.GetFileName(path)!, path, false));
-            var parent = Path.GetDirectoryName(path);
-            if (string.IsNullOrEmpty(parent)) break;
-            path = parent;
-        }
-        segments.Insert(0, new BreadcrumbSegment("Builds", root, false));
-        // Mark the last segment so the view can render it un-clickable.
-        if (segments.Count > 0)
-            segments[^1] = segments[^1] with { IsLast = true };
-
         Breadcrumb.Clear();
-        foreach (var s in segments) Breadcrumb.Add(s);
     }
 
     /// <summary>Navigate to <paramref name="folder"/>. Clamps to root.</summary>

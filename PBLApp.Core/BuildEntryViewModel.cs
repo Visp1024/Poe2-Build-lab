@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using PBLApp.Core.Localization;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -40,10 +41,10 @@ public partial class BuildEntryViewModel : ObservableObject
         {
             if (Kind != BuildEntryKind.Build) return "";
             var parts = new System.Collections.Generic.List<string>(3);
-            if (!string.IsNullOrEmpty(ClassName))       parts.Add(ClassName);
+            if (!string.IsNullOrEmpty(ClassName))       parts.Add(GameTranslationService.TClassName(ClassName));
             if (!string.IsNullOrEmpty(AscendClassName) && AscendClassName != ClassName)
-                                                        parts.Add(AscendClassName);
-            if (Level > 0)                              parts.Add($"Lvl {Level}");
+                                                        parts.Add(GameTranslationService.TClassName(AscendClassName));
+            if (Level > 0)                              parts.Add($"{LocalizationService.Get("List_LevelAbbr")} {Level}");
             return string.Join(" · ", parts);
         }
     }
