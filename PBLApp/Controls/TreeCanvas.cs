@@ -435,7 +435,9 @@ public sealed class TreeCanvas : Control
             // back to fit-to-view when there's no saved state.
             if (_pendingView is { } v)
             {
-                ApplyView(v.Scale, v.CenterX, v.CenterY);
+                // Restore the framing in-place; must NOT InvalidateVisual here (we're
+                // mid-Render) — the new transform takes effect in this same pass.
+                SetViewTransform(v.Scale, v.CenterX, v.CenterY);
                 _pendingView = null;
             }
             else
@@ -1343,6 +1345,16 @@ public sealed class TreeCanvas : Control
 
     private void ApplyView(double scale, double centerWorldX, double centerWorldY)
     {
+        SetViewTransform(scale, centerWorldX, centerWorldY);
+        InvalidateVisual();
+    }
+
+    // Mutates the view transform only, WITHOUT requesting a repaint. Safe to call
+    // from inside Render() (restoring the persisted framing on first paint) — there,
+    // InvalidateVisual() throws "Visual was invalidated during the render pass", which
+    // crashes the render loop and leaves the tab stuck on its previous content.
+    private void SetViewTransform(double scale, double centerWorldX, double centerWorldY)
+    {
         double w = Bounds.Width  > 0 ? Bounds.Width  : 1;
         double h = Bounds.Height > 0 ? Bounds.Height : 1;
         _scale   = scale;
@@ -1351,7 +1363,6 @@ public sealed class TreeCanvas : Control
         _fitNeeded = false;
         if (_staticLayer != null && _scale > _staticLayerScale * 1.5)
             InvalidateStaticLayer();
-        InvalidateVisual();
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────
