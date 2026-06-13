@@ -115,6 +115,14 @@ public record BaseDefaults(
     int BaseQualityPct   // base item's innate quality (e.g. 20 for Lattice Sandals)
 );
 
+/// <summary>State of the Runic Meridians (Martial Artist) body-tattoo Rune sockets.
+/// <see cref="Available"/> is true only while the ascendancy node is allocated.</summary>
+public record TattooState(bool Available, IReadOnlyList<TattooSocket> Sockets);
+
+/// <summary>One tattoo Rune socket: a fixed slot type (helmet / body armour / gloves /
+/// boots) and the currently socketed rune name ("" = empty).</summary>
+public record TattooSocket(int Index, string SlotType, string RuneName);
+
 /// <summary>One rune entry from data.itemMods.Runes.</summary>
 public record RuneEntry(
     string Name,

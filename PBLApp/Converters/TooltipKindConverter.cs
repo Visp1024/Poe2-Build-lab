@@ -95,6 +95,17 @@ public static class TooltipKindConverter
             => throw new NotSupportedException();
     }
 
+    /// <summary>Translate a rune name, or show an em-dash for the empty "none" sentinel.</summary>
+    public static readonly IValueConverter RuneNameOrDash = new RuneNameOrDashConverter();
+
+    private sealed class RuneNameOrDashConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => value is string s && s.Length > 0 ? GameTranslationService.Instance.Rune(s) : "—";
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
     private sealed class KindEqualsConverter(string expected) : IValueConverter
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

@@ -6,6 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
              xmlns:loc="using:PBLApp.Localization"
              xmlns:ctl="using:PBLApp.Controls"
+             xmlns:eng="using:PBLEngine"
              x:Class="PBLApp.Views.ItemsTabView"
              x:DataType="vm:ItemsTabViewModel">
 
@@ -738,6 +739,49 @@
                                 </Border>
                             </WrapPanel>
                         </StackPanel>
+
+                        <!-- ── TATTOOS (Runic Meridians) ─────────────────────
+                             Body Rune sockets granted by the Martial Artist node;
+                             hidden unless that node is allocated. Selected runes feed
+                             calc via ConfigTab:ApplyTattooMods (invisible custom mods). -->
+                        <Border Margin="0,12,0,0" IsVisible="{Binding Tattoos.Available}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{loc:Tr Tattoo_PanelTitle}" Classes="section-header"/>
+                                <ItemsControl ItemsSource="{Binding Tattoos.Sockets}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="vm:TattooSocketViewModel">
+                                            <Grid ColumnDefinitions="96,*" Margin="0,3,0,0">
+                                                <TextBlock Grid.Column="0" Text="{Binding SlotTypeLabel}"
+                                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="12"
+                                                           VerticalAlignment="Center"/>
+                                                <ComboBox Grid.Column="1" ItemsSource="{Binding AvailableRunes}"
+                                                          SelectedItem="{Binding SelectedRune}"
+                                                          Background="{DynamicResource BgSurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}"
+                                                          Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12"
+                                                          HorizontalAlignment="Stretch">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate DataType="eng:RuneEntry">
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <Border Background="{Binding AugType, Converter={x:Static vm:TooltipKindConverter.RuneAugTypeBrush}}"
+                                                                        CornerRadius="3" Padding="4,0" VerticalAlignment="Center"
+                                                                        IsVisible="{Binding AugType, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                                                    <TextBlock Text="{Binding AugType, Converter={x:Static vm:TooltipKindConverter.RuneAugTypeLabel}}"
+                                                                               FontSize="10" FontWeight="Bold" Foreground="#15151F"/>
+                                                                </Border>
+                                                                <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.RuneNameOrDash}}"
+                                                                           FontSize="12" TextTrimming="CharacterEllipsis"
+                                                                           VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
 
 
                         <!-- ── ITEM POOL section ─────────────────────────── -->

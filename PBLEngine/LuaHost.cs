@@ -1351,6 +1351,75 @@ public sealed class LuaHost : IDisposable
     }
 
     /// <summary>
+    /// Reads the Runic Meridians body-tattoo socket state: whether the ascendancy node
+    /// is allocated, and the rune currently socketed in each fixed slot (helmet / body
+    /// armour ×2 / gloves / boots). Selections live in configTab.input.tattooRunes.
+    /// </summary>
+    public TattooState GetTattooState()
+    {
+        var sockets = new List<TattooSocket>();
+        bool available = false;
+        var result = State.DoString(@"
+            if not (build and build.configTab and build.configTab.TattooSlotTypes) then return nil end
+            local ct = build.configTab
+            local slotTypes = ct:TattooSlotTypes()
+            local input = ct.configSets[ct.activeConfigSetId].input
+            local raw = input.tattooRunes or ''
+            local sel = {}
+            local i = 0
+            for name in (raw..'|'):gmatch('([^|]*)|') do i = i + 1; sel[i] = name end
+            local out = { ct:TattoosAvailable(), {} }
+            for idx, st in ipairs(slotTypes) do
+                table.insert(out[2], { idx, st, sel[idx] or '' })
+            end
+            return out
+        ");
+        if (result is { Length: > 0 } && result[0] is LuaTable tbl)
+        {
+            available = tbl[1L] is bool b && b;
+            if (tbl[2L] is LuaTable socketTbl)
+                foreach (var k in socketTbl.Keys)
+                {
+                    if (socketTbl[k] is not LuaTable row) continue;
+                    var idx  = row[1L] is long li ? (int)li : 0;
+                    var st   = row[2L] as string ?? "";
+                    var rune = row[3L] as string ?? "";
+                    sockets.Add(new TattooSocket(idx, st, rune));
+                }
+        }
+        return new TattooState(available, sockets);
+    }
+
+    /// <summary>Sets (or clears, with an empty name) the rune in tattoo socket
+    /// <paramref name="index"/> (1-based) and recalculates. Persists positionally in
+    /// configTab.input.tattooRunes; the mods are injected by ConfigTab:ApplyTattooMods.</summary>
+    public void SetTattooRune(int index, string runeName)
+    {
+        State["_ttIdx"]  = (long)index;
+        State["_ttRune"] = runeName ?? "";
+        State.DoString(@"
+            if not (build and build.configTab and build.configTab.TattooSlotTypes) then return end
+            local ct = build.configTab
+            local slotTypes = ct:TattooSlotTypes()
+            local input = ct.configSets[ct.activeConfigSetId].input
+            local raw = input.tattooRunes or ''
+            local sel = {}
+            for name in (raw..'|'):gmatch('([^|]*)|') do sel[#sel+1] = name end
+            for i = 1, #slotTypes do sel[i] = sel[i] or '' end
+            if _ttIdx >= 1 and _ttIdx <= #slotTypes then sel[_ttIdx] = _ttRune end
+            local joined = table.concat(sel, '|', 1, #slotTypes)
+            -- collapse an all-empty selection back to '' so it isn't serialized
+            if joined:gsub('|', '') == '' then joined = '' end
+            input.tattooRunes = joined
+            ct:BuildModList()
+            build.buildFlag = true
+        ");
+        State["_ttIdx"]  = null;
+        State["_ttRune"] = null;
+        TriggerRecalc();
+    }
+
+    /// <summary>
     /// Renders a full PoB-style item tooltip into structured lines.
     /// When <paramref name="slotName"/> is provided the item is taken from
     /// that slot (and PoB appends the "Removing this item from X will give you:"

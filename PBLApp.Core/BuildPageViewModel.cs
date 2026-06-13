@@ -141,7 +141,7 @@ public partial class BuildPageViewModel : ViewModelBase
             ItemsTab  = new ItemsTabViewModel(host, model,
                 onStatsChanged: () => { CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); });
             TreeTab   = new TreeTabViewModel(host,
-                onStatsChanged: () => { model.Refresh(); CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); });
+                onStatsChanged: () => { model.Refresh(); CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); ItemsTab?.Tattoos.Refresh(); });
             NotesTab  = new NotesTabViewModel(model, xmlPath);
             ConfigTab = new ConfigTabViewModel(host, model);
             ImportTab = new ImportTabViewModel(host, model, xmlPath);

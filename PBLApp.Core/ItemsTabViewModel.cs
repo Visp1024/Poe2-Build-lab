@@ -481,11 +481,17 @@ public partial class ItemsTabViewModel : ViewModelBase
 
     // ── Constructor ─────────────────────────────────────────────────────────
 
+    /// <summary>Runic Meridians body-tattoo Rune sockets (visible only when that
+    /// Martial Artist node is allocated). Lives here so the panel sits in the Items tab.</summary>
+    public TattoosViewModel Tattoos { get; }
+
     public ItemsTabViewModel(LuaHost host, BuildModel build, Action? onStatsChanged = null)
     {
         _host           = host;
         _build          = build;
         _onStatsChanged = onStatsChanged;
+        Tattoos         = new TattoosViewModel(host,
+            onStatsChanged: () => { _build.Refresh(); _onStatsChanged?.Invoke(); });
 
         Helmet     = new ItemSlotViewModel(this, "Helmet",      "Helmet");
         BodyArmour = new ItemSlotViewModel(this, "Body Armour", "Body Armour");
@@ -927,6 +933,8 @@ public partial class ItemsTabViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasExtraSlots));
         SelectWeaponSet1Command.NotifyCanExecuteChanged();
         SelectWeaponSet2Command.NotifyCanExecuteChanged();
+
+        Tattoos.Refresh();
 
         RefreshPool();
 

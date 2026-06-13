@@ -271,6 +271,30 @@ public class VisualTools
 
     [McpServerTool]
     [Description(
+        "Read the Runic Meridians (Martial Artist) body-tattoo Rune sockets: whether the panel " +
+        "is available (node allocated) and the rune in each fixed socket (helmet / body armour ×2 " +
+        "/ gloves / boots). Returns {available, sockets:[{index,slotType,label,rune,options}]}.")]
+    public async Task<string> VisualItemsTattooState()
+    {
+        try { return await IpcClient.CallAsync("GET", "/items/tattoo-state"); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Set (or clear) the Rune in a Runic Meridians tattoo socket by 1-based index. The rune " +
+        "name is matched against that socket's compatible runes; pass empty to clear. The rune's " +
+        "mods are injected into calc via the hidden tattoo custom-mods path.")]
+    public async Task<string> VisualItemsSetTattoo(
+        [Description("1-based socket index (1=helmet, 2-3=body armour, 4=gloves, 5=boots).")] int index,
+        [Description("Rune name (exact), or empty to clear.")] string rune = "")
+    {
+        try { return await IpcClient.CallAsync("POST", "/items/set-tattoo", new { index, rune }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
         "Report the equip-compatible (drag-highlight) target slots PoB accepts for an item. " +
         "Honours keystone/ascendancy rules: e.g. a Focus is only valid in Weapon 2 while a " +
         "Staff is equipped if Instruments of Power is allocated; Giant's Blood enables dual " +

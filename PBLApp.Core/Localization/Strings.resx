@@ -332,6 +332,11 @@
   <data name="Rune_Aug_Idol"          xml:space="preserve"><value>Idol</value></data>
   <data name="Rune_Aug_AbyssalEye"    xml:space="preserve"><value>Abyssal Eye</value></data>
   <data name="Rune_Aug_CongealedMist" xml:space="preserve"><value>Mist</value></data>
+  <data name="Tattoo_PanelTitle"    xml:space="preserve"><value>TATTOOS (RUNIC MERIDIANS)</value></data>
+  <data name="Tattoo_Helmet"        xml:space="preserve"><value>Helmet</value></data>
+  <data name="Tattoo_BodyArmour"    xml:space="preserve"><value>Body Armour</value></data>
+  <data name="Tattoo_Gloves"        xml:space="preserve"><value>Gloves</value></data>
+  <data name="Tattoo_Boots"         xml:space="preserve"><value>Boots</value></data>
   <data name="Editor_BaseStats"     xml:space="preserve"><value>BASE STATS</value></data>
   <data name="Editor_StatArmour"    xml:space="preserve"><value>Armour</value></data>
   <data name="Editor_StatEvasion"   xml:space="preserve"><value>Evasion</value></data>
