@@ -81,6 +81,14 @@ public partial class SkillsTabView : UserControl
             vm.SelectedGroup = group;
     }
 
+    // Support slot delete (X): Border + PointerPressed → run the slot's RemoveCommand.
+    private void RemoveSlot_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is Border { DataContext: GemViewModel gem } && gem.RemoveCommand.CanExecute(null))
+            gem.RemoveCommand.Execute(null);
+        e.Handled = true;
+    }
+
     // ── Active gem (header) ───────────────────────────────────────────────
 
     private void ActiveGemNameBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -116,6 +124,7 @@ public partial class SkillsTabView : UserControl
         {
             gem.SearchText = "";
             gem.Tab = GemTab.All;
+            gem.SupportMode = false;   // trigger groups default to the Skills list
             gem.RefreshPickerCounts();
         }
 
@@ -129,6 +138,13 @@ public partial class SkillsTabView : UserControl
         if (sender is Border { DataContext: GemViewModel gem, Tag: string tag }
             && System.Enum.TryParse<GemTab>(tag, out var tab))
             gem.Tab = tab;
+    }
+
+    // Skills/Support segmented toggle (Cast-on groups): switch the picker list.
+    private void SupportMode_Pressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is Border { DataContext: GemViewModel gem, Tag: string tag })
+            gem.SupportMode = tag == "supports";
     }
 
     private void SupportPickerSearch_KeyDown(object? sender, KeyEventArgs e)

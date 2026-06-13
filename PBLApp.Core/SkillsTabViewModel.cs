@@ -15,7 +15,7 @@ namespace PBLApp.ViewModels;
 public enum GemAttr { None, Str, Dex, Int }
 
 /// <summary>Active attribute filter tab in the support-gem picker.</summary>
-public enum GemTab { All, Str, Dex, Int }
+public enum GemTab { All, Str, Dex, Int, Special }
 
 public static class GemAttrUtil
 {
@@ -105,6 +105,7 @@ public partial class GemViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AvailableGemNameItems))]
     [NotifyPropertyChangedFor(nameof(FilteredGemNames))]
+    [NotifyPropertyChangedFor(nameof(ShowLevelQuality))]
     private bool _isSupport = false;
 
     [ObservableProperty]
@@ -112,6 +113,11 @@ public partial class GemViewModel : ObservableObject
     private string _color = "#CDD6F4";
 
     public string NameForeground => IsEnabled ? _color : "#585B70";
+
+    /// <summary>Level/Quality controls are only meaningful for skill gems — show
+    /// them for an active gem or a skill gem inserted into a support slot, but
+    /// never for support gems or empty slots.</summary>
+    public bool ShowLevelQuality => !IsEmpty && !IsSupport;
 
     [ObservableProperty]
     private IReadOnlyList<GemTooltipEntry>? _tooltipEntries;
@@ -128,6 +134,7 @@ public partial class GemViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FilteredGemNames))]
     [NotifyPropertyChangedFor(nameof(AvailableGemNameItems))]
+    [NotifyPropertyChangedFor(nameof(SkillsMode))]
     private bool _supportMode;
 
     /// <summary>True when this slot belongs to a trigger/meta group (Cast on …),
@@ -136,6 +143,9 @@ public partial class GemViewModel : ObservableObject
 
     /// <summary>True for the Skills sub-mode of a trigger group (no attribute tabs).</summary>
     public bool SkillsMode => IsTriggerSlot && !SupportMode;
+
+    /// <summary>Triggered skills currently installed in this group (Skills mode counter).</summary>
+    public int SkillsHave => _parent.SkillSlotsInGroup(GroupIndex);
 
     // Per-tab counters (installed / max), refreshed when the picker opens.
     public int TabAllHave => _parent.TotalSupportInstalled();
@@ -146,6 +156,9 @@ public partial class GemViewModel : ObservableObject
     public int TabDexMax  => _parent.AttrMax(GemAttr.Dex);
     public int TabIntHave => _parent.AttrInstalled(GemAttr.Int);
     public int TabIntMax  => _parent.AttrMax(GemAttr.Int);
+    // Special gems carry no attribute requirement, so there is no attribute-based
+    // slot cap — only the installed count is shown (no /max).
+    public int TabSpecialHave => _parent.AttrInstalled(GemAttr.None);
 
     /// <summary>Recompute the tab counters (call when opening the picker, since
     /// installed counts depend on every group's current contents).</summary>
@@ -155,6 +168,8 @@ public partial class GemViewModel : ObservableObject
         OnPropertyChanged(nameof(TabStrHave)); OnPropertyChanged(nameof(TabStrMax));
         OnPropertyChanged(nameof(TabDexHave)); OnPropertyChanged(nameof(TabDexMax));
         OnPropertyChanged(nameof(TabIntHave)); OnPropertyChanged(nameof(TabIntMax));
+        OnPropertyChanged(nameof(TabSpecialHave));
+        OnPropertyChanged(nameof(SkillsHave));
         OnPropertyChanged(nameof(IsTriggerSlot));
         OnPropertyChanged(nameof(SkillsMode));
         OnPropertyChanged(nameof(FilteredGemNames));
@@ -230,10 +245,11 @@ public partial class GemViewModel : ObservableObject
             {
                 var want = Tab switch
                 {
-                    GemTab.Str => GemAttr.Str,
-                    GemTab.Dex => GemAttr.Dex,
-                    GemTab.Int => GemAttr.Int,
-                    _          => GemAttr.None,
+                    GemTab.Str     => GemAttr.Str,
+                    GemTab.Dex     => GemAttr.Dex,
+                    GemTab.Int     => GemAttr.Int,
+                    GemTab.Special => GemAttr.None,
+                    _              => GemAttr.None,
                 };
                 all = all.Where(g => GemAttrUtil.FromColor(g.Color) == want);
             }
@@ -293,6 +309,7 @@ public partial class GemViewModel : ObservableObject
         OnPropertyChanged(nameof(AvailableGemNameItems));
         OnPropertyChanged(nameof(FilteredGemNames));
         OnPropertyChanged(nameof(IsEmpty));
+        OnPropertyChanged(nameof(ShowLevelQuality));
         ((RelayCommand)RemoveCommand).NotifyCanExecuteChanged();
         RefreshTooltip();
     }
@@ -543,6 +560,18 @@ public partial class SkillsTabViewModel : ViewModelBase
 
     public int TotalSupportMax() =>
         AttrMax(GemAttr.Str) + AttrMax(GemAttr.Dex) + AttrMax(GemAttr.Int);
+
+    /// <summary>Count of triggered active-skill gems in a group's slots (non-support,
+    /// non-empty) — the "Skills" counter for Cast-on/meta groups.</summary>
+    public int SkillSlotsInGroup(int groupIdx)
+    {
+        var g = Groups.FirstOrDefault(x => x.Index == groupIdx);
+        if (g is null) return 0;
+        int n = 0;
+        foreach (var s in g.SupportSlots)
+            if (!s.IsEmpty && !s.IsSupport) n++;
+        return n;
+    }
 
     public ObservableCollection<SkillGroupViewModel> Groups { get; } = [];
 

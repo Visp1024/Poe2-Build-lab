@@ -703,6 +703,7 @@ public sealed class IpcServer
             new { key = "Str", have = slot.TabStrHave, max = slot.TabStrMax },
             new { key = "Dex", have = slot.TabDexHave, max = slot.TabDexMax },
             new { key = "Int", have = slot.TabIntHave, max = slot.TabIntMax },
+            new { key = "Special", have = slot.TabSpecialHave, max = 0 },
         },
         filtered = slot.FilteredGemNames.Select(g => new
         {
