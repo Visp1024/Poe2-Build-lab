@@ -52,11 +52,17 @@ public partial class ItemTooltipViewModel : ViewModelBase
     [ObservableProperty]
     private bool _hasDelta;
 
+    /// <summary>Colour of the item's name line — used by the hybrid tooltip card as a
+    /// left rarity-accent stripe. Defaults to normal-grey until a title line is seen.</summary>
+    [ObservableProperty]
+    private string _rarityColorHex = "#C8C8C8";
+
     public void Load(IEnumerable<ItemTooltipLine> rawLines)
     {
         Lines.Clear();
         ItemLines.Clear();
         DeltaLines.Clear();
+        bool rarityCaptured = false;
         foreach (var line in rawLines)
         {
             if (line.Kind == "separator")
@@ -72,6 +78,13 @@ public partial class ItemTooltipViewModel : ViewModelBase
             {
                 var segments = ParseSegments(line.Text);
                 var plain    = StripColors(line.Text);
+                // First item-block text line is the name → its colour is the rarity colour.
+                if (!rarityCaptured && line.Block <= 1 && segments.Count > 0)
+                {
+                    RarityColorHex = segments[0].ColorHex;
+                    rarityCaptured = true;
+                }
+                var statHl = StatColorForLine(plain);
                 var translated = GameTranslationService.Instance.TooltipLine(plain);
                 // If the translator gave us a different string, replace the segments with
                 // a single segment carrying the translation in the dominant colour. This
@@ -80,14 +93,15 @@ public partial class ItemTooltipViewModel : ViewModelBase
                 if (!ReferenceEquals(translated, plain) && translated != plain)
                 {
                     var color = segments.Count > 0 ? segments[0].ColorHex : "#CDD6F4";
-                    segments = HighlightNumbers(translated, color);
+                    statHl = StatColorForLine(translated) ?? statHl;
+                    segments = HighlightNumbers(translated, color, statHl);
                     plain = translated;
                 }
                 else if (segments.Count == 1)
                 {
                     // Untranslated single-segment line — still highlight numbers
                     // (e.g. flavour, English fallbacks).
-                    segments = HighlightNumbers(segments[0].Text, segments[0].ColorHex);
+                    segments = HighlightNumbers(segments[0].Text, segments[0].ColorHex, statHl);
                 }
                 Lines.Add(new TooltipLineVm
                 {
@@ -137,9 +151,34 @@ public partial class ItemTooltipViewModel : ViewModelBase
         _         => baseColor,
     };
 
-    private static IReadOnlyList<TooltipSegment> HighlightNumbers(string text, string baseColor)
+    // Only mod-text colours get a stat-semantic number colour; grey labels (requirements)
+    // and delta runs keep their dedicated treatment.
+    private static bool IsModBase(string baseColor) =>
+        baseColor.ToUpperInvariant() is "#8888FF" or "#CDD6F4";
+
+    /// <summary>Detect the dominant stat of a mod line (RU + EN keywords) and return its
+    /// token colour, so rolled numbers read fire/cold/life/ES… at a glance (hybrid look).
+    /// Returns null when no single stat is obvious → caller falls back to the gold highlight.</summary>
+    private static string? StatColorForLine(string text)
     {
-        var hl = NumberColor(baseColor);
+        if (string.IsNullOrEmpty(text)) return null;
+        var t = text.ToLowerInvariant();
+        // elements (check resist/damage keywords) — element word is the discriminator
+        if (t.Contains("огн") || t.Contains("fire"))                       return "#E5703A";
+        if (t.Contains("холод") || t.Contains("лед") || t.Contains("cold")) return "#5AB7E0";
+        if (t.Contains("молни") || t.Contains("lightning"))                return "#F1D33F";
+        if (t.Contains("хаос") || t.Contains("chaos"))                     return "#D957B8";
+        if (t.Contains("энергет") || t.Contains("energy shield") || t.Contains("щит")) return "#6FA8DC";
+        if (t.Contains("здоров") || t.Contains(" life") || t.StartsWith("life") || t.Contains("к жизни")) return "#7FC78A";
+        if (t.Contains("ман") || t.Contains("mana"))                       return "#8AA6F5";
+        if (t.Contains("брон") || t.Contains("armour") || t.Contains("armor")) return "#E8B763";
+        if (t.Contains("уклон") || t.Contains("evasion"))                  return "#B69CE8";
+        return null;
+    }
+
+    private static IReadOnlyList<TooltipSegment> HighlightNumbers(string text, string baseColor, string? statColor = null)
+    {
+        var hl = (statColor is not null && IsModBase(baseColor)) ? statColor : NumberColor(baseColor);
         if (hl == baseColor || string.IsNullOrEmpty(text))
             return new[] { new TooltipSegment(text, baseColor) };
 

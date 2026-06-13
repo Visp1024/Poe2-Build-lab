@@ -19,9 +19,13 @@ public static class TooltipKindConverter
     public static readonly IValueConverter CenterOrLeft = new BoolToAlignmentConverter();
     public static readonly IValueConverter CenterOrLeftTextAlignment = new BoolToTextAlignmentConverter();
     public static readonly IValueConverter HexToBrush  = new HexBrushConverter();
-    /// <summary>Maps PoB pixel sizes (14/18/22) to Avalonia DIPs at 1.0× (denser scale was hard to read).</summary>
+    /// <summary>Maps PoB pixel sizes (14/18/22) to Avalonia DIPs at 1.0× (weight, not size,
+    /// carries readability — see WeightForSize). Used by the equip/unequip delta column.</summary>
     public static readonly IValueConverter ScaleSize   = new ScaleSizeConverter(1.0);
-    /// <summary>Bold for header sizes (≥ 20), Normal otherwise.</summary>
+    /// <summary>Item-description column scale — slightly smaller than the raw PoB size so the
+    /// description reads only a touch larger than the (1.0×) delta column, not much bigger.</summary>
+    public static readonly IValueConverter ScaleSizeItem = new ScaleSizeConverter(0.9);
+    /// <summary>Bold for header sizes (≥ 20), Medium otherwise (avoid thin/hard-to-read body).</summary>
     public static readonly IValueConverter WeightForSize = new WeightForSizeConverter();
     /// <summary>LineHeight = size × 1.4 — without this, larger title glyphs get clipped
     /// vertically by a too-tight default line box.</summary>
@@ -224,7 +228,7 @@ public static class TooltipKindConverter
                 double d => d,
                 _        => 14.0,
             };
-            return Math.Max(16.0, size * 1.4);
+            return Math.Max(13.0, size * 1.1);
         }
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
             => throw new NotSupportedException();
@@ -241,7 +245,7 @@ public static class TooltipKindConverter
                 double d => d,
                 _        => 14.0,
             };
-            return size >= 20 ? FontWeight.Bold : FontWeight.Normal;
+            return size >= 20 ? FontWeight.Bold : FontWeight.Medium;
         }
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
             => throw new NotSupportedException();

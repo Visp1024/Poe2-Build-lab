@@ -9,31 +9,28 @@
              x:DataType="vm:ItemTooltipViewModel">
 
     <UserControl.Styles>
+        <!-- Hybrid tooltip: house-style card (BgMantle + BorderSubtle, rounded) with a
+             left rarity-accent stripe; PoE-authentic text colours come from the segments. -->
         <Style Selector="Border.tooltip-frame">
-            <Setter Property="Background" Value="{DynamicResource TooltipBgBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderGoldBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="CornerRadius" Value="2"/>
-            <Setter Property="Padding" Value="14,12"/>
-        </Style>
-        <Style Selector="Border.tooltip-inset">
-            <Setter Property="BorderBrush" Value="{DynamicResource TooltipBorderBrownBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="1"/>
-            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="ClipToBounds" Value="True"/>
         </Style>
         <!-- A single Inline-driven TextBlock per line so long titles wrap inside the
              column rather than overflowing. WrapPanel of separate TextBlocks doesn't
              word-wrap; only the row-of-runs wraps. -->
         <Style Selector="TextBlock.tt-line">
             <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial"/>
+            <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         </Style>
         <Style Selector="Border.tt-sep">
             <Setter Property="Height" Value="1"/>
-            <Setter Property="Background" Value="{DynamicResource TooltipBorderBrownBrush}"/>
-            <Setter Property="Margin" Value="0,6,0,6"/>
+            <Setter Property="Background" Value="{DynamicResource BorderSubtleBrush}"/>
+            <Setter Property="Margin" Value="0,5,0,5"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
         <Style Selector="TextBlock.tt-delta-header">
@@ -48,22 +45,27 @@
     </UserControl.Styles>
 
     <Border Classes="tooltip-frame">
-        <Border Classes="tooltip-inset" Padding="10,8">
-            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                          VerticalScrollBarVisibility="Auto">
+        <Grid ColumnDefinitions="3,*">
+            <!-- left rarity-accent stripe -->
+            <Rectangle Grid.Column="0"
+                       Fill="{Binding RarityColorHex, Converter={x:Static vm:TooltipKindConverter.HexToBrush}}"/>
+            <ScrollViewer Grid.Column="1"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto"
+                          Padding="14,10">
                 <Grid ColumnDefinitions="*,Auto,*">
                     <!-- ── Item info (block 1) ─────────────────────────────────── -->
                     <ItemsControl Grid.Column="0"
                                   ItemsSource="{Binding ItemLines}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="vm:TooltipLineVm">
-                                <Grid Margin="0,2">
+                                <Grid Margin="0,1">
                                     <Border Classes="tt-sep"
                                             IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsSeparator}}"/>
                                     <TextBlock Classes="tt-line"
                                                IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsText}}"
                                                ctl:InlinesHelper.ItemSegments="{Binding Segments}"
-                                               FontSize="{Binding Size, Converter={x:Static vm:TooltipKindConverter.ScaleSize}}"
+                                               FontSize="{Binding Size, Converter={x:Static vm:TooltipKindConverter.ScaleSizeItem}}"
                                                FontWeight="{Binding Size, Converter={x:Static vm:TooltipKindConverter.WeightForSize}}"
                                                LineHeight="{Binding Size, Converter={x:Static vm:TooltipKindConverter.LineHeightForSize}}"
                                                HorizontalAlignment="{Binding Centered, Converter={x:Static vm:TooltipKindConverter.CenterOrLeft}}"
@@ -77,7 +79,7 @@
                     <Border Grid.Column="1"
                             Width="1"
                             Margin="14,0,14,0"
-                            Background="{DynamicResource TooltipBorderBrownBrush}"
+                            Background="{DynamicResource BorderSubtleBrush}"
                             IsVisible="{Binding HasDelta}"/>
 
                     <!-- ── Equip / unequip delta (block ≥ 2) ────────────────────── -->
@@ -101,6 +103,6 @@
                     </StackPanel>
                 </Grid>
             </ScrollViewer>
-        </Border>
+        </Grid>
     </Border>
 </UserControl>

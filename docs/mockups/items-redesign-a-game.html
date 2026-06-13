@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Предметы — Вариант A (игровой тултип)</title>
+<style>
+  :root{
+    --bg-base:#0E0F13; --bg-mantle:#15171D; --bg-surface:#1C1F27; --bg-raised:#262A35; --bg-overlay:#353A48;
+    --border-subtle:#2A2E3A; --border-strong:#3E4456;
+    --text-primary:#E4E7EE; --text-secondary:#A8B0BD; --text-muted:#6E7689;
+    --brand400:#D9B670; --brand500:#C9A24E;
+    --confirm-bg:#1E3A2F; --confirm-hover:#2A4A3A; --danger:#D87171;
+    --life:#7FC78A; --es:#6FA8DC; --mana:#8AA6F5; --armour:#E8B763;
+    --r-normal:#C8C8C8; --r-magic:#8888FF; --r-rare:#FFFF77; --r-unique:#AF6025;
+    /* PoE tooltip frame palette */
+    --tt-bg:#0A0A14; --tt-gold:#A8824B; --tt-brown:#5A3F1F; --tt-sep:#3A2A18;
+    --mod:#8888FF; --enchant:#74C7EC; --corrupt:#D20000;
+    --font-ui:'Inter','Segoe UI',Arial,sans-serif; --font-mono:'Cascadia Code','Consolas',monospace; --radius:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg-base);color:var(--text-primary);font-family:var(--font-ui);font-size:14px;padding:24px;-webkit-font-smoothing:antialiased}
+  .stage{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+  .statelabel{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-top:14px}
+  .variant-note{font-size:12px;color:var(--text-secondary);background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius);padding:8px 12px;line-height:1.5}
+  .variant-note b{color:var(--brand400)}
+
+  /* right panel shell */
+  .rightpanel{background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:var(--radius);overflow:hidden}
+  .rp-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;height:46px;padding:0 12px;background:var(--bg-mantle);border-bottom:1px solid var(--border-subtle)}
+  .rp-toolbar .ttl{margin-right:auto;font-size:13px;font-weight:600;color:var(--text-secondary)}
+  .btn{height:30px;padding:0 14px;border-radius:var(--radius);border:1px solid var(--border-subtle);background:var(--bg-surface);color:var(--text-secondary);font-size:12px;font-family:var(--font-ui);cursor:pointer}
+  .btn:hover{background:var(--bg-raised);color:var(--text-primary)}
+  .btn.accent{border-color:var(--brand500);color:var(--brand400)}
+  .btn.save{border-color:#3a6b52;background:var(--confirm-bg);color:#bfe8cf}
+  .btn.save:hover{background:var(--confirm-hover)}
+  .rp-body{padding:16px}
+
+  /* ============ VARIANT A — authentic PoE tooltip ============ */
+  .ttA{background:var(--tt-bg);border:2px solid var(--tt-gold);border-radius:2px;padding:13px 12px;max-width:480px;margin:0 auto}
+  .ttA .inset{border:1px solid var(--tt-brown);padding:10px 12px}
+  .ttA .name{ text-align:center;color:var(--r-rare);font-size:18px;line-height:1.25;font-weight:600}
+  .ttA .base{ text-align:center;color:var(--r-rare);font-size:15px;margin-top:1px}
+  .ttA .sep{height:1px;background:var(--tt-brown);margin:8px 0}
+  .ttA .prop{font-size:13px;color:var(--text-muted)}
+  .ttA .prop b{color:var(--mod);font-weight:500}
+  .ttA .req{font-size:13px;color:var(--text-muted)}
+  .ttA .req b{color:var(--text-primary);font-weight:500}
+  .ttA .mod{font-size:13.5px;color:var(--mod);line-height:1.5;text-align:center}
+  .ttA .implicit{color:var(--mod)}
+  .ttA .crafted{color:var(--enchant)}
+  .ttA .corrupt{color:var(--corrupt);text-align:center;font-size:13px}
+  .ttA .flavor{color:#7a6a55;font-style:italic;font-size:12.5px;text-align:center}
+
+  /* ============ EDITOR (house style — shared across A/B/C) ============ */
+  .seg{display:flex;gap:0;border:1px solid var(--border-subtle);border-radius:var(--radius);overflow:hidden}
+  .seg button{flex:1;height:30px;border:0;background:var(--bg-surface);color:var(--text-secondary);font-size:12px;font-family:var(--font-ui);cursor:pointer;border-right:1px solid var(--border-subtle)}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:var(--bg-raised);color:var(--text-primary);font-weight:600}
+  .seg button.r-normal.on{color:var(--r-normal)} .seg button.r-magic.on{color:var(--r-magic)}
+  .seg button.r-rare.on{color:var(--r-rare)} .seg button.r-unique.on{color:var(--r-unique)}
+
+  .field{margin-bottom:12px}
+  .field>label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:5px;font-weight:600}
+  .inp{width:100%;height:32px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius);color:var(--text-primary);font-size:13px;padding:0 10px;font-family:var(--font-ui)}
+  .inp:focus{outline:none;border-color:var(--brand500)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .ecard{background:var(--bg-mantle);border:1px solid var(--border-subtle);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+  .ecard-h{display:flex;align-items:center;gap:8px;height:30px;padding:0 11px;background:var(--bg-raised);border-left:3px solid var(--accent,var(--brand400))}
+  .ecard-h .t{flex:1;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--accent,var(--brand400))}
+  .ecard-h .count{font-family:var(--font-mono);font-size:11px;color:var(--text-muted)}
+  .ecard-h .add{width:22px;height:22px;border-radius:4px;border:0;background:transparent;color:var(--text-muted);cursor:pointer;font-size:15px}
+  .ecard-h .add:hover{background:var(--bg-overlay);color:var(--text-primary)}
+  .ecard-b{padding:8px 11px}
+
+  .affix{padding:7px 0;border-bottom:1px solid var(--border-subtle)}
+  .affix:last-child{border-bottom:0}
+  .affix-top{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+  .affix-name{flex:1;font-size:11px;color:var(--text-muted)}
+  .affix-tier{font-family:var(--font-mono);font-size:10px;color:var(--brand400);background:var(--brand100,#2D2415);padding:1px 5px;border-radius:3px}
+  .affix-del{color:var(--text-muted);cursor:pointer;font-size:13px}
+  .affix-del:hover{color:var(--danger)}
+  .affix-mod{font-size:13px;color:var(--text-secondary);margin-bottom:5px}
+  .affix-mod b{color:var(--mod);font-family:var(--font-mono)}
+  .sliderrow{display:flex;align-items:center;gap:9px}
+  input[type=range]{flex:1;accent-color:var(--brand500);height:3px}
+  .sliderrow .rng{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);min-width:54px;text-align:right}
+
+  .flags{display:flex;gap:18px;padding:4px 2px 2px}
+  .flag{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-secondary);cursor:pointer}
+  .flag .box{width:16px;height:16px;border-radius:4px;border:1px solid var(--border-strong);background:var(--bg-surface)}
+  .flag.on .box{background:var(--brand500);border-color:var(--brand500)}
+  .flag.corrupt.on .box{background:var(--corrupt);border-color:var(--corrupt)}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <div class="variant-note"><b>Вариант A — игровой вид.</b> Тултип сохраняет аутентичную рамку PoE (золото #A8824B, тёмный фон, цвета редкости и модов как в игре). Меняются только отступы/типографика. Редактор — в house-style (как Calcs/Config).</div>
+
+  <!-- ───────── Режим просмотра (тултип) ───────── -->
+  <div class="statelabel">Режим просмотра — тултип</div>
+  <div class="rightpanel">
+    <div class="rp-toolbar">
+      <button class="btn accent">✎ Редактировать</button>
+    </div>
+    <div class="rp-body">
+      <div class="ttA">
+        <div class="inset">
+          <div class="name">Договор</div>
+          <div class="base">Алтарная одежда</div>
+          <div class="sep"></div>
+          <div class="prop">Качество: <b>+20%</b></div>
+          <div class="prop">Энергетический щит: <b>277</b></div>
+          <div class="sep"></div>
+          <div class="req">Требуется: Ур. <b>78</b>, <b>277</b> Инт</div>
+          <div class="sep"></div>
+          <div class="mod implicit">20% увеличение длительности негативных состояний на врагах</div>
+          <div class="sep"></div>
+          <div class="mod">+24% к сопротивлению огню</div>
+          <div class="mod">+31% к сопротивлению холоду</div>
+          <div class="mod">+80 к максимуму здоровья</div>
+          <div class="mod">118% увеличение энергетического щита</div>
+          <div class="mod crafted">+18 к максимуму маны</div>
+          <div class="sep"></div>
+          <div class="corrupt">Осквернён</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── Режим создания/правки ───────── -->
+  <div class="statelabel">Режим создания / правки предмета</div>
+  <div class="rightpanel">
+    <div class="rp-toolbar">
+      <span class="ttl">Правка предмета</span>
+      <button class="btn">Отмена</button>
+      <button class="btn save">Сохранить</button>
+    </div>
+    <div class="rp-body">
+      <div class="field">
+        <label>Название</label>
+        <input class="inp" value="Договор">
+      </div>
+      <div class="field">
+        <label>Редкость</label>
+        <div class="seg">
+          <button class="r-normal">Обычный</button>
+          <button class="r-magic">Магический</button>
+          <button class="r-rare on">Редкий</button>
+          <button class="r-unique">Уникальный</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>База</label>
+        <input class="inp" value="Алтарная одежда (Энергощит)">
+      </div>
+      <div class="row2">
+        <div class="field"><label>Уровень предмета</label><input class="inp" value="85"></div>
+        <div class="field"><label>Качество</label><input class="inp" value="20%"></div>
+      </div>
+
+      <div class="ecard" style="--accent:var(--enchant)">
+        <div class="ecard-h"><span class="t">Имплицит</span></div>
+        <div class="ecard-b">
+          <div class="affix">
+            <div class="affix-mod">20% увеличение длительности негативных состояний</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="100"><span class="rng">20%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ecard" style="--accent:var(--mod)">
+        <div class="ecard-h"><span class="t">Префиксы</span><span class="count">2 / 3</span><button class="add">＋</button></div>
+        <div class="ecard-b">
+          <div class="affix">
+            <div class="affix-top"><span class="affix-name">of the Titan</span><span class="affix-tier">T1</span><span class="affix-del">✕</span></div>
+            <div class="affix-mod">+<b>80</b> к максимуму здоровья</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="72"><span class="rng">79–84</span></div>
+          </div>
+          <div class="affix">
+            <div class="affix-top"><span class="affix-name">Resplendent</span><span class="affix-tier">T2</span><span class="affix-del">✕</span></div>
+            <div class="affix-mod"><b>118%</b> увеличение энергетического щита</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="60"><span class="rng">109–120</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ecard" style="--accent:var(--mod)">
+        <div class="ecard-h"><span class="t">Суффиксы</span><span class="count">2 / 3</span><button class="add">＋</button></div>
+        <div class="ecard-b">
+          <div class="affix">
+            <div class="affix-top"><span class="affix-name">of the Salamander</span><span class="affix-tier">T3</span><span class="affix-del">✕</span></div>
+            <div class="affix-mod">+<b>24%</b> к сопротивлению огню</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="55"><span class="rng">24–29%</span></div>
+          </div>
+          <div class="affix">
+            <div class="affix-top"><span class="affix-name">of the Tundra</span><span class="affix-tier">T2</span><span class="affix-del">✕</span></div>
+            <div class="affix-mod">+<b>31%</b> к сопротивлению холоду</div>
+            <div class="sliderrow"><input type="range" min="0" max="100" value="68"><span class="rng">30–35%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ecard" style="--accent:var(--brand400)">
+        <div class="ecard-h"><span class="t">Сокеты рун</span><span class="count">1 / 2</span><button class="add">＋</button></div>
+        <div class="ecard-b">
+          <div class="affix" style="border:0">
+            <div class="affix-top"><span class="affix-name">Сокет 1</span><span class="affix-del">✕</span></div>
+            <select class="inp"><option>Рунка железа — +12 к броне</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flags">
+        <div class="flag corrupt on"><span class="box"></span>Осквернён</div>
+        <div class="flag"><span class="box"></span>Отзеркален</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

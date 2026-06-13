@@ -25,7 +25,7 @@
   <data name="Tab_Skills"         xml:space="preserve"><value>Умения</value></data>
   <data name="Tab_Calcs"          xml:space="preserve"><value>Расчёты</value></data>
   <data name="Tab_Notes"          xml:space="preserve"><value>Заметки</value></data>
-  <data name="Tab_Config"         xml:space="preserve"><value>Настройки</value></data>
+  <data name="Tab_Config"         xml:space="preserve"><value>Условия</value></data>
   <data name="Tab_ImportExport"   xml:space="preserve"><value>Импорт / Экспорт</value></data>
   <data name="Tab_PopOut"         xml:space="preserve"><value>Открыть в отдельном окне</value></data>
 
