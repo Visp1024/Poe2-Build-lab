@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using PBLApp.Core.Localization;
 using PBLEngine;
 using System;
@@ -156,6 +157,38 @@ public sealed class TreeCanvas : Control
     private Point  _pressStart;          // to distinguish click from drag
     private bool   _isRightPress;        // true when press was RMB (no panning)
     private bool   _fitNeeded = true;
+
+    // ── View persistence (zoom + centre across tab switch / app restart) ────
+    // Restored once on the first fit pass instead of FitToView; saved on user
+    // pan/zoom (debounced) and when the canvas leaves the visual tree.
+    private TreeViewPersistence.View? _pendingView;
+    private readonly DispatcherTimer _saveViewTimer;
+
+    public TreeCanvas()
+    {
+        _pendingView = TreeViewPersistence.Load();
+
+        _saveViewTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+        _saveViewTimer.Tick += (_, _) => { _saveViewTimer.Stop(); SaveCurrentView(); };
+
+        // Re-read from disk when re-attached only if we haven't already restored
+        // (a reused instance keeps its in-memory view); save on leave.
+        AttachedToVisualTree += (_, _) => _pendingView ??= TreeViewPersistence.Load();
+        DetachedFromVisualTree += (_, _) => SaveCurrentView();
+    }
+
+    private void SaveCurrentView()
+    {
+        if (Bounds.Width <= 0 || Bounds.Height <= 0) return;
+        var (s, cx, cy) = GetViewState();
+        TreeViewPersistence.Save(s, cx, cy);
+    }
+
+    private void QueueViewSave()
+    {
+        _saveViewTimer.Stop();
+        _saveViewTimer.Start();
+    }
 
     // ── Hover / lookup ─────────────────────────────────────────────────────
 
@@ -354,7 +387,17 @@ public sealed class TreeCanvas : Control
 
         if (_fitNeeded && Bounds.Width > 0 && Bounds.Height > 0)
         {
-            FitToView();
+            // Restore the persisted framing (tab switch / restart) once; fall
+            // back to fit-to-view when there's no saved state.
+            if (_pendingView is { } v)
+            {
+                ApplyView(v.Scale, v.CenterX, v.CenterY);
+                _pendingView = null;
+            }
+            else
+            {
+                FitToView();
+            }
             _fitNeeded = false;
         }
 
@@ -1078,6 +1121,7 @@ public sealed class TreeCanvas : Control
             _offsetY += pos.Y - _panStart.Y;
             _panStart = pos;
             InvalidateVisual();
+            QueueViewSave();
             e.Handled = true;
         }
 
@@ -1106,6 +1150,7 @@ public sealed class TreeCanvas : Control
         if (_staticLayer != null && _scale > _staticLayerScale * 1.5)
             InvalidateStaticLayer();
         InvalidateVisual();
+        QueueViewSave();
         e.Handled = true;
     }
 
