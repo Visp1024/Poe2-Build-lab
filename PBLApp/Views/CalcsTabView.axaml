@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:PBLApp.ViewModels"
              xmlns:engine="using:PBLEngine"
-             xmlns:core="using:PBLApp.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
@@ -10,76 +9,229 @@
              x:Class="PBLApp.Views.CalcsTabView"
              x:DataType="vm:CalcsTabViewModel">
 
+    <UserControl.Resources>
+        <StreamGeometry x:Key="IconChevronDown">M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z</StreamGeometry>
+        <StreamGeometry x:Key="IconSearch">M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z</StreamGeometry>
+        <StreamGeometry x:Key="IconClose">M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z</StreamGeometry>
+    </UserControl.Resources>
+
     <UserControl.Styles>
+        <!-- ── Column title ── -->
+        <Style Selector="TextBlock.col-title">
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Margin" Value="2,0,2,8" />
+        </Style>
+
+        <!-- ── Stat card ── -->
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="ClipToBounds" Value="True" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+        <Style Selector="Border.card.dim">
+            <Setter Property="Opacity" Value="0.25" />
+        </Style>
+
+        <!-- ── Card header (clickable, collapses the body) ── -->
+        <Style Selector="Border.card-head">
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="PathIcon.chev">
+            <Setter Property="Width" Value="11" />
+            <Setter Property="Height" Value="11" />
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+            <Setter Property="RenderTransform" Value="none" />
+            <Setter Property="Transitions">
+                <Transitions><TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.12" /></Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="PathIcon.chev.collapsed">
+            <Setter Property="RenderTransform" Value="rotate(-90deg)" />
+        </Style>
+
+        <!-- ── Stat row ── -->
         <Style Selector="Border.statrow">
             <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="3,0,0,0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="11,5" />
         </Style>
         <Style Selector="Border.statrow:pointerover">
-            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
         </Style>
         <Style Selector="Border.statrow.selected">
-            <Setter Property="Background" Value="{DynamicResource BorderStrongBrush}" />
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand500Brush}" />
         </Style>
-        <Style Selector="Border.infobox">
-            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="8,6" />
+        <Style Selector="Border.statrow.dim">
+            <Setter Property="Opacity" Value="0.18" />
         </Style>
-        <Style Selector="TextBlock.boxheader">
-            <Setter Property="Foreground" Value="{DynamicResource AttrIntBrush}" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontSize" Value="11" />
-            <Setter Property="Margin" Value="0,0,0,4" />
-        </Style>
-        <Style Selector="TextBlock.statlabel">
-            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
-            <Setter Property="FontSize" Value="11" />
+        <Style Selector="TextBlock.rlabel">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Medium" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
-        <Style Selector="TextBlock.statvalue">
-            <Setter Property="Foreground" Value="{DynamicResource AttrDexBrush}" />
-            <Setter Property="FontSize" Value="11" />
+        <Style Selector="TextBlock.rval">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="FontFamily" Value="Cascadia Code,Consolas,monospace" />
             <Setter Property="HorizontalAlignment" Value="Right" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
+
+        <!-- ── Toolbar ── -->
+        <Style Selector="TextBox.search">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="260" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.toolbtn">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style Selector="Button.toolbtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+        </Style>
+
+        <!-- ── Breakdown drawer + scrim ── -->
+        <Style Selector="Border.scrim">
+            <Setter Property="Background" Value="#73000000" />
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="Transitions">
+                <Transitions><DoubleTransition Property="Opacity" Duration="0:0:0.18" /></Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.scrim.open">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
+        </Style>
+        <Style Selector="Border.drawer">
+            <Setter Property="Width" Value="430" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1,0,0,0" />
+            <Setter Property="RenderTransform" Value="translateX(430px)" />
+            <Setter Property="Transitions">
+                <Transitions><TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" /></Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.drawer.open">
+            <Setter Property="RenderTransform" Value="translateX(0px)" />
+        </Style>
+        <Style Selector="Border.infobox">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="10,8" />
+        </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="*">
+    <Grid>
+        <!-- Toolbar (top) + board (fill) -->
+        <DockPanel>
+            <Border DockPanel.Dock="Top"
+                    Background="{DynamicResource BgMantleBrush}"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="12,7">
+                <Grid ColumnDefinitions="*,Auto,Auto">
+                    <!-- search -->
+                    <Panel Grid.Column="1" Margin="0,0,8,0">
+                        <TextBox Classes="search" Text="{Binding SearchText}"
+                                 Watermark="{loc:Tr Calc_Search}" Padding="30,0,8,0" />
+                        <PathIcon Data="{StaticResource IconSearch}" Width="13" Height="13"
+                                  Foreground="{DynamicResource TextMutedBrush}"
+                                  HorizontalAlignment="Left" VerticalAlignment="Center"
+                                  Margin="9,0,0,0" IsHitTestVisible="False" />
+                    </Panel>
+                    <!-- collapse / expand all -->
+                    <Button Grid.Column="2" Classes="toolbtn" Command="{Binding ToggleAllCommand}">
+                        <Panel>
+                            <TextBlock Text="{loc:Tr Calc_CollapseAll}" IsVisible="{Binding !AllCollapsed}" />
+                            <TextBlock Text="{loc:Tr Calc_ExpandAll}" IsVisible="{Binding AllCollapsed}" />
+                        </Panel>
+                    </Button>
+                </Grid>
+            </Border>
 
-        <!-- Main split: stat tree | details panel.
-             Skill selector moved to BuildPageView (unified top selector). -->
-        <Grid Name="SplitGrid" Grid.Row="0" ColumnDefinitions="280,4,*">
-
-            <!-- Left: stat tree -->
-            <ScrollViewer Grid.Column="0" Padding="0,4,0,4">
-                <ItemsControl ItemsSource="{Binding Sections}">
+            <!-- Board: three fixed domain columns -->
+            <ScrollViewer Padding="12">
+                <ItemsControl ItemsSource="{Binding Columns}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:StatSectionViewModel">
-                            <StackPanel Margin="0,0,0,4" IsVisible="{Binding IsVisible}">
-                                <Border Background="{DynamicResource BgRaisedBrush}" Padding="8,3" Margin="0,0,0,1">
-                                    <TextBlock Text="{Binding Label}"
-                                               FontWeight="Bold" FontSize="11"
-                                               Foreground="{DynamicResource AttrIntBrush}" />
-                                </Border>
-                                <ItemsControl ItemsSource="{Binding Rows}">
+                        <DataTemplate x:DataType="vm:StatColumnViewModel">
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="{Binding Title}" Classes="col-title" />
+                                <ItemsControl ItemsSource="{Binding Sections}">
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:StatRowViewModel">
-                                            <Border Classes="statrow"
-                                                    Classes.selected="{Binding IsSelected}"
-                                                    Padding="8,2" Cursor="Hand">
-                                                <Grid ColumnDefinitions="*,Auto">
-                                                    <TextBlock Text="{Binding Label}"
-                                                               Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11"
-                                                               VerticalAlignment="Center" />
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding Value}"
-                                                               Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
-                                                               FontFamily="Cascadia Code,Consolas,monospace"
-                                                               HorizontalAlignment="Right"
-                                                               VerticalAlignment="Center" />
-                                                </Grid>
+                                        <DataTemplate x:DataType="vm:StatSectionViewModel">
+                                            <Border Classes="card"
+                                                    Classes.dim="{Binding !MatchesFilter}"
+                                                    IsVisible="{Binding IsVisible}">
+                                                <StackPanel>
+                                                    <!-- Header -->
+                                                    <Border Classes="card-head"
+                                                            BorderThickness="3,0,0,0"
+                                                            BorderBrush="{Binding AccentKey, Converter={x:Static vm:TooltipKindConverter.BrushKey}}"
+                                                            PointerPressed="SectionHeader_PointerPressed">
+                                                        <Grid ColumnDefinitions="Auto,*">
+                                                            <PathIcon Grid.Column="0" Classes="chev"
+                                                                      Classes.collapsed="{Binding IsCollapsed}"
+                                                                      Data="{StaticResource IconChevronDown}"
+                                                                      Margin="0,0,8,0" VerticalAlignment="Center" />
+                                                            <TextBlock Grid.Column="1" Text="{Binding Label}"
+                                                                       FontSize="13" FontWeight="Bold"
+                                                                       VerticalAlignment="Center"
+                                                                       Foreground="{Binding AccentKey, Converter={x:Static vm:TooltipKindConverter.BrushKey}}" />
+                                                        </Grid>
+                                                    </Border>
+                                                    <!-- Rows -->
+                                                    <ItemsControl ItemsSource="{Binding Rows}"
+                                                                  IsVisible="{Binding !IsCollapsed}"
+                                                                  Margin="0,3,0,3">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate x:DataType="vm:StatRowViewModel">
+                                                                <Border Classes="statrow"
+                                                                        Classes.selected="{Binding IsSelected}"
+                                                                        Classes.dim="{Binding IsDimmed}">
+                                                                    <Grid ColumnDefinitions="*,Auto">
+                                                                        <TextBlock Text="{Binding Label}" Classes="rlabel" />
+                                                                        <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="rval"
+                                                                                   Foreground="{Binding ColorKey, Converter={x:Static vm:TooltipKindConverter.BrushKey}}" />
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -89,188 +241,92 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
+        </DockPanel>
 
-            <!-- Splitter -->
-            <GridSplitter Grid.Column="1" Width="4"
-                          ResizeDirection="Columns"
-                          Background="{DynamicResource BorderStrongBrush}" />
+        <!-- Scrim (click to dismiss the breakdown) -->
+        <Border Classes="scrim" Classes.open="{Binding HasBreakdown}"
+                PointerPressed="Scrim_PointerPressed" />
 
-            <!-- Right: skill details + breakdown -->
-            <ScrollViewer Grid.Column="2" Padding="8,4,4,8">
-                <StackPanel Spacing="6">
-
-                    <!-- Skill Hit Damage table -->
-                    <Border Classes="infobox"
-                            IsVisible="{Binding HasDamageData}">
-                        <StackPanel Spacing="4">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock Text="{loc:Tr Calc_HitDamage}" Classes="boxheader" Margin="0" />
-                                <TextBlock Text="—" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center"
-                                           IsVisible="{Binding !HasDamageData}" />
-                                <TextBlock Text="{Binding AvgDamageLabel}"
-                                           Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
-                                           FontFamily="Cascadia Code,Consolas,monospace"
-                                           VerticalAlignment="Center" />
-                                <TextBlock Text="{loc:Tr Calc_AvgDamage}"
-                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
-                                           VerticalAlignment="Center" />
-                            </StackPanel>
-                            <!-- Table header -->
-                            <Grid ColumnDefinitions="90,*,*" Margin="0,2,0,0">
-                                <TextBlock Grid.Column="0" Text="{loc:Tr Calc_ColType}"
-                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
-                                <TextBlock Grid.Column="1" Text="{loc:Tr Calc_ColMin}"
-                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold"
-                                           HorizontalAlignment="Right" />
-                                <TextBlock Grid.Column="2" Text="{loc:Tr Calc_ColMax}"
-                                           Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold"
-                                           HorizontalAlignment="Right" />
-                            </Grid>
-                            <Rectangle Height="1" Fill="{DynamicResource BorderStrongBrush}" />
-                            <!-- Rows per damage type -->
-                            <ItemsControl ItemsSource="{Binding DamageRows}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:DamageTypeRow">
-                                        <Grid ColumnDefinitions="90,*,*" Margin="0,1">
-                                            <TextBlock Grid.Column="0" Text="{Binding Type}"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11" />
-                                            <TextBlock Grid.Column="1" Text="{Binding Min}"
-                                                       Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
-                                                       HorizontalAlignment="Right"
-                                                       FontFamily="Cascadia Code,Consolas,monospace" />
-                                            <TextBlock Grid.Column="2" Text="{Binding Max}"
-                                                       Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
-                                                       HorizontalAlignment="Right"
-                                                       FontFamily="Cascadia Code,Consolas,monospace" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Attack/Cast Rate + Crits side by side -->
-                    <Grid ColumnDefinitions="*,6,*">
-
-                        <!-- Attack / Cast Rate -->
-                        <Border Grid.Column="0" Classes="infobox">
-                            <StackPanel Spacing="3">
-                                <TextBlock Text="{loc:Tr Calc_AttackRate}" Classes="boxheader" />
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_Speed}" Classes="statlabel" />
-                                    <TextBlock Grid.Column="1" Text="{Binding SpeedText}" Classes="statvalue" />
-                                </Grid>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_CastTime}" Classes="statlabel" />
-                                    <TextBlock Grid.Column="1" Text="{Binding CastTimeText}" Classes="statvalue" />
-                                </Grid>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_HitChance}" Classes="statlabel" />
-                                    <TextBlock Grid.Column="1" Text="{Binding HitChanceText}" Classes="statvalue" />
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Crits -->
-                        <Border Grid.Column="2" Classes="infobox">
-                            <StackPanel Spacing="3">
-                                <TextBlock Text="{loc:Tr Calc_Crits}" Classes="boxheader" />
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_CritChance}" Classes="statlabel" />
-                                    <TextBlock Grid.Column="1" Text="{Binding CritChanceText}" Classes="statvalue" />
-                                </Grid>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_CritMult}" Classes="statlabel" />
-                                    <TextBlock Grid.Column="1" Text="{Binding CritMultText}" Classes="statvalue" />
-                                </Grid>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_CritEffect}" Classes="statlabel" />
-                                    <TextBlock Grid.Column="1" Text="{Binding CritEffectText}" Classes="statvalue" />
-                                </Grid>
-                            </StackPanel>
-                        </Border>
+        <!-- Breakdown slide-over drawer -->
+        <Border Classes="drawer" Classes.open="{Binding HasBreakdown}">
+            <DockPanel>
+                <!-- Header -->
+                <Border DockPanel.Dock="Top"
+                        Background="{DynamicResource BgRaisedBrush}"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
+                        BorderThickness="0,0,0,1"
+                        Padding="14,12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="{Binding BreakdownTitle}"
+                                   FontSize="14" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Classes="toolbtn"
+                                Command="{Binding CloseBreakdownCommand}"
+                                Width="28" Height="28" Padding="0">
+                            <PathIcon Data="{StaticResource IconClose}" Width="12" Height="12"
+                                      Foreground="{DynamicResource TextMutedBrush}" />
+                        </Button>
                     </Grid>
+                </Border>
 
-                    <!-- Breakdown panel (when stat is clicked) -->
-                    <StackPanel Spacing="0"
-                                IsVisible="{Binding SelectedStat, Converter={x:Static ObjectConverters.IsNotNull}}">
-
-                        <!-- Title -->
-                        <Border Background="{DynamicResource BgRaisedBrush}" Padding="10,6" Margin="0,4,0,0">
-                            <TextBlock Text="{Binding BreakdownTitle}"
-                                       FontWeight="Bold" FontSize="12"
-                                       Foreground="{DynamicResource TextPrimaryBrush}" />
+                <ScrollViewer Padding="14">
+                    <StackPanel Spacing="14">
+                        <!-- Calc breakdown lines -->
+                        <Border Classes="infobox">
+                            <StackPanel Spacing="0">
+                                <TextBlock Text="{loc:Tr Calc_Calculation}" Foreground="{DynamicResource AttrIntBrush}"
+                                           FontSize="11" FontWeight="Bold" Margin="0,0,0,6" />
+                                <ItemsControl ItemsSource="{Binding BreakdownLines}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <TextBlock Text="{Binding}"
+                                                       FontFamily="Cascadia Code,Consolas,monospace"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       TextWrapping="Wrap" Padding="0,1" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
                         </Border>
 
-                        <StackPanel Spacing="10" Margin="0,6,0,0">
-
-                            <!-- Calc breakdown lines -->
-                            <Border Classes="infobox">
-                                <StackPanel Spacing="0">
-                                    <TextBlock Text="{loc:Tr Calc_Calculation}" Foreground="{DynamicResource AttrIntBrush}"
-                                               FontSize="11" FontWeight="Bold" Margin="0,0,0,4" />
-                                    <ItemsControl ItemsSource="{Binding BreakdownLines}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="x:String">
-                                                <TextBlock Text="{Binding}"
-                                                           FontFamily="Cascadia Code,Consolas,monospace"
-                                                           FontSize="11"
-                                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                                           Padding="0,1" />
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Modifier source table -->
-                            <Border Classes="infobox"
-                                    IsVisible="{Binding HasModifierRows}">
-                                <StackPanel Spacing="0">
-                                    <TextBlock Text="{loc:Tr Calc_ModSources}" Foreground="{DynamicResource AttrIntBrush}"
-                                               FontSize="11" FontWeight="Bold" Margin="0,0,0,4" />
-                                    <Grid ColumnDefinitions="60,60,80,*" Margin="0,0,0,2">
-                                        <TextBlock Grid.Column="0" Text="{loc:Tr Calc_ColValue}"  Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
-                                        <TextBlock Grid.Column="1" Text="{loc:Tr Calc_ColType}"   Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
-                                        <TextBlock Grid.Column="2" Text="{loc:Tr Calc_ColSource}" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
-                                        <TextBlock Grid.Column="3" Text="{loc:Tr Calc_ColName}"   Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
-                                    </Grid>
-                                    <Rectangle Height="1" Fill="{DynamicResource BorderStrongBrush}" Margin="0,0,0,2" />
-                                    <ItemsControl ItemsSource="{Binding ModifierRows}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="engine:ModifierEntry">
-                                                <Grid ColumnDefinitions="60,60,80,*" Margin="0,1">
-                                                    <TextBlock Grid.Column="0" Text="{Binding Value}"
-                                                               Foreground="{DynamicResource AttrDexBrush}" FontSize="11"
-                                                               FontFamily="Cascadia Code,Consolas,monospace" />
-                                                    <TextBlock Grid.Column="1" Text="{Binding ModType}"
-                                                               Foreground="{DynamicResource StatArmourBrush}" FontSize="10" />
-                                                    <TextBlock Grid.Column="2" Text="{Binding Source}"
-                                                               Foreground="{DynamicResource AttrIntBrush}" FontSize="10" />
-                                                    <TextBlock Grid.Column="3" Text="{Binding SourceName}"
-                                                               Foreground="{DynamicResource TextPrimaryBrush}" FontSize="10"
-                                                               TextTrimming="CharacterEllipsis" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </Border>
-
-                        </StackPanel>
+                        <!-- Modifier source table -->
+                        <Border Classes="infobox" IsVisible="{Binding HasModifierRows}">
+                            <StackPanel Spacing="0">
+                                <TextBlock Text="{loc:Tr Calc_ModSources}" Foreground="{DynamicResource AttrIntBrush}"
+                                           FontSize="11" FontWeight="Bold" Margin="0,0,0,6" />
+                                <Grid ColumnDefinitions="60,60,80,*" Margin="0,0,0,2">
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Calc_ColValue}"  Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
+                                    <TextBlock Grid.Column="1" Text="{loc:Tr Calc_ColType}"   Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
+                                    <TextBlock Grid.Column="2" Text="{loc:Tr Calc_ColSource}" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
+                                    <TextBlock Grid.Column="3" Text="{loc:Tr Calc_ColName}"   Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="Bold" />
+                                </Grid>
+                                <Rectangle Height="1" Fill="{DynamicResource BorderStrongBrush}" Margin="0,0,0,4" />
+                                <ItemsControl ItemsSource="{Binding ModifierRows}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="engine:ModifierEntry">
+                                            <Grid ColumnDefinitions="60,60,80,*" Margin="0,1">
+                                                <TextBlock Grid.Column="0" Text="{Binding Value}"
+                                                           Foreground="{DynamicResource StatDpsBrush}" FontSize="12"
+                                                           FontFamily="Cascadia Code,Consolas,monospace" />
+                                                <TextBlock Grid.Column="1" Text="{Binding ModType}"
+                                                           Foreground="{DynamicResource StatArmourBrush}" FontSize="11" />
+                                                <TextBlock Grid.Column="2" Text="{Binding Source}"
+                                                           Foreground="{DynamicResource AttrIntBrush}" FontSize="11" />
+                                                <TextBlock Grid.Column="3" Text="{Binding SourceName}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-
-                    <!-- Hint when nothing is selected -->
-                    <TextBlock Text="{loc:Tr Calc_ClickStat}"
-                               IsVisible="{Binding SelectedStat, Converter={x:Static ObjectConverters.IsNull}}"
-                               Foreground="{DynamicResource TextMutedBrush}" FontSize="12"
-                               HorizontalAlignment="Center"
-                               Margin="0,20,0,0" />
-
-                </StackPanel>
-            </ScrollViewer>
-
-        </Grid>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
     </Grid>
 
 </UserControl>

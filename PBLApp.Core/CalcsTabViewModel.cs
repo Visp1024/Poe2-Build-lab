@@ -9,8 +9,6 @@ using System.Linq;
 
 namespace PBLApp.ViewModels;
 
-public record DamageTypeRow(string Type, string Min, string Max);
-
 /// <summary>Display wrapper around <see cref="SkillGroupEntry"/> with a translatable name.
 /// The Name field is typically a comma-separated list of gem names — each part is
 /// translated via <see cref="GameTranslationService.TGem"/>.</summary>
@@ -61,14 +59,29 @@ public sealed class ActiveSkillDisplayVm : ObservableObject
     public override string ToString() => DisplayName;
 }
 
+/// <summary>One of the three domain columns (Offence / Resources / Defence) shown
+/// in the redesigned Calcs board. Each owns the sections pinned to it.</summary>
+public sealed partial class StatColumnViewModel(string titleKey) : ViewModelBase
+{
+    private readonly string _titleKey = titleKey;
+    public string Title => LocalizationService.Get(_titleKey);
+    public ObservableCollection<StatSectionViewModel> Sections { get; } = [];
+
+    public void RaiseTitle() => OnPropertyChanged(nameof(Title));
+}
+
 public partial class CalcsTabViewModel : ViewModelBase
 {
     private readonly LuaHost _host;
     private readonly BuildModel _build;
 
-    public ObservableCollection<StatSectionViewModel> Sections { get; } = [];
+    /// <summary>Flat list of every section — used for the recompute + filter loops.</summary>
+    public List<StatSectionViewModel> Sections { get; } = [];
+
+    /// <summary>Three domain columns the board renders side by side.</summary>
+    public ObservableCollection<StatColumnViewModel> Columns { get; } = [];
+
     public ObservableCollection<SkillGroupDisplayVm> SkillGroups { get; } = [];
-    public ObservableCollection<DamageTypeRow> DamageRows { get; } = [];
     public ObservableCollection<ActiveSkillDisplayVm> ActiveSkills { get; } = [];
 
     [ObservableProperty] private SkillGroupDisplayVm? _selectedSkillGroup;
@@ -80,150 +93,172 @@ public partial class CalcsTabViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<ModifierEntry> _modifierRows = [];
     [ObservableProperty] private bool _hasModifierRows;
 
-    // Skill detail panel
-    [ObservableProperty] private bool _hasDamageData;
-    [ObservableProperty] private string _avgDamageLabel = "—";
-    [ObservableProperty] private string _speedText = "—";
-    [ObservableProperty] private string _castTimeText = "—";
-    [ObservableProperty] private string _hitChanceText = "—";
-    [ObservableProperty] private string _critChanceText = "—";
-    [ObservableProperty] private string _critMultText = "—";
-    [ObservableProperty] private string _critEffectText = "—";
-    [ObservableProperty] private string _totalDpsText = "—";
-    [ObservableProperty] private string _combinedDpsText = "—";
+    [ObservableProperty] private string _searchText = "";
+
+    /// <summary>Drives the collapse-all / expand-all toggle label + behaviour.</summary>
+    [ObservableProperty] private bool _allCollapsed;
+
+    public bool HasBreakdown => SelectedStat is not null;
 
     private bool _suppressSkillChange;
     private readonly Action? _onMainGroupChanged;
 
-    // Layout: (sectionKey, [(rowKey, statKey, suffix)])
-    private static readonly (string SectionKey, (string RowKey, string StatKey, string Suffix)[] Rows)[] Layout =
+    // Column index: 0 = Offence, 1 = Resources, 2 = Defence.
+    // Per-row tuple: (rowKey, statKey, suffix, colourKey). colourKey "" → inherit section row colour.
+    private sealed record RowDef(string Key, string Stat, string Suffix = "", string Color = "");
+    private sealed record SectionDef(string Key, int Column, string Accent, string RowColor, string? Gate, RowDef[] Rows);
+
+    private const string Dps  = "StatDpsBrush";
+    private const string Life = "StatLifeBrush";
+    private const string Mana = "StatManaBrush";
+    private const string Es   = "StatEsBrush";
+    private const string Ward = "StatWardBrush";
+    private const string Arm  = "StatArmourBrush";
+    private const string Eva  = "StatEvasionBrush";
+    private const string Def  = "InfoBrush";
+    private const string Gold = "Brand400Brush";
+    private const string Neut = "TextPrimaryBrush";
+    private const string Phys = "ElPhysicalBrush";
+    private const string Fire = "ElFireBrush";
+    private const string Cold = "ElColdBrush";
+    private const string Ltng = "ElLightningBrush";
+    private const string Chao = "ElChaosBrush";
+
+    private static readonly SectionDef[] Layout =
     [
-        ("Stat_SkillDPS", [
-            ("Row_TotalDPS",        "TotalDPS",             ""),
-            ("Row_CombinedDPS",     "CombinedDPS",          ""),
-            ("Row_AverageDamage",   "AverageDamage",        ""),
-            ("Row_WithDotDPS",      "WithDotDPS",           ""),
-            ("Row_TotalDotDPS",     "TotalDot",             ""),
-            ("Row_ImpaleDPS",       "ImpaleDPS",            ""),
+        // ── Column 0 — Offence ──────────────────────────────────────────────
+        new("Stat_SkillDPS", 0, Dps, Dps, null, [
+            new("Row_TotalDPS",      "TotalDPS"),
+            new("Row_CombinedDPS",   "CombinedDPS"),
+            new("Row_AverageDamage", "AverageDamage"),
+            new("Row_WithDotDPS",    "WithDotDPS"),
+            new("Row_TotalDotDPS",   "TotalDot"),
+            new("Row_ImpaleDPS",     "ImpaleDPS"),
         ]),
-        ("Stat_HitRanges", [
-            ("Row_PhysMin",         "PhysicalMin",          ""),
-            ("Row_PhysMax",         "PhysicalMax",          ""),
-            ("Row_LightMin",        "LightningMin",         ""),
-            ("Row_LightMax",        "LightningMax",         ""),
-            ("Row_ColdMin",         "ColdMin",              ""),
-            ("Row_ColdMax",         "ColdMax",              ""),
-            ("Row_FireMin",         "FireMin",              ""),
-            ("Row_FireMax",         "FireMax",              ""),
-            ("Row_ChaosMin",        "ChaosMin",             ""),
-            ("Row_ChaosMax",        "ChaosMax",             ""),
+        new("Stat_HitRanges", 0, Dps, Dps, null, [
+            new("Row_PhysMin",  "PhysicalMin",  "", Phys),
+            new("Row_PhysMax",  "PhysicalMax",  "", Phys),
+            new("Row_LightMin", "LightningMin", "", Ltng),
+            new("Row_LightMax", "LightningMax", "", Ltng),
+            new("Row_ColdMin",  "ColdMin",      "", Cold),
+            new("Row_ColdMax",  "ColdMax",      "", Cold),
+            new("Row_FireMin",  "FireMin",      "", Fire),
+            new("Row_FireMax",  "FireMax",      "", Fire),
+            new("Row_ChaosMin", "ChaosMin",     "", Chao),
+            new("Row_ChaosMax", "ChaosMax",     "", Chao),
         ]),
-        ("Stat_Hit", [
-            ("Row_HitChance",       "HitChance",            "%"),
-            ("Row_Accuracy",        "Accuracy",             ""),
+        new("Stat_Hit", 0, Dps, Dps, null, [
+            new("Row_HitChance", "HitChance", "%"),
+            new("Row_Accuracy",  "Accuracy"),
         ]),
-        ("Stat_AttackRate", [
-            ("Row_SpeedPerSec",     "Speed",                "/s"),
-            ("Row_TimeSec",         "Time",                 "s"),
-            ("Row_HitSpeed",        "HitSpeed",             "/s"),
+        new("Stat_AttackRate", 0, Dps, Dps, null, [
+            new("Row_SpeedPerSec", "Speed",    "/s"),
+            new("Row_TimeSec",     "Time",     "s"),
+            new("Row_HitSpeed",    "HitSpeed", "/s"),
         ]),
-        ("Stat_Crit", [
-            ("Row_CritChance",      "CritChance",           "%"),
-            ("Row_CritMult",        "CritMultiplier",       "x"),
-            ("Row_CritEffectMod",   "CritEffect",           "x"),
-            ("Row_PreEffCrit",      "PreEffectiveCritChance", "%"),
+        new("Stat_Crit", 0, Dps, Dps, null, [
+            new("Row_CritChance",    "CritChance",              "%"),
+            new("Row_CritMult",      "CritMultiplier",          "x"),
+            new("Row_CritEffectMod", "CritEffect",              "x"),
+            new("Row_PreEffCrit",    "PreEffectiveCritChance",  "%"),
         ]),
-        ("Stat_SkillInfo", [
-            ("Row_Duration",        "Duration",                     "s"),
-            ("Row_Radius",          "AreaOfEffectRadiusMetres",     "m"),
+        new("Stat_SkillInfo", 0, Dps, Dps, null, [
+            new("Row_Duration", "Duration",                  "s"),
+            new("Row_Radius",   "AreaOfEffectRadiusMetres",  "m"),
         ]),
-        ("Stat_Ailments", [
-            ("Row_IgniteChance",    "IgniteChance",         "%"),
-            ("Row_IgniteOnHit",     "IgniteChanceOnHit",    "%"),
-            ("Row_IgniteOnCrit",    "IgniteChanceOnCrit",   "%"),
-            ("Row_IgniteDPS",       "IgniteDPS",            ""),
-            ("Row_IgniteDuration",  "IgniteDuration",       "s"),
-            ("Row_ShockChance",     "ShockChance",          "%"),
-            ("Row_ShockOnHit",      "ShockChanceOnHit",     "%"),
-            ("Row_ShockOnCrit",     "ShockChanceOnCrit",    "%"),
-            ("Row_ShockEffect",     "ShockEffectMod",       "%"),
-            ("Row_ChillChance",     "ChillChance",          "%"),
-            ("Row_ChillOnHit",      "ChillChanceOnHit",     "%"),
-            ("Row_FreezeOnHit",     "FreezeChanceOnHit",    "%"),
-            ("Row_FreezeOnCrit",    "FreezeChanceOnCrit",   "%"),
-            ("Row_BleedOnHit",      "BleedChanceOnHit",     "%"),
-            ("Row_PoisonOnHit",     "PoisonChanceOnHit",    "%"),
-            ("Row_StunBuildup",     "StunBuildup",          ""),
+        new("Stat_Ailments", 0, Dps, Dps, null, [
+            new("Row_IgniteChance",   "IgniteChance",        "%"),
+            new("Row_IgniteOnHit",    "IgniteChanceOnHit",   "%"),
+            new("Row_IgniteOnCrit",   "IgniteChanceOnCrit",  "%"),
+            new("Row_IgniteDPS",      "IgniteDPS",           "",  Fire),
+            new("Row_IgniteDuration", "IgniteDuration",      "s"),
+            new("Row_ShockChance",    "ShockChance",         "%"),
+            new("Row_ShockOnHit",     "ShockChanceOnHit",    "%"),
+            new("Row_ShockOnCrit",    "ShockChanceOnCrit",   "%"),
+            new("Row_ShockEffect",    "ShockEffectMod",      "%"),
+            new("Row_ChillChance",    "ChillChance",         "%"),
+            new("Row_ChillOnHit",     "ChillChanceOnHit",    "%"),
+            new("Row_FreezeOnHit",    "FreezeChanceOnHit",   "%"),
+            new("Row_FreezeOnCrit",   "FreezeChanceOnCrit",  "%"),
+            new("Row_BleedOnHit",     "BleedChanceOnHit",    "%"),
+            new("Row_PoisonOnHit",    "PoisonChanceOnHit",   "%"),
+            new("Row_StunBuildup",    "StunBuildup"),
         ]),
-        ("Stat_Attributes", [
-            ("Row_Strength",        "Str",                  ""),
-            ("Row_Dexterity",       "Dex",                  ""),
-            ("Row_Intelligence",    "Int",                  ""),
+
+        // ── Column 1 — Resources ────────────────────────────────────────────
+        new("Stat_Attributes", 1, Gold, Neut, null, [
+            new("Row_Strength",     "Str", "", "AttrStrBrush"),
+            new("Row_Dexterity",    "Dex", "", "AttrDexBrush"),
+            new("Row_Intelligence", "Int", "", "AttrIntBrush"),
         ]),
-        ("Stat_Life", [
-            ("Row_Life",            "Life",                 ""),
-            ("Row_LifeUnreserved",  "LifeUnreserved",       ""),
-            ("Row_LifeRegen",       "LifeRegenRecovery",    "/s"),
-            ("Row_LifeRegenPct",    "LifeRegenPercent",     "%"),
-            ("Row_LifeLeech",       "LifeLeechRate",        "/s"),
+        new("Stat_Life", 1, Life, Life, null, [
+            new("Row_Life",           "Life"),
+            new("Row_LifeUnreserved", "LifeUnreserved"),
+            new("Row_LifeRegen",      "LifeRegenRecovery", "/s"),
+            new("Row_LifeRegenPct",   "LifeRegenPercent",  "%"),
+            new("Row_LifeLeech",      "LifeLeechRate",     "/s"),
         ]),
-        ("Stat_Mana", [
-            ("Row_Mana",            "Mana",                 ""),
-            ("Row_ManaCost",        "ManaCost",             ""),
-            ("Row_ManaRegen",       "ManaRegenRecovery",    "/s"),
-            ("Row_ManaLeech",       "ManaLeechRate",        "/s"),
+        new("Stat_Mana", 1, Mana, Mana, null, [
+            new("Row_Mana",      "Mana"),
+            new("Row_ManaCost",  "ManaCost"),
+            new("Row_ManaRegen", "ManaRegenRecovery", "/s"),
+            new("Row_ManaLeech", "ManaLeechRate",     "/s"),
         ]),
-        ("Stat_EnergyShield", [
-            ("Row_ES",              "EnergyShield",         ""),
-            ("Row_ESRegen",         "EnergyShieldRegenRecovery", "/s"),
-            ("Row_ESRegenPct",      "EnergyShieldRegenPercent",  "%"),
+        new("Stat_EnergyShield", 1, Es, Es, null, [
+            new("Row_ES",         "EnergyShield"),
+            new("Row_ESRegen",    "EnergyShieldRegenRecovery", "/s"),
+            new("Row_ESRegenPct", "EnergyShieldRegenPercent",  "%"),
         ]),
-        ("Stat_Ward", [
-            ("Row_Ward",            "Ward",                 ""),
-            ("Row_WardRechargeDelay", "WardRechargeDelay",  "s"),
+        new("Stat_Ward", 1, Ward, Ward, "Ward", [
+            new("Row_Ward",            "Ward"),
+            new("Row_WardRechargeDelay", "WardRechargeDelay", "s"),
         ]),
-        ("Stat_Armour", [
-            ("Row_Armour",          "Armour",               ""),
-            ("Row_PhysReduction",   "PhysicalReduction",    "%"),
-            ("Row_PhysDmgRedHit",   "PhysicalDamageReductionWhenHit", "%"),
+
+        // ── Column 2 — Defence ──────────────────────────────────────────────
+        new("Stat_Resistances", 2, Def, Def, null, [
+            new("Row_FireResist",     "FireResist",         "%", Fire),
+            new("Row_FireMaxResist",  "FireResistMax",      "%", Fire),
+            new("Row_ColdResist",     "ColdResist",         "%", Cold),
+            new("Row_ColdMaxResist",  "ColdResistMax",      "%", Cold),
+            new("Row_LightResist",    "LightningResist",    "%", Ltng),
+            new("Row_LightMaxResist", "LightningResistMax", "%", Ltng),
+            new("Row_ChaosResist",    "ChaosResist",        "%", Chao),
+            new("Row_ChaosMaxResist", "ChaosResistMax",     "%", Chao),
         ]),
-        ("Stat_Evasion", [
-            ("Row_Evasion",         "Evasion",              ""),
-            ("Row_EvadeChance",     "MeleeEvadeChance",     "%"),
-            ("Row_ProjEvade",       "ProjectileEvadeChance","%"),
+        new("Stat_Armour", 2, Arm, Arm, null, [
+            new("Row_Armour",        "Armour"),
+            new("Row_PhysReduction", "PhysicalReduction",                "%"),
+            new("Row_PhysDmgRedHit", "PhysicalDamageReductionWhenHit",   "%"),
         ]),
-        ("Stat_BlockDeflect", [
-            ("Row_BlockChance",     "BlockChance",          "%"),
-            ("Row_SpellBlock",      "SpellBlockChance",     "%"),
-            ("Row_DeflectChance",   "DeflectChance",        "%"),
-            ("Row_SpellDeflect",    "SpellDeflectChance",   "%"),
+        new("Stat_Evasion", 2, Eva, Eva, null, [
+            new("Row_Evasion",     "Evasion"),
+            new("Row_EvadeChance", "MeleeEvadeChance",      "%"),
+            new("Row_ProjEvade",   "ProjectileEvadeChance", "%"),
         ]),
-        ("Stat_MaxHitTaken", [
-            ("Row_Physical",        "PhysicalMaximumHitTaken",      ""),
-            ("Row_Fire",            "FireMaximumHitTaken",           ""),
-            ("Row_Cold",            "ColdMaximumHitTaken",           ""),
-            ("Row_Lightning",       "LightningMaximumHitTaken",      ""),
-            ("Row_Chaos",           "ChaosMaximumHitTaken",          ""),
+        new("Stat_BlockDeflect", 2, Def, Def, null, [
+            new("Row_BlockChance",   "BlockChance",        "%"),
+            new("Row_SpellBlock",    "SpellBlockChance",   "%"),
+            new("Row_DeflectChance", "DeflectChance",      "%"),
+            new("Row_SpellDeflect",  "SpellDeflectChance", "%"),
         ]),
-        ("Stat_Resistances", [
-            ("Row_FireResist",      "FireResist",           "%"),
-            ("Row_FireMaxResist",   "FireResistMax",        "%"),
-            ("Row_ColdResist",      "ColdResist",           "%"),
-            ("Row_ColdMaxResist",   "ColdResistMax",        "%"),
-            ("Row_LightResist",     "LightningResist",      "%"),
-            ("Row_LightMaxResist",  "LightningResistMax",   "%"),
-            ("Row_ChaosResist",     "ChaosResist",          "%"),
-            ("Row_ChaosMaxResist",  "ChaosResistMax",       "%"),
+        new("Stat_MaxHitTaken", 2, Def, Def, null, [
+            new("Row_Physical",  "PhysicalMaximumHitTaken",  "", Phys),
+            new("Row_Fire",      "FireMaximumHitTaken",      "", Fire),
+            new("Row_Cold",      "ColdMaximumHitTaken",      "", Cold),
+            new("Row_Lightning", "LightningMaximumHitTaken", "", Ltng),
+            new("Row_Chaos",     "ChaosMaximumHitTaken",     "", Chao),
         ]),
-        ("Stat_Charges", [
-            ("Row_EnduranceCharges","EnduranceCharges",     ""),
-            ("Row_FrenzyCharges",   "FrenzyCharges",        ""),
-            ("Row_PowerCharges",    "PowerCharges",         ""),
-            ("Row_MaxEndurance",    "EnduranceChargesMax",  ""),
-            ("Row_MaxFrenzy",       "FrenzyChargesMax",     ""),
-            ("Row_MaxPower",        "PowerChargesMax",      ""),
+        new("Stat_Charges", 2, Gold, Neut, null, [
+            new("Row_EnduranceCharges", "EnduranceCharges"),
+            new("Row_FrenzyCharges",    "FrenzyCharges"),
+            new("Row_PowerCharges",     "PowerCharges"),
+            new("Row_MaxEndurance",     "EnduranceChargesMax"),
+            new("Row_MaxFrenzy",        "FrenzyChargesMax"),
+            new("Row_MaxPower",         "PowerChargesMax"),
         ]),
     ];
+
+    private static readonly string[] ColumnTitleKeys = ["Calc_ColOffence", "Calc_ColResources", "Calc_ColDefence"];
 
     public CalcsTabViewModel(LuaHost host, BuildModel build, Action? onMainGroupChanged = null)
     {
@@ -231,18 +266,24 @@ public partial class CalcsTabViewModel : ViewModelBase
         _build = build;
         _onMainGroupChanged = onMainGroupChanged;
 
-        foreach (var (sectionKey, rows) in Layout)
+        foreach (var titleKey in ColumnTitleKeys)
+            Columns.Add(new StatColumnViewModel(titleKey));
+
+        foreach (var def in Layout)
         {
-            // Runic Ward is niche — gate its whole section on Ward > 0 so it
-            // doesn't show a row of zeroes on the vast majority of builds.
-            var gate = sectionKey == "Stat_Ward" ? "Ward" : null;
-            var section = new StatSectionViewModel(sectionKey, gate);
-            foreach (var (rowKey, key, suffix) in rows)
-                section.Rows.Add(new StatRowViewModel(rowKey, key, suffix));
+            var section = new StatSectionViewModel(def.Key, def.Accent, def.Gate);
+            foreach (var r in def.Rows)
+                section.Rows.Add(new StatRowViewModel(
+                    r.Key, r.Stat, r.Suffix,
+                    string.IsNullOrEmpty(r.Color) ? def.RowColor : r.Color));
             Sections.Add(section);
+            Columns[def.Column].Sections.Add(section);
         }
 
-        LocalizationService.Instance.LanguageChanged += (_, _) => RebuildDamageRows();
+        LocalizationService.Instance.LanguageChanged += (_, _) =>
+        {
+            foreach (var c in Columns) c.RaiseTitle();
+        };
 
         RefreshSkillGroups();
         Refresh();
@@ -315,58 +356,37 @@ public partial class CalcsTabViewModel : ViewModelBase
                 row.UpdateValue(stats);
             section.UpdateVisibility(stats);
         }
-
-        RefreshSkillDetailPanel();
     }
 
-    private void RefreshSkillDetailPanel()
-    {
-        // Quick-access summary labels from already-formatted stat rows
-        TotalDpsText    = GetStatValue("TotalDPS");
-        CombinedDpsText = GetStatValue("CombinedDPS");
-        AvgDamageLabel  = GetStatValue("AverageDamage");
-        SpeedText       = GetStatValue("Speed");
-        CastTimeText    = GetStatValue("Time");
-        HitChanceText   = GetStatValue("HitChance");
-        CritChanceText  = GetStatValue("CritChance");
-        CritMultText    = GetStatValue("CritMultiplier");
-        CritEffectText  = GetStatValue("CritEffect");
+    // ── Search filter: dim rows/sections that don't match (never hide → stable layout) ──
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
 
-        RebuildDamageRows();
-    }
-
-    private void RebuildDamageRows()
+    private void ApplyFilter()
     {
-        DamageRows.Clear();
-        bool any = false;
-        foreach (var (typeKey, minKey, maxKey) in new[] {
-            ("DmgType_Physical",  "PhysicalMin",  "PhysicalMax"),
-            ("DmgType_Lightning", "LightningMin", "LightningMax"),
-            ("DmgType_Cold",      "ColdMin",      "ColdMax"),
-            ("DmgType_Fire",      "FireMin",      "FireMax"),
-            ("DmgType_Chaos",     "ChaosMin",     "ChaosMax"),
-        })
-        {
-            var min = GetStatValue(minKey);
-            var max = GetStatValue(maxKey);
-            if (min != "—" || max != "—")
-            {
-                DamageRows.Add(new DamageTypeRow(
-                    LocalizationService.Get(typeKey),
-                    min == "—" ? "0" : min,
-                    max == "—" ? "0" : max));
-                any = true;
-            }
-        }
-        HasDamageData = any;
-    }
+        var q = (SearchText ?? "").Trim();
+        bool empty = q.Length == 0;
 
-    private string GetStatValue(string key)
-    {
         foreach (var section in Sections)
+        {
+            bool sectionLabelMatch = !empty && section.Label.Contains(q, StringComparison.OrdinalIgnoreCase);
+            bool anyRow = false;
             foreach (var row in section.Rows)
-                if (row.StatKey == key) return row.Value;
-        return "—";
+            {
+                bool hit = empty || sectionLabelMatch
+                           || row.Label.Contains(q, StringComparison.OrdinalIgnoreCase);
+                row.IsDimmed = !empty && !hit;
+                if (hit) anyRow = true;
+            }
+            section.MatchesFilter = empty || sectionLabelMatch || anyRow;
+        }
+    }
+
+    [RelayCommand]
+    private void ToggleAll()
+    {
+        AllCollapsed = !AllCollapsed;
+        foreach (var section in Sections)
+            section.IsCollapsed = AllCollapsed;
     }
 
     partial void OnSelectedSkillGroupChanged(SkillGroupDisplayVm? value)
@@ -387,6 +407,8 @@ public partial class CalcsTabViewModel : ViewModelBase
         Refresh();
         _onMainGroupChanged?.Invoke();
     }
+
+    partial void OnSelectedStatChanged(StatRowViewModel? value) => OnPropertyChanged(nameof(HasBreakdown));
 
     [RelayCommand]
     private void SelectStat(StatRowViewModel? row)
@@ -417,4 +439,7 @@ public partial class CalcsTabViewModel : ViewModelBase
             ModifierRows.Add(m);
         HasModifierRows = ModifierRows.Count > 0;
     }
+
+    [RelayCommand]
+    private void CloseBreakdown() => SelectStat(null);
 }

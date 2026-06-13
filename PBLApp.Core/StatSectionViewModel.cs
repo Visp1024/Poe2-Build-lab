@@ -18,11 +18,22 @@ public partial class StatSectionViewModel : ViewModelBase
     public string Label => LocalizationService.Get(_key);
     public ObservableCollection<StatRowViewModel> Rows { get; } = [];
 
+    /// <summary>Theme resource key for the section header colour (domain accent).</summary>
+    public string AccentKey { get; }
+
     [ObservableProperty] private bool _isVisible = true;
 
-    public StatSectionViewModel(string key, string? gateStatKey = null)
+    /// <summary>User toggled the card closed — only the header stays shown.</summary>
+    [ObservableProperty] private bool _isCollapsed;
+
+    /// <summary>False when an active search filter matches nothing in this section —
+    /// the whole card dims. True (default) when there's no filter or it matches.</summary>
+    [ObservableProperty] private bool _matchesFilter = true;
+
+    public StatSectionViewModel(string key, string accentKey = "TextSecondaryBrush", string? gateStatKey = null)
     {
         _key = key;
+        AccentKey = accentKey;
         _gateStatKey = gateStatKey;
         LocalizationService.Instance.LanguageChanged += (_, _) => OnPropertyChanged(nameof(Label));
     }

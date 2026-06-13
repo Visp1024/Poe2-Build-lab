@@ -58,6 +58,13 @@
             <Color x:Key="StatArmour">#E8B763</Color>
             <Color x:Key="StatEvasion">#B69CE8</Color>
 
+            <!-- Damage / element semantics (CalcsTab rows: hit ranges, resists, max hit taken) -->
+            <Color x:Key="ElPhysical">#C8C8C8</Color>
+            <Color x:Key="ElFire">#E5703A</Color>
+            <Color x:Key="ElCold">#5AB7E0</Color>
+            <Color x:Key="ElLightning">#F1D33F</Color>
+            <Color x:Key="ElChaos">#D957B8</Color>
+
             <!-- Gem attribute colors (Str / Dex / Int) — already used in code -->
             <Color x:Key="AttrStr">#F38BA8</Color>
             <Color x:Key="AttrDex">#A6E3A1</Color>
@@ -121,6 +128,12 @@
             <!-- Darkness (Acolyte of Chayula resource) — PoB chaos colour. -->
             <SolidColorBrush x:Key="StatDarknessBrush" Color="#D957B8" />
 
+            <SolidColorBrush x:Key="ElPhysicalBrush" Color="{StaticResource ElPhysical}" />
+            <SolidColorBrush x:Key="ElFireBrush" Color="{StaticResource ElFire}" />
+            <SolidColorBrush x:Key="ElColdBrush" Color="{StaticResource ElCold}" />
+            <SolidColorBrush x:Key="ElLightningBrush" Color="{StaticResource ElLightning}" />
+            <SolidColorBrush x:Key="ElChaosBrush" Color="{StaticResource ElChaos}" />
+
             <SolidColorBrush x:Key="AttrStrBrush" Color="{StaticResource AttrStr}" />
             <SolidColorBrush x:Key="AttrDexBrush" Color="{StaticResource AttrDex}" />
             <SolidColorBrush x:Key="AttrIntBrush" Color="{StaticResource AttrInt}" />
@@ -177,6 +190,13 @@
             <Color x:Key="StatMana">#3D5BB8</Color>
             <Color x:Key="StatArmour">#B07C1A</Color>
             <Color x:Key="StatEvasion">#7E5FB8</Color>
+
+            <!-- Damage / element semantics (darker for contrast on light bg) -->
+            <Color x:Key="ElPhysical">#5C5C5C</Color>
+            <Color x:Key="ElFire">#B5481E</Color>
+            <Color x:Key="ElCold">#2D7AB8</Color>
+            <Color x:Key="ElLightning">#B08A00</Color>
+            <Color x:Key="ElChaos">#9B2C82</Color>
 
             <Color x:Key="AttrStr">#B23A48</Color>
             <Color x:Key="AttrDex">#3F8C4F</Color>
@@ -236,6 +256,12 @@
             <SolidColorBrush x:Key="StatEvasionBrush" Color="{StaticResource StatEvasion}" />
             <!-- Darkness (Acolyte of Chayula resource) — PoB chaos colour. -->
             <SolidColorBrush x:Key="StatDarknessBrush" Color="#D957B8" />
+
+            <SolidColorBrush x:Key="ElPhysicalBrush" Color="{StaticResource ElPhysical}" />
+            <SolidColorBrush x:Key="ElFireBrush" Color="{StaticResource ElFire}" />
+            <SolidColorBrush x:Key="ElColdBrush" Color="{StaticResource ElCold}" />
+            <SolidColorBrush x:Key="ElLightningBrush" Color="{StaticResource ElLightning}" />
+            <SolidColorBrush x:Key="ElChaosBrush" Color="{StaticResource ElChaos}" />
 
             <SolidColorBrush x:Key="AttrStrBrush" Color="{StaticResource AttrStr}" />
             <SolidColorBrush x:Key="AttrDexBrush" Color="{StaticResource AttrDex}" />

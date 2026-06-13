@@ -124,6 +124,12 @@
   <data name="Calc_ColName"       xml:space="preserve"><value>Name</value></data>
   <data name="Calc_ClickStat"     xml:space="preserve"><value>Click a stat on the left to see its breakdown</value></data>
   <data name="Calc_NoBreakdown"   xml:space="preserve"><value>No calc breakdown for this stat.</value></data>
+  <data name="Calc_ColOffence"    xml:space="preserve"><value>Offence</value></data>
+  <data name="Calc_ColResources"  xml:space="preserve"><value>Resources</value></data>
+  <data name="Calc_ColDefence"    xml:space="preserve"><value>Defence</value></data>
+  <data name="Calc_Search"        xml:space="preserve"><value>Search stat…</value></data>
+  <data name="Calc_CollapseAll"   xml:space="preserve"><value>Collapse all</value></data>
+  <data name="Calc_ExpandAll"     xml:space="preserve"><value>Expand all</value></data>
 
   <!-- Calcs stat section labels -->
   <data name="Stat_SkillDPS"      xml:space="preserve"><value>Skill DPS</value></data>

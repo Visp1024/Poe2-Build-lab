@@ -124,6 +124,12 @@
   <data name="Calc_ColName"       xml:space="preserve"><value>Название</value></data>
   <data name="Calc_ClickStat"     xml:space="preserve"><value>Нажмите на параметр слева для просмотра расчёта</value></data>
   <data name="Calc_NoBreakdown"   xml:space="preserve"><value>Расчёт для этого параметра недоступен.</value></data>
+  <data name="Calc_ColOffence"    xml:space="preserve"><value>Атака</value></data>
+  <data name="Calc_ColResources"  xml:space="preserve"><value>Ресурсы</value></data>
+  <data name="Calc_ColDefence"    xml:space="preserve"><value>Защита</value></data>
+  <data name="Calc_Search"        xml:space="preserve"><value>Поиск параметра…</value></data>
+  <data name="Calc_CollapseAll"   xml:space="preserve"><value>Свернуть всё</value></data>
+  <data name="Calc_ExpandAll"     xml:space="preserve"><value>Развернуть всё</value></data>
 
   <!-- Calcs stat section labels -->
   <data name="Stat_SkillDPS"      xml:space="preserve"><value>ДПС навыка</value></data>
