@@ -348,6 +348,17 @@
   <data name="Editor_StatWard"      xml:space="preserve"><value>Ward</value></data>
   <data name="Editor_StatSpirit"    xml:space="preserve"><value>Spirit</value></data>
   <data name="Editor_StatCharmSlots" xml:space="preserve"><value>Charm Slots</value></data>
+  <data name="Editor_SearchBases"   xml:space="preserve"><value>&#x1F50D; Search bases...</value></data>
+  <data name="Editor_SearchUniques" xml:space="preserve"><value>&#x1F50D; Search unique items...</value></data>
+  <data name="Editor_SearchMods"    xml:space="preserve"><value>&#x1F50D; Search mods...</value></data>
+  <data name="Editor_SearchCorruption" xml:space="preserve"><value>&#x1F50D; Search corruption...</value></data>
+  <data name="Editor_AddMod"        xml:space="preserve"><value>+ Add Mod</value></data>
+  <data name="Editor_BaseValueHint" xml:space="preserve"><value>(base: {0})</value></data>
+  <data name="Editor_PrefixSuffixLabel" xml:space="preserve"><value>Prefix: {0}/{1}   Suffix: {2}/{3}</value></data>
+  <data name="Editor_SaveSelectUnique" xml:space="preserve"><value>Select a unique item first</value></data>
+  <data name="Editor_SaveSelectBase" xml:space="preserve"><value>Select a base item first</value></data>
+  <data name="Editor_SaveUpdateFailed" xml:space="preserve"><value>Failed to update item — check format</value></data>
+  <data name="Editor_SaveCreateFailed" xml:space="preserve"><value>Failed to create item — check format</value></data>
 
   <!-- Tree tab status -->
   <data name="Tree_AllocatedFmt"    xml:space="preserve"><value>Allocated: {0}</value></data>

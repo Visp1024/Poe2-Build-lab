@@ -144,6 +144,53 @@ public sealed class GameTranslationService
     public string Item(string englishName) =>
         _items.TryGetValue(englishName, out var ru) ? ru : englishName;
 
+    // Item-editor category heads (build.data.itemBaseTypeList), e.g. "Body Armour",
+    // "One Hand Sword". Distinct from _tooltipTypes because the editor uses PoE2's
+    // raw category spelling ("One Hand Mace", not "One Handed Mace").
+    private static readonly Dictionary<string, string> _categoryHeads = new(StringComparer.Ordinal)
+    {
+        ["Amulet"] = "Амулет", ["Belt"] = "Пояс", ["Body Armour"] = "Нагрудник",
+        ["Boots"] = "Сапоги", ["Charm"] = "Оберег", ["Flail"] = "Цеп",
+        ["Flask"] = "Флакон", ["Focus"] = "Сосредоточение", ["Gloves"] = "Перчатки",
+        ["Helmet"] = "Шлем", ["Jewel"] = "Самоцвет", ["One Hand Mace"] = "Одноручная булава",
+        ["One Hand Sword"] = "Одноручный меч", ["Quiver"] = "Колчан", ["Ring"] = "Кольцо",
+        ["Sceptre"] = "Скипетр", ["Shield"] = "Щит", ["Spear"] = "Копьё",
+        ["Staff"] = "Посох", ["Talisman"] = "Талисман",
+        ["Transcendent Limb"] = "Трансцендентная конечность",
+        ["Two Hand Mace"] = "Двуручная булава", ["Two Hand Sword"] = "Двуручный меч",
+        ["Wand"] = "Жезл",
+    };
+
+    // Sub-type tokens after the colon, e.g. "Armour/Energy Shield", "Life", "Warstaff".
+    private static readonly Dictionary<string, string> _categorySubtypes = new(StringComparer.Ordinal)
+    {
+        ["Armour"] = "Броня", ["Evasion"] = "Уклонение", ["Energy Shield"] = "Энерг. щит",
+        ["Life"] = "Жизнь", ["Mana"] = "Мана", ["Radius"] = "Радиус",
+        ["Warstaff"] = "Боевой посох",
+        ["Transcendent Arm"] = "Трансцендентная рука",
+        ["Transcendent Leg"] = "Трансцендентная нога",
+    };
+
+    /// <summary>Translate an item-editor category like "Body Armour: Armour/Energy Shield".
+    /// Splits on the colon, translates the head and each "/"-separated sub-type token.</summary>
+    public string ItemCategory(string category)
+    {
+        if (string.IsNullOrEmpty(category) || _loadedLang == "en") return category;
+
+        var colon = category.IndexOf(": ", StringComparison.Ordinal);
+        var head = colon > 0 ? category[..colon] : category;
+        var headRu = _categoryHeads.TryGetValue(head, out var h) ? h : head;
+        if (colon < 0) return headRu;
+
+        var tail = category[(colon + 2)..];
+        var parts = tail.Split('/');
+        for (int i = 0; i < parts.Length; i++)
+            if (_categorySubtypes.TryGetValue(parts[i], out var t)) parts[i] = t;
+        return headRu + ": " + string.Join("/", parts);
+    }
+
+    public static string TItemCategory(string category) => Instance.ItemCategory(category);
+
     /// <summary>Translate a unique item name (the part before the comma in PoB's combined name).</summary>
     public string Unique(string englishName) =>
         _uniques.TryGetValue(englishName, out var ru) ? ru : englishName;
