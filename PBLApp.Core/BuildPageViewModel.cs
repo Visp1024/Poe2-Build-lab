@@ -139,9 +139,10 @@ public partial class BuildPageViewModel : ViewModelBase
             // Skills tab must rebuild its list to reflect that (otherwise old
             // class's granted skills linger and new ones never appear).
             ItemsTab  = new ItemsTabViewModel(host, model,
-                onStatsChanged: () => { CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); });
+                onStatsChanged: () => { CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); TreeTab?.RefreshJewelRadii(); });
             TreeTab   = new TreeTabViewModel(host,
-                onStatsChanged: () => { model.Refresh(); CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); ItemsTab?.Tattoos.Refresh(); ItemsTab?.Phylactery.Refresh(); });
+                onStatsChanged: () => { model.Refresh(); CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); ItemsTab?.Tattoos.Refresh(); ItemsTab?.Phylactery.Refresh(); },
+                onItemsChanged: () => ItemsTab?.Refresh());
             NotesTab  = new NotesTabViewModel(model, xmlPath);
             ConfigTab = new ConfigTabViewModel(host, model);
             ImportTab = new ImportTabViewModel(host, model, xmlPath);

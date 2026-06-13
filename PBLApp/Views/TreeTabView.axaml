@@ -94,8 +94,63 @@
                          AllocNodeCommand="{Binding AllocNodeCommand}"
                          DeallocNodeCommand="{Binding DeallocNodeCommand}"
                          RadiusEmitters="{Binding RadiusEmitters}"
+                         JewelRadii="{Binding JewelRadii}"
+                         JewelIcons="{Binding JewelIcons}"
                          AscendancyBackgrounds="{Binding AscendancyBackgrounds}"
                          ClipToBounds="True" />
+
+        <!-- In-tree jewel picker overlay: opens on clicking an allocated socket -->
+        <Grid Grid.Row="1" IsVisible="{Binding IsJewelPickerOpen}">
+            <!-- transparent dismiss layer (click outside closes) -->
+            <Border Background="#01000000" PointerPressed="JewelPickerDismiss_PointerPressed"/>
+            <Canvas>
+                <Border Canvas.Left="{Binding JewelPickerX}" Canvas.Top="{Binding JewelPickerY}"
+                        Background="{DynamicResource BgMantleBrush}"
+                        BorderBrush="{DynamicResource BorderStrongBrush}"
+                        BorderThickness="1" CornerRadius="6" Padding="4"
+                        MinWidth="230" MaxWidth="300" MaxHeight="380">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top"
+                                   Text="{Binding JewelPickerTitle}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Margin="6,4,6,6"
+                                   IsVisible="{Binding JewelPickerTitle, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto">
+                            <ListBox x:Name="JewelPickerList"
+                                     ItemsSource="{Binding JewelPickerOptions}"
+                                     Background="Transparent"
+                                     SelectionChanged="JewelPicker_SelectionChanged">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:JewelPickerOptionVm">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" Height="26">
+                                            <Image Grid.Column="0" Width="22" Height="22"
+                                                   Margin="0,0,8,0"
+                                                   IsVisible="{Binding HasIcon}"
+                                                   Source="{Binding IconPath, Converter={x:Static vm:PathToBitmapConverter.Instance}}"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding DisplayName}"
+                                                       Foreground="{Binding NameColor}"
+                                                       FontSize="12"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding StatusText}"
+                                                       IsVisible="{Binding HasStatus}"
+                                                       Foreground="{DynamicResource TextMutedBrush}"
+                                                       FontSize="10" FontStyle="Italic"
+                                                       Margin="8,0,0,0"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+            </Canvas>
+        </Grid>
 
     </Grid>
 

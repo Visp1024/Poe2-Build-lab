@@ -11,6 +11,8 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 using RadiusEmitter = (int NodeId, double RadiusWorld);
+using JewelRadius = (int NodeId, double Outer, double Inner, bool Variable);
+using JewelIcon = (int NodeId, string BaseName, string Title, bool Unique);
 
 namespace PBLApp.Controls;
 
@@ -45,6 +47,12 @@ public sealed class TreeCanvas : Control
 
     public static readonly StyledProperty<IReadOnlyList<RadiusEmitter>?> RadiusEmittersProperty =
         AvaloniaProperty.Register<TreeCanvas, IReadOnlyList<RadiusEmitter>?>(nameof(RadiusEmitters));
+
+    public static readonly StyledProperty<IReadOnlyList<JewelRadius>?> JewelRadiiProperty =
+        AvaloniaProperty.Register<TreeCanvas, IReadOnlyList<JewelRadius>?>(nameof(JewelRadii));
+
+    public static readonly StyledProperty<IReadOnlyList<JewelIcon>?> JewelIconsProperty =
+        AvaloniaProperty.Register<TreeCanvas, IReadOnlyList<JewelIcon>?>(nameof(JewelIcons));
 
     public static readonly StyledProperty<IReadOnlyDictionary<string, AscendancyBgDto>?> AscendancyBackgroundsProperty =
         AvaloniaProperty.Register<TreeCanvas, IReadOnlyDictionary<string, AscendancyBgDto>?>(nameof(AscendancyBackgrounds));
@@ -100,6 +108,16 @@ public sealed class TreeCanvas : Control
         get => GetValue(RadiusEmittersProperty);
         set => SetValue(RadiusEmittersProperty, value);
     }
+    public IReadOnlyList<JewelRadius>? JewelRadii
+    {
+        get => GetValue(JewelRadiiProperty);
+        set => SetValue(JewelRadiiProperty, value);
+    }
+    public IReadOnlyList<JewelIcon>? JewelIcons
+    {
+        get => GetValue(JewelIconsProperty);
+        set => SetValue(JewelIconsProperty, value);
+    }
     public IReadOnlyDictionary<string, AscendancyBgDto>? AscendancyBackgrounds
     {
         get => GetValue(AscendancyBackgroundsProperty);
@@ -115,6 +133,11 @@ public sealed class TreeCanvas : Control
         get => GetValue(HoverInfoProviderProperty);
         set => SetValue(HoverInfoProviderProperty, value);
     }
+
+    /// <summary>Raised on a left-click of an allocated jewel socket node, with the
+    /// node id and its screen-space centre. The view layer opens the jewel picker
+    /// there. Set by <c>TreeTabView</c>.</summary>
+    public Action<int, Point>? SocketClicked { get; set; }
 
     // Cache the resolved hover packet for the currently hovered node so that
     // every Render pass (pan/zoom/repaint while the cursor stays on a node)
@@ -232,6 +255,14 @@ public sealed class TreeCanvas : Control
     private static readonly IBrush RadiusAllocFill = new SolidColorBrush(Color.FromArgb(18, 180, 130, 255));
     private static readonly IPen   RadiusAllocPen  = MkPen("#B482FF", 1.8);
 
+    // Persistent ring drawn for an allocated socket that holds a radius jewel.
+    // Teal — distinct from the white node outlines, the blue node field and the
+    // tan ascendancy backdrops, so the radius stays legible even at full-tree
+    // zoom (our client always fits the whole tree). The neutral-white tint PoB
+    // uses works there only because the tree is viewed zoomed-in.
+    private static readonly IBrush JewelRingFill = new SolidColorBrush(Color.FromArgb(30, 70, 210, 200));
+    private static readonly IPen   JewelRingPen  = new Pen(new SolidColorBrush(Color.FromArgb(230, 70, 210, 200)), 2.4);
+
     // Info panel
     private static readonly IBrush InfoBg   = new SolidColorBrush(Color.FromArgb(230, 17, 17, 27));
     private static readonly IPen   InfoBrd  = MkPen("#313244", 1.0);
@@ -280,6 +311,14 @@ public sealed class TreeCanvas : Control
             InvalidateVisual();
         }
         else if (change.Property == RadiusEmittersProperty)
+        {
+            InvalidateVisual();
+        }
+        else if (change.Property == JewelRadiiProperty)
+        {
+            InvalidateVisual();
+        }
+        else if (change.Property == JewelIconsProperty)
         {
             InvalidateVisual();
         }
@@ -416,6 +455,35 @@ public sealed class TreeCanvas : Control
             }
         }
 
+        // ── Socketed jewel radius rings (persistent, allocated sockets) ─────
+        var jewelRadii = JewelRadii;
+        if (jewelRadii != null && jewelRadii.Count > 0)
+        {
+            foreach (var (nodeId, outer, inner, variable) in jewelRadii)
+            {
+                if (!_nodeById.TryGetValue(nodeId, out var sockNode)) continue;
+                var (jx, jy) = W2S(sockNode);
+                double rOut = outer * _scale;
+                if (variable && inner > 0)
+                {
+                    // Thread-of-Hope-like: annulus — fill the ring band, outline both edges.
+                    double rIn = inner * _scale;
+                    var ringGeo = new CombinedGeometry(
+                        GeometryCombineMode.Exclude,
+                        new EllipseGeometry(new Rect(jx - rOut, jy - rOut, rOut * 2, rOut * 2)),
+                        new EllipseGeometry(new Rect(jx - rIn,  jy - rIn,  rIn  * 2, rIn  * 2)));
+                    dc.DrawGeometry(JewelRingFill, null, ringGeo);
+                    dc.DrawEllipse(null, JewelRingPen, new Point(jx, jy), rOut, rOut);
+                    dc.DrawEllipse(null, JewelRingPen, new Point(jx, jy), rIn,  rIn);
+                }
+                else
+                {
+                    // Standard jewel: full disc.
+                    dc.DrawEllipse(JewelRingFill, JewelRingPen, new Point(jx, jy), rOut, rOut);
+                }
+            }
+        }
+
         // ── Draw nodes ─────────────────────────────────────────────────────
         // All nodes drawn per-frame. We tried baking unallocated nodes into
         // the static bitmap (commit d119426) but small icons lost too much
@@ -439,6 +507,38 @@ public sealed class TreeCanvas : Control
                             node.Name.Contains(search, StringComparison.OrdinalIgnoreCase);
 
             DrawNode(dc, node, sx, sy, r, isAlloc, isCan, isSearch, node == _hoveredNode);
+        }
+
+        // ── Socketed jewel art (over the socket base, allocated sockets) ───
+        // The jewel base/unique art sprites (Diamond, Timeless Jewel, unique
+        // titles, ...) already include their own circular frame, so we draw them
+        // unclipped and unframed, slightly larger than the empty-socket art so
+        // they read as "filled". Mirrors PoB painting the jewel as the socket
+        // overlay.
+        var jewelIcons = JewelIcons;
+        if (jewelIcons != null && jewelIcons.Count > 0 && AssetStore is { } jstore)
+        {
+            double half = GetIconHalfWorld("Socket") * _scale * 1.3;
+            if (half >= MinIconScreenPx)
+            {
+                foreach (var (nodeId, baseName, title, unique) in jewelIcons)
+                {
+                    if (!_nodeById.TryGetValue(nodeId, out var sock)) continue;
+                    var (jx, jy) = W2S(sock);
+                    if (jx + half < 0 || jx - half > Bounds.Width ||
+                        jy + half < 0 || jy - half > Bounds.Height)
+                        continue;
+
+                    // Prefer the unique's own art when present, else the base art.
+                    string? key = unique && jstore.HasSprite(title) ? title
+                                : jstore.HasSprite(baseName)        ? baseName
+                                : null;
+                    if (key == null) continue;
+                    if (jstore.GetSprite(key) is not { } sp) continue;
+
+                    dc.DrawImage(sp.Bmp, sp.Src, new Rect(jx - half, jy - half, half * 2, half * 2));
+                }
+            }
         }
 
         // ── Jewel radius rings (Socket hover) ─────────────────────────────
@@ -942,9 +1042,22 @@ public sealed class TreeCanvas : Control
         }
         else if (_isPanning)
         {
-            // LMB click (not drag) — alloc / change attribute
+            // LMB click (not drag)
             if (d < 5.0 && _hoveredNode != null)
-                AllocNodeCommand?.Execute(_hoveredNode.Id);
+            {
+                // An already-allocated jewel socket opens the in-tree jewel picker
+                // instead of re-allocating; everything else allocs / changes attribute.
+                if (_hoveredNode.Type == "Socket" && AllocatedIds?.Contains(_hoveredNode.Id) == true
+                    && SocketClicked != null)
+                {
+                    var (scx, scy) = W2S(_hoveredNode);
+                    SocketClicked(_hoveredNode.Id, new Point(scx, scy));
+                }
+                else
+                {
+                    AllocNodeCommand?.Execute(_hoveredNode.Id);
+                }
+            }
         }
 
         if (_isPanning)
@@ -994,6 +1107,87 @@ public sealed class TreeCanvas : Control
             InvalidateStaticLayer();
         InvalidateVisual();
         e.Handled = true;
+    }
+
+    // ── Programmatic view control (testing / automation hooks) ──────────────
+    // Used by the IPC bridge (visual_tree_* MCP tools) to drive zoom / pan /
+    // focus without a real pointer, so a screenshot can frame a specific node.
+
+    private const double MinViewScale = 0.04;
+    private const double MaxViewScale = 2.5;
+
+    /// <summary>Current view as (scale, worldCenterX, worldCenterY) — the world
+    /// point currently under the viewport centre.</summary>
+    public (double Scale, double CenterX, double CenterY) GetViewState()
+    {
+        double w = Bounds.Width  > 0 ? Bounds.Width  : 1;
+        double h = Bounds.Height > 0 ? Bounds.Height : 1;
+        double cx = (w / 2 - _offsetX) / _scale;
+        double cy = (h / 2 - _offsetY) / _scale;
+        return (_scale, cx, cy);
+    }
+
+    /// <summary>Set zoom and/or the world point under the viewport centre. Any
+    /// argument left null keeps its current value.</summary>
+    public void SetViewState(double? scale, double? centerX, double? centerY)
+    {
+        var (curScale, curCx, curCy) = GetViewState();
+        double s  = scale.HasValue ? Math.Clamp(scale.Value, MinViewScale, MaxViewScale) : curScale;
+        double cx = centerX ?? curCx;
+        double cy = centerY ?? curCy;
+        ApplyView(s, cx, cy);
+    }
+
+    /// <summary>Centre the view on a node (by id) and optionally zoom. Returns
+    /// false when the node id is not present in the current tree.</summary>
+    public bool FocusNode(int nodeId, double? scale = null)
+    {
+        if (!_nodeById.TryGetValue(nodeId, out var node)) return false;
+        var (wx, wy) = EffectiveWorld(node);
+        double s = scale.HasValue ? Math.Clamp(scale.Value, MinViewScale, MaxViewScale) : _scale;
+        ApplyView(s, wx, wy);
+        return true;
+    }
+
+    /// <summary>Programmatically fire the socket-click (open the jewel picker) for a
+    /// node id, as if the user clicked it. Used by the IPC test tools. No-op if the
+    /// node is not a socket present in the current tree.</summary>
+    public void TriggerSocketClick(int nodeId)
+    {
+        if (SocketClicked == null) return;
+        if (!_nodeById.TryGetValue(nodeId, out var node) || node.Type != "Socket") return;
+        var (sx, sy) = W2S(node);
+        SocketClicked(nodeId, new Point(sx, sy));
+    }
+
+    /// <summary>Multiply zoom around the viewport centre (e.g. 1.15 = one wheel notch in).</summary>
+    public void ZoomBy(double factor)
+    {
+        if (factor <= 0) return;
+        var (curScale, curCx, curCy) = GetViewState();
+        ApplyView(Math.Clamp(curScale * factor, MinViewScale, MaxViewScale), curCx, curCy);
+    }
+
+    /// <summary>Scroll the view by a screen-pixel delta (positive dx moves content right).</summary>
+    public void PanByPixels(double dx, double dy)
+    {
+        _offsetX += dx;
+        _offsetY += dy;
+        _fitNeeded = false;
+        InvalidateVisual();
+    }
+
+    private void ApplyView(double scale, double centerWorldX, double centerWorldY)
+    {
+        double w = Bounds.Width  > 0 ? Bounds.Width  : 1;
+        double h = Bounds.Height > 0 ? Bounds.Height : 1;
+        _scale   = scale;
+        _offsetX = w / 2 - centerWorldX * scale;
+        _offsetY = h / 2 - centerWorldY * scale;
+        _fitNeeded = false;
+        if (_staticLayer != null && _scale > _staticLayerScale * 1.5)
+            InvalidateStaticLayer();
+        InvalidateVisual();
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────

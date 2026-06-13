@@ -160,6 +160,13 @@ public sealed class IpcServer
                 "/tree/state"             => await OnUi(TreeState),
                 "/tree/select-class"      => await OnUi(() => TreeSelectClass(body)),
                 "/tree/select-ascendancy" => await OnUi(() => TreeSelectAscendancy(body)),
+                "/tree/view"              => await OnUi(TreeGetView),
+                "/tree/set-view"          => await OnUi(() => TreeSetView(body)),
+                "/tree/focus-node"        => await OnUi(() => TreeFocusNode(body)),
+                "/tree/zoom"              => await OnUi(() => TreeZoom(body)),
+                "/tree/pan"               => await OnUi(() => TreePan(body)),
+                "/tree/open-jewel-picker" => await OnUi(() => TreeOpenJewelPicker(body)),
+                "/tree/pick-jewel"        => await OnUi(() => TreePickJewel(body)),
                 _ => new { error = $"Unknown endpoint: {path}" }
             };
 
@@ -970,6 +977,91 @@ public sealed class IpcServer
 
         t.SelectedAscend = match;
         return new { ok = true, selectedAscendancy = match.Name };
+    }
+
+    // ── Tree view control (zoom / pan / focus) ────────────────────────────
+
+    private static object TreeViewResult(TreeTabViewModel t)
+    {
+        if (t.GetCanvasView is null) return new { error = "Canvas view not bound." };
+        var (scale, cx, cy) = t.GetCanvasView();
+        return new { ok = true, scale, centerX = cx, centerY = cy };
+    }
+
+    private static object TreeGetView()
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        return TreeViewResult(t);
+    }
+
+    private static object TreeSetView(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        if (t.SetCanvasView is null) return new { error = "Canvas view not bound." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        double? scale = req.TryGetValue("scale",   out var s)  && s.ValueKind  == JsonValueKind.Number ? s.GetDouble()  : null;
+        double? cx    = req.TryGetValue("centerX", out var x)  && x.ValueKind  == JsonValueKind.Number ? x.GetDouble()  : null;
+        double? cy    = req.TryGetValue("centerY", out var y)  && y.ValueKind  == JsonValueKind.Number ? y.GetDouble()  : null;
+        t.SetCanvasView(scale, cx, cy);
+        return TreeViewResult(t);
+    }
+
+    private static object TreeFocusNode(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        if (t.FocusCanvasNode is null) return new { error = "Canvas view not bound." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        if (!req.TryGetValue("nodeId", out var n) || n.ValueKind != JsonValueKind.Number)
+            return new { error = "Missing numeric 'nodeId'." };
+        int nodeId = n.GetInt32();
+        double? scale = req.TryGetValue("scale", out var s) && s.ValueKind == JsonValueKind.Number ? s.GetDouble() : null;
+        bool found = t.FocusCanvasNode(nodeId, scale);
+        if (!found) return new { error = $"Node {nodeId} is not present in the current tree." };
+        return TreeViewResult(t);
+    }
+
+    private static object TreeZoom(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        if (t.ZoomCanvas is null) return new { error = "Canvas view not bound." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        if (!req.TryGetValue("factor", out var f) || f.ValueKind != JsonValueKind.Number)
+            return new { error = "Missing numeric 'factor'." };
+        t.ZoomCanvas(f.GetDouble());
+        return TreeViewResult(t);
+    }
+
+    private static object TreePan(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        if (t.PanCanvas is null) return new { error = "Canvas view not bound." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        double dx = req.TryGetValue("dx", out var x) && x.ValueKind == JsonValueKind.Number ? x.GetDouble() : 0;
+        double dy = req.TryGetValue("dy", out var y) && y.ValueKind == JsonValueKind.Number ? y.GetDouble() : 0;
+        t.PanCanvas(dx, dy);
+        return TreeViewResult(t);
+    }
+
+    private static object TreeOpenJewelPicker(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        if (t.TriggerSocketPicker is null) return new { error = "Canvas not bound." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        if (!req.TryGetValue("nodeId", out var n) || n.ValueKind != JsonValueKind.Number)
+            return new { error = "Missing numeric 'nodeId'." };
+        t.TriggerSocketPicker(n.GetInt32());
+        return new { ok = true, isOpen = t.IsJewelPickerOpen,
+                     options = t.JewelPickerOptions.Select(o => new { o.ItemId, o.DisplayName, o.StatusText, o.IsCurrent }).ToArray() };
+    }
+
+    private static object TreePickJewel(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        if (!req.TryGetValue("itemId", out var i) || i.ValueKind != JsonValueKind.Number)
+            return new { error = "Missing numeric 'itemId'." };
+        t.PickJewelById(i.GetInt32());
+        return new { ok = true };
     }
 
     public void Stop()
