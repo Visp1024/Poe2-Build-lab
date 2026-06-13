@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PBLApp.Core;
 using PBLApp.Core.Localization;
 using PBLEngine;
 using System;
@@ -97,6 +98,10 @@ public partial class CalcsTabViewModel : ViewModelBase
 
     /// <summary>Drives the collapse-all / expand-all toggle label + behaviour.</summary>
     [ObservableProperty] private bool _allCollapsed;
+
+    /// <summary>Compact density: tighter padding + 4-column masonry that fills space,
+    /// instead of the spacious fixed 3 domain columns. Defaults to compact; persisted.</summary>
+    [ObservableProperty] private bool _isCompact = AppPreferences.GetBool("CalcsCompact", true);
 
     public bool HasBreakdown => SelectedStat is not null;
 
@@ -388,6 +393,8 @@ public partial class CalcsTabViewModel : ViewModelBase
         foreach (var section in Sections)
             section.IsCollapsed = AllCollapsed;
     }
+
+    partial void OnIsCompactChanged(bool value) => AppPreferences.SetBool("CalcsCompact", value);
 
     partial void OnSelectedSkillGroupChanged(SkillGroupDisplayVm? value)
     {

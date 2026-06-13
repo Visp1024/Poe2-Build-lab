@@ -130,6 +130,8 @@
   <data name="Calc_Search"        xml:space="preserve"><value>Search stat…</value></data>
   <data name="Calc_CollapseAll"   xml:space="preserve"><value>Collapse all</value></data>
   <data name="Calc_ExpandAll"     xml:space="preserve"><value>Expand all</value></data>
+  <data name="Calc_DensityCompact" xml:space="preserve"><value>Compact</value></data>
+  <data name="Calc_DensityLarge"   xml:space="preserve"><value>Large</value></data>
 
   <!-- Calcs stat section labels -->
   <data name="Stat_SkillDPS"      xml:space="preserve"><value>Skill DPS</value></data>
