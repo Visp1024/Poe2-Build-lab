@@ -282,6 +282,11 @@ public partial class SkillGroupViewModel : ObservableObject
 
     [ObservableProperty] private bool _isMain;
 
+    /// <summary>True when this is the active group shown in the editor pane.
+    /// Maintained by the parent on SelectedGroup changes; drives the single
+    /// selection highlight on the group-list row (no ListBox selection chrome).</summary>
+    [ObservableProperty] private bool _isSelected;
+
     /// <summary>True when the group's active gem is a Meta / Trigger skill
     /// (Cast on Crit / Cast on Shock / Cast on Block / Cast on Minion Death, etc.).
     /// In trigger groups, the dropdown for "support" slots also surfaces active
@@ -536,7 +541,13 @@ public partial class SkillsTabViewModel : ViewModelBase
     }
 
     partial void OnSelectedGroupChanged(SkillGroupViewModel? value)
-        => SetAsMainCommand.NotifyCanExecuteChanged();
+    {
+        // Drive the per-row IsSelected flag ourselves so the group list can render
+        // a single, clean selection highlight instead of ListBox selection chrome.
+        foreach (var g in Groups)
+            g.IsSelected = ReferenceEquals(g, value);
+        SetAsMainCommand.NotifyCanExecuteChanged();
+    }
 
     [RelayCommand]
     private void AddGroup()

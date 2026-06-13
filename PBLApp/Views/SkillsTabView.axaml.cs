@@ -2,7 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using System.Linq;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using PBLApp.Controls;
 using PBLApp.ViewModels;
 
@@ -29,18 +31,15 @@ public partial class SkillsTabView : UserControl
     {
         if (e.Key == Key.Down)
         {
-            PickerList?.Focus();
-            if (PickerList is { ItemCount: > 0 } && PickerList.SelectedIndex < 0)
-                PickerList.SelectedIndex = 0;
+            FocusFirstRow(PickerList);
             e.Handled = true;
         }
         else if (e.Key == Key.Enter)
         {
-            if (PickerList is { ItemCount: > 0 })
-            {
-                if (PickerList.SelectedIndex < 0) PickerList.SelectedIndex = 0;
-                CommitPickedSkill();
-            }
+            // Enter from the search box commits the top-most filtered result.
+            if (DataContext is SkillsTabViewModel vm
+                && vm.FilteredActiveGemNameItems.FirstOrDefault() is { } item)
+                CommitSkill(item);
             e.Handled = true;
         }
         else if (e.Key == Key.Escape)
@@ -50,18 +49,15 @@ public partial class SkillsTabView : UserControl
         }
     }
 
-    private void PickerList_DoubleTapped(object? sender, TappedEventArgs e) => CommitPickedSkill();
-
-    private void PickerList_KeyDown(object? sender, KeyEventArgs e)
+    // Each row is its own button — a single click commits directly.
+    private void PickerRow_Click(object? sender, RoutedEventArgs e)
     {
-        if (e.Key == Key.Enter)       { CommitPickedSkill(); e.Handled = true; }
-        else if (e.Key == Key.Escape) { ClosePickerFlyout(); e.Handled = true; }
+        if (sender is Button { DataContext: GemNameItem item }) CommitSkill(item);
     }
 
-    private void CommitPickedSkill()
+    private void CommitSkill(GemNameItem item)
     {
-        if (PickerList?.SelectedItem is GemNameItem item
-            && DataContext is SkillsTabViewModel vm)
+        if (DataContext is SkillsTabViewModel vm)
         {
             vm.AddGroupFromPicker(item.Name);
             ClosePickerFlyout();
@@ -71,6 +67,18 @@ public partial class SkillsTabView : UserControl
     private void ClosePickerFlyout()
     {
         if (AddSkillButton?.Flyout is FlyoutBase fb) fb.Hide();
+    }
+
+    // ── Group list (left) ─────────────────────────────────────────────────
+
+    // Each group row is a Border (not Button — see group-row style comment);
+    // pressing it selects the group. Selection highlight is rendered via the
+    // row's .selected class and fills the full row width.
+    private void GroupRow_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is Border { DataContext: SkillGroupViewModel group }
+            && DataContext is SkillsTabViewModel vm)
+            vm.SelectedGroup = group;
     }
 
     // ── Active gem (header) ───────────────────────────────────────────────
@@ -175,5 +183,14 @@ public partial class SkillsTabView : UserControl
             if (c is Button btn && btn.Flyout is FlyoutBase fb) { fb.Hide(); return; }
             c = c.Parent as Control;
         }
+    }
+
+    /// <summary>Move keyboard focus to the first row button of a picker
+    /// ItemsControl, so the user can arrow through results after typing.</summary>
+    private static void FocusFirstRow(ItemsControl? list)
+    {
+        var btn = list?.ContainerFromIndex(0)?.GetVisualDescendants()
+                      .OfType<Button>().FirstOrDefault();
+        btn?.Focus();
     }
 }
