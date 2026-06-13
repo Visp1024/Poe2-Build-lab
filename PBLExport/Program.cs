@@ -60,13 +60,72 @@ else
 }
 
 // ---------------------------------------------------------------------------
-// 2. items_ru.json  (from repoe-fork)
+// 2. items_ru.json  (from GGPK export via pathofexile-dat; falls back to repoe-fork)
+//    repoe-fork dropped the Russian/ dumps (404 as of 0.5), so the official
+//    GGPK BaseItemTypes table is now the primary source. Join EN→RU by Id
+//    (the Metadata path). Legacy entries the current export lacks (e.g. PoE1
+//    Sentinel content PoB still references) are preserved from the prior file.
 // ---------------------------------------------------------------------------
+var itemsOut       = Path.Combine(TransDir, "items_ru.json");
+var baseItemsEnGgpk = Path.Combine(GgpkDir, "English", "BaseItemTypes.json");
+var baseItemsRuGgpk = Path.Combine(GgpkDir, "Russian", "BaseItemTypes.json");
 var baseItemsEn = Path.Combine(TransDir, "base_items_en.json");
 var baseItemsRu = Path.Combine(TransDir, "base_items_ru.json");
-if (File.Exists(baseItemsEn) && File.Exists(baseItemsRu))
+if (File.Exists(baseItemsEnGgpk) && File.Exists(baseItemsRuGgpk))
 {
-    Console.WriteLine("Building items_ru.json...");
+    Console.WriteLine("Building items_ru.json (from GGPK)...");
+    var biEn = JsonDocument.Parse(File.ReadAllText(baseItemsEnGgpk)).RootElement;
+    var biRu = JsonDocument.Parse(File.ReadAllText(baseItemsRuGgpk)).RootElement;
+
+    // Index RU names by Id (Metadata path).
+    var ruById = new Dictionary<string, string>(StringComparer.Ordinal);
+    foreach (var row in biRu.EnumerateArray())
+    {
+        if (!row.TryGetProperty("Id", out var idEl)) continue;
+        if (!row.TryGetProperty("Name", out var nameEl)) continue;
+        var id = idEl.GetString() ?? "";
+        var nm = nameEl.GetString() ?? "";
+        if (id.Length > 0 && nm.Length > 0) ruById[id] = nm;
+    }
+
+    var itemMap = new SortedDictionary<string, string>(StringComparer.Ordinal);
+    foreach (var row in biEn.EnumerateArray())
+    {
+        if (!row.TryGetProperty("Id", out var idEl)) continue;
+        if (!row.TryGetProperty("Name", out var nameEl)) continue;
+        var id     = idEl.GetString() ?? "";
+        var enName = nameEl.GetString() ?? "";
+        if (enName.Length == 0 || enName.StartsWith("[DNT")) continue;
+        if (!ruById.TryGetValue(id, out var ruName)) continue;
+        if (ruName.Length == 0 || ruName.StartsWith("[DNT")) continue;
+        if (ruName != enName) itemMap[enName] = ruName;
+    }
+
+    // Hand entries for PoB-internal pseudo-bases that have no GGPK row
+    // (Shrine Sceptre variants carry a "(Purity of …)" suffix PoB appends;
+    // "Lighting" is PoB's own misspelling of Lightning).
+    var handItems = new Dictionary<string, string>
+    {
+        ["Shrine Sceptre (Purity of Cold)"]     = "Скипетр святыни (Спасение от холода)",
+        ["Shrine Sceptre (Purity of Fire)"]     = "Скипетр святыни (Спасение от огня)",
+        ["Shrine Sceptre (Purity of Lighting)"] = "Скипетр святыни (Спасение от молний)",
+    };
+    foreach (var (en, ru) in handItems) itemMap.TryAdd(en, ru);
+
+    // Preserve prior entries the current GGPK export doesn't cover (GGPK wins
+    // on conflicts because TryAdd never overwrites an existing key).
+    if (File.Exists(itemsOut))
+    {
+        var prev = JsonSerializer.Deserialize<Dictionary<string, string>>(
+                       File.ReadAllText(itemsOut)) ?? new();
+        foreach (var (en, ru) in prev) itemMap.TryAdd(en, ru);
+    }
+
+    WriteJson(itemsOut, itemMap, opts);
+}
+else if (File.Exists(baseItemsEn) && File.Exists(baseItemsRu))
+{
+    Console.WriteLine("Building items_ru.json (from repoe-fork)...");
     var enItems = JsonDocument.Parse(File.ReadAllText(baseItemsEn));
     var ruItems = JsonDocument.Parse(File.ReadAllText(baseItemsRu));
     var itemMap = new Dictionary<string, string>();
@@ -84,11 +143,11 @@ if (File.Exists(baseItemsEn) && File.Exists(baseItemsRu))
         if (!string.IsNullOrEmpty(ruName) && ruName != enName)
             itemMap[enName] = ruName;
     }
-    WriteJson(Path.Combine(TransDir, "items_ru.json"), itemMap, opts);
+    WriteJson(itemsOut, itemMap, opts);
 }
 else
 {
-    Console.WriteLine($"[SKIP] items_ru.json — repoe-fork dumps missing ({baseItemsEn})");
+    Console.WriteLine($"[SKIP] items_ru.json — neither GGPK tables ({baseItemsEnGgpk}) nor repoe-fork dumps ({baseItemsEn}) present");
 }
 
 // ---------------------------------------------------------------------------
