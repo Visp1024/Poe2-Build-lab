@@ -61,6 +61,10 @@ public partial class GemViewModel : ObservableObject
 
     public bool IsEmpty => GemIndex == 0;
 
+    /// <summary>Raw (English) committed gem name, or "" when empty. Used by the IPC
+    /// text-inspection tools to identify a gem without going through DisplayText.</summary>
+    public string CommittedName => _committedName;
+
     // Text currently shown in the ComboBox (updated on every keystroke).
     // Drives filtering; NOT the committed/saved value.
     [ObservableProperty]
@@ -690,6 +694,11 @@ public partial class SkillsTabViewModel : ViewModelBase
                     break;
 
                 case "stat":
+                    // English fallback (PoB's describeStats) when no localised raw_stats
+                    // template matched. Skill-stat phrasing ("while in X", "Supported
+                    // Skills have…", "per Demonflame") isn't covered by the item-mod
+                    // templates, so translation here needs proper gem_stats_templates.json
+                    // coverage (data pipeline) rather than a reuse of TooltipLine.
                     if (!skipStats)
                         entries.Add(MakeEntry(l.Text, "#89B4FA"));
                     break;
