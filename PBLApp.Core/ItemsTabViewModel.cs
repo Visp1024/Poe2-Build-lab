@@ -162,6 +162,7 @@ public partial class ItemSlotViewModel : ObservableObject
                     if (string.IsNullOrWhiteSpace(raw)) continue;
                     var clean = StripColorCodes(raw);
                     if (clean.Length == 0) continue;
+                    clean = PBLApp.Core.Localization.GameTranslationService.Instance.TooltipLine(clean);
                     sb.Append('\n').Append(clean);
                 }
             }
@@ -568,6 +569,7 @@ public partial class ItemsTabViewModel : ViewModelBase
                 clean = System.Text.RegularExpressions.Regex.Replace(clean,
                     @"\{[a-zA-Z_:0-9]+\}", "").Trim();
                 if (clean.Length == 0) continue;
+                clean = PBLApp.Core.Localization.GameTranslationService.Instance.TooltipLine(clean);
                 if (sb.Length > 0) sb.Append('\n');
                 sb.Append(clean);
             }

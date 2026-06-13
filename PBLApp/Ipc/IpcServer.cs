@@ -139,6 +139,7 @@ public sealed class IpcServer
                 "/items/get-editor"   => await OnUi(GetEditorState),
                 "/items/get-tooltip"  => await OnUi(GetTooltipState),
                 "/items/all-tooltips" => await OnUi(AllTooltips),
+                "/items/hover-text"   => await OnUi(HoverText),
                 "/items/compatible-slots" => await OnUi(() => CompatibleSlots(body)),
                 "/items/tattoo-state" => await OnUi(TattooState),
                 "/items/set-tattoo"   => await OnUi(() => SetTattoo(body)),
@@ -609,6 +610,21 @@ public sealed class IpcServer
         }
 
         return new { ok = true, slots = slotTooltips.ToArray(), pool = poolTooltips.ToArray() };
+    }
+
+    // Returns the plain-text hover tooltip (the StyledHoverTooltip popup shown over
+    // each slot/pool cell on pointer-hover) — a path separate from the right-pane
+    // ItemTooltipViewModel, so it needs its own translation audit.
+    private static object HoverText()
+    {
+        if (GetItemsVm() is not { } v) return new { error = "ItemsTab not ready." };
+        return new
+        {
+            ok = true,
+            slots = AllSlots(v).Where(s => !s.IsEmpty)
+                .Select(s => new { slot = s.SlotName, text = s.HoverTooltipText }).ToArray(),
+            pool = v.ItemPool.Select(p => new { id = p.ItemId, name = p.Name, text = p.HoverTooltipText }).ToArray(),
+        };
     }
 
     // ── Skills tooltips ────────────────────────────────────────────────────

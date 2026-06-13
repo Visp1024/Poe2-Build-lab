@@ -32,6 +32,9 @@ public sealed class GameTranslationService
     private Dictionary<string, string> _runes             = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, string> _calcLabels        = new(StringComparer.Ordinal);
     private Dictionary<string, string> _classNames        = new(StringComparer.OrdinalIgnoreCase);
+    // Auto-generated from GGPK .csd (gen_item_mod_templates_csd.py): number-redacted
+    // EN -> RU stat templates, consulted after the hand-curated _itemModTemplates.
+    private Dictionary<string, string> _itemModTemplatesCsd = new(StringComparer.Ordinal);
     private string _loadedLang = "";
 
     private GameTranslationService()
@@ -62,6 +65,7 @@ public sealed class GameTranslationService
             _runes             = new(StringComparer.OrdinalIgnoreCase);
             _calcLabels        = new(StringComparer.Ordinal);
             _classNames        = new(StringComparer.OrdinalIgnoreCase);
+            _itemModTemplatesCsd = new(StringComparer.Ordinal);
             return;
         }
 
@@ -83,6 +87,11 @@ public sealed class GameTranslationService
         _calcLabels        = LoadMap($"PBLApp.ViewModels.Translations.calc_labels_{lang}.json",
                                      StringComparer.Ordinal);
         _classNames        = LoadMap($"PBLApp.ViewModels.Translations.class_names_{lang}.json");
+        // OrdinalIgnoreCase so lowercase mod variants (enchants / corrupted implicits
+        // PoB stores lowercase, e.g. "21% increased critical hit chance for spells")
+        // still match the Title-Case .csd templates.
+        _itemModTemplatesCsd = LoadMap($"PBLApp.ViewModels.Translations.item_mod_templates_{lang}.json",
+                                       StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>Translate a CalcsTab / tree hover stat label (e.g. "Total Life",
@@ -206,7 +215,8 @@ public sealed class GameTranslationService
         //    the templated form in the dictionaries, so an exact lookup always missed them.
         var template = NumberRx.Replace(englishStat, "#");
         if (template != englishStat &&
-            (_passiveStats.TryGetValue(template, out ru) || _itemModTemplates.TryGetValue(template, out ru)))
+            (_passiveStats.TryGetValue(template, out ru) || _itemModTemplates.TryGetValue(template, out ru)
+             || _itemModTemplatesCsd.TryGetValue(template, out ru)))
         {
             var numbers = new List<string>();
             foreach (Match m in NumberRx.Matches(englishStat)) numbers.Add(m.Value);
@@ -234,6 +244,15 @@ public sealed class GameTranslationService
     {
         if (string.IsNullOrEmpty(line) || _loadedLang == "en") return line;
 
+        // 0) Strip a leading {variant:N} marker — a PoB raw-mod artifact that must never
+        //    be displayed; it also breaks every prefix handler below (e.g. the item
+        //    editor's "{variant:1}Grants Skill: Level 20 ...").
+        if (line.StartsWith("{variant:", StringComparison.Ordinal))
+        {
+            int close = line.IndexOf('}');
+            if (close > 0) return TooltipLine(line[(close + 1)..]);
+        }
+
         // 0) High-specificity hybrid handlers, run first so the magic-name / template
         //    steps below can't short-circuit them. PoB's Lua layer localises the gem
         //    name / ailment keyword but leaves the English wrapper, so we patch the wrapper.
@@ -248,6 +267,49 @@ public sealed class GameTranslationService
         var buildup = Regex.Match(line, @"^(\d+)% increased (.+) Buildup$");
         if (buildup.Success && _ailmentGenitive.TryGetValue(buildup.Groups[2].Value, out var ailRu))
             return $"{buildup.Groups[1].Value}% увелич. накопления {ailRu}";
+
+        // "Grants Skill: <gem>" without a "Level N" prefix (PoB localises the gem
+        // name but leaves the English wrapper). The "Grants Skill: Level N" form is
+        // handled above; this catches the rest.
+        const string grantsP2 = "Grants Skill: ";
+        if (line.StartsWith(grantsP2, StringComparison.Ordinal))
+            return "Дарует навык: " + Gem(line[grantsP2.Length..]);
+
+        // Delta-block headers. Must run before the magic-name step (1a), which would
+        // otherwise greedily match a base-name word inside the sentence and rebuild it.
+        const string remPrefix = "Removing this item from ";
+        const string remSuffix = " will give you:";
+        if (line.StartsWith(remPrefix, StringComparison.Ordinal) && line.EndsWith(remSuffix, StringComparison.Ordinal))
+            return $"Снятие предмета со слота «{TooltipType(line[remPrefix.Length..^remSuffix.Length])}» даст вам:";
+        const string eqPrefix = "Equipping this item in ";
+        const string eqSuffix = " will give you:";
+        if (line.StartsWith(eqPrefix, StringComparison.Ordinal) && line.EndsWith(eqSuffix, StringComparison.Ordinal))
+            return $"Экипировка в слот «{TooltipType(line[eqPrefix.Length..^eqSuffix.Length])}» даст вам:";
+
+        // PoB hybrid: "<RU stat> /On Hit Rate" (note the space — a body-stat line where
+        // PoB localised the leech name but left the rate suffix). The space-less delta
+        // form "ES Leech/On Hit Rate" is handled wholesale by _deltaLabels below.
+        if (line.EndsWith(" /On Hit Rate", StringComparison.Ordinal))
+            return line[..^"/On Hit Rate".Length] + "/частота при попад.";
+
+        // "Allocates <Node>" — jewel allocate mod; translate the node name via the
+        // passive-name dict (left English if that name isn't translated yet).
+        const string allocP = "Allocates ";
+        if (line.StartsWith(allocP, StringComparison.Ordinal))
+            return "Выделяет " + PassiveName(line[allocP.Length..]);
+
+        // "(replacing <name>, <base> )" — comparison sub-header in the delta block.
+        const string replP = "(replacing ";
+        if (line.StartsWith(replP, StringComparison.Ordinal) && line.EndsWith(")", StringComparison.Ordinal))
+        {
+            var inner = line[replP.Length..^1].TrimEnd().Replace("New Item", "Новый предмет");
+            // "<item name>, <base>" — translate the base (after last comma) via the item
+            // dict and the leading name via the unique dict (no-op if already RU/unknown).
+            int comma = inner.LastIndexOf(", ", StringComparison.Ordinal);
+            if (comma > 0)
+                inner = Unique(inner[..comma]) + ", " + Item(inner[(comma + 2)..].Trim());
+            return $"(заменяет {inner})";
+        }
 
         // 1) exact: passive stats, item names, unique names, then built-in item-mod patterns.
         if (_passiveStats.TryGetValue(line, out var ru)) return ru;
@@ -265,7 +327,8 @@ public sealed class GameTranslationService
         if (template != line)
         {
             if (_passiveStats.TryGetValue(template, out ru) ||
-                _itemModTemplates.TryGetValue(template, out ru))
+                _itemModTemplates.TryGetValue(template, out ru) ||
+                _itemModTemplatesCsd.TryGetValue(template, out ru))
             {
                 var numbers = new List<string>();
                 foreach (Match m in NumberRx.Matches(line)) numbers.Add(m.Value);
@@ -307,22 +370,6 @@ public sealed class GameTranslationService
             return "Требуется " + rest;
         }
 
-        // 5a) "Removing this item from <slot> will give you:"
-        const string remPrefix = "Removing this item from ";
-        const string remSuffix = " will give you:";
-        if (line.StartsWith(remPrefix, StringComparison.Ordinal) && line.EndsWith(remSuffix, StringComparison.Ordinal))
-        {
-            var slot = line[remPrefix.Length..^remSuffix.Length];
-            return $"Снятие предмета со слота «{TooltipType(slot)}» даст вам:";
-        }
-        const string eqPrefix = "Equipping this item in ";
-        const string eqSuffix = " will give you:";
-        if (line.StartsWith(eqPrefix, StringComparison.Ordinal) && line.EndsWith(eqSuffix, StringComparison.Ordinal))
-        {
-            var slot = line[eqPrefix.Length..^eqSuffix.Length];
-            return $"Экипировка в слот «{TooltipType(slot)}» даст вам:";
-        }
-
         // 5b) delta lines: "-19 Dexterity", "+304 Effective Hit Pool (-3.5%)",
         //                  "-1,065 Cold Max Hit (-19.4%)", "-15% Fire Resistance"
         // Value may carry a unit suffix (% or 'm' for metres on Presence Radius lines).
@@ -333,7 +380,10 @@ public sealed class GameTranslationService
             var label  = deltaMatch.Groups[2].Value;
             var suffix = deltaMatch.Groups[3].Value;
             if (_deltaLabels.TryGetValue(label, out var dlbl))
+            {
+                if (value.EndsWith("m", StringComparison.Ordinal)) value = value[..^1] + "м";
                 return $"{value} {dlbl}{suffix}";
+            }
         }
 
         // 6) Recursive prefix handlers — translate the inner stat using the same engine.
@@ -342,6 +392,10 @@ public sealed class GameTranslationService
             if (line.StartsWith(en, StringComparison.Ordinal))
                 return rup + TooltipLine(line[en.Length..]);
         }
+
+        // 7) Unit suffix: "1.5 metres" → "1.5 м" (Weapon Range / Presence Radius values).
+        var metresM = Regex.Match(line, @"^([\d.,]+) metres$");
+        if (metresM.Success) return metresM.Groups[1].Value + " м";
 
         // 8) "(Not supported in PoB yet)" suffix — translate the rest and append the marker
         const string notSupported = " (Not supported in PoB yet)";
@@ -455,6 +509,7 @@ public sealed class GameTranslationService
         ["#% increased Runic Ward"]       = "#% увелич. рунического барьера",
         ["+# to Spirit"]                  = "+# к духу",
         ["#% increased Reservation Efficiency of Minion Skills"] = "#% увеличение эффективности удержания ресурсов умениями приспешников",
+        ["Limited to: #"]                 = "Ограничение: #",
         // regen / leech
         ["#% of Life Regenerated per second"]    = "#% здоровья восполняется в секунду",
         ["#% of Mana Regenerated per second"]    = "#% маны восполняется в секунду",
@@ -650,6 +705,11 @@ public sealed class GameTranslationService
     /// <summary>Exact (no-number) item-mod translations, e.g. boolean flags.</summary>
     private static readonly Dictionary<string, string> _itemModExact = new(StringComparer.Ordinal)
     {
+        ["New Item"]                      = "Новый предмет",
+        ["-1 Prefix Modifier allowed"]    = "На 1 меньше доступных префиксов",
+        ["-1 Suffix Modifier allowed"]    = "На 1 меньше доступных суффиксов",
+        ["Life Leech is Converted to Energy Shield Leech"]
+            = "Похищение здоровья преобразуется в похищение энерг. щита",
         ["Cannot be Frozen"]              = "Невозможно заморозить",
         ["Cannot be Stunned"]             = "Невозможно оглушить",
         ["Cannot be Shocked"]             = "Невозможно поразить молнией",
@@ -660,6 +720,7 @@ public sealed class GameTranslationService
         ["Immune to Shock"]               = "Иммунитет к шоку",
         ["Immune to Poison"]              = "Иммунитет к отравлению",
         ["Immune to Chill"]               = "Иммунитет к охлаждению",
+        ["You cannot be Chilled or Frozen"] = "Вас нельзя охладить или заморозить",
         ["Instant Recovery"]              = "Мгновенное восстановление",
         ["Used when you kill a Rare or Unique enemy"]
             = "Срабатывает при убийстве редкого или уникального врага",
@@ -678,6 +739,11 @@ public sealed class GameTranslationService
         ["Used when you are Shocked"]     = "Срабатывает при поражении молнией",
         ["Used when you are affected by a Slow"] = "Срабатывает при замедлении",
         ["Effective flask stats:"]        = "Эффективные характеристики флакона:",
+        ["Effective charm stats:"]        = "Эффективные характеристики оберега:",
+        ["Radius: Small"]                 = "Радиус: малый",
+        ["Radius: Medium"]                = "Радиус: средний",
+        ["Radius: Large"]                 = "Радиус: большой",
+        ["Radius: Very Large"]            = "Радиус: очень большой",
         ["Upgrades Radius to Large"]      = "Увеличивает радиус до большого",
         ["Upgrades Radius to Medium"]     = "Увеличивает радиус до среднего",
         ["Upgrades Radius to Very Large"] = "Увеличивает радиус до очень большого",
@@ -693,6 +759,7 @@ public sealed class GameTranslationService
         ("Notable Passive Skills in Radius also grant ", "Заметные пассивные узлы в радиусе также дают: "),
         ("Small Passive Skills in Radius also grant ",   "Малые пассивные узлы в радиусе также дают: "),
         ("Bonded: ",                                     "Связано: "),
+        ("Vaal ",                                        "Ваал "),
     };
 
     private static readonly Dictionary<string, string> _attrTokens = new(StringComparer.Ordinal)
@@ -776,6 +843,27 @@ public sealed class GameTranslationService
         ["Mana Cost per second"]  = "Стоимость маны в секунду",
         ["Skill Movement Speed"]  = "Скорость передвижения умения",
         ["Deflection Rating"]     = "Рейтинг отражения",
+        // DPS breakdowns with ailment contribution
+        ["Total DPS inc. Poison"] = "Общий DPS с отравлением",
+        ["Total DPS inc. Bleed"]  = "Общий DPS с кровотечением",
+        ["Total DPS inc. Ignite"] = "Общий DPS с поджогом",
+        ["Total DPS inc. Decay"]  = "Общий DPS с распадом",
+        // leech / on-hit rates
+        ["Life Leech/On Hit Rate"] = "Похищение здоровья/частота при попад.",
+        ["Mana Leech/On Hit Rate"] = "Похищение маны/частота при попад.",
+        ["ES Leech/On Hit Rate"]   = "Похищение ЭЩ/частота при попад.",
+        // costs
+        ["Life Cost"]             = "Затраты здоровья",
+        ["Life Cost per second"]  = "Затраты здоровья в секунду",
+        ["Mana Cost per second"]  = "Затраты маны в секунду",
+        // ailment DPS contributions
+        ["Ignite DPS"]            = "DPS поджога",
+        ["Poison DPS"]            = "DPS отравления",
+        ["Bleed DPS"]             = "DPS кровотечения",
+        ["Decay DPS"]             = "DPS распада",
+        // misc
+        ["Max Number of Seals"]   = "Макс. число печатей",
+        ["AoE Radius"]            = "Радиус AoE",
     };
 
     private static readonly Regex SocketSlotRx = new(@"^Socket #(\d+)$", RegexOptions.Compiled);
@@ -788,6 +876,10 @@ public sealed class GameTranslationService
         {
             var m = SocketSlotRx.Match(name);
             if (m.Success) return $"Сокет #{m.Groups[1].Value}";
+            // Numbered slots: "Ring 1", "Flask 2", "Charm 3" → "<base> N".
+            var nm = Regex.Match(name, @"^(.+?) (\d+)$");
+            if (nm.Success && _tooltipTypes.TryGetValue(nm.Groups[1].Value, out var bru))
+                return $"{bru} {nm.Groups[2].Value}";
         }
         return name;
     }
