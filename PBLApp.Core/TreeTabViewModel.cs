@@ -383,6 +383,39 @@ public partial class TreeTabViewModel : ViewModelBase
         return Task.CompletedTask;
     }
 
+    /// <summary>Test/IPC hook: toggle a node (alloc if unallocated, else dealloc)
+    /// through the real command path and return the synchronous wall-clock cost.
+    /// When <paramref name="nodeId"/> is null, auto-picks an unallocated node
+    /// directly adjacent to the allocated tree. Returns (id, nowAllocated, ms).</summary>
+    public async Task<(int Id, bool Allocated, double Ms)?> ToggleNodeTimed(int? nodeId)
+    {
+        int id;
+        if (nodeId is { } given) id = given;
+        else
+        {
+            var cand = Nodes.FirstOrDefault(n =>
+                !AllocatedIds.Contains(n.Id) &&
+                !n.IsAttribute &&   // attribute nodes open the picker dialog → would block
+                n.Type is not ("Keystone" or "Socket" or "Mastery" or "ClassStart" or "AscendClassStart") &&
+                string.IsNullOrEmpty(n.AscendancyName) &&
+                n.LinkedIds.Any(l => AllocatedIds.Contains(l)));
+            if (cand == null) return null;
+            id = cand.Id;
+        }
+
+        // Attribute nodes would trigger the attribute-picker dialog and hang a
+        // headless timing run, so the timing hook doesn't handle them.
+        var picked = Nodes.FirstOrDefault(n => n.Id == id);
+        if (picked is { IsAttribute: true }) return null;
+
+        bool wasAllocated = AllocatedIds.Contains(id);
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        if (wasAllocated) await DeallocNodeAsync(id);
+        else              await AllocNodeAsync(id);
+        sw.Stop();
+        return (id, AllocatedIds.Contains(id), sw.Elapsed.TotalMilliseconds);
+    }
+
     private void RefreshNodes()
     {
         var (nodes, allocated) = _host.GetTreeData();

@@ -160,6 +160,7 @@ public sealed class IpcServer
                 "/tree/state"             => await OnUi(TreeState),
                 "/tree/set-search"        => await OnUi(() => TreeSetSearch(body)),
                 "/tree/hover-node"        => await OnUi(() => TreeHoverNode(body)),
+                "/tree/toggle-node"       => await OnUiAsync(() => TreeToggleNode(body)),
                 "/tree/select-class"      => await OnUi(() => TreeSelectClass(body)),
                 "/tree/select-ascendancy" => await OnUi(() => TreeSelectAscendancy(body)),
                 "/tree/view"              => await OnUi(TreeGetView),
@@ -199,6 +200,9 @@ public sealed class IpcServer
     // ── UI-thread dispatch ────────────────────────────────────────────────
 
     private static async Task<object> OnUi(Func<object> fn)
+        => await Dispatcher.UIThread.InvokeAsync(fn);
+
+    private static async Task<object> OnUiAsync(Func<Task<object>> fn)
         => await Dispatcher.UIThread.InvokeAsync(fn);
 
     // ── Endpoint handlers (all run on UI thread) ──────────────────────────
@@ -945,6 +949,18 @@ public sealed class IpcServer
         var req = JsonSerializer.Deserialize<Dictionary<string, string>>(body) ?? new();
         t.SearchText = req.TryGetValue("text", out var text) ? text ?? "" : "";
         return new { ok = true, searchText = t.SearchText };
+    }
+
+    private static async Task<object> TreeToggleNode(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        int? id = req.TryGetValue("nodeId", out var n) && n.ValueKind == JsonValueKind.Number
+            ? n.GetInt32() : null;
+        var res = await t.ToggleNodeTimed(id);
+        return res is { } r
+            ? new { ok = true, id = r.Id, allocated = r.Allocated, ms = Math.Round(r.Ms, 2) }
+            : new { error = "No toggle candidate." };
     }
 
     private static object TreeHoverNode(string body)
