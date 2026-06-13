@@ -195,8 +195,26 @@ public sealed class GameTranslationService
     public string Unique(string englishName) =>
         _uniques.TryGetValue(englishName, out var ru) ? ru : englishName;
 
-    public string PassiveStat(string englishStat) =>
-        _passiveStats.TryGetValue(englishStat, out var ru) ? ru : englishStat;
+    public string PassiveStat(string englishStat)
+    {
+        if (string.IsNullOrEmpty(englishStat)) return englishStat;
+        // 1) exact match — covers most node stats from passive_nodes_<lang>.json
+        if (_passiveStats.TryGetValue(englishStat, out var ru)) return ru;
+        if (_loadedLang == "en") return englishStat;
+        // 2) number-redacted template fallback ("+5 to Intelligence" → "+# to Intelligence"),
+        //    the same path TooltipLine uses. Small attribute / minor nodes only ever carry
+        //    the templated form in the dictionaries, so an exact lookup always missed them.
+        var template = NumberRx.Replace(englishStat, "#");
+        if (template != englishStat &&
+            (_passiveStats.TryGetValue(template, out ru) || _itemModTemplates.TryGetValue(template, out ru)))
+        {
+            var numbers = new List<string>();
+            foreach (Match m in NumberRx.Matches(englishStat)) numbers.Add(m.Value);
+            int idx = 0;
+            return Regex.Replace(ru, "#", _ => idx < numbers.Count ? numbers[idx++] : "#");
+        }
+        return englishStat;
+    }
 
     // ── Item tooltip line translator ───────────────────────────────────────
     //
@@ -436,6 +454,7 @@ public sealed class GameTranslationService
         ["#% increased maximum Runic Ward"] = "+#% к максимуму рунического барьера",
         ["#% increased Runic Ward"]       = "#% увелич. рунического барьера",
         ["+# to Spirit"]                  = "+# к духу",
+        ["#% increased Reservation Efficiency of Minion Skills"] = "#% увеличение эффективности удержания ресурсов умениями приспешников",
         // regen / leech
         ["#% of Life Regenerated per second"]    = "#% здоровья восполняется в секунду",
         ["#% of Mana Regenerated per second"]    = "#% маны восполняется в секунду",
@@ -837,9 +856,17 @@ public sealed class GameTranslationService
     public static string TTooltipLine(string line) => Instance.TooltipLine(line);
     public static string TTooltipType(string name) => Instance.TooltipType(name);
 
+    // Generic, non-GGPK node names that the passive dumps don't cover (socket /
+    // mastery placeholders carry these as their display name).
+    private static readonly Dictionary<string, string> _genericNodeNames = new(StringComparer.Ordinal)
+    {
+        ["Jewel Socket"] = "Гнездо самоцвета",
+    };
+
     public string PassiveName(string englishName)
     {
         if (_passiveNames.TryGetValue(englishName, out var ru)) return ru;
+        if (_loadedLang != "en" && _genericNodeNames.TryGetValue(englishName, out var gru)) return gru;
         // ascendancy start nodes are named after the ascendancy itself
         // (Invoker, Lich, Warbringer, ...) and live in class_names, not GGPK passives
         return ClassOrAscendancyName(englishName);
