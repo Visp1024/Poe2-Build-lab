@@ -175,6 +175,10 @@ public sealed class IpcServer
                 "/tree/open-jewel-picker" => await OnUi(() => TreeOpenJewelPicker(body)),
                 "/tree/pick-jewel"        => await OnUi(() => TreePickJewel(body)),
                 "/skills/tooltips"        => await OnUi(SkillsTooltips),
+                "/skills/support-picker"          => await OnUi(() => SupportPickerState(body)),
+                "/skills/support-picker/set-tab"  => await OnUi(() => SupportPickerSetTab(body)),
+                "/skills/support-picker/set-mode" => await OnUi(() => SupportPickerSetMode(body)),
+                "/skills/support-picker/select"   => await OnUi(() => SupportPickerSelect(body)),
                 "/ui/text"                => await OnUi(() => DumpUiText(body)),
                 _ => new { error = $"Unknown endpoint: {path}" }
             };
@@ -670,6 +674,80 @@ public sealed class IpcServer
             });
         }
         return new { ok = true, groups = groups.ToArray() };
+    }
+
+    // ── Support-gem picker (selector) test hooks ──────────────────────────────
+    // Address a support slot by group Index + 0-based slot ordinal, so the picker's
+    // attribute tabs/filter/selection can be driven and inspected without the popup.
+
+    private static GemViewModel? ResolvePickerSlot(IDictionary<string, string> req)
+    {
+        if (GetSkillsVm() is not { } v) return null;
+        int gi = req.TryGetValue("group", out var gs) && int.TryParse(gs, out var g) ? g : -1;
+        int so = req.TryGetValue("slot",  out var ss) && int.TryParse(ss, out var s) ? s : -1;
+        var grp = v.Groups.FirstOrDefault(x => x.Index == gi);
+        return grp?.SupportSlots.ElementAtOrDefault(so);
+    }
+
+    private static object PickerStateOf(GemViewModel slot) => new
+    {
+        ok          = true,
+        isTrigger   = slot.IsTriggerSlot,
+        supportMode = slot.SupportMode,
+        skillsMode  = slot.SkillsMode,
+        tab         = slot.Tab.ToString(),
+        committed   = slot.CommittedName,
+        tabs = new[]
+        {
+            new { key = "All", have = slot.TabAllHave, max = slot.TabAllMax },
+            new { key = "Str", have = slot.TabStrHave, max = slot.TabStrMax },
+            new { key = "Dex", have = slot.TabDexHave, max = slot.TabDexMax },
+            new { key = "Int", have = slot.TabIntHave, max = slot.TabIntMax },
+        },
+        filtered = slot.FilteredGemNames.Select(g => new
+        {
+            name    = g.Name,
+            display = g.DisplayName,
+            color   = g.Color,
+            attr    = GemAttrUtil.FromColor(g.Color).ToString(),
+        }).ToArray(),
+    };
+
+    private static object SupportPickerState(string body)
+    {
+        var req = JsonSerializer.Deserialize<Dictionary<string, string>>(body) ?? new();
+        if (GetSkillsVm() is null) return new { error = "SkillsTab not ready." };
+        return ResolvePickerSlot(req) is { } slot ? PickerStateOf(slot)
+                                                   : new { error = "Slot not found." };
+    }
+
+    private static object SupportPickerSetTab(string body)
+    {
+        var req = JsonSerializer.Deserialize<Dictionary<string, string>>(body) ?? new();
+        if (ResolvePickerSlot(req) is not { } slot) return new { error = "Slot not found." };
+        if (req.TryGetValue("tab", out var t) && Enum.TryParse<GemTab>(t, true, out var tab))
+            slot.Tab = tab;
+        return PickerStateOf(slot);
+    }
+
+    private static object SupportPickerSetMode(string body)
+    {
+        var req = JsonSerializer.Deserialize<Dictionary<string, string>>(body) ?? new();
+        if (ResolvePickerSlot(req) is not { } slot) return new { error = "Slot not found." };
+        if (req.TryGetValue("support", out var s))
+            slot.SupportMode = s is "true" or "1";
+        return PickerStateOf(slot);
+    }
+
+    private static object SupportPickerSelect(string body)
+    {
+        var req = JsonSerializer.Deserialize<Dictionary<string, string>>(body) ?? new();
+        if (ResolvePickerSlot(req) is not { } slot) return new { error = "Slot not found." };
+        if (!req.TryGetValue("name", out var name) || string.IsNullOrWhiteSpace(name))
+            return new { error = "Missing 'name'." };
+        slot.SearchText = name;
+        slot.CommitName();
+        return new { ok = true, committed = slot.CommittedName };
     }
 
     private static object[] SerializeGemTooltip(System.Collections.Generic.IReadOnlyList<GemTooltipEntry>? entries)

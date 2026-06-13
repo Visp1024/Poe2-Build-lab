@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Окно выбора саппорт-гема — мокап</title>
+<style>
+  :root{
+    --bg-base:#0E0F13; --bg-mantle:#15171D; --bg-surface:#1C1F27; --bg-raised:#262A35;
+    --border:#3E4456; --text:#E4E7EE; --muted:#6E7689; --brand:#D9B670;
+    --str:#F38BA8; --dex:#A6E3A1; --int:#89B4FA; --white:#D7DCE6;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg-base); color:var(--text);
+    font-family:"Segoe UI",system-ui,sans-serif; font-size:14px;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    gap:24px; padding:40px 20px;
+  }
+  .caption{color:var(--muted); font-size:12px; max-width:760px; text-align:center; line-height:1.6;}
+  .row{display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap; justify-content:center;}
+
+  /* ── фейковая ячейка-«комбобокс» над которой раскрылся список ── */
+  .cell{
+    width:360px; height:30px; background:var(--bg-mantle);
+    border-bottom:1px solid var(--bg-raised);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 8px; color:var(--int); font-size:14px;
+  }
+  .cell .chev{color:var(--muted); font-size:11px;}
+
+  /* ── всплывающее окно выбора ── */
+  .picker{
+    width:360px; background:var(--bg-surface);
+    border:1px solid var(--border); border-radius:6px;
+    display:flex; flex-direction:column; overflow:hidden;
+    box-shadow:0 12px 32px rgba(0,0,0,.55);
+  }
+
+  /* поиск */
+  .search{padding:8px 8px 6px 8px;}
+  .search input{
+    width:100%; height:30px; background:var(--bg-mantle);
+    border:1px solid var(--border); border-radius:4px;
+    color:var(--text); padding:0 28px 0 10px; font-size:13px; outline:none;
+  }
+  .search{position:relative;}
+  .search .ico{position:absolute; right:18px; top:15px; color:var(--muted); font-size:13px;}
+
+  /* список */
+  .list{height:300px; overflow-y:auto; padding:2px 4px;}
+  .list::-webkit-scrollbar{width:8px;}
+  .list::-webkit-scrollbar-thumb{background:var(--bg-raised); border-radius:4px;}
+  .item{
+    display:flex; align-items:center; gap:9px;
+    height:30px; padding:0 8px; border-radius:4px; cursor:pointer;
+  }
+  .item:hover{background:var(--bg-raised);}
+  .item.sel{background:var(--bg-raised); box-shadow:inset 2px 0 0 var(--brand);}
+  .dot{width:8px; height:8px; border-radius:50%; flex:none;}
+  .item .name{font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .item .meta{margin-left:auto; color:var(--muted); font-size:11px; flex:none;}
+  .c-str{color:var(--str);} .bg-str{background:var(--str);}
+  .c-dex{color:var(--dex);} .bg-dex{background:var(--dex);}
+  .c-int{color:var(--int);} .bg-int{background:var(--int);}
+  .c-wht{color:var(--white);} .bg-wht{background:var(--white);}
+
+  /* нижние вкладки атрибутов */
+  .tabs{
+    display:flex; border-top:1px solid var(--border); background:var(--bg-mantle);
+  }
+  .tab{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:8px 0 7px; cursor:pointer; color:var(--muted);
+    border-top:2px solid transparent; margin-top:-1px; user-select:none;
+    transition:background .12s,color .12s;
+  }
+  .tab:hover{background:var(--bg-surface);}
+  .tab .glyph{
+    width:18px; height:18px; border-radius:5px; display:flex; align-items:center;
+    justify-content:center; font-size:11px; font-weight:700;
+    border:1.5px solid currentColor;
+  }
+  .tab .lbl{font-size:11px; font-weight:600;}
+  .tab.active{color:var(--text); background:var(--bg-surface);}
+  .tab.t-all.active{border-top-color:var(--brand);}
+  .tab.t-str.active{border-top-color:var(--str);  color:var(--str);}
+  .tab.t-dex.active{border-top-color:var(--dex);  color:var(--dex);}
+  .tab.t-int.active{border-top-color:var(--int);  color:var(--int);}
+  .tab.t-str .glyph{color:var(--str);} .tab.t-dex .glyph{color:var(--dex);}
+  .tab.t-int .glyph{color:var(--int);} .tab.t-all .glyph{color:var(--brand);}
+  /* счётчик: установлено / максимум (макс = атрибут ÷ 5) */
+  .tab .cnt{font-size:10px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .tab .cnt .have{font-weight:700;}
+  .tab.t-all .cnt .have{color:var(--brand);}
+  .tab.t-str .cnt .have{color:var(--str);}
+  .tab.t-dex .cnt .have{color:var(--dex);}
+  .tab.t-int .cnt .have{color:var(--int);}
+  .tab .cnt.full .have{color:var(--str);}     /* установлено = максимуму */
+
+  .variant-label{color:var(--muted); font-size:11px; margin-bottom:8px; text-align:center;}
+
+  /* верхний сегментированный переключатель «Навыки / Поддержка» (только для Cast on) */
+  .seg{display:flex; gap:0; margin:8px 8px 0 8px; background:var(--bg-mantle);
+       border:1px solid var(--border); border-radius:5px; overflow:hidden;}
+  .seg .opt{flex:1; text-align:center; padding:6px 0; font-size:12px; font-weight:600;
+            color:var(--muted); cursor:pointer; user-select:none;}
+  .seg .opt:hover{background:var(--bg-surface);}
+  .seg .opt.on{background:var(--bg-raised); color:var(--text);}
+  .seg .opt .mini{font-size:10px; color:var(--muted); margin-left:5px;}
+
+  /* бейдж типа камня в строке: ◆ навык, ⊕ поддержка */
+  .badge{width:14px; text-align:center; font-size:11px; flex:none;}
+  .badge.skill{color:var(--brand);}
+  .badge.supp{color:var(--muted);}
+</style>
+</head>
+<body>
+  <div class="caption">
+    Мокап нового окна выбора саппорт-гема. Сверху — поиск (как сейчас),
+    снизу — вкладки фильтра по атрибуту камня: <b style="color:var(--brand)">Все</b> ·
+    <b style="color:var(--str)">Сила</b> · <b style="color:var(--dex)">Ловкость</b> ·
+    <b style="color:var(--int)">Интеллект</b>. Активная вкладка подсвечена цветом атрибута.
+    Слева — вкладка «Все» (видны все цвета), справа — выбран фильтр «Интеллект».
+    На вкладках — счётчик <b>установлено / максимум</b> (максимум = значение атрибута ÷ 5,
+    т.е. 1 слот за 5 единиц характеристики). Установленное — в цвете атрибута, максимум — приглушённо.
+    Вариант <b>C</b> — для Cast on (триггерных) умений: сверху появляется переключатель
+    «Навыки/Поддержка» (для обычных умений его нет). В режиме «Навыки» в слоты ставятся
+    сами навыки, вкладок атрибутов нет — лимит задаёт мета-камень (виден на переключателе, 3/4).
+    В режиме «Поддержка» внизу появляются вкладки атрибутов как в A/B (максимум = атрибут ÷ 5).
+  </div>
+
+  <div class="row">
+
+    <!-- ВАРИАНТ A: вкладка «Все» -->
+    <div>
+      <div class="variant-label">A · открыт список, фильтр «Все»</div>
+      <div class="cell"><span>Каскад чар</span><span class="chev">▾</span></div>
+      <div class="picker">
+        <div class="search">
+          <input placeholder="Поиск саппорта…">
+          <span class="ico">🔍</span>
+        </div>
+        <div class="list">
+          <div class="item sel"><span class="dot bg-int"></span><span class="name c-int">Концентрированный эффект</span><span class="meta">20/20</span></div>
+          <div class="item"><span class="dot bg-str"></span><span class="name c-str">Беспощадность</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-dex"></span><span class="name c-dex">Ускорение</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Усиление заклинаний</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-str"></span><span class="name c-str">Грубая сила</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-dex"></span><span class="name c-dex">Точность</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Каскад заклинаний</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-wht"></span><span class="name c-wht">Призыв при касте</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-str"></span><span class="name c-str">Кровопускание</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-dex"></span><span class="name c-dex">Двойной выстрел</span><span class="meta">19/0</span></div>
+        </div>
+        <div class="tabs">
+          <div class="tab t-all active"><span class="glyph">∗</span><span class="lbl">Все</span><span class="cnt"><span class="have">5</span>/32</span></div>
+          <div class="tab t-str"><span class="glyph">С</span><span class="lbl">Сила</span><span class="cnt"><span class="have">1</span>/6</span></div>
+          <div class="tab t-dex"><span class="glyph">Л</span><span class="lbl">Ловкость</span><span class="cnt"><span class="have">0</span>/5</span></div>
+          <div class="tab t-int"><span class="glyph">И</span><span class="lbl">Интеллект</span><span class="cnt"><span class="have">4</span>/21</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ B: вкладка «Интеллект» -->
+    <div>
+      <div class="variant-label">B · фильтр «Интеллект» активен</div>
+      <div class="cell"><span>Каскад чар</span><span class="chev">▾</span></div>
+      <div class="picker">
+        <div class="search">
+          <input placeholder="Поиск саппорта…">
+          <span class="ico">🔍</span>
+        </div>
+        <div class="list">
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Концентрированный эффект</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Усиление заклинаний</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Каскад заклинаний</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Контроль над разумом</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Поглощение энергии</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Усиление эффекта проклятия</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Множественные снаряды</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="dot bg-int"></span><span class="name c-int">Холодное проникновение</span><span class="meta">19/0</span></div>
+        </div>
+        <div class="tabs">
+          <div class="tab t-all"><span class="glyph">∗</span><span class="lbl">Все</span><span class="cnt"><span class="have">5</span>/32</span></div>
+          <div class="tab t-str"><span class="glyph">С</span><span class="lbl">Сила</span><span class="cnt"><span class="have">1</span>/6</span></div>
+          <div class="tab t-dex"><span class="glyph">Л</span><span class="lbl">Ловкость</span><span class="cnt"><span class="have">0</span>/5</span></div>
+          <div class="tab t-int active"><span class="glyph">И</span><span class="lbl">Интеллект</span><span class="cnt"><span class="have">4</span>/21</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ C: Cast on умение — слоты держат навыки -->
+    <div>
+      <div class="variant-label">C · Cast on: переключатель «Навыки/Поддержка» (только для триггерных умений)</div>
+      <div class="cell"><span style="color:var(--str)">Каскад чар при крите</span><span class="chev">▾</span></div>
+      <div class="picker">
+        <div class="seg">
+          <div class="opt on">Навыки<span class="mini">3/4</span></div>
+          <div class="opt">Поддержка</div>
+        </div>
+        <div class="search">
+          <input placeholder="Поиск навыка…">
+          <span class="ico">🔍</span>
+        </div>
+        <div class="list">
+          <div class="item sel"><span class="badge skill">◆</span><span class="dot bg-int"></span><span class="name c-int">Ледяной шип</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="badge skill">◆</span><span class="dot bg-int"></span><span class="name c-int">Шаровая молния</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="badge skill">◆</span><span class="dot bg-int"></span><span class="name c-int">Огненный шар</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="badge skill">◆</span><span class="dot bg-int"></span><span class="name c-int">Ледяная новая</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="badge skill">◆</span><span class="dot bg-str"></span><span class="name c-str">Раскол земли</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="badge skill">◆</span><span class="dot bg-dex"></span><span class="name c-dex">Шквал стрел</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="badge skill">◆</span><span class="dot bg-int"></span><span class="name c-int">Электрический разряд</span><span class="meta">19/0</span></div>
+          <div class="item"><span class="badge skill">◆</span><span class="dot bg-int"></span><span class="name c-int">Кара небес</span><span class="meta">19/0</span></div>
+        </div>
+        <!-- режим «Навыки»: вкладок атрибутов нет, лимит навыков показан на переключателе (3/4) -->
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

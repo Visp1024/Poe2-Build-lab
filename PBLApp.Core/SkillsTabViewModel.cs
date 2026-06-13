@@ -9,6 +9,26 @@ using System.Linq;
 
 namespace PBLApp.ViewModels;
 
+// ── Gem attribute classification ──────────────────────────────────────────────
+
+/// <summary>Primary attribute of a gem, derived from its requirement colour.</summary>
+public enum GemAttr { None, Str, Dex, Int }
+
+/// <summary>Active attribute filter tab in the support-gem picker.</summary>
+public enum GemTab { All, Str, Dex, Int }
+
+public static class GemAttrUtil
+{
+    // Colours assigned by LuaHost.gemColor: Str=red, Dex=green, Int=blue, else neutral.
+    public static GemAttr FromColor(string? color) => color switch
+    {
+        "#F38BA8" => GemAttr.Str,
+        "#A6E3A1" => GemAttr.Dex,
+        "#89B4FA" => GemAttr.Int,
+        _         => GemAttr.None,
+    };
+}
+
 // ── GemNameItem ───────────────────────────────────────────────────────────────
 
 /// <summary>Item shown in a gem name dropdown. ToString() returns Name so the
@@ -96,6 +116,50 @@ public partial class GemViewModel : ObservableObject
     [ObservableProperty]
     private IReadOnlyList<GemTooltipEntry>? _tooltipEntries;
 
+    // ── Picker filter state (support-gem dropdown) ─────────────────────────
+
+    /// <summary>Active attribute-filter tab in the picker.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FilteredGemNames))]
+    private GemTab _tab = GemTab.All;
+
+    /// <summary>In a trigger/meta group the picker can list either the triggered
+    /// skills (false) or supports (true). Ignored for normal groups.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FilteredGemNames))]
+    [NotifyPropertyChangedFor(nameof(AvailableGemNameItems))]
+    private bool _supportMode;
+
+    /// <summary>True when this slot belongs to a trigger/meta group (Cast on …),
+    /// where the Skills/Support toggle is shown.</summary>
+    public bool IsTriggerSlot => _parent.IsTriggerGroup(GroupIndex);
+
+    /// <summary>True for the Skills sub-mode of a trigger group (no attribute tabs).</summary>
+    public bool SkillsMode => IsTriggerSlot && !SupportMode;
+
+    // Per-tab counters (installed / max), refreshed when the picker opens.
+    public int TabAllHave => _parent.TotalSupportInstalled();
+    public int TabAllMax  => _parent.TotalSupportMax();
+    public int TabStrHave => _parent.AttrInstalled(GemAttr.Str);
+    public int TabStrMax  => _parent.AttrMax(GemAttr.Str);
+    public int TabDexHave => _parent.AttrInstalled(GemAttr.Dex);
+    public int TabDexMax  => _parent.AttrMax(GemAttr.Dex);
+    public int TabIntHave => _parent.AttrInstalled(GemAttr.Int);
+    public int TabIntMax  => _parent.AttrMax(GemAttr.Int);
+
+    /// <summary>Recompute the tab counters (call when opening the picker, since
+    /// installed counts depend on every group's current contents).</summary>
+    public void RefreshPickerCounts()
+    {
+        OnPropertyChanged(nameof(TabAllHave)); OnPropertyChanged(nameof(TabAllMax));
+        OnPropertyChanged(nameof(TabStrHave)); OnPropertyChanged(nameof(TabStrMax));
+        OnPropertyChanged(nameof(TabDexHave)); OnPropertyChanged(nameof(TabDexMax));
+        OnPropertyChanged(nameof(TabIntHave)); OnPropertyChanged(nameof(TabIntMax));
+        OnPropertyChanged(nameof(IsTriggerSlot));
+        OnPropertyChanged(nameof(SkillsMode));
+        OnPropertyChanged(nameof(FilteredGemNames));
+    }
+
     public void RefreshTooltip()
     {
         if (GroupIndex <= 0 || GemIndex <= 0) { TooltipEntries = null; return; }
@@ -143,8 +207,10 @@ public partial class GemViewModel : ObservableObject
     {
         get
         {
-            if (IsSupport && _parent.IsTriggerGroup(GroupIndex))
-                return _parent.TriggerSlotGemNameItems;
+            // Trigger/meta group: Skills sub-mode lists triggered active gems,
+            // Support sub-mode lists supports. Normal slots use the gem's own type.
+            if (_parent.IsTriggerGroup(GroupIndex))
+                return SupportMode ? _parent.SupportGemNameItems : _parent.ActiveGemNameItems;
             return IsSupport ? _parent.SupportGemNameItems : _parent.ActiveGemNameItems;
         }
     }
@@ -152,18 +218,32 @@ public partial class GemViewModel : ObservableObject
     // Filtered subset shown in the dropdown while the user types.
     // When SearchText equals the committed name (field just displaying saved value),
     // show the full list so clicking the arrow always opens a full dropdown.
-    // Supports filtering by both English name and translated display name.
+    // Supports filtering by both English name and translated display name, and by
+    // the active attribute tab (skipped in trigger Skills mode — no attr tabs there).
     public IReadOnlyList<GemNameItem> FilteredGemNames
     {
         get
         {
-            var all = AvailableGemNameItems;
-            if (string.IsNullOrEmpty(_searchText) || _searchText == _committedName)
-                return all;
-            return all.Where(g =>
-                g.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
-                g.DisplayName.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
-            ).ToList();
+            IEnumerable<GemNameItem> all = AvailableGemNameItems;
+
+            if (!SkillsMode && Tab != GemTab.All)
+            {
+                var want = Tab switch
+                {
+                    GemTab.Str => GemAttr.Str,
+                    GemTab.Dex => GemAttr.Dex,
+                    GemTab.Int => GemAttr.Int,
+                    _          => GemAttr.None,
+                };
+                all = all.Where(g => GemAttrUtil.FromColor(g.Color) == want);
+            }
+
+            if (!string.IsNullOrEmpty(_searchText) && _searchText != _committedName)
+                all = all.Where(g =>
+                    g.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+                    g.DisplayName.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+
+            return all as IReadOnlyList<GemNameItem> ?? all.ToList();
         }
     }
 
@@ -424,6 +504,45 @@ public partial class SkillsTabViewModel : ViewModelBase
             if (g.Index == groupIdx) return g.IsTrigger;
         return false;
     }
+
+    // ── Support-gem attribute limits ───────────────────────────────────────
+    // Max support gems of an attribute = final character attribute ÷ 5
+    // (1 slot per 5 points). "Installed" counts support gems of that attribute
+    // across ALL skill groups.
+
+    private int FinalAttr(string key) =>
+        _build.AllStats.TryGetValue(key, out var v) && v is not null
+            ? (int)Math.Floor(Convert.ToDouble(v)) : 0;
+
+    public int AttrMax(GemAttr a) => a switch
+    {
+        GemAttr.Str => FinalAttr("Str") / 5,
+        GemAttr.Dex => FinalAttr("Dex") / 5,
+        GemAttr.Int => FinalAttr("Int") / 5,
+        _ => 0,
+    };
+
+    public int AttrInstalled(GemAttr a)
+    {
+        int n = 0;
+        foreach (var g in Groups)
+            foreach (var slot in g.SupportSlots)
+                if (!slot.IsEmpty && slot.IsSupport && GemAttrUtil.FromColor(slot.Color) == a)
+                    n++;
+        return n;
+    }
+
+    public int TotalSupportInstalled()
+    {
+        int n = 0;
+        foreach (var g in Groups)
+            foreach (var slot in g.SupportSlots)
+                if (!slot.IsEmpty && slot.IsSupport) n++;
+        return n;
+    }
+
+    public int TotalSupportMax() =>
+        AttrMax(GemAttr.Str) + AttrMax(GemAttr.Dex) + AttrMax(GemAttr.Int);
 
     public ObservableCollection<SkillGroupViewModel> Groups { get; } = [];
 

@@ -110,13 +110,25 @@ public partial class SkillsTabView : UserControl
     {
         if (sender is not Flyout flyout || flyout.Content is not Control content) return;
 
-        // Reset the SearchText so the user starts with the full list, and focus
-        // the search box. The DataContext propagates from the host Button.
+        // Reset search + attribute tab and recompute the installed/max counters
+        // (they depend on every group's current contents). Then focus the search.
         if (content.DataContext is GemViewModel gem)
+        {
             gem.SearchText = "";
+            gem.Tab = GemTab.All;
+            gem.RefreshPickerCounts();
+        }
 
         var search = content.FindControl<TextBox>("SupportPickerSearch");
         Dispatcher.UIThread.Post(() => search?.Focus(), DispatcherPriority.Background);
+    }
+
+    // Bottom attribute-tab click: set the active filter on the host GemViewModel.
+    private void AttrTab_Pressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is Border { DataContext: GemViewModel gem, Tag: string tag }
+            && System.Enum.TryParse<GemTab>(tag, out var tab))
+            gem.Tab = tab;
     }
 
     private void SupportPickerSearch_KeyDown(object? sender, KeyEventArgs e)
@@ -147,9 +159,22 @@ public partial class SkillsTabView : UserControl
         }
     }
 
-    private void SupportPickerList_DoubleTapped(object? sender, TappedEventArgs e)
+    // Single-click commit: a tap sets the ListBox SelectedItem, then we commit it.
+    // Guard against taps on the scrollbar / empty area below the rows.
+    private void SupportPickerList_Tapped(object? sender, TappedEventArgs e)
     {
-        if (sender is ListBox list) CommitPickedSupport(list);
+        if (sender is ListBox list && TappedOnListItem(e)) CommitPickedSupport(list);
+    }
+
+    private static bool TappedOnListItem(TappedEventArgs e)
+    {
+        var c = e.Source as Avalonia.Visual;
+        while (c is not null)
+        {
+            if (c is ListBoxItem) return true;
+            c = c.GetVisualParent();
+        }
+        return false;
     }
 
     private void SupportPickerList_KeyDown(object? sender, KeyEventArgs e)
