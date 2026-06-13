@@ -35,14 +35,18 @@ still parses N mods"). They run with `dotnet test`.
 - **Guard signal:** the `Runic Meridians` node still parses **0** mods.
   If it ever parses > 0, upstream likely implemented it → review/remove injection.
 
-### 2. Crystalline Phylactery — socketed-jewel doubling  *(see guard; injection added with the feature)*
+### 2. Crystalline Phylactery — socketed-jewel "100% increased Effect"
 - **Source tag:** `Phylactery`
 - **Where:** `src/Classes/ConfigTab.lua` → `ConfigTabClass:ApplyPhylacteryMods`.
-- **What we inject:** the socketed jewel's mod lines applied **twice** (base + the node's
-  "100% increased Effect of bonuses gained from Socketed Jewel").
-- **Why it's safe today:** the **Crystalline Phylactery** node (id 17788 in 0_5) parses
-  **only 1 mod** (the `50% more Mana Cost … if no Energy Shield` penalty). The jewel
-  socket ("Can Socket a non-Unique Basic Jewel") and the "100% increased Effect" line are
-  **not** implemented natively.
+- **What we inject:** the node (id 17788 in 0_5) is already a working tree jewel socket
+  (`containJewelSocket`), so a socketed non-Unique jewel applies its bonuses **once**
+  natively. We inject that jewel's already-parsed `modList` **one more time** to reproduce
+  the node's "100% increased Effect of bonuses gained from Socketed Jewel" (→ 2× total).
+  We do **not** parse text — we copy the live socketed item's mods, so tags/conditions are
+  preserved.
+- **Why it's safe today:** the node parses **only 1 mod** (the `50% more Mana Cost … if no
+  Energy Shield` penalty). The "100% increased Effect" line is **not** implemented.
 - **Guard signal:** the `Crystalline Phylactery` node still parses exactly **1** mod.
-  If it parses more, upstream likely added the socket/effect → review/remove injection.
+  *Limitation:* upstream could implement the doubling in calc code without adding a node
+  mod, which this guard would not catch — on each sync also spot-check that a jewel in the
+  Phylactery socket is not already doubled by upstream before trusting our injection.

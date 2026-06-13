@@ -106,6 +106,17 @@ public static class TooltipKindConverter
             => throw new NotSupportedException();
     }
 
+    /// <summary>Show a string as-is, or an em-dash when empty (e.g. a "none" sentinel).</summary>
+    public static readonly IValueConverter StringOrDash = new StringOrDashConverter();
+
+    private sealed class StringOrDashConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => value is string s && s.Length > 0 ? s : "—";
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
+    }
+
     private sealed class KindEqualsConverter(string expected) : IValueConverter
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

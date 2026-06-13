@@ -245,6 +245,11 @@ public sealed class LuaHost : IDisposable
     {
         State.DoString(@"
             build.buildFlag = true
+            -- Rebuild the config modList so item-dependent injected mods refresh (the
+            -- Phylactery's socketed jewel changes via item ops, which don't otherwise
+            -- re-run BuildModList). BuildModList allocates a fresh ModList each call, so
+            -- this is idempotent — tattoo/custom mods are not accumulated.
+            if build.configTab and build.configTab.BuildModList then build.configTab:BuildModList() end
             runCallback('OnFrame')
             if build.calcsTab then build.calcsTab:BuildOutput() end
         ");
@@ -1417,6 +1422,32 @@ public sealed class LuaHost : IDisposable
         State["_ttIdx"]  = null;
         State["_ttRune"] = null;
         TriggerRecalc();
+    }
+
+    /// <summary>
+    /// Reads the Crystalline Phylactery (Lich) state: whether the node is allocated and the
+    /// name of the jewel currently socketed into its tree jewel socket (the socketed jewel
+    /// applies once natively; <c>ConfigTab:ApplyPhylacteryMods</c> adds it once more for the
+    /// node's 100% increased effect). The user sockets the jewel via the normal jewel-socket
+    /// UI — this state is read-only, only driving the "×2" hint.
+    /// </summary>
+    public PhylacteryState GetPhylacteryState()
+    {
+        bool available = false;
+        var jewelName = "";
+        var result = State.DoString(@"
+            if not (build and build.configTab) then return nil end
+            local function strip(s) return s and (tostring(s):gsub('%^%x%x%x%x%x%x',''):gsub('%^%d','')) or '' end
+            local ct = build.configTab
+            local item = ct:PhylacteryJewel()
+            return { ct:PhylacteryAvailable(), item and strip(item.name or item.title or '') or '' }
+        ");
+        if (result is { Length: > 0 } && result[0] is LuaTable tbl)
+        {
+            available = tbl[1L] is bool b && b;
+            jewelName = tbl[2L] as string ?? "";
+        }
+        return new PhylacteryState(available, jewelName);
     }
 
     /// <summary>

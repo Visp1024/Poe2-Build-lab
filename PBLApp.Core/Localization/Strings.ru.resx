@@ -337,6 +337,10 @@
   <data name="Tattoo_BodyArmour"    xml:space="preserve"><value>Доспех</value></data>
   <data name="Tattoo_Gloves"        xml:space="preserve"><value>Перчатки</value></data>
   <data name="Tattoo_Boots"         xml:space="preserve"><value>Сапоги</value></data>
+  <data name="Phylactery_PanelTitle" xml:space="preserve"><value>КРИСТАЛЛИЧЕСКАЯ ФИЛАКТЕРИЯ</value></data>
+  <data name="Phylactery_Empty"     xml:space="preserve"><value>Вставьте не-уникальный самоцвет в сокет Филактерии.</value></data>
+  <data name="Phylactery_JewelFmt"  xml:space="preserve"><value>Самоцвет в сокете: {0}</value></data>
+  <data name="Phylactery_Hint"      xml:space="preserve"><value>Его бонусы применяются с эффектом ×2.</value></data>
   <data name="Editor_BaseStats"     xml:space="preserve"><value>БАЗОВЫЕ СТАТЫ</value></data>
   <data name="Editor_StatArmour"    xml:space="preserve"><value>Броня</value></data>
   <data name="Editor_StatEvasion"   xml:space="preserve"><value>Уклонение</value></data>

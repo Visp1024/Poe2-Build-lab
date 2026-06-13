@@ -911,6 +911,50 @@ function ConfigTabClass:BuildModList()
 	end
 	-- Runic Meridians body tattoos (kept out of the user-facing Custom Modifiers field)
 	self:ApplyTattooMods(modList)
+	self:ApplyPhylacteryMods(modList)
+end
+
+-- ── Crystalline Phylactery (Lich) socketed jewel ────────────────────────────
+-- The node IS a working tree jewel socket (containJewelSocket), so a socketed
+-- non-Unique jewel already applies its bonuses ONCE natively. What upstream does NOT
+-- implement is the node's "100% increased Effect of bonuses gained from Socketed Jewel".
+-- We reproduce only that by injecting the socketed jewel's already-parsed modList ONE
+-- more time (-> 2x total), tagged source "Phylactery". The node still parses only its
+-- mana-cost penalty; see CUSTOM_MOD_INJECTIONS.md / CustomModInjectionGuardTests.
+function ConfigTabClass:PhylacteryNodeId()
+	local spec = self.build.spec
+	if not (spec and spec.allocNodes) then return nil end
+	for nid, node in pairs(spec.allocNodes) do
+		if node.dn == "Crystalline Phylactery" or node.name == "Crystalline Phylactery" then
+			return node.id or nid
+		end
+	end
+	return nil
+end
+
+function ConfigTabClass:PhylacteryAvailable()
+	return self:PhylacteryNodeId() ~= nil
+end
+
+-- Returns the item socketed into the Phylactery's jewel socket, or nil.
+function ConfigTabClass:PhylacteryJewel()
+	local nodeId = self:PhylacteryNodeId()
+	local itemsTab = self.build.itemsTab
+	if not (nodeId and itemsTab and itemsTab.sockets) then return nil end
+	local sock = itemsTab.sockets[nodeId]
+	local itemId = sock and sock.selItemId
+	if not itemId or itemId == 0 then return nil end
+	return itemsTab.items[itemId]
+end
+
+function ConfigTabClass:ApplyPhylacteryMods(modList)
+	local item = self:PhylacteryJewel()
+	if not (item and item.modList) then return end
+	-- The jewel already applies once via its socket; add its mods one more time for the
+	-- node's 100% increased effect. Copies keep the parsed item untouched.
+	for _, mod in ipairs(item.modList) do
+		modList:AddMod(modLib.setSource(copyTable(mod), "Phylactery"))
+	end
 end
 
 -- ── Runic Meridians (Martial Artist) "tattoo" Rune sockets ──────────────────

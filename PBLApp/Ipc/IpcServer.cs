@@ -140,6 +140,7 @@ public sealed class IpcServer
                 "/items/compatible-slots" => await OnUi(() => CompatibleSlots(body)),
                 "/items/tattoo-state" => await OnUi(TattooState),
                 "/items/set-tattoo"   => await OnUi(() => SetTattoo(body)),
+                "/items/phylactery-state" => await OnUi(PhylacteryStateInfo),
                 "/items/edit-current" => await OnUi(EditCurrentItem),
                 "/items/cancel-edit"  => await OnUi(CancelEdit),
                 "/items/editor-save"             => await OnUi(EditorSave),
@@ -626,6 +627,13 @@ public sealed class IpcServer
         if (!v.Tattoos.Available) return new { error = "Tattoos not available (Runic Meridians not allocated)." };
         v.Tattoos.SetSocketRune(ie.GetInt32(), rune);
         return new { ok = true };
+    }
+
+    private static object PhylacteryStateInfo()
+    {
+        if (GetItemsVm() is not { } v) return new { error = "ItemsTab not ready." };
+        var p = v.Phylactery;
+        return new { available = p.Available, jewel = p.JewelName };
     }
 
     private static object CompatibleSlots(string body)

@@ -485,6 +485,9 @@ public partial class ItemsTabViewModel : ViewModelBase
     /// Martial Artist node is allocated). Lives here so the panel sits in the Items tab.</summary>
     public TattoosViewModel Tattoos { get; }
 
+    /// <summary>Crystalline Phylactery (Lich) socketed jewel — visible only when allocated.</summary>
+    public PhylacteryViewModel Phylactery { get; }
+
     public ItemsTabViewModel(LuaHost host, BuildModel build, Action? onStatsChanged = null)
     {
         _host           = host;
@@ -492,6 +495,7 @@ public partial class ItemsTabViewModel : ViewModelBase
         _onStatsChanged = onStatsChanged;
         Tattoos         = new TattoosViewModel(host,
             onStatsChanged: () => { _build.Refresh(); _onStatsChanged?.Invoke(); });
+        Phylactery      = new PhylacteryViewModel(host);
 
         Helmet     = new ItemSlotViewModel(this, "Helmet",      "Helmet");
         BodyArmour = new ItemSlotViewModel(this, "Body Armour", "Body Armour");
@@ -935,6 +939,7 @@ public partial class ItemsTabViewModel : ViewModelBase
         SelectWeaponSet2Command.NotifyCanExecuteChanged();
 
         Tattoos.Refresh();
+        Phylactery.Refresh();
 
         RefreshPool();
 
