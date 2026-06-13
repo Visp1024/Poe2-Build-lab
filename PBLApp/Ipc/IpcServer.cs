@@ -159,6 +159,7 @@ public sealed class IpcServer
                 "/items/editor-remove-rune-socket" => await OnUi(() => EditorRemoveRuneSocket(body)),
                 "/tree/state"             => await OnUi(TreeState),
                 "/tree/set-search"        => await OnUi(() => TreeSetSearch(body)),
+                "/tree/hover-node"        => await OnUi(() => TreeHoverNode(body)),
                 "/tree/select-class"      => await OnUi(() => TreeSelectClass(body)),
                 "/tree/select-ascendancy" => await OnUi(() => TreeSelectAscendancy(body)),
                 "/tree/view"              => await OnUi(TreeGetView),
@@ -944,6 +945,19 @@ public sealed class IpcServer
         var req = JsonSerializer.Deserialize<Dictionary<string, string>>(body) ?? new();
         t.SearchText = req.TryGetValue("text", out var text) ? text ?? "" : "";
         return new { ok = true, searchText = t.SearchText };
+    }
+
+    private static object TreeHoverNode(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        if (t.HoverCanvasNode is null) return new { error = "Canvas view not bound." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        int? id = req.TryGetValue("nodeId", out var n) && n.ValueKind == JsonValueKind.Number
+            ? n.GetInt32() : null;
+        var res = t.HoverCanvasNode(id);
+        return res is { } r
+            ? new { ok = true, id = r.Id, name = r.Name, pathLen = r.PathLen }
+            : new { error = "No hover candidate (no allocated nodes?)." };
     }
 
     private static object TreeSelectClass(string body)

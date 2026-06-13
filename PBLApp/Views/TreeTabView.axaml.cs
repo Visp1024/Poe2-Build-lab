@@ -39,6 +39,7 @@ public partial class TreeTabView : UserControl
                 vm.FocusCanvasNode = canvas.FocusNode;
                 vm.ZoomCanvas      = canvas.ZoomBy;
                 vm.PanCanvas       = canvas.PanByPixels;
+                vm.HoverCanvasNode = canvas.HoverNodeForTest;
 
                 // Clicking an allocated jewel socket opens the in-tree jewel picker.
                 canvas.SocketClicked = OnSocketClicked;

@@ -148,6 +148,13 @@ public sealed class TreeCanvas : Control
     private int            _hoverCacheNodeId   = -1;
     private object?        _hoverCacheAllocRef;
 
+    // Cache the shortest path (ordered node ids: target → … → allocated anchor)
+    // from the allocated tree to the hovered unallocated node. Recomputed only
+    // when the hovered node or the allocated set changes — not on pan/zoom.
+    private List<int>? _hoverPath;
+    private int        _hoverPathTargetId = -1;
+    private object?    _hoverPathAllocRef;
+
     // ── Pan / zoom state ───────────────────────────────────────────────────
 
     private double _offsetX, _offsetY;
@@ -266,6 +273,12 @@ public sealed class TreeCanvas : Control
     private static readonly IPen SearchPen  = MkPen("#F9E2AF", 2.0);
     private static readonly IPen HoverPen   = MkPen("#FAB387", 2.0);
     private static readonly IPen CanAllocNodePen = MkPen("#5A5A80", 1.2);
+
+    // Hover path preview: dashed route + rings for the shortest path from the
+    // allocated tree to the hovered unallocated node (the points you'd spend).
+    private static readonly IPen PathPreviewPen = new Pen(new SolidColorBrush(Color.Parse("#FAB387")), 2.6)
+        { DashStyle = new DashStyle(new double[] { 3, 2 }, 0) };
+    private static readonly IPen PathPreviewNodePen = MkPen("#FAB387", 2.2);
 
     // Unallocated node dimming overlay (60 % black)
     private static readonly IBrush DimBrush = new SolidColorBrush(Color.FromArgb(153, 0, 0, 0));
@@ -485,6 +498,26 @@ public sealed class TreeCanvas : Control
             }
         }
 
+        // ── Hover path preview ─────────────────────────────────────────────
+        // Shortest route from the allocated tree to the hovered unallocated
+        // node: dashed edges here, rings on the path nodes after the node draw.
+        List<int>? hoverPath = null;
+        if (_hoveredNode != null && alloc is { Count: > 0 } && !alloc.Contains(_hoveredNode.Id))
+        {
+            hoverPath = GetHoverPath(_hoveredNode, alloc, filter);
+            if (hoverPath is { Count: > 1 })
+            {
+                for (int i = 0; i + 1 < hoverPath.Count; i++)
+                {
+                    if (!_nodeById.TryGetValue(hoverPath[i], out var a)) continue;
+                    if (!_nodeById.TryGetValue(hoverPath[i + 1], out var b)) continue;
+                    var (ax, ay) = W2S(a);
+                    var (bx, by) = W2S(b);
+                    dc.DrawLine(PathPreviewPen, new Point(ax, ay), new Point(bx, by));
+                }
+            }
+        }
+
         // ── Unconnected-allocation radius halos (e.g. Entwined Realities) ────
         var emitters = RadiusEmitters;
         if (emitters != null && emitters.Count > 0)
@@ -549,6 +582,23 @@ public sealed class TreeCanvas : Control
             bool isSearch = search.Length > 0 && NodeMatchesSearch(node, search);
 
             DrawNode(dc, node, sx, sy, r, isAlloc, isCan, isSearch, node == _hoveredNode);
+        }
+
+        // ── Hover path-preview node rings (over node art) ──────────────────
+        // Ring each node on the route except the allocated anchor and the
+        // hovered node itself (the latter already gets the orange hover ring).
+        if (hoverPath is { Count: > 1 })
+        {
+            foreach (var pid in hoverPath)
+            {
+                if (alloc!.Contains(pid) || pid == _hoveredNode!.Id) continue;
+                if (!_nodeById.TryGetValue(pid, out var pn)) continue;
+                var (px, py) = W2S(pn);
+                double iconHalfPx = GetIconHalfWorld(pn.Type) * _scale;
+                bool useSprites   = AssetStore != null && iconHalfPx >= MinIconScreenPx;
+                double orPx       = useSprites ? iconHalfPx : GetRadius(pn.Type);
+                dc.DrawEllipse(null, PathPreviewNodePen, new Point(px, py), orPx + 3.0, orPx + 3.0);
+            }
         }
 
         // ── Socketed jewel art (over the socket base, allocated sockets) ───
@@ -1247,6 +1297,102 @@ public sealed class TreeCanvas : Control
         return !string.IsNullOrEmpty(localized)
             && !localized.Equals(node.Name, StringComparison.Ordinal)
             && localized.Contains(search, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Test/IPC hook: hover a node by id, or auto-pick an unallocated
+    /// node a few hops from the allocated tree, so the path preview can be
+    /// captured in a screenshot. Returns the chosen node id, name, path length.</summary>
+    public (int Id, string Name, int PathLen)? HoverNodeForTest(int? nodeId)
+    {
+        var alloc = AllocatedIds;
+        TreeNodeDto? target = nodeId is { } id && _nodeById.TryGetValue(id, out var n)
+            ? n
+            : PickPathHoverCandidate(alloc);
+        if (target is null) return null;
+
+        _hoveredNode = target;
+        InvalidateVisual();
+
+        int len = 0;
+        if (alloc is { Count: > 0 } && !alloc.Contains(target.Id))
+            len = (GetHoverPath(target, alloc, AscendancyFilter)?.Count ?? 1) - 1;
+        return (target.Id, target.Name, len);
+    }
+
+    // BFS from the allocated set; return a visible main-tree node ~3 hops out
+    // (a route long enough to show several segments), else the farthest reached.
+    private TreeNodeDto? PickPathHoverCandidate(IReadOnlySet<int>? alloc)
+    {
+        if (alloc == null || alloc.Count == 0) return null;
+        var visited = new HashSet<int>(alloc);
+        var queue   = new Queue<(int id, int dist)>();
+        foreach (var a in alloc) queue.Enqueue((a, 0));
+        TreeNodeDto? best = null;
+        while (queue.Count > 0)
+        {
+            var (cur, dist) = queue.Dequeue();
+            if (!_nodeById.TryGetValue(cur, out var curNode)) continue;
+            bool curAsc = !string.IsNullOrEmpty(curNode.AscendancyName);
+            foreach (var lid in curNode.LinkedIds)
+            {
+                if (!visited.Add(lid)) continue;
+                if (!_nodeById.TryGetValue(lid, out var lnode)) continue;
+                if (!IsNodeVisible(lnode, AscendancyFilter)) continue;
+                if (curAsc != !string.IsNullOrEmpty(lnode.AscendancyName)) continue;
+                if (lnode.Type is not ("Mastery" or "ClassStart" or "AscendClassStart"))
+                {
+                    best = lnode;
+                    if (dist + 1 >= 3) return lnode;
+                }
+                queue.Enqueue((lid, dist + 1));
+            }
+        }
+        return best;
+    }
+
+    /// <summary>Shortest path from the allocated tree to <paramref name="target"/>
+    /// via node links (multi-source BFS from the allocated set). Returns the
+    /// ordered ids target → … → first allocated anchor, or null when no path
+    /// exists. Cached per (target, alloc-set) so pan/zoom doesn't recompute.</summary>
+    private List<int>? GetHoverPath(TreeNodeDto target, IReadOnlySet<int> alloc, string filter)
+    {
+        if (_hoverPathTargetId == target.Id && ReferenceEquals(_hoverPathAllocRef, alloc))
+            return _hoverPath;
+        _hoverPathTargetId = target.Id;
+        _hoverPathAllocRef = alloc;
+
+        var visited = new HashSet<int>(alloc);
+        var parent  = new Dictionary<int, int>();
+        var queue   = new Queue<int>(alloc);
+        bool found  = false;
+        while (queue.Count > 0)
+        {
+            int cur = queue.Dequeue();
+            if (cur == target.Id) { found = true; break; }
+            if (!_nodeById.TryGetValue(cur, out var curNode)) continue;
+            bool curAsc = !string.IsNullOrEmpty(curNode.AscendancyName);
+            foreach (var lid in curNode.LinkedIds)
+            {
+                if (!visited.Add(lid)) continue;
+                if (!_nodeById.TryGetValue(lid, out var lnode)) continue;
+                if (!IsNodeVisible(lnode, filter)) continue;
+                // Don't route across the main-tree ↔ ascendancy boundary.
+                if (curAsc != !string.IsNullOrEmpty(lnode.AscendancyName)) continue;
+                parent[lid] = cur;
+                queue.Enqueue(lid);
+            }
+        }
+
+        if (!found) return _hoverPath = null;
+        var path = new List<int> { target.Id };
+        int n = target.Id;
+        while (parent.TryGetValue(n, out var p))
+        {
+            path.Add(p);
+            n = p;
+            if (alloc.Contains(p)) break;
+        }
+        return _hoverPath = path;
     }
 
     // Returns true for main-tree nodes always; for ascendancy nodes only when their name matches filter

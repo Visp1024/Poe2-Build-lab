@@ -190,6 +190,11 @@ public partial class TreeTabViewModel : ViewModelBase
     /// <summary>Programmatically open the jewel picker for a socket node (IPC test hook).</summary>
     public Action<int>? TriggerSocketPicker { get; set; }
 
+    /// <summary>Hover a node by id, or auto-pick an unallocated node a few hops
+    /// from the allocated tree when id is null, so the path-preview overlay can
+    /// be captured (IPC test hook). Returns the chosen node id, name, path length.</summary>
+    public Func<int?, (int Id, string Name, int PathLen)?>? HoverCanvasNode { get; set; }
+
     private ClassDisplayVm? _lastAppliedClass;
     private bool _suppressClassChangeCheck;
 
