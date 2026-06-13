@@ -243,6 +243,9 @@ local modNameList = {
 	["evasion rating"] = "Evasion",
 	["energy shield"] = "EnergyShield",
 	["ward"] = "Ward",
+	["runic ward"] = "Ward",            -- PoE2 0.5 renamed "Ward" to "Runic Ward"
+	["maximum ward"] = "Ward",
+	["maximum runic ward"] = "Ward",
 	["armour and evasion"] = "ArmourAndEvasion",
 	["armour and evasion rating"] = "ArmourAndEvasion",
 	["evasion rating and armour"] = "ArmourAndEvasion",
@@ -2536,6 +2539,8 @@ local specialModList = {
 		mod("LifeRecovery", "BASE", 1, { type = "PercentStat", stat = "Mana", percent = num }, { type = "Condition", var = "FullLife", neg = true })
 	} end,
 	["(%d+)%% increased maximum energy shield"] = function(num) return { mod("EnergyShield", "INC", num, { type = "Global" }) } end, -- Override as increased maximum is always global
+	["(%d+)%% increased maximum ward"] = function(num) return { mod("Ward", "INC", num, { type = "Global" }) } end, -- Override as increased maximum is always global
+	["(%d+)%% increased maximum runic ward"] = function(num) return { mod("Ward", "INC", num, { type = "Global" }) } end, -- PoE2 0.5 "Runic Ward" wording
 	["you are blind"] = { flag("Condition:Blinded", { type = "Condition", var = "CannotBeBlinded", neg = true }) },
 	["armour applies to fire, cold and lightning damage taken from hits instead of physical damage"] = {
 		mod("ArmourAppliesToFireDamageTaken", "BASE", 100),

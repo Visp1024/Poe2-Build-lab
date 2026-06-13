@@ -113,6 +113,8 @@
             <SolidColorBrush x:Key="StatDpsBrush" Color="{StaticResource StatDps}" />
             <SolidColorBrush x:Key="StatLifeBrush" Color="{StaticResource StatLife}" />
             <SolidColorBrush x:Key="StatEsBrush" Color="{StaticResource StatEs}" />
+            <!-- Runic Ward — PoB uses the RARE colour for Ward (colorCodes.WARD = RARE). -->
+            <SolidColorBrush x:Key="StatWardBrush" Color="{StaticResource RarityRare}" />
             <SolidColorBrush x:Key="StatManaBrush" Color="{StaticResource StatMana}" />
             <SolidColorBrush x:Key="StatArmourBrush" Color="{StaticResource StatArmour}" />
             <SolidColorBrush x:Key="StatEvasionBrush" Color="{StaticResource StatEvasion}" />
@@ -227,6 +229,8 @@
             <SolidColorBrush x:Key="StatDpsBrush" Color="{StaticResource StatDps}" />
             <SolidColorBrush x:Key="StatLifeBrush" Color="{StaticResource StatLife}" />
             <SolidColorBrush x:Key="StatEsBrush" Color="{StaticResource StatEs}" />
+            <!-- Runic Ward — PoB uses the RARE colour for Ward (colorCodes.WARD = RARE). -->
+            <SolidColorBrush x:Key="StatWardBrush" Color="{StaticResource RarityRare}" />
             <SolidColorBrush x:Key="StatManaBrush" Color="{StaticResource StatMana}" />
             <SolidColorBrush x:Key="StatArmourBrush" Color="{StaticResource StatArmour}" />
             <SolidColorBrush x:Key="StatEvasionBrush" Color="{StaticResource StatEvasion}" />

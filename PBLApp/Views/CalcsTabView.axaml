@@ -57,7 +57,7 @@
                 <ItemsControl ItemsSource="{Binding Sections}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:StatSectionViewModel">
-                            <StackPanel Margin="0,0,0,4">
+                            <StackPanel Margin="0,0,0,4" IsVisible="{Binding IsVisible}">
                                 <Border Background="{DynamicResource BgRaisedBrush}" Padding="8,3" Margin="0,0,0,1">
                                     <TextBlock Text="{Binding Label}"
                                                FontWeight="Bold" FontSize="11"

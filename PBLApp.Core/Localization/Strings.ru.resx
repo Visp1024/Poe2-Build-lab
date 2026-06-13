@@ -136,6 +136,7 @@
   <data name="Stat_Life"          xml:space="preserve"><value>Жизнь</value></data>
   <data name="Stat_Mana"          xml:space="preserve"><value>Мана</value></data>
   <data name="Stat_EnergyShield"  xml:space="preserve"><value>Энергетический щит</value></data>
+  <data name="Stat_Ward"          xml:space="preserve"><value>Рунический барьер</value></data>
   <data name="Stat_Armour"        xml:space="preserve"><value>Броня</value></data>
   <data name="Stat_Evasion"       xml:space="preserve"><value>Уклонение</value></data>
   <data name="Stat_BlockDeflect"  xml:space="preserve"><value>Блок / Отражение</value></data>
@@ -202,6 +203,8 @@
   <data name="Row_ES"                 xml:space="preserve"><value>Энергетический щит</value></data>
   <data name="Row_ESRegen"            xml:space="preserve"><value>Регенерация ЭЩ</value></data>
   <data name="Row_ESRegenPct"         xml:space="preserve"><value>% регенерации ЭЩ</value></data>
+  <data name="Row_Ward"               xml:space="preserve"><value>Рунический барьер</value></data>
+  <data name="Row_WardRechargeDelay"  xml:space="preserve"><value>Задержка восст. барьера</value></data>
   <data name="Row_Armour"             xml:space="preserve"><value>Броня</value></data>
   <data name="Row_PhysReduction"      xml:space="preserve"><value>Снижение физ. урона</value></data>
   <data name="Row_PhysDmgRedHit"      xml:space="preserve"><value>Снижение физ. урона при ударе</value></data>
@@ -273,6 +276,7 @@
   <data name="Sidebar_DPS"          xml:space="preserve"><value>ДПС:</value></data>
   <data name="Sidebar_Life"         xml:space="preserve"><value>Жизнь:</value></data>
   <data name="Sidebar_ES"           xml:space="preserve"><value>ЭЩ:</value></data>
+  <data name="Sidebar_Ward"         xml:space="preserve"><value>Барьер:</value></data>
   <data name="Sidebar_Mana"         xml:space="preserve"><value>Мана:</value></data>
   <data name="Sidebar_Armour"       xml:space="preserve"><value>Броня:</value></data>
   <data name="Sidebar_Eva"          xml:space="preserve"><value>Укл:</value></data>
