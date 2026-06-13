@@ -158,6 +158,7 @@ public sealed class IpcServer
                 "/items/editor-set-rune"         => await OnUi(() => EditorSetRune(body)),
                 "/items/editor-remove-rune-socket" => await OnUi(() => EditorRemoveRuneSocket(body)),
                 "/tree/state"             => await OnUi(TreeState),
+                "/tree/set-search"        => await OnUi(() => TreeSetSearch(body)),
                 "/tree/select-class"      => await OnUi(() => TreeSelectClass(body)),
                 "/tree/select-ascendancy" => await OnUi(() => TreeSelectAscendancy(body)),
                 "/tree/view"              => await OnUi(TreeGetView),
@@ -935,6 +936,14 @@ public sealed class IpcServer
             nodeCount       = t.NodeCount,
             allocatedCount  = t.AllocatedCount,
         };
+    }
+
+    private static object TreeSetSearch(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, string>>(body) ?? new();
+        t.SearchText = req.TryGetValue("text", out var text) ? text ?? "" : "";
+        return new { ok = true, searchText = t.SearchText };
     }
 
     private static object TreeSelectClass(string body)
