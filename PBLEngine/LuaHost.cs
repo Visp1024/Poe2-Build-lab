@@ -2739,6 +2739,20 @@ public sealed class LuaHost : IDisposable
             local specNodes  = build.spec.nodes   -- class-specific (ReplaceNode applied)
             local allocNodes = build.spec.allocNodes or {}
 
+            -- 'Replacement' ascendancies (e.g. Abyssal Lich replaces Lich) reuse the
+            -- base ascendancy's circle: their nodes keep the BASE ascendancyName
+            -- ('Lich') even when the replacement is selected. Re-label those nodes
+            -- with the selected name so the UI filter / plate / transform all line up
+            -- on one name; otherwise the tree shows no ascendancy nodes at all.
+            local curAscName  = build.spec.curAscendClassName
+            local replacedBase = nil
+            if curAscName and curAscName ~= '' then
+                local ad = tree.ascendNameMap and tree.ascendNameMap[curAscName]
+                if ad and ad.ascendClass and ad.ascendClass.replace then
+                    replacedBase = ad.ascendClass.replace
+                end
+            end
+
             -- Collect nodes
             local out = {}
             for nodeId, node in pairs(specNodes) do
@@ -2762,6 +2776,8 @@ public sealed class LuaHost : IDisposable
                     -- Socket nodes: world-space jewel radius (outer * 1.2 multiplier)
                     local jewelRadius = 0
                     if t == 'Socket' then jewelRadius = 1560 end  -- Large radius (1300*1.2)
+                    local ascName = node.ascendancyName or ''
+                    if replacedBase and ascName == replacedBase then ascName = curAscName end
                     table.insert(out, {
                         id,
                         node.x or 0,
@@ -2770,7 +2786,7 @@ public sealed class LuaHost : IDisposable
                         node.dn or '',
                         table.concat(stats, '\n'),
                         table.concat(linked, ','),
-                        node.ascendancyName or '',
+                        ascName,
                         node.icon or '',
                         ov.unalloc or '',
                         ov.alloc or '',
@@ -3006,6 +3022,19 @@ public sealed class LuaHost : IDisposable
             local node = build.spec.nodes[_nodeId]
             if not node then return nil end
 
+            -- Re-label replacement-ascendancy nodes (e.g. Abyssal Lich's, which keep
+            -- the base 'Lich' name) with the selected ascendancy, matching GetTreeData.
+            local hoverAscName = node.ascendancyName or ''
+            do
+                local curAscName = build.spec.curAscendClassName
+                if curAscName and curAscName ~= '' and hoverAscName ~= '' then
+                    local ad = build.spec.tree.ascendNameMap and build.spec.tree.ascendNameMap[curAscName]
+                    if ad and ad.ascendClass and ad.ascendClass.replace == hoverAscName then
+                        hoverAscName = curAscName
+                    end
+                end
+            end
+
             local function emitDiffs(baseOutput, compareOutput, nodeCount)
                 local list = {}
                 local function collect(stats, base, comp)
@@ -3074,7 +3103,7 @@ public sealed class LuaHost : IDisposable
 
             return {
                 node.id, node.dn or node.name or '',
-                node.type or 'Normal', node.ascendancyName or '',
+                node.type or 'Normal', hoverAscName,
                 node.alloc and 1 or 0,
                 node.pathDist or 0, pathLen,
                 mods, nodeDiff, pathDiff, diffHeader, pathHeader
