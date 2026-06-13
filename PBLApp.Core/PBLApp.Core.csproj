@@ -27,6 +27,7 @@
     <EmbeddedResource Include="Translations\gem_meta_ru.json" />
     <EmbeddedResource Include="Translations\gem_tags_ru.json" />
     <EmbeddedResource Include="Translations\gem_stats_templates.json" />
+    <EmbeddedResource Include="Translations\item_mod_templates_ru.json" />
     <EmbeddedResource Include="Translations\skill_descriptions_ru.json" />
     <EmbeddedResource Include="Translations\config_sections_ru.json" />
     <EmbeddedResource Include="Translations\config_labels_ru.json" />

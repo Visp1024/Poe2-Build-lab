@@ -222,6 +222,7 @@ Stat_Eva    = "Eva"          / "Укл."
 | `PBLExport/gen_passive_ru.py` | `passive_nodes_ru.json` | repoe-fork stat_translations — **сломан** (формат изменился), заменён csd-генератором |
 | `PBLExport/gen_passive_names_ru.py` | `passive_names_ru.json` | repoe-fork skills.min.json — **сломан** (404), заменён Program.cs |
 | `PBLExport/gen_gem_stats_csd.py` | `gem_stats_templates.json` | **GGPK .csd** (EN+RU; канонический — repoe-fork RU теперь 404) |
+| `PBLExport/gen_item_mod_templates_csd.py` | `item_mod_templates_ru.json` (17201 шаблонов модов предметов; грузится как `_itemModTemplatesCsd`, OrdinalIgnoreCase) | **GGPK .csd** (number-redacted EN→RU; симулирует рантайм-редакцию `TooltipLine`) |
 | `PBLExport/gen_gem_stats_ru.py` | `gem_stats_templates.json` | repoe-fork — **RU удалён (404)**, заменён csd-генератором |
 | `PBLExport/Program.cs` | `passive_names_ru.json`, `skill_descriptions_ru.json` (ActiveSkills + GemEffects.SupportText), `class_names_ru.json` (Characters + Ascendancy) | GGPK tables (pathofexile-dat export) |
 | `tools/loc_coverage.py` | — (метрика покрытия трёх слоёв) | tree.json + Skills/*.lua против Translations/*.json |
@@ -245,6 +246,7 @@ dotnet run --project .                 # PBLExport/Program.cs
 # 3. .csd → стат-шаблоны (только локальные .csd, без интернета)
 python gen_passive_nodes_csd.py        # passive_nodes_ru.json
 python gen_gem_stats_csd.py            # gem_stats_templates.json (RU из .csd)
+python gen_item_mod_templates_csd.py   # item_mod_templates_ru.json (RU из .csd)
 ```
 
 ---
@@ -264,6 +266,7 @@ cd ..
 dotnet run --project .                 # PBLExport/Program.cs → PBLApp.Core/Translations/
 python gen_passive_nodes_csd.py        # стат-строки нод (RU из .csd)
 python gen_gem_stats_csd.py            # стат-шаблоны гемов (RU из .csd)
+python gen_item_mod_templates_csd.py   # шаблоны модов предметов (RU из .csd)
 ```
 
 > Чтобы закрыть per-skill оверрайды (напр. «… while in Demon Form»): добавить
