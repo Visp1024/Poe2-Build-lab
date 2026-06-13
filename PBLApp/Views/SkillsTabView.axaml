@@ -9,6 +9,16 @@
              x:Class="PBLApp.Views.SkillsTabView"
              x:DataType="vm:SkillsTabViewModel">
 
+    <UserControl.Resources>
+        <!-- Filled vector glyphs (Material-style, 24×24 viewBox) rendered via the
+             native PathIcon. Replaces emoji and the Lucide.Avalonia pack, which is
+             built against Avalonia 11 and corrupts the render pass on Avalonia 12. -->
+        <StreamGeometry x:Key="IconStar">M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z</StreamGeometry>
+        <StreamGeometry x:Key="IconLock">M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z</StreamGeometry>
+        <StreamGeometry x:Key="IconClose">M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z</StreamGeometry>
+        <StreamGeometry x:Key="IconChevronDown">M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z</StreamGeometry>
+    </UserControl.Resources>
+
     <UserControl.Styles>
         <Style Selector="ListBoxItem">
             <Setter Property="Padding" Value="6,4" />
@@ -108,6 +118,52 @@
             <Setter Property="BorderThickness" Value="0" />
         </Style>
 
+        <!-- Picker row: a borderless button used inside the skill/support
+             flyouts. No selection state, no checkmark — a single click commits.
+             Only a hover highlight, so the list reads as a menu, not a selector. -->
+        <Style Selector="Button.picker-row">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="Height" Value="26" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FocusAdorner" Value="{x:Null}" />
+        </Style>
+        <Style Selector="Button.picker-row /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="3" />
+        </Style>
+        <Style Selector="Button.picker-row:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+        </Style>
+        <Style Selector="Button.picker-row:focus /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+        </Style>
+
+        <!-- Group row: the left-hand skill-group list entry. A Border (not Button)
+             so the selection/hover background fills the FULL row width — SukiTheme's
+             Button ContentPresenter shrink-wraps its content and ignores
+             HorizontalContentAlignment=Stretch, leaving the highlight only as wide
+             as the text. Click is handled via PointerPressed. Single flat selection
+             background + an accent bar on the left edge. -->
+        <Style Selector="Border.group-row">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Border.group-row:pointerover">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+        </Style>
+        <Style Selector="Border.group-row.selected">
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+        </Style>
+        <Style Selector="Border.group-row.selected:pointerover">
+            <Setter Property="Background" Value="{DynamicResource BgRaisedBrush}" />
+        </Style>
+
         <Style Selector="Button.support-cell">
             <Setter Property="Background" Value="Transparent" />
         </Style>
@@ -190,39 +246,42 @@
                                              PlaceholderText="search…"
                                              Margin="0,0,0,6"
                                              KeyDown="PickerSearch_KeyDown" />
-                                    <ListBox Name="PickerList"
-                                             ItemsSource="{Binding FilteredActiveGemNameItems}"
-                                             Background="Transparent"
-                                             BorderThickness="0"
-                                             DoubleTapped="PickerList_DoubleTapped"
-                                             KeyDown="PickerList_KeyDown">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:GemNameItem">
-                                                <Grid ColumnDefinitions="*,Auto" Height="24">
-                                                    <TextBlock Grid.Column="0"
-                                                               Text="{Binding DisplayName}"
-                                                               Foreground="{Binding Color}"
-                                                               FontSize="13" VerticalAlignment="Center"
-                                                               TextTrimming="CharacterEllipsis" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
+                                    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsControl Name="PickerList"
+                                                      HorizontalAlignment="Stretch"
+                                                      ItemsSource="{Binding FilteredActiveGemNameItems}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:GemNameItem">
+                                                    <Button Classes="picker-row"
+                                                            Click="PickerRow_Click">
+                                                        <TextBlock Text="{Binding DisplayName}"
+                                                                   Foreground="{Binding Color}"
+                                                                   FontSize="13" VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
                                 </DockPanel>
                             </Border>
                         </Flyout>
                     </Button.Flyout>
                 </Button>
 
-                <!-- Group list — shows active gem name coloured by attribute -->
-                <ListBox ItemsSource="{Binding Groups}"
-                         SelectedItem="{Binding SelectedGroup}"
-                         Background="Transparent"
-                         BorderThickness="0">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="vm:SkillGroupViewModel">
-                            <Border HorizontalAlignment="Stretch" Background="Transparent"
-                                    ToolTip.ShowDelay="400">
+                <!-- Group list — shows active gem name coloured by attribute.
+                     Rebuilt as an ItemsControl of buttons so selection renders as a
+                     single flat highlight + left accent bar, with no ListBox chrome. -->
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Groups}"
+                                  HorizontalAlignment="Stretch">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SkillGroupViewModel">
+                                <Border Classes="group-row"
+                                        Classes.selected="{Binding IsSelected}"
+                                        PointerPressed="GroupRow_PointerPressed"
+                                        HorizontalAlignment="Stretch"
+                                        ToolTip.ShowDelay="400">
                                 <ToolTip.Tip>
                                     <ToolTip x:CompileBindings="False" Padding="0"
                                              Background="Transparent" BorderThickness="0">
@@ -246,12 +305,21 @@
                                         </Border>
                                     </ToolTip>
                                 </ToolTip.Tip>
-                                <Grid ColumnDefinitions="18,*,Auto" Height="30">
-                                    <TextBlock Grid.Column="0" Text="★"
-                                               Foreground="{DynamicResource Brand400Brush}"
-                                               IsVisible="{Binding IsMain}"
-                                               FontSize="13" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="1"
+                                <Grid ColumnDefinitions="3,22,*,Auto" MinHeight="38">
+                                    <!-- Left accent bar marking the selected group -->
+                                    <Border Grid.Column="0"
+                                            Background="{DynamicResource Brand400Brush}"
+                                            IsVisible="{Binding IsSelected}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch" />
+                                    <PathIcon Grid.Column="1"
+                                              Data="{StaticResource IconStar}"
+                                              Width="14" Height="14"
+                                              Foreground="{DynamicResource Brand400Brush}"
+                                              IsVisible="{Binding IsMain}"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Center" />
+                                    <TextBlock Grid.Column="2"
                                                Text="{Binding ActiveGemName}"
                                                Foreground="{Binding ListItemColor}"
                                                FontSize="14" FontWeight="Medium"
@@ -260,17 +328,20 @@
                                     <!-- Granted-by badge: a lock glyph marking the
                                          group as non-removable; tooltip names the
                                          ascendancy node / item that grants it. -->
-                                    <TextBlock Grid.Column="2" Text="🔒"
-                                               IsVisible="{Binding IsGranted}"
-                                               Foreground="{DynamicResource TextMutedBrush}"
-                                               FontSize="11" Margin="6,0,4,0"
-                                               VerticalAlignment="Center"
-                                               ToolTip.Tip="{Binding SourceBadge}" />
+                                    <PathIcon Grid.Column="3"
+                                              Data="{StaticResource IconLock}"
+                                              Width="13" Height="13"
+                                              IsVisible="{Binding IsGranted}"
+                                              Foreground="{DynamicResource TextMutedBrush}"
+                                              Margin="6,0,8,0"
+                                              VerticalAlignment="Center"
+                                              ToolTip.Tip="{Binding SourceBadge}" />
                                 </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
 
             </DockPanel>
         </Border>
@@ -406,11 +477,12 @@
                                     <Button Grid.Column="0"
                                             Classes="icon-btn"
                                             Command="{Binding RemoveCommand}"
-                                            Content="✕"
                                             IsVisible="{Binding !IsEmpty}"
                                             Width="22" Height="22"
                                             HorizontalContentAlignment="Center"
-                                            VerticalContentAlignment="Center" />
+                                            VerticalContentAlignment="Center">
+                                        <PathIcon Data="{StaticResource IconClose}" Width="11" Height="11" />
+                                    </Button>
 
                                     <!-- Support gem cell: Button-with-Flyout picker.
                                          Editable ComboBox + ItemsSource was unreliable in
