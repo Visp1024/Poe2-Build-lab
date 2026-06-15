@@ -25,7 +25,31 @@ public partial class BuildListView : UserControl
     {
         // Wire the VM's delete-confirmation hook to a real Avalonia modal.
         if (DataContext is BuildListViewModel vm)
+        {
             vm.ConfirmDeleteAsync = ConfirmDeleteAsync;
+            vm.ShowImportWindow   = ShowImportWindowAsync;
+            vm.PromptRenameAsync  = PromptRenameAsync;
+        }
+    }
+
+    private async Task<string?> PromptRenameAsync(string currentName)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        if (owner is null) return null;
+
+        var title = LocalizationService.Get("Dlg_RenameTitle");
+        var msg   = LocalizationService.Get("Dlg_RenameMsg");
+        return await PromptDialog.ShowAsync(owner, title, msg, currentName);
+    }
+
+    private Task ShowImportWindowAsync(ImportTabViewModel importVm)
+    {
+        var owner  = TopLevel.GetTopLevel(this) as Window;
+        var window = new ImportExportWindow { DataContext = importVm };
+        importVm.CloseRequested += () => Dispatcher.UIThread.Post(window.Close);
+        if (owner is not null) window.Show(owner);
+        else                   window.Show();
+        return Task.CompletedTask;
     }
 
     private async Task<bool> ConfirmDeleteAsync(string name)
@@ -89,6 +113,27 @@ public partial class BuildListView : UserControl
 
         vm.OpenItemCommand.Execute(entry);
         e.Handled = true;
+    }
+
+    private void RenameCard_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
+        if (sender is not Border { Tag: BuildEntryViewModel entry }) return;
+        if (DataContext is not BuildListViewModel vm) return;
+
+        // Stop the press from bubbling up to Card_PointerPressed and opening the build.
+        e.Handled = true;
+        _ = vm.RenameEntryCommand.ExecuteAsync(entry);
+    }
+
+    private void ImportCard_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
+        if (DataContext is not BuildListViewModel vm) return;
+
+        // Stop the press from bubbling up to Card_PointerPressed and creating an empty build.
+        e.Handled = true;
+        _ = vm.OpenImportCommand.ExecuteAsync(null);
     }
 
     private void DeleteCard_PointerPressed(object? sender, PointerPressedEventArgs e)

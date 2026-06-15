@@ -63,6 +63,48 @@
             <Setter Property="Foreground" Value="White" />
         </Style>
 
+        <!-- ✎ rename corner — sits just left of the × delete corner. -->
+        <Style Selector="Border.card-rename">
+            <Setter Property="Background" Value="#80000000" />
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Border.card-rename:pointerover">
+            <Setter Property="Background" Value="{DynamicResource Brand500Brush}" />
+        </Style>
+        <Style Selector="Border.card-rename TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Border.card-rename:pointerover TextBlock">
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+
+        <!-- Secondary "import from code" action inside the create card. Border (not
+             Button) so its own PointerPressed can stop the press bubbling to the card. -->
+        <Style Selector="Border.import-row">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand500Brush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Border.import-row:pointerover">
+            <Setter Property="Background" Value="{DynamicResource Brand100Brush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand400Brush}" />
+        </Style>
+        <Style Selector="Border.import-row TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brand400Brush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+
         <!-- Breadcrumb segment -->
         <Style Selector="Button.crumb">
             <Setter Property="Background" Value="Transparent" />
@@ -191,8 +233,29 @@
                                                    Foreground="{DynamicResource Brand500Brush}"
                                                    FontSize="13" FontWeight="SemiBold"
                                                    HorizontalAlignment="Center" />
+
+                                        <!-- divider + import-from-code action -->
+                                        <Border Height="1" Width="120" Margin="0,4"
+                                                Background="{DynamicResource BorderSubtleBrush}" />
+                                        <Border Classes="import-row"
+                                                Tag="{Binding}"
+                                                PointerPressed="ImportCard_PointerPressed"
+                                                ToolTip.Tip="{loc:Tr List_ImportCard}">
+                                            <TextBlock Text="{loc:Tr List_ImportCard}" />
+                                        </Border>
                                     </StackPanel>
                                 </Grid>
+                            </Border>
+
+                            <!-- Rename corner — hidden on create -->
+                            <Border Classes="card-rename"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                                    Margin="0,6,34,0"
+                                    IsVisible="{Binding !IsCreate}"
+                                    Tag="{Binding}"
+                                    PointerPressed="RenameCard_PointerPressed"
+                                    ToolTip.Tip="{loc:Tr Btn_RenameTip}">
+                                <TextBlock Text="✎" />
                             </Border>
 
                             <!-- Delete corner — hidden on create -->
