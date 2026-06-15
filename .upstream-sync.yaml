@@ -9,7 +9,8 @@ upstream_branch: dev
 # Последний синхронизированный upstream commit и его версия.
 # При первом синке = точка форка (Release 0.15.0).
 last_synced_sha: a82a33b4fbdb7306ed93159664f7abe2c6819413  # Release 0.21.0 (incl. 0.5.2 passive tree, PR #2162)
-last_synced_version: 0.21.0
+last_synced_version: 0.21.0   # PoB tool version (manifest.xml)
+game_version: 0.5.2           # PoE2 game patch this sync targets — goes in the release archive name
 last_synced_date: 2026-06-16
 
 # Пути в upstream, которые мы тянем 3-way патчем.
