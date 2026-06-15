@@ -425,6 +425,10 @@ Pass over the Skills tab and the overall tabbing UX based on direct user feedbac
 - [ ] Unique flavour text translation (`unique_flavour_ru.json`) — generate from GGPK `Words.datc64` when schema becomes available, or hand-edit per unique.
 - [ ] Three Sekhema's Resolve element variants — slug mismatch on poe2db, need manual URL mapping.
 - [ ] Upgrade plain-text hover tooltips on slots / pool items to the full styled `ItemTooltipView` content (lazy-build VM on `ToolTip.Opening`).
+- [ ] **Open the trade site for an item** — «Купить на торговой площадке» action on a slot / pool item that builds an official `pathofexile.com/trade` (PoE2) search for that item and opens it in the default browser. PoB already ships the generator: `Classes/TradeQueryGenerator.lua` turns an item's mods into a query, `Classes/TradeQuery.lua` / `TradeHelpers.lua` build the URL, `Data/QueryMods.lua` + `Data/TradeSiteStats.lua` map mod text → trade stat ids. Scope for PBLApp: expose a `LuaHost.BuildTradeQueryUrl(itemId, slotName)` wrapper over the generator (no live API calls / rate-limiter needed — just the URL), wire a button in the item tooltip / editor header, open via `Process.Start(url)` (C# side, not Lua). Decide weighting mode (exact mods vs. "find upgrades"). Stretch: in-app price-check panel using `TradeQueryRequests` + `TradeQueryRateLimiter` (needs PoE session / OAuth — much larger).
+
+### Game integration (PoE2 0.5+)
+- [ ] **Generate an in-game Build Planner `.build` file** — PoE2 0.5 "Return of the Ancients" (29 May 2026) added a native **Build Planner** that reads a community `.build` file from `Documents/My Games/Path of Exile 2/BuildPlanner` and overlays the plan (passive nodes to take, main + weapon-set tree toggles, skill + support gems; items not yet supported by GGG's reader) onto the player's character in-game. poe.ninja shipped a prototype exporter (the file is JSON under a `.build` extension; export dialog lets you pick which parts to include). Scope for PBLApp: an "Export Build Planner" action (next to share-code export) that serialises the current build's `spec.allocNodes` (per weapon set) + socket groups/gems into the GGG `.build` JSON schema and writes it to the BuildPlanner folder (with a "copy JSON" alternative). **Needs research first**: reverse-engineer the exact JSON schema (node id keys, gem identifiers, weapon-set structure) from a poe.ninja-exported sample / GGG docs — capture it before implementing. Watch for schema changes as GGG iterates (still early prototype; item support is coming).
 
 ### Localisation depth
 - [ ] Extend `unique_names_ru.json` beyond the ~75 hand-translated PoE2 uniques to full coverage (~600+).
@@ -441,6 +445,9 @@ Pass over the Skills tab and the overall tabbing UX based on direct user feedbac
 ### UI polish
 - [ ] HiDPI / DPI scaling pass.
 - [ ] Dark / light theme switch.
+
+### Engine / mod coverage
+- [ ] **Find & fix mods PoB doesn't support** — `ModParser.parseMod` returns an empty mod list (+ leftover text) for lines it can't parse; such mods contribute nothing to stats and surface in the UI as "(Not supported in PoB yet)" / via the Alt-hover internal-modifier view. PoB also has a dev hook that appends number-redacted unparsed forms to `unsupported.txt` (`ModParser.lua` ~line 7272). Goal: (1) **discover** — sweep a corpus (every unique in `Data/Uniques`, every affix in `Data/ModItem*.lua` / runes / corruptions, plus mods from the parity community builds) through `parseMod`, collect lines that yield `{}` or a non-empty leftover, dedupe to `{num}`-redacted templates (reuse the existing logger format); emit a ranked report. (2) **surface in PBLApp** — a diagnostics panel / MCP tool listing the current build's unsupported mods so users can report bleed-through. (3) **fix** — add the missing patterns to `ModParser.lua`, regenerate + commit `Data/ModCache.lua` (`REGENERATE_MOD_CACHE=1`, see the Ward fix for the workflow), and guard with a parity re-sweep. Keep backward-compat for old mod strings.
 
 ### Infrastructure
 - [ ] GitHub Actions CI — publish workflow + xUnit run.
