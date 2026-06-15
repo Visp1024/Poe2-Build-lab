@@ -18,7 +18,10 @@ A release is identified by one version string `MAJOR.MINOR[.PATCH]` (e.g. `0.1`,
 `0.1.1`). It must match in three places — bump all three together:
 
 1. **`PBLApp/PBLApp.csproj`** → `<Version>0.1.1</Version>` (stamps the exe).
-2. **Archive file name** → `publish/PoE2BuildLab-win-x64-v<version>.zip`.
+2. **Archive file name** → `publish/PoE2BuildLab-win-x64-v<version>-poe<gameVersion>.zip`,
+   where `<gameVersion>` is the PoE2 game patch (e.g. `0.5.2`), read from
+   `game_version:` in `.upstream-sync.yaml`. NOTE: this is the **game** version,
+   not the PoB tool version in `manifest.xml` (`0.21.0`) — they differ.
 3. **Git tag** → `v<version>` (annotated), on the release commit.
 
 PATCH (`0.1.1`) for fixes / small features on top of a minor line; MINOR
@@ -52,13 +55,13 @@ Run from the repo root in PowerShell.
 5. **Create the archive** — zip the *contents* of `publish\win-x64` at the root
    (no wrapper folder), matching the prior releases:
    ```powershell
-   $ver = "0.1.1"
-   $src = "publish\win-x64"
-   $out = "publish\PoE2BuildLab-win-x64-v$ver.zip"
-   Remove-Item $out -ErrorAction SilentlyContinue
+   $ver  = (Select-String 'PBLApp\PBLApp.csproj' -Pattern '<Version>([0-9.]+)</Version>').Matches[0].Groups[1].Value
+   $game = (Select-String '.upstream-sync.yaml' -Pattern '^game_version:\s*([0-9.]+)').Matches[0].Groups[1].Value
+   $src  = "publish\win-x64"
+   $out  = "publish\PoE2BuildLab-win-x64-v$ver-poe$game.zip"
    Add-Type -AssemblyName System.IO.Compression.FileSystem
    [System.IO.Compression.ZipFile]::CreateFromDirectory(
-       (Resolve-Path $src), $out,
+       (Resolve-Path $src), (Join-Path (Get-Location) $out),
        [System.IO.Compression.CompressionLevel]::Optimal, $false)  # $false = no base dir
    ```
    Do **not** use `Compress-Archive -Path $src` — it nests everything under a
@@ -68,7 +71,7 @@ Run from the repo root in PowerShell.
 6. **Verify the archive** before publishing it:
    ```powershell
    Add-Type -AssemblyName System.IO.Compression.FileSystem
-   $z = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path "publish\PoE2BuildLab-win-x64-v$ver.zip"))
+   $z = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $out))
    "entries:          $($z.Entries.Count)"
    "exe at root:      " + [bool]($z.Entries | Where-Object { $_.FullName -eq 'PBLApp.exe' })
    "TreeData present: " + [bool]($z.Entries | Where-Object { $_.FullName -like 'Assets/TreeData/*' } | Select-Object -First 1)
