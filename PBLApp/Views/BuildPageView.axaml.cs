@@ -23,6 +23,27 @@ public partial class BuildPageView : UserControl
 
         Loaded   += OnLoaded;
         Unloaded += OnUnloaded;
+        DataContextChanged += (_, _) =>
+        {
+            if (DataContext is BuildPageViewModel vm)
+                vm.PromptRenameAsync = PromptRenameAsync;
+        };
+    }
+
+    private async System.Threading.Tasks.Task<string?> PromptRenameAsync(string currentName)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        if (owner is null) return null;
+
+        var title = LocalizationService.Get("Dlg_RenameTitle");
+        var msg   = LocalizationService.Get("Dlg_RenameMsg");
+        return await PromptDialog.ShowAsync(owner, title, msg, currentName);
+    }
+
+    private void RenameBuild_Click(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is BuildPageViewModel vm)
+            vm.RenameBuildCommand.Execute(null);
     }
 
     private void OnLoaded(object? sender, RoutedEventArgs e)

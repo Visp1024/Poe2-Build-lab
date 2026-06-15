@@ -27,6 +27,7 @@
   <data name="Tab_Notes"          xml:space="preserve"><value>Notes</value></data>
   <data name="Tab_Config"         xml:space="preserve"><value>Config</value></data>
   <data name="Tab_ImportExport"   xml:space="preserve"><value>Import / Export</value></data>
+  <data name="Tab_Export"         xml:space="preserve"><value>Export</value></data>
   <data name="Tab_PopOut"         xml:space="preserve"><value>Open in separate window</value></data>
 
   <!-- Build list -->
@@ -66,12 +67,19 @@
   <!-- Build list grid -->
   <data name="List_BuildsRoot"    xml:space="preserve"><value>Builds</value></data>
   <data name="List_CreateCard"    xml:space="preserve"><value>Create build</value></data>
+  <data name="List_ImportCard"    xml:space="preserve"><value>&#x2913; Import from code</value></data>
   <data name="List_LvlPrefix"     xml:space="preserve"><value>Lvl</value></data>
   <data name="Dlg_Confirm"        xml:space="preserve"><value>Confirm</value></data>
   <data name="Dlg_DeleteTitle"    xml:space="preserve"><value>Delete build</value></data>
   <data name="Dlg_DeleteBuildMsg" xml:space="preserve"><value>Delete build "{0}"? This cannot be undone.</value></data>
   <data name="Dlg_DeleteFolderMsg" xml:space="preserve"><value>Delete folder "{0}" and all builds inside it? This cannot be undone.</value></data>
+  <data name="Dlg_RenameTitle"    xml:space="preserve"><value>Rename build</value></data>
+  <data name="Dlg_RenameMsg"      xml:space="preserve"><value>Enter a new name for the build:</value></data>
   <data name="Btn_Cancel"         xml:space="preserve"><value>Cancel</value></data>
+  <data name="Btn_OK"             xml:space="preserve"><value>OK</value></data>
+  <data name="Btn_RenameTip"      xml:space="preserve"><value>Rename</value></data>
+  <data name="Msg_RenameExists"   xml:space="preserve"><value>A build with this name already exists.</value></data>
+  <data name="Msg_RenameInvalid"  xml:space="preserve"><value>Invalid build name.</value></data>
 
   <!-- Items tab -->
   <data name="Item_NoSelection"   xml:space="preserve"><value>Select a slot on the left to view item details.</value></data>

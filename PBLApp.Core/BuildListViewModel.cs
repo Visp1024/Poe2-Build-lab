@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PBLApp.Core.Localization;
 using PBLEngine;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,14 @@ public partial class BuildListViewModel : ViewModelBase
     /// <summary>Asks the view to show a Yes/No confirmation modal before deleting.
     /// Returns true if the user confirmed. View wires this on construction.</summary>
     public Func<string, Task<bool>>? ConfirmDeleteAsync { get; set; }
+
+    /// <summary>Asks the view to show the import window for the given (ListImport-mode)
+    /// view-model. View wires this on construction.</summary>
+    public Func<ImportTabViewModel, Task>? ShowImportWindow { get; set; }
+
+    /// <summary>Asks the view for a new build name (prompt dialog), seeded with the
+    /// current name. Returns the entered name, or null if cancelled. View wires this.</summary>
+    public Func<string, Task<string?>>? PromptRenameAsync { get; set; }
 
     /// <summary>Items in the currently-visible folder. Folders come first, then builds;
     /// the final entry is always the virtual "+ Create" placeholder.</summary>
@@ -114,6 +123,32 @@ public partial class BuildListViewModel : ViewModelBase
         NavigateTo(segment.Path);
     }
 
+    // ── Import ────────────────────────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task OpenImport()
+    {
+        StatusMessage = "";
+        try
+        {
+            var folder = GetBuildsPath();
+            var vm = new ImportTabViewModel(folder, OnBuildImported);
+            if (ShowImportWindow != null)
+                await ShowImportWindow(vm);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "Error opening import: " + ex.Message;
+            WriteErrorLog("OpenImport", ex);
+        }
+    }
+
+    private void OnBuildImported(string filePath)
+    {
+        var name = Path.GetFileNameWithoutExtension(filePath)!;
+        _openBuild(new BuildEntryViewModel(name, filePath, BuildEntryKind.Build));
+    }
+
     // ── Create / delete ───────────────────────────────────────────────────
 
     private async Task NewBuildAsync()
@@ -142,6 +177,39 @@ public partial class BuildListViewModel : ViewModelBase
         {
             StatusMessage = "Error creating build: " + ex.Message;
             WriteErrorLog("NewBuildAsync", ex);
+        }
+    }
+
+    [RelayCommand]
+    private async Task RenameEntryAsync(BuildEntryViewModel? entry)
+    {
+        if (entry is null || entry.Kind == BuildEntryKind.Create) return;
+        if (PromptRenameAsync is null) return;
+
+        StatusMessage = "";
+        var newName = await PromptRenameAsync(entry.Name);
+        if (newName is null) return; // cancelled
+
+        var result = BuildNaming.TryResolveRename(entry.Path, newName, out var newPath);
+        switch (result)
+        {
+            case BuildNaming.RenameResult.NoChange: return;
+            case BuildNaming.RenameResult.Empty:
+            case BuildNaming.RenameResult.Invalid:
+                StatusMessage = LocalizationService.Get("Msg_RenameInvalid"); return;
+            case BuildNaming.RenameResult.Exists:
+                StatusMessage = LocalizationService.Get("Msg_RenameExists"); return;
+        }
+
+        try
+        {
+            File.Move(entry.Path, newPath);
+            Refresh();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "Error renaming: " + ex.Message;
+            WriteErrorLog("RenameEntryAsync", ex);
         }
     }
 

@@ -7,7 +7,7 @@
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="640"
         x:Class="PBLApp.Views.ImportExportWindow"
         x:DataType="vm:ImportTabViewModel"
-        Title="{loc:Tr Tab_ImportExport}"
+        Title="{Binding WindowTitle}"
         Width="900" Height="640"
         Background="{DynamicResource BgBaseBrush}"
         WindowStartupLocation="CenterOwner">

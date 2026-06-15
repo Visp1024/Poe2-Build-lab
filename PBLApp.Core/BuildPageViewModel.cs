@@ -93,7 +93,12 @@ public partial class BuildPageViewModel : ViewModelBase
         return -1;
     }
 
-    public string BuildName { get; }
+    [ObservableProperty] private string _buildName = "";
+
+    /// <summary>Asks the view for a new build name (prompt dialog), seeded with the
+    /// current name. Returns the entered name, or null if cancelled. View wires this.</summary>
+    public Func<string, Task<string?>>? PromptRenameAsync { get; set; }
+
     public BuildModel? Build { get; private set; }
     public CalcsTabViewModel? CalcsTab { get; private set; }
     public SkillsTabViewModel? SkillsTab { get; private set; }
@@ -122,7 +127,7 @@ public partial class BuildPageViewModel : ViewModelBase
 
     private LuaHost? _host;
 
-    private readonly string _xmlPath;
+    private string _xmlPath;
 
     public BuildPageViewModel(Task<LuaHost> hostTask, BuildEntryViewModel entry, Action goBack)
     {
@@ -186,6 +191,31 @@ public partial class BuildPageViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task RenameBuild()
+    {
+        if (PromptRenameAsync is null || Build is null) return;
+
+        var newName = await PromptRenameAsync(BuildName);
+        if (newName is null) return; // cancelled
+
+        var result = BuildNaming.TryResolveRename(_xmlPath, newName, out var newPath);
+        // No status surface in the header — silently ignore unchanged/invalid/clashing
+        // names here (the build list screen gives full feedback for those cases).
+        if (result != BuildNaming.RenameResult.Ok) return;
+
+        try
+        {
+            File.Move(_xmlPath, newPath);
+            _xmlPath  = newPath;
+            BuildName = Path.GetFileNameWithoutExtension(newPath);
+            // Keep child VMs pointed at the new file so saves don't recreate the old one.
+            NotesTab?.UpdateXmlPath(newPath);
+            ImportTab?.UpdateXmlPath(newPath);
+        }
+        catch { /* best-effort; file may be locked */ }
     }
 
     [RelayCommand]

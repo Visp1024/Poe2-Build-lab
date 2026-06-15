@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:PBLApp.Localization"
+        x:Class="PBLApp.Views.PromptDialog"
+        Width="420" SizeToContent="Height"
+        CanResize="False" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BgMantleBrush}">
+
+    <Border Padding="20" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
+        <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="14">
+            <TextBlock Grid.Row="0"
+                       Name="TitleText"
+                       FontSize="14" FontWeight="Bold"
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
+            <StackPanel Grid.Row="1" Spacing="8">
+                <TextBlock Name="MessageText"
+                           FontSize="13"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" />
+                <TextBox Name="InputBox"
+                         FontSize="13"
+                         Background="{DynamicResource BgBaseBrush}"
+                         Foreground="{DynamicResource TextPrimaryBrush}"
+                         BorderBrush="{DynamicResource BorderStrongBrush}"
+                         KeyDown="InputBox_KeyDown" />
+            </StackPanel>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8"
+                        HorizontalAlignment="Right">
+                <Button Name="CancelBtn"
+                        Content="{loc:Tr Btn_Cancel}"
+                        Click="Cancel_Click"
+                        Padding="14,6" />
+                <Button Name="OkBtn"
+                        Content="{loc:Tr Btn_OK}"
+                        Click="Ok_Click"
+                        Padding="14,6"
+                        Background="{DynamicResource Brand500Brush}"
+                        Foreground="White"
+                        FontWeight="Bold" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

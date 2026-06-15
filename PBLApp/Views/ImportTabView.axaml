@@ -12,7 +12,8 @@
         <StackPanel Margin="16" Spacing="16">
 
             <!-- Import section -->
-            <Border Background="{DynamicResource BgRaisedBrush}" Padding="12">
+            <Border Background="{DynamicResource BgRaisedBrush}" Padding="12"
+                    IsVisible="{Binding ShowImport}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="{loc:Tr Import_Title}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource TextPrimaryBrush}" />
                     <TextBlock Text="{loc:Tr Import_Desc}"
@@ -38,7 +39,8 @@
             </Border>
 
             <!-- Export section -->
-            <Border Background="{DynamicResource BgRaisedBrush}" Padding="12">
+            <Border Background="{DynamicResource BgRaisedBrush}" Padding="12"
+                    IsVisible="{Binding ShowExport}">
                 <StackPanel Spacing="8">
                     <TextBlock Text="{loc:Tr Export_Title}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource TextPrimaryBrush}" />
                     <TextBlock Text="{loc:Tr Export_Desc}"

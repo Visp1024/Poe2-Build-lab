@@ -9,7 +9,7 @@ namespace PBLApp.ViewModels;
 public partial class NotesTabViewModel : ViewModelBase
 {
     private readonly BuildModel _build;
-    private readonly string _xmlPath;
+    private string _xmlPath;
 
     [ObservableProperty]
     private string _notes = "";
@@ -20,6 +20,9 @@ public partial class NotesTabViewModel : ViewModelBase
         _xmlPath = xmlPath;
         _notes = build.Notes;
     }
+
+    /// <summary>Repoint at a new file path after the build was renamed.</summary>
+    public void UpdateXmlPath(string xmlPath) => _xmlPath = xmlPath;
 
     [RelayCommand]
     private async Task SaveAsync()
