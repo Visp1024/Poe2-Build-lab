@@ -607,7 +607,7 @@ public class VisualTools
     }
 
     [McpServerTool]
-    [Description("Enable the tree heat map and build node power for a stat (e.g. FullDPS, Life; omit for Offence/Defence default). Waits up to ~30 s for the build to finish so a subsequent screenshot reflects the result.")]
+    [Description("Enable the tree heat map and build node power for a stat (e.g. FullDPS, Life; omit for Offence/Defence default). Waits up to ~180s for the build to finish so a subsequent screenshot reflects the result.")]
     public async Task<string> VisualTreePowerBuild(
         [Description("Stat key, e.g. FullDPS or Life; null/empty = Offence/Defence default.")] string? stat = null)
     {

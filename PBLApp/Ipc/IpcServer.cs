@@ -1413,13 +1413,17 @@ public sealed class IpcServer
         string? stat = req.TryGetValue("stat", out var s) && s.ValueKind == JsonValueKind.String
             ? s.GetString() : null;
 
-        t.HeatmapEnabled = true;
+        // Set stat FIRST while heatmap is still off (OnSelectedPowerStatChanged only
+        // rebuilds when HeatmapEnabled is already true, so this is a no-op build-wise).
+        // Then enable heatmap once — triggers exactly one BuildPowerAsync with the right stat.
         if (stat != null)
             t.SelectedPowerStat = t.PowerStatOptions
                 .FirstOrDefault(o => o.Option.StatKey == stat) ?? t.SelectedPowerStat;
+        t.HeatmapEnabled = true;
 
         // Wait for the background build to drain so the screenshot reflects the result.
-        for (int i = 0; i < 600 && (t.IsPowerBuilding || t.PowerOverlay is null); i++)
+        // Real builds can take ~85s; cap at 3600 iterations × 50ms = 180s.
+        for (int i = 0; i < 3600 && (t.IsPowerBuilding || t.PowerOverlay is null); i++)
             await Task.Delay(50);
 
         return new { ok = true, building = t.IsPowerBuilding, rows = t.PowerReport.Count };
