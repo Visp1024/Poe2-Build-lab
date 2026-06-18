@@ -14,6 +14,8 @@ namespace PBLApp.Views;
 public partial class TreeTabView : UserControl
 {
     private TreeAssetStore? _store;
+    private TreeTabViewModel? _powerOverlayVm;
+    private EventHandler? _powerOverlayHandler;
 
     public TreeTabView() => InitializeComponent();
 
@@ -55,17 +57,21 @@ public partial class TreeTabView : UserControl
         }
     }
 
-    private static void HookPowerOverlay(TreeTabViewModel vm, TreeCanvas canvas)
+    private void HookPowerOverlay(TreeTabViewModel vm, TreeCanvas canvas)
     {
-        vm.PowerOverlayChanged += (_, _) => canvas.NodePowerOverlay = vm.PowerOverlay;
+        if (_powerOverlayVm is not null && _powerOverlayHandler is not null)
+            _powerOverlayVm.PowerOverlayChanged -= _powerOverlayHandler;
+
+        _powerOverlayHandler = (_, _) => canvas.NodePowerOverlay = vm.PowerOverlay;
+        vm.PowerOverlayChanged += _powerOverlayHandler;
+        _powerOverlayVm = vm;
         canvas.NodePowerOverlay = vm.PowerOverlay;
     }
 
     private void PowerReportList_DoubleTapped(object? sender, TappedEventArgs e)
     {
         if (DataContext is not TreeTabViewModel vm) return;
-        var list = this.FindControl<ListBox>("PowerReportList");
-        vm.FocusReportRowCommand.Execute(list?.SelectedItem as NodePowerRowViewModel);
+        vm.FocusReportRowCommand.Execute((sender as ListBox)?.SelectedItem as NodePowerRowViewModel);
     }
 
     private void OnSocketClicked(int nodeId, Point pt)
