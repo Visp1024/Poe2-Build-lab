@@ -2797,6 +2797,153 @@ public sealed class LuaHost : IDisposable
         return list;
     }
 
+    /// <summary>Runs PoB's <c>CalcsTab:BuildPower()</c> for the given stat (null =
+    /// the combined Offence/Defence default) and returns per-node power + maxima.
+    /// Drives the Lua coroutine to completion, surfacing progress via
+    /// <paramref name="onProgress"/>. Heavy — call on a background thread.</summary>
+    public NodePowerResult BuildNodePower(string? statKey, int? maxDepth = null, Action<int>? onProgress = null)
+    {
+        State["_powerStatKey"]  = statKey;                                  // nil → off/def
+        State["_powerMaxDepth"] = maxDepth.HasValue ? (long?)maxDepth.Value : null;
+
+        // 1. Flush fast-alloc dirty state, run BuildOutput (sets miscCalculator /
+        //    mainEnv needed by PowerBuilder), pick the stat entry, arm the builder.
+        State.DoString(@"
+            if build and build.spec and build.spec._fastAllocDirty then
+                build.spec:BuildAllDependsAndPaths()
+                build.spec._fastAllocDirty = false
+            end
+            local ct = build.calcsTab
+            -- BuildOutput populates ct.miscCalculator and ct.mainEnv which
+            -- PowerBuilder requires. Always refresh so any caller-side changes
+            -- (e.g. includeInFullDPS toggled after initial load) are captured.
+            ct:BuildOutput()
+            local sel
+            if _powerStatKey == nil or _powerStatKey == '' then
+                for _, s in ipairs(data.powerStatList) do if s.combinedOffDef then sel = s break end end
+            else
+                for _, s in ipairs(data.powerStatList) do if s.stat == _powerStatKey then sel = s break end end
+            end
+            ct.powerStat = sel
+            ct.nodePowerMaxDepth = _powerMaxDepth
+            _powerPct = 0
+            build.powerBuilderProgressCallback = function(pc) _powerPct = pc end
+            ct.powerBuildFlag = true
+        ");
+
+        // 2. Drive the coroutine: each BuildPower() resumes it once; loop until dead.
+        int guard = 0, lastPct = -1;
+        while (true)
+        {
+            var r = State.DoString(@"
+                local ct = build.calcsTab
+                ct:BuildPower()
+                return (ct.powerBuilder == nil), (_powerPct or 0)
+            ");
+            int pct = r is { Length: > 1 } && r[1] is long p ? (int)p
+                    : r is { Length: > 1 } && r[1] is double pd ? (int)pd : 0;
+            if (pct != lastPct) { lastPct = pct; onProgress?.Invoke(pct); }
+            bool done = r is { Length: > 0 } && r[0] is bool b && b;
+            if (done) { onProgress?.Invoke(100); break; }
+            if (++guard > 100_000) break;   // safety: never hang the caller on a Lua bug
+        }
+
+        // 3. Dump per-node power + maxima as a flat string (NLua long-list-safe).
+        //    Mirrors TreeTab:BuildPowerReportList for the formatted strings.
+        var dump = State.DoString(@"
+            local ct = build.calcsTab
+            local sel = ct.powerStat
+            local offDef = (sel == nil) or (sel.combinedOffDef == true)
+            local pm = ct.powerMax or { singleStat=0, offence=0, defence=0 }
+
+            -- formatting from the matching displayStat (fallback .1f)
+            local displayStat = { fmt = '.1f' }
+            if sel and sel.stat then
+                for _, ds in ipairs(build.displayStats) do
+                    if ds.stat == sel.stat then displayStat = ds break end
+                end
+            end
+            local scale = (displayStat.pc or displayStat.mod) and 100 or 1
+
+            local function fmtNum(v)
+                local s = string.format('%' .. (displayStat.fmt or '.1f'), v)
+                if formatNumSep then s = formatNumSep(s) end
+                return s
+            end
+
+            local rows = {}
+            local function emit(node, isAlloc, pathDist)
+                local power     = (node.power and node.power.singleStat or 0)
+                local pathPower = (node.power and node.power.pathPower or 0)
+                local offence   = (node.power and node.power.offence or 0)
+                local defence   = (node.power and node.power.defence or 0)
+                local powerStr   = fmtNum(power * scale)
+                local perPoint   = (pathDist and pathDist > 0) and (pathPower / pathDist) or pathPower
+                local perPointStr = fmtNum(perPoint * scale)
+                rows[#rows+1] = table.concat({
+                    node.id or 0,
+                    (node.dn or node.name or ''):gsub('[\t\31]', ' '),
+                    node.type or 'Normal',
+                    isAlloc and 1 or 0,
+                    pathDist or 1,
+                    power, pathPower, offence, defence,
+                    powerStr, perPointStr
+                }, '\t')
+            end
+
+            for nodeId, node in pairs(build.spec.nodes) do
+                local isAlloc = node.alloc or (ct.mainEnv and ct.mainEnv.grantedPassives[nodeId])
+                if (node.type == 'Normal' or node.type == 'Notable' or node.type == 'Keystone')
+                   and not node.ascendancyName then
+                    local pathDist
+                    if isAlloc then
+                        pathDist = (#(node.depends or {}) == 0) and 1 or #node.depends
+                    else
+                        pathDist = (#(node.path or {}) == 0) and 1 or #node.path
+                    end
+                    emit(node, isAlloc, pathDist)
+                end
+            end
+            -- cluster notables (unallocated) — pathDist column = 1
+            for _, node in pairs(build.spec.tree.clusterNodeMap or {}) do
+                if not node.alloc and (node.type == 'Notable' or node.type == 'Normal' or node.type == 'Keystone') then
+                    emit(node, false, 1)
+                end
+            end
+
+            return (offDef and 1 or 0), pm.singleStat or 0, pm.offence or 0, pm.defence or 0,
+                   table.concat(rows, '\31')
+        ");
+
+        bool offDefMode = dump is { Length: > 0 } && dump[0] is long od && od == 1L;
+        double ToD(object? o) => o is double d ? d : o is long l ? l : 0;
+        var max = new NodePowerMax(ToD(dump?[1]), ToD(dump?[2]), ToD(dump?[3]));
+        var blob = dump is { Length: > 4 } ? dump[4] as string ?? "" : "";
+
+        var entries = new List<NodePowerEntry>();
+        foreach (var rowStr in blob.Split('\x1F', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var f = rowStr.Split('\t');
+            if (f.Length < 11) continue;
+            entries.Add(new NodePowerEntry(
+                int.TryParse(f[0], out var id) ? id : 0,
+                f[1],
+                f[2],
+                f[3] == "1",
+                int.TryParse(f[4], out var pd) ? pd : 1,
+                ParseD(f[5]), ParseD(f[6]), ParseD(f[7]), ParseD(f[8]),
+                f[9], f[10]));
+        }
+
+        State["_powerStatKey"]  = null;
+        State["_powerMaxDepth"] = null;
+        return new NodePowerResult(offDefMode, max, entries);
+
+        static double ParseD(string s) =>
+            double.TryParse(s, System.Globalization.NumberStyles.Any,
+                            System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0;
+    }
+
     public (List<TreeNodeDto> Nodes, HashSet<int> AllocatedIds) GetTreeData()
     {
         var nodes     = new List<TreeNodeDto>();
