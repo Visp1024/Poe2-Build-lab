@@ -38,6 +38,7 @@
 
   <!-- Build page -->
   <data name="Page_Loading"       xml:space="preserve"><value>Loading build...</value></data>
+  <data name="BuildPage_HeatmapBuilding" xml:space="preserve"><value>Building heat map…</value></data>
 
   <!-- Tree tab -->
   <data name="Tree_Class"         xml:space="preserve"><value>Class:</value></data>
