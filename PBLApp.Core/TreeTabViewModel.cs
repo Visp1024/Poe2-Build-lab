@@ -304,6 +304,8 @@ public partial class TreeTabViewModel : ViewModelBase
             OnPropertyChanged(nameof(NodesLabel));
             OnPropertyChanged(nameof(PointsLabel));
             OnPropertyChanged(nameof(WeaponSetLabel));
+            OnPropertyChanged(nameof(PowerStaleLabel));
+            OnPropertyChanged(nameof(PowerEmptyLabel));
         };
     }
 
@@ -617,6 +619,14 @@ public partial class TreeTabViewModel : ViewModelBase
             }
 
             var result = await Task.Run(() => _host.BuildNodePower(stat.StatKey, null, Progress));
+
+            if (!HeatmapEnabled)
+            {
+                // Heat map was turned off while this build was in flight — keep it cleared.
+                PowerOverlay = null;
+                PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
+                return;
+            }
 
             PowerOverlay = result;
             PowerReport.Clear();
