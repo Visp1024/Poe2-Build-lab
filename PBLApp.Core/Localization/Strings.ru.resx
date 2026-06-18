@@ -46,6 +46,17 @@
   <data name="Tree_Search"        xml:space="preserve"><value>Поиск:</value></data>
   <data name="Tree_PhNodeName"    xml:space="preserve"><value>название ноды&#x2026;</value></data>
   <data name="Tree_Hint"          xml:space="preserve"><value>Тащи=пан &#xB7; Колесо=масштаб &#xB7; Клик=выбрать ноду</value></data>
+  <data name="Tree_Heatmap" xml:space="preserve"><value>Тепловая карта</value></data>
+  <data name="Tree_PowerReport" xml:space="preserve"><value>Отчёт о силе</value></data>
+  <data name="Tree_Power_OffDef" xml:space="preserve"><value>Атака/Защита</value></data>
+  <data name="Tree_Power_Node" xml:space="preserve"><value>Нода</value></data>
+  <data name="Tree_Power_Type" xml:space="preserve"><value>Тип</value></data>
+  <data name="Tree_Power_Delta" xml:space="preserve"><value>Δ</value></data>
+  <data name="Tree_Power_PerPoint" xml:space="preserve"><value>Δ / очко</value></data>
+  <data name="Tree_Power_Stale" xml:space="preserve"><value>Устарело — билд изменён</value></data>
+  <data name="Tree_Power_Refresh" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Tree_Power_Building" xml:space="preserve"><value>Расчёт…</value></data>
+  <data name="Tree_Power_Empty" xml:space="preserve"><value>Нет измеримого влияния на этот стат</value></data>
 
   <!-- Skills tab -->
   <data name="Skill_Header"       xml:space="preserve"><value>Умения</value></data>
