@@ -144,6 +144,27 @@ public partial class TreeTabViewModel : ViewModelBase
 
     [ObservableProperty] private string _searchText = "";
 
+    // ── Heat map / Power Report ────────────────────────────────────────────
+    [ObservableProperty] private bool _heatmapEnabled;
+    [ObservableProperty] private PowerStatVm? _selectedPowerStat;
+    [ObservableProperty] private bool _isPowerBuilding;
+    [ObservableProperty] private int  _powerBuildProgress;
+    [ObservableProperty] private bool _isPowerStale;
+
+    public IReadOnlyList<PowerStatVm> PowerStatOptions { get; private set; } = [];
+    public ObservableCollection<NodePowerRowViewModel> PowerReport { get; } = [];
+
+    /// <summary>Latest heat-map result handed to the canvas; null = no overlay.</summary>
+    public NodePowerResult? PowerOverlay { get; private set; }
+
+    /// <summary>Raised when <see cref="PowerOverlay"/> changes so the View can push
+    /// it onto the TreeCanvas (the canvas is a View-layer control).</summary>
+    public event EventHandler? PowerOverlayChanged;
+
+    public string PowerStaleLabel => LocalizationService.Get("Tree_Power_Stale");
+    public string PowerEmptyLabel  => LocalizationService.Get("Tree_Power_Empty");
+    public bool   HasPowerReport   => PowerReport.Count > 0;
+
     // ── Commands ───────────────────────────────────────────────────────────
 
     /// <summary>Left-click: allocate node (or change attribute if already allocated attribute node).</summary>
@@ -151,6 +172,9 @@ public partial class TreeTabViewModel : ViewModelBase
 
     /// <summary>Right-click: deallocate node.</summary>
     public IAsyncRelayCommand<int?> DeallocNodeCommand { get; }
+
+    public IRelayCommand RefreshPowerCommand { get; }
+    public IRelayCommand<NodePowerRowViewModel?> FocusReportRowCommand { get; }
 
     public string RepoRoot { get; }
 
@@ -268,6 +292,12 @@ public partial class TreeTabViewModel : ViewModelBase
 
         RefreshPointUsage();
 
+        PowerStatOptions = host.GetPowerStatList().Select(o => new PowerStatVm(o)).ToList();
+        _selectedPowerStat = PowerStatOptions.FirstOrDefault(o => o.Option.CombinedOffDef)
+                          ?? PowerStatOptions.FirstOrDefault();
+        RefreshPowerCommand   = new RelayCommand(() => _ = BuildPowerAsync());
+        FocusReportRowCommand = new RelayCommand<NodePowerRowViewModel?>(FocusReportRow);
+
         LocalizationService.Instance.LanguageChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(AllocatedLabel));
@@ -329,6 +359,7 @@ public partial class TreeTabViewModel : ViewModelBase
         OnPropertyChanged(nameof(AscendancyFilter));
         OnPropertyChanged(nameof(AllocatedCount));
         OnPropertyChanged(nameof(AllocatedLabel));
+        MarkPowerStale();
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────
@@ -463,6 +494,7 @@ public partial class TreeTabViewModel : ViewModelBase
                 RefreshAllocated();
                 RefreshPointUsage();
                 _onStatsChanged?.Invoke();
+                MarkPowerStale();
             }
         }
         catch { /* best-effort; reconcile below restores truth */ }
@@ -546,6 +578,84 @@ public partial class TreeTabViewModel : ViewModelBase
     // the canvas falls back to the node's cached stats, so no concurrent NLua.
     public NodeHoverInfo? GetNodeHoverInfo(int nodeId) =>
         IsToggleBusy ? null : _host.GetNodeHoverInfo(nodeId);
+
+    partial void OnHeatmapEnabledChanged(bool value)
+    {
+        if (value) _ = BuildPowerAsync();
+        else
+        {
+            PowerReport.Clear();
+            OnPropertyChanged(nameof(HasPowerReport));
+            IsPowerStale = false;
+            PowerOverlay = null;
+            PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    partial void OnSelectedPowerStatChanged(PowerStatVm? value)
+    {
+        if (HeatmapEnabled && value != null) _ = BuildPowerAsync();
+    }
+
+    /// <summary>Runs the heat-map calc on a background thread (serialised through
+    /// the shared Lua queue), then fills the report + canvas overlay.</summary>
+    private async Task BuildPowerAsync()
+    {
+        var stat = SelectedPowerStat?.Option;
+        if (stat == null) return;
+
+        await _luaQueue.WaitAsync();
+        try
+        {
+            IsPowerBuilding = true;
+            PowerBuildProgress = 0;
+            var ctx = SynchronizationContext.Current;
+            void Progress(int pc)
+            {
+                if (ctx != null) ctx.Post(_ => PowerBuildProgress = pc, null);
+                else PowerBuildProgress = pc;
+            }
+
+            var result = await Task.Run(() => _host.BuildNodePower(stat.StatKey, null, Progress));
+
+            PowerOverlay = result;
+            PowerReport.Clear();
+            bool lower = stat.LowerIsBetter;
+            var ordered = lower
+                ? result.Entries.OrderBy(e => e.Power)
+                : result.Entries.OrderByDescending(e => e.Power);
+            foreach (var e in ordered)
+            {
+                bool good = lower ? e.Power < 0 : e.Power > 0;
+                PowerReport.Add(new NodePowerRowViewModel
+                {
+                    NodeId      = e.Id,
+                    Name        = GameTranslationService.TPassiveName(e.Name),
+                    Type        = e.Type,
+                    PowerStr    = e.PowerStr,
+                    PerPointStr = e.PerPointStr,
+                    IsAllocated = e.Alloc,
+                    PowerColor  = good ? "#A6E3A1" : "#F38BA8",   // green / red
+                });
+            }
+            OnPropertyChanged(nameof(HasPowerReport));
+            IsPowerStale = false;
+            PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
+        }
+        catch { /* leave previous overlay/report intact on failure */ }
+        finally { IsPowerBuilding = false; _luaQueue.Release(); }
+    }
+
+    private void FocusReportRow(NodePowerRowViewModel? row)
+    {
+        if (row != null) FocusCanvasNode?.Invoke(row.NodeId, null);
+    }
+
+    /// <summary>Marks the heat map out of date after a build edit (no auto-rebuild).</summary>
+    private void MarkPowerStale()
+    {
+        if (HeatmapEnabled && !IsPowerBuilding) IsPowerStale = true;
+    }
 
     partial void OnNodesChanged(IReadOnlyList<TreeNodeDto> value) => _nodeIndex = null;
 
@@ -640,6 +750,7 @@ public partial class TreeTabViewModel : ViewModelBase
         RefreshJewelRadii();          // socket art + radius ring
         _onStatsChanged?.Invoke();    // stats / sidebar / calcs
         _onItemsChanged?.Invoke();    // Items-tab jewel slot panel
+        MarkPowerStale();
     }
 
     [RelayCommand]
@@ -663,4 +774,27 @@ public sealed class JewelPickerOptionVm
     /// <summary>True for the jewel already in this socket (or "Empty" when the
     /// socket is empty) — selecting it is a no-op.</summary>
     public bool    IsCurrent   { get; init; }
+}
+
+/// <summary>Display wrapper for a heat-map stat option with a localised label.</summary>
+public sealed class PowerStatVm
+{
+    public PowerStatOption Option { get; }
+    public PowerStatVm(PowerStatOption o) { Option = o; }
+    public string DisplayName => Option.CombinedOffDef
+        ? LocalizationService.Get("Tree_Power_OffDef")
+        : GameTranslationService.TCalcLabel(Option.Label);
+    public override string ToString() => DisplayName;
+}
+
+/// <summary>One row in the Power Report side panel.</summary>
+public sealed class NodePowerRowViewModel
+{
+    public int    NodeId      { get; init; }
+    public string Name        { get; init; } = "";
+    public string Type        { get; init; } = "Normal";
+    public string PowerStr    { get; init; } = "";
+    public string PerPointStr { get; init; } = "";
+    public bool   IsAllocated { get; init; }
+    public string PowerColor  { get; init; } = "#CDD6F4";
 }
