@@ -606,6 +606,23 @@ public class VisualTools
         catch (Exception ex) { return Error(ex); }
     }
 
+    [McpServerTool]
+    [Description("Enable the tree heat map and build node power for a stat (e.g. FullDPS, Life; omit for Offence/Defence default). Waits up to ~30 s for the build to finish so a subsequent screenshot reflects the result.")]
+    public async Task<string> VisualTreePowerBuild(
+        [Description("Stat key, e.g. FullDPS or Life; null/empty = Offence/Defence default.")] string? stat = null)
+    {
+        try { return await IpcClient.CallAsync("POST", "/tree/power-build", new { stat }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description("Read the current Power Report rows + heat-map state from the tree tab.")]
+    public async Task<string> VisualTreePowerReport()
+    {
+        try { return await IpcClient.CallAsync("GET", "/tree/power-report"); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────
 
     private static string FindRepoRoot()

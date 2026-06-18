@@ -174,6 +174,8 @@ public sealed class IpcServer
                 "/tree/pan"               => await OnUi(() => TreePan(body)),
                 "/tree/open-jewel-picker" => await OnUi(() => TreeOpenJewelPicker(body)),
                 "/tree/pick-jewel"        => await OnUi(() => TreePickJewel(body)),
+                "/tree/power-build"       => await OnUiAsync(() => TreePowerBuild(body)),
+                "/tree/power-report"      => await OnUi(TreePowerReport),
                 "/skills/tooltips"        => await OnUi(SkillsTooltips),
                 "/skills/support-picker"          => await OnUi(() => SupportPickerState(body)),
                 "/skills/support-picker/set-tab"  => await OnUi(() => SupportPickerSetTab(body)),
@@ -1169,6 +1171,10 @@ public sealed class IpcServer
             nodeCount       = t.NodeCount,
             allocatedCount  = t.AllocatedCount,
             isToggleBusy    = t.IsToggleBusy,
+            heatmapEnabled     = t.HeatmapEnabled,
+            powerStat          = t.SelectedPowerStat?.Option.StatKey,
+            isPowerStale       = t.IsPowerStale,
+            powerBuildProgress = t.PowerBuildProgress,
         };
     }
 
@@ -1395,6 +1401,49 @@ public sealed class IpcServer
             return new { error = "Missing numeric 'itemId'." };
         t.PickJewelById(i.GetInt32());
         return new { ok = true };
+    }
+
+    private static async Task<object> TreePowerBuild(string body)
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        var req = string.IsNullOrWhiteSpace(body)
+            ? new Dictionary<string, JsonElement>()
+            : JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+
+        string? stat = req.TryGetValue("stat", out var s) && s.ValueKind == JsonValueKind.String
+            ? s.GetString() : null;
+
+        t.HeatmapEnabled = true;
+        if (stat != null)
+            t.SelectedPowerStat = t.PowerStatOptions
+                .FirstOrDefault(o => o.Option.StatKey == stat) ?? t.SelectedPowerStat;
+
+        // Wait for the background build to drain so the screenshot reflects the result.
+        for (int i = 0; i < 600 && (t.IsPowerBuilding || t.PowerOverlay is null); i++)
+            await Task.Delay(50);
+
+        return new { ok = true, building = t.IsPowerBuilding, rows = t.PowerReport.Count };
+    }
+
+    private static object TreePowerReport()
+    {
+        if (GetTreeVm() is not { } t) return new { error = "TreeTab not ready." };
+        return new
+        {
+            enabled  = t.HeatmapEnabled,
+            stat     = t.SelectedPowerStat?.Option.StatKey,
+            isStale  = t.IsPowerStale,
+            progress = t.PowerBuildProgress,
+            rows = t.PowerReport.Take(30).Select(r => new
+            {
+                id       = r.NodeId,
+                name     = r.Name,
+                type     = r.Type,
+                power    = r.PowerStr,
+                perPoint = r.PerPointStr,
+                alloc    = r.IsAllocated,
+            }).ToArray(),
+        };
     }
 
     public void Stop()
