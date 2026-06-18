@@ -74,6 +74,9 @@ public sealed class TreeCanvas : Control
     public static readonly StyledProperty<Func<int, NodeHoverInfo?>?> HoverInfoProviderProperty =
         AvaloniaProperty.Register<TreeCanvas, Func<int, NodeHoverInfo?>?>(nameof(HoverInfoProvider));
 
+    public static readonly StyledProperty<NodePowerResult?> NodePowerOverlayProperty =
+        AvaloniaProperty.Register<TreeCanvas, NodePowerResult?>(nameof(NodePowerOverlay));
+
     public IReadOnlyList<TreeNodeDto>? Nodes
     {
         get => GetValue(NodesProperty);
@@ -144,6 +147,12 @@ public sealed class TreeCanvas : Control
     {
         get => GetValue(HoverInfoProviderProperty);
         set => SetValue(HoverInfoProviderProperty, value);
+    }
+
+    public NodePowerResult? NodePowerOverlay
+    {
+        get => GetValue(NodePowerOverlayProperty);
+        set => SetValue(NodePowerOverlayProperty, value);
     }
 
     /// <summary>Raised on a left-click of an allocated jewel socket node, with the
@@ -245,6 +254,11 @@ public sealed class TreeCanvas : Control
     private HashSet<int>? _canAllocCache;
     private object?       _canAllocAllocRef;
     private object?       _canAllocNodesRef;
+
+    // Cache for node-power heat-map colour lookup.
+    // Rebuilt when the NodePowerOverlay reference changes; cleared when null.
+    private System.Collections.Generic.Dictionary<int, Color>? _powerColorCache;
+    private object? _powerOverlayRef;
 
     // ── Layered rendering: static connection bitmap ───────────────────────
     // Connections form ~5000 anti-aliased lines that don't change unless the
@@ -407,6 +421,10 @@ public sealed class TreeCanvas : Control
             InvalidateVisual();
         }
         else if (change.Property == ClassBackgroundImageProperty)
+        {
+            InvalidateVisual();
+        }
+        else if (change.Property == NodePowerOverlayProperty)
         {
             InvalidateVisual();
         }
@@ -696,10 +714,28 @@ public sealed class TreeCanvas : Control
     // Minimum screen half-size (px) to bother rendering icons
     private const double MinIconScreenPx = 6.0;
 
+    private Color? PowerColorFor(int nodeId)
+    {
+        var overlay = NodePowerOverlay;
+        if (overlay is null) { _powerColorCache = null; _powerOverlayRef = null; return null; }
+        if (!ReferenceEquals(overlay, _powerOverlayRef) || _powerColorCache is null)
+        {
+            _powerColorCache = new();
+            foreach (var e in overlay.Entries)
+            {
+                var c = NodePowerColorizer.ColorFor(e, overlay.Max, overlay.OffDefMode);
+                if (c is { } col) _powerColorCache[e.Id] = col;
+            }
+            _powerOverlayRef = overlay;
+        }
+        return _powerColorCache.TryGetValue(nodeId, out var v) ? v : (Color?)null;
+    }
+
     private void DrawNode(DrawingContext dc, TreeNodeDto node,
                           double sx, double sy, double r,
                           bool alloc, bool canAlloc, bool search, bool hover) =>
-        DrawNodeAt(dc, node, sx, sy, r, alloc, canAlloc, search, hover, _scale, AssetStore);
+        DrawNodeAt(dc, node, sx, sy, r, alloc, canAlloc, search, hover, _scale, AssetStore,
+                   alloc ? null : PowerColorFor(node.Id));
 
     /// <summary>Scale-parametric variant of <see cref="DrawNode"/>. Used both
     /// for per-frame screen draws and when baking the unallocated node layer
@@ -707,7 +743,8 @@ public sealed class TreeCanvas : Control
     private static void DrawNodeAt(DrawingContext dc, TreeNodeDto node,
                                    double sx, double sy, double r,
                                    bool alloc, bool canAlloc, bool search, bool hover,
-                                   double scale, TreeAssetStore? assets)
+                                   double scale, TreeAssetStore? assets,
+                                   Color? powerTint = null)
     {
         var center = new Point(sx, sy);
 
@@ -753,6 +790,14 @@ public sealed class TreeCanvas : Control
                 if (node.Type == "Socket")
                     dc.DrawEllipse(alloc ? SockRingA.Brush : NrmFill, null, center, r * 0.4, r * 0.4);
             }
+        }
+
+        // ── Heat-map power tint (unallocated nodes only) ──────────────────
+        if (powerTint is { } pt)
+        {
+            double glowR = (useSprites ? iconHalfPx : r) + 3;
+            dc.DrawEllipse(new SolidColorBrush(pt, 0.55), null, center, glowR, glowR);
+            dc.DrawEllipse(null, new Pen(new SolidColorBrush(pt), 2), center, glowR, glowR);
         }
 
         // ── Overlays (always drawn) ────────────────────────────────────────
