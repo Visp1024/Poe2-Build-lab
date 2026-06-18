@@ -1,4 +1,3 @@
-using NLua;
 using PBLEngine;
 using System.IO;
 using System.Linq;
@@ -58,8 +57,10 @@ public class NodePowerTests : IClassFixture<LuaHostFixture>
     {
         var list = _host.GetPowerStatList();
 
-        // The "Name" entry (ignoreForNodes/itemField) must not appear in the node heat-map list.
-        Assert.DoesNotContain(list, o => o.IgnoreForNodes);
+        // The "Name" entry has ignoreForNodes/itemField set and must not appear in the
+        // node heat-map list. This is a real filter check — if the filter broke, "Name"
+        // would be included and this assertion would catch it.
+        Assert.DoesNotContain(list, o => o.Label == "Name");
     }
 
     [Fact]

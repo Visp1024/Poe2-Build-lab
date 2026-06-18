@@ -2770,7 +2770,7 @@ public sealed class LuaHost : IDisposable
         var result = State.DoString(@"
             local out = {}
             for _, s in ipairs(data.powerStatList or {}) do
-                if not s.ignoreForNodes then
+                if not (s.ignoreForNodes or s.itemField) then
                     out[#out+1] = {
                         s.stat or '',
                         s.label or s.stat or '',
@@ -2844,8 +2844,8 @@ public sealed class LuaHost : IDisposable
                     : r is { Length: > 1 } && r[1] is double pd ? (int)pd : 0;
             if (pct != lastPct) { lastPct = pct; onProgress?.Invoke(pct); }
             bool done = r is { Length: > 0 } && r[0] is bool b && b;
-            if (done) { onProgress?.Invoke(100); break; }
-            if (++guard > 100_000) break;   // safety: never hang the caller on a Lua bug
+            if (done) { if (lastPct != 100) onProgress?.Invoke(100); break; }
+            if (++guard > 100_000) { if (lastPct != 100) onProgress?.Invoke(100); break; }   // safety: never hang the caller on a Lua bug
         }
 
         // 3. Dump per-node power + maxima as a flat string (NLua long-list-safe).
@@ -2866,6 +2866,12 @@ public sealed class LuaHost : IDisposable
             local scale = (displayStat.pc or displayStat.mod) and 100 or 1
 
             local function fmtNum(v)
+                if v ~= 0 and math.abs(v) < 1 then
+                    -- Small magnitudes (off/def ratios, etc.) — use %g to keep
+                    -- significant digits; don't pass through formatNumSep because
+                    -- %g output can contain exponent notation.
+                    return string.format('%.3g', v)
+                end
                 local s = string.format('%' .. (displayStat.fmt or '.1f'), v)
                 if formatNumSep then s = formatNumSep(s) end
                 return s
@@ -2937,6 +2943,8 @@ public sealed class LuaHost : IDisposable
 
         State["_powerStatKey"]  = null;
         State["_powerMaxDepth"] = null;
+        // Clear leaked Lua state: progress global + callback closure.
+        State.DoString("_powerPct = nil; if build then build.powerBuilderProgressCallback = nil end");
         return new NodePowerResult(offDefMode, max, entries);
 
         static double ParseD(string s) =>

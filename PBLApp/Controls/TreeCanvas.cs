@@ -257,7 +257,7 @@ public sealed class TreeCanvas : Control
 
     // Cache for node-power heat-map colour lookup.
     // Rebuilt when the NodePowerOverlay reference changes; cleared when null.
-    private System.Collections.Generic.Dictionary<int, Color>? _powerColorCache;
+    private Dictionary<int, Color>? _powerColorCache;
     private object? _powerOverlayRef;
 
     // ── Layered rendering: static connection bitmap ───────────────────────
