@@ -46,6 +46,17 @@
   <data name="Tree_Search"        xml:space="preserve"><value>Search:</value></data>
   <data name="Tree_PhNodeName"    xml:space="preserve"><value>node name&#x2026;</value></data>
   <data name="Tree_Hint"          xml:space="preserve"><value>Drag=pan &#xB7; Wheel=zoom &#xB7; Click=toggle node</value></data>
+  <data name="Tree_Heatmap" xml:space="preserve"><value>Heat map</value></data>
+  <data name="Tree_PowerReport" xml:space="preserve"><value>Power Report</value></data>
+  <data name="Tree_Power_OffDef" xml:space="preserve"><value>Offence/Defence</value></data>
+  <data name="Tree_Power_Node" xml:space="preserve"><value>Node</value></data>
+  <data name="Tree_Power_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Tree_Power_Delta" xml:space="preserve"><value>Δ</value></data>
+  <data name="Tree_Power_PerPoint" xml:space="preserve"><value>Δ / point</value></data>
+  <data name="Tree_Power_Stale" xml:space="preserve"><value>Out of date — build changed</value></data>
+  <data name="Tree_Power_Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Tree_Power_Building" xml:space="preserve"><value>Calculating…</value></data>
+  <data name="Tree_Power_Empty" xml:space="preserve"><value>No measurable change for this stat</value></data>
 
   <!-- Skills tab -->
   <data name="Skill_Header"       xml:space="preserve"><value>Skills</value></data>
