@@ -610,6 +610,13 @@ public partial class TreeTabViewModel : ViewModelBase
         try
         {
             IsPowerBuilding = true;
+            // BuildNodePower runs Lua on a background thread for a long time. NLua is
+            // single-threaded, so — exactly like RunBackgroundToggle — we raise
+            // IsToggleBusy for the duration so the canvas hover provider skips its own
+            // UI-thread Lua call (GetNodeHoverInfo). Without this, a hover-render that
+            // coincides with the build touches the Lua state concurrently and the native
+            // KeraLua state crashes the process (no managed exception, hard kill).
+            IsToggleBusy = true;
             PowerBuildProgress = 0;
             var ctx = SynchronizationContext.Current;
             void Progress(int pc)
@@ -653,7 +660,7 @@ public partial class TreeTabViewModel : ViewModelBase
             PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
         }
         catch { /* leave previous overlay/report intact on failure */ }
-        finally { IsPowerBuilding = false; _luaQueue.Release(); }
+        finally { IsPowerBuilding = false; IsToggleBusy = false; _luaQueue.Release(); }
     }
 
     private void FocusReportRow(NodePowerRowViewModel? row)
