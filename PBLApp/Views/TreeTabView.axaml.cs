@@ -45,11 +45,27 @@ public partial class TreeTabView : UserControl
                 canvas.SocketClicked = OnSocketClicked;
                 // Bridge for IPC test tools to open the picker programmatically.
                 vm.TriggerSocketPicker = canvas.TriggerSocketClick;
+
+                // Wire the heat-map overlay to the canvas.
+                HookPowerOverlay(vm, canvas);
             }
 
             vm.ConfirmClassChange = ShowClassChangeConfirmAsync;
             vm.SelectAttribute    = ShowAttributeSelectAsync;
         }
+    }
+
+    private static void HookPowerOverlay(TreeTabViewModel vm, TreeCanvas canvas)
+    {
+        vm.PowerOverlayChanged += (_, _) => canvas.NodePowerOverlay = vm.PowerOverlay;
+        canvas.NodePowerOverlay = vm.PowerOverlay;
+    }
+
+    private void PowerReportList_DoubleTapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is not TreeTabViewModel vm) return;
+        var list = this.FindControl<ListBox>("PowerReportList");
+        vm.FocusReportRowCommand.Execute(list?.SelectedItem as NodePowerRowViewModel);
     }
 
     private void OnSocketClicked(int nodeId, Point pt)
