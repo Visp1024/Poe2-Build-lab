@@ -2761,6 +2761,42 @@ public sealed class LuaHost : IDisposable
 
     // ── Tree tab ───────────────────────────────────────────────────────────────
 
+    /// <summary>Selectable stats for the tree heat map, from Lua <c>data.powerStatList</c>.
+    /// Item-only entries (<c>ignoreForNodes</c>/<c>itemField</c>) are filtered out — the
+    /// node heat map can't colour by an item field.</summary>
+    public IReadOnlyList<PowerStatOption> GetPowerStatList()
+    {
+        var list = new List<PowerStatOption>();
+        var result = State.DoString(@"
+            local out = {}
+            for _, s in ipairs(data.powerStatList or {}) do
+                if not s.ignoreForNodes then
+                    out[#out+1] = {
+                        s.stat or '',
+                        s.label or s.stat or '',
+                        s.combinedOffDef and 1 or 0,
+                        s.ignoreForNodes and 1 or 0,
+                        s.lowerIsBetter and 1 or 0
+                    }
+                end
+            end
+            return out
+        ");
+        if (result is not { Length: > 0 } || result[0] is not LuaTable t) return list;
+        foreach (var k in t.Keys)
+        {
+            if (t[k] is not LuaTable row) continue;
+            var statKey = row[1L] as string ?? "";
+            list.Add(new PowerStatOption(
+                string.IsNullOrEmpty(statKey) ? null : statKey,
+                row[2L] as string ?? "",
+                row[3L] is long c && c == 1L,
+                row[4L] is long ig && ig == 1L,
+                row[5L] is long lb && lb == 1L));
+        }
+        return list;
+    }
+
     public (List<TreeNodeDto> Nodes, HashSet<int> AllocatedIds) GetTreeData()
     {
         var nodes     = new List<TreeNodeDto>();
