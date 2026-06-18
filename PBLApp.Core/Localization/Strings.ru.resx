@@ -38,6 +38,7 @@
 
   <!-- Build page -->
   <data name="Page_Loading"       xml:space="preserve"><value>Загрузка сборки...</value></data>
+  <data name="BuildPage_HeatmapBuilding" xml:space="preserve"><value>Расчёт тепловой карты…</value></data>
 
   <!-- Tree tab -->
   <data name="Tree_Class"         xml:space="preserve"><value>Класс:</value></data>

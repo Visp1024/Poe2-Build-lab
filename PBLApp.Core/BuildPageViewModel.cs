@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PBLApp.Core.Localization;
 using PBLEngine;
 using System;
 using System.IO;
@@ -99,6 +100,10 @@ public partial class BuildPageViewModel : ViewModelBase
     /// current name. Returns the entered name, or null if cancelled. View wires this.</summary>
     public Func<string, Task<string?>>? PromptRenameAsync { get; set; }
 
+    [ObservableProperty] private bool _isHeatmapBuilding;
+    [ObservableProperty] private int  _heatmapProgress;
+    public string HeatmapBusyText => LocalizationService.Get("BuildPage_HeatmapBuilding");
+
     public BuildModel? Build { get; private set; }
     public CalcsTabViewModel? CalcsTab { get; private set; }
     public SkillsTabViewModel? SkillsTab { get; private set; }
@@ -166,6 +171,16 @@ public partial class BuildPageViewModel : ViewModelBase
             TreeTab   = new TreeTabViewModel(host,
                 onStatsChanged: () => { model.Refresh(); CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); ItemsTab?.Tattoos.Refresh(); ItemsTab?.Phylactery.Refresh(); },
                 onItemsChanged: () => ItemsTab?.Refresh());
+            if (TreeTab is not null)
+            {
+                TreeTab.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(TreeTabViewModel.IsPowerBuilding))
+                        IsHeatmapBuilding = TreeTab.IsPowerBuilding;
+                    else if (e.PropertyName == nameof(TreeTabViewModel.PowerBuildProgress))
+                        HeatmapProgress = TreeTab.PowerBuildProgress;
+                };
+            }
             NotesTab  = new NotesTabViewModel(model, xmlPath);
             ConfigTab = new ConfigTabViewModel(host, model);
             ImportTab = new ImportTabViewModel(host, model, xmlPath);

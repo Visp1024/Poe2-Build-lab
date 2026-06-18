@@ -408,6 +408,26 @@
 
         </Grid>
 
+        <!-- Modal busy overlay: blocks ALL interaction while the heat-map build runs
+             (background Lua must not race UI-thread Lua). -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                IsVisible="{Binding IsHeatmapBuilding}"
+                Background="#C0000000"
+                ZIndex="1000">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+                <ProgressBar IsIndeterminate="True" Width="220" Height="6"/>
+                <TextBlock Text="{Binding HeatmapBusyText}"
+                           HorizontalAlignment="Center"
+                           FontSize="16" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <TextBlock HorizontalAlignment="Center"
+                           FontSize="14"
+                           Foreground="{DynamicResource TextSecondaryBrush}">
+                    <Run Text="{Binding HeatmapProgress}"/><Run Text="%"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
     </Grid>
 
 </UserControl>
