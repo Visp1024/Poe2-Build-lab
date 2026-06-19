@@ -174,6 +174,8 @@ public partial class TreeTabViewModel : ViewModelBase
     public IAsyncRelayCommand<int?> DeallocNodeCommand { get; }
 
     public IRelayCommand RefreshPowerCommand { get; }
+    public IRelayCommand GeneratePowerCommand { get; }
+    public IRelayCommand CancelPowerCommand   { get; }
     public IRelayCommand<NodePowerRowViewModel?> FocusReportRowCommand { get; }
 
     public string RepoRoot { get; }
@@ -243,6 +245,7 @@ public partial class TreeTabViewModel : ViewModelBase
     // (the only other tree Lua the UI thread would issue). The real state is
     // reconciled from Lua once the burst drains.
     private readonly SemaphoreSlim _luaQueue = new(1, 1);
+    private System.Threading.CancellationTokenSource? _powerCts;
     [ObservableProperty] private bool _isToggleBusy;   // bound to TreeCanvas.IsBusy for the loading spinner
     private int _pendingToggles;
     private Dictionary<int, TreeNodeDto>? _nodeIndex;
@@ -296,6 +299,8 @@ public partial class TreeTabViewModel : ViewModelBase
         _selectedPowerStat = PowerStatOptions.FirstOrDefault(o => o.Option.CombinedOffDef)
                           ?? PowerStatOptions.FirstOrDefault();
         RefreshPowerCommand   = new RelayCommand(() => _ = BuildPowerAsync());
+        GeneratePowerCommand  = new RelayCommand(() => _ = BuildPowerAsync());
+        CancelPowerCommand    = new RelayCommand(() => _powerCts?.Cancel());
         FocusReportRowCommand = new RelayCommand<NodePowerRowViewModel?>(FocusReportRow);
 
         LocalizationService.Instance.LanguageChanged += (_, _) =>
@@ -583,20 +588,13 @@ public partial class TreeTabViewModel : ViewModelBase
 
     partial void OnHeatmapEnabledChanged(bool value)
     {
-        if (value) _ = BuildPowerAsync();
-        else
-        {
-            PowerReport.Clear();
-            OnPropertyChanged(nameof(HasPowerReport));
-            IsPowerStale = false;
-            PowerOverlay = null;
-            PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
-        }
-    }
-
-    partial void OnSelectedPowerStatChanged(PowerStatVm? value)
-    {
-        if (HeatmapEnabled && value != null) _ = BuildPowerAsync();
+        if (value) return;                 // panel shows; generation is manual (Generate button)
+        _powerCts?.Cancel();
+        PowerReport.Clear();
+        OnPropertyChanged(nameof(HasPowerReport));
+        IsPowerStale = false;
+        PowerOverlay = null;
+        PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>Runs the heat-map calc on a background thread (serialised through
@@ -607,6 +605,8 @@ public partial class TreeTabViewModel : ViewModelBase
         if (stat == null) return;
 
         await _luaQueue.WaitAsync();
+        var cts = new System.Threading.CancellationTokenSource();
+        _powerCts = cts;
         try
         {
             IsPowerBuilding = true;
@@ -625,11 +625,11 @@ public partial class TreeTabViewModel : ViewModelBase
                 else PowerBuildProgress = pc;
             }
 
-            var result = await Task.Run(() => _host.BuildNodePower(stat.StatKey, null, Progress));
+            var result = await Task.Run(() => _host.BuildNodePower(stat.StatKey, null, Progress, cts.Token));
 
-            if (!HeatmapEnabled)
+            if (cts.IsCancellationRequested || !HeatmapEnabled)
             {
-                // Heat map was turned off while this build was in flight — keep it cleared.
+                // Heat map was turned off or cancelled while this build was in flight — keep it cleared.
                 PowerOverlay = null;
                 PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
                 return;
@@ -660,7 +660,14 @@ public partial class TreeTabViewModel : ViewModelBase
             PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
         }
         catch { /* leave previous overlay/report intact on failure */ }
-        finally { IsPowerBuilding = false; IsToggleBusy = false; _luaQueue.Release(); }
+        finally
+        {
+            IsPowerBuilding = false;
+            IsToggleBusy = false;
+            if (ReferenceEquals(_powerCts, cts)) _powerCts = null;
+            cts.Dispose();
+            _luaQueue.Release();
+        }
     }
 
     private void FocusReportRow(NodePowerRowViewModel? row)

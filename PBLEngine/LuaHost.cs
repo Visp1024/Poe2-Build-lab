@@ -2801,7 +2801,7 @@ public sealed class LuaHost : IDisposable
     /// the combined Offence/Defence default) and returns per-node power + maxima.
     /// Drives the Lua coroutine to completion, surfacing progress via
     /// <paramref name="onProgress"/>. Heavy — call on a background thread.</summary>
-    public NodePowerResult BuildNodePower(string? statKey, int? maxDepth = null, Action<int>? onProgress = null)
+    public NodePowerResult BuildNodePower(string? statKey, int? maxDepth = null, Action<int>? onProgress = null, System.Threading.CancellationToken cancel = default)
     {
         State["_powerStatKey"]  = statKey;                                  // nil → off/def
         State["_powerMaxDepth"] = maxDepth.HasValue ? (long?)maxDepth.Value : null;
@@ -2835,6 +2835,13 @@ public sealed class LuaHost : IDisposable
         int guard = 0, lastPct = -1;
         while (true)
         {
+            if (cancel.IsCancellationRequested)
+            {
+                State["_powerStatKey"]  = null;
+                State["_powerMaxDepth"] = null;
+                State.DoString("_powerPct = nil; if build then build.powerBuilderProgressCallback = nil end");
+                return new NodePowerResult(false, new NodePowerMax(0, 0, 0), System.Array.Empty<NodePowerEntry>());
+            }
             var r = State.DoString(@"
                 local ct = build.calcsTab
                 ct:BuildPower()

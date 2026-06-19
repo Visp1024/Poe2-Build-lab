@@ -58,6 +58,8 @@
   <data name="Tree_Power_Refresh" xml:space="preserve"><value>Refresh</value></data>
   <data name="Tree_Power_Building" xml:space="preserve"><value>Calculating…</value></data>
   <data name="Tree_Power_Empty" xml:space="preserve"><value>No measurable change for this stat</value></data>
+  <data name="Tree_Power_Generate" xml:space="preserve"><value>Generate</value></data>
+  <data name="Tree_Power_Cancel" xml:space="preserve"><value>Cancel</value></data>
 
   <!-- Skills tab -->
   <data name="Skill_Header"       xml:space="preserve"><value>Skills</value></data>

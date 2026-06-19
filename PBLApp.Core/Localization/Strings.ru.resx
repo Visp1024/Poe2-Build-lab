@@ -58,6 +58,8 @@
   <data name="Tree_Power_Refresh" xml:space="preserve"><value>Обновить</value></data>
   <data name="Tree_Power_Building" xml:space="preserve"><value>Расчёт…</value></data>
   <data name="Tree_Power_Empty" xml:space="preserve"><value>Нет измеримого влияния на этот стат</value></data>
+  <data name="Tree_Power_Generate" xml:space="preserve"><value>Сгенерировать</value></data>
+  <data name="Tree_Power_Cancel" xml:space="preserve"><value>Отменить</value></data>
 
   <!-- Skills tab -->
   <data name="Skill_Header"       xml:space="preserve"><value>Умения</value></data>
