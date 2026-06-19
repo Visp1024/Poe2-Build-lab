@@ -146,6 +146,7 @@ public partial class TreeTabViewModel : ViewModelBase
 
     // ── Heat map / Power Report ────────────────────────────────────────────
     [ObservableProperty] private bool _heatmapEnabled;
+    [ObservableProperty] private double _powerPanelWidth = 320;
     [ObservableProperty] private PowerStatVm? _selectedPowerStat;
     [ObservableProperty] private bool _isPowerBuilding;
     [ObservableProperty] private int  _powerBuildProgress;

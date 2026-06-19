@@ -60,6 +60,8 @@
   <data name="Tree_Power_Empty" xml:space="preserve"><value>No measurable change for this stat</value></data>
   <data name="Tree_Power_Generate" xml:space="preserve"><value>Generate</value></data>
   <data name="Tree_Power_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Tree_Power_DeltaTip" xml:space="preserve"><value>Change to the selected stat if you allocate this node</value></data>
+  <data name="Tree_Power_PerPointTip" xml:space="preserve"><value>Change per passive point spent reaching the node</value></data>
 
   <!-- Skills tab -->
   <data name="Skill_Header"       xml:space="preserve"><value>Skills</value></data>

@@ -164,22 +164,27 @@
             </Grid>
 
             <!-- Power Report side panel -->
-            <Border Grid.Column="1" Width="320"
+            <Border Grid.Column="1"
+                    Width="{Binding PowerPanelWidth}" MinWidth="240" MaxWidth="680"
                     IsVisible="{Binding HeatmapEnabled}"
                     Background="{DynamicResource BgMantleBrush}"
                     BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1,0,0,0">
+                <DockPanel>
+                    <Thumb DockPanel.Dock="Left" Width="5" Cursor="SizeWestEast"
+                           Background="{DynamicResource BorderSubtleBrush}"
+                           DragDelta="PowerPanelThumb_DragDelta"/>
                 <DockPanel Margin="8">
                     <TextBlock DockPanel.Dock="Top" Text="{loc:Tr Tree_PowerReport}"
                                FontWeight="SemiBold" FontSize="15" Margin="0,0,0,6"/>
 
                     <!-- Stat selector + manual Generate -->
-                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
-                        <ComboBox ItemsSource="{Binding PowerStatOptions}"
+                    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                        <ComboBox Grid.Column="0" ItemsSource="{Binding PowerStatOptions}"
                                   SelectedItem="{Binding SelectedPowerStat}"
-                                  MinWidth="160"/>
-                        <Button Content="{loc:Tr Tree_Power_Generate}"
-                                Command="{Binding GeneratePowerCommand}"/>
-                    </StackPanel>
+                                  HorizontalAlignment="Stretch"/>
+                        <Button Grid.Column="1" Content="{loc:Tr Tree_Power_Generate}"
+                                Command="{Binding GeneratePowerCommand}" Margin="6,0,0,0"/>
+                    </Grid>
 
                     <!-- progress -->
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
@@ -206,6 +211,18 @@
                                IsVisible="{Binding !HasPowerReport}"
                                Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap"/>
 
+                    <!-- column headers -->
+                    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,70,70" Margin="0,0,0,2">
+                        <TextBlock Grid.Column="0" Text="{loc:Tr Tree_Power_Node}"
+                                   FontSize="11" Foreground="{DynamicResource TextMutedBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{loc:Tr Tree_Power_Delta}" TextAlignment="Right"
+                                   FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
+                                   ToolTip.Tip="{loc:Tr Tree_Power_DeltaTip}"/>
+                        <TextBlock Grid.Column="2" Text="{loc:Tr Tree_Power_PerPoint}" TextAlignment="Right"
+                                   FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
+                                   ToolTip.Tip="{loc:Tr Tree_Power_PerPointTip}"/>
+                    </Grid>
+
                     <!-- report rows -->
                     <ListBox x:Name="PowerReportList"
                              ItemsSource="{Binding PowerReport}"
@@ -223,6 +240,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                </DockPanel>
                 </DockPanel>
             </Border>
 

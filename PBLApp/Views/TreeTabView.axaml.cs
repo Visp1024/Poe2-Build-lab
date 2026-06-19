@@ -74,6 +74,12 @@ public partial class TreeTabView : UserControl
         vm.FocusReportRowCommand.Execute((sender as ListBox)?.SelectedItem as NodePowerRowViewModel);
     }
 
+    private void PowerPanelThumb_DragDelta(object? sender, Avalonia.Input.VectorEventArgs e)
+    {
+        if (DataContext is TreeTabViewModel vm)
+            vm.PowerPanelWidth = System.Math.Clamp(vm.PowerPanelWidth - e.Vector.X, 240, 680);
+    }
+
     private void OnSocketClicked(int nodeId, Point pt)
     {
         if (DataContext is not TreeTabViewModel vm) return;
