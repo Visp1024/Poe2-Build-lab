@@ -2828,6 +2828,15 @@ public sealed class LuaHost : IDisposable
             ct.nodePowerMaxDepth = _powerMaxDepth
             _powerPct = 0
             build.powerBuilderProgressCallback = function(pc) _powerPct = pc end
+            -- HeadlessWrapper's GetTime() returns a constant 0, so PowerBuilder's
+            -- coroutine (which yields only when GetTime()-start > 100ms) would never
+            -- yield — running the entire build in a single resume. That defeats both
+            -- cancellation and progress reporting (the C# drive loop never regains
+            -- control mid-build). Install a real-time GetTime for the build's duration
+            -- so the coroutine yields ~every 100ms; restored on every exit path.
+            __pblOrigGetTime = GetTime
+            local __pblT0 = os.clock()
+            GetTime = function() return (os.clock() - __pblT0) * 1000 end
             ct.powerBuildFlag = true
         ");
 
@@ -2839,7 +2848,7 @@ public sealed class LuaHost : IDisposable
             {
                 State["_powerStatKey"]  = null;
                 State["_powerMaxDepth"] = null;
-                State.DoString("_powerPct = nil; if build then build.powerBuilderProgressCallback = nil end");
+                State.DoString("_powerPct = nil; if build then build.powerBuilderProgressCallback = nil end; if __pblOrigGetTime then GetTime = __pblOrigGetTime; __pblOrigGetTime = nil end");
                 return new NodePowerResult(false, new NodePowerMax(0, 0, 0), System.Array.Empty<NodePowerEntry>());
             }
             var r = State.DoString(@"
@@ -2950,8 +2959,9 @@ public sealed class LuaHost : IDisposable
 
         State["_powerStatKey"]  = null;
         State["_powerMaxDepth"] = null;
-        // Clear leaked Lua state: progress global + callback closure.
-        State.DoString("_powerPct = nil; if build then build.powerBuilderProgressCallback = nil end");
+        // Clear leaked Lua state: progress global + callback closure; restore the
+        // real GetTime override installed for the build.
+        State.DoString("_powerPct = nil; if build then build.powerBuilderProgressCallback = nil end; if __pblOrigGetTime then GetTime = __pblOrigGetTime; __pblOrigGetTime = nil end");
         return new NodePowerResult(offDefMode, max, entries);
 
         static double ParseD(string s) =>
