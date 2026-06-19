@@ -425,6 +425,9 @@
                            Foreground="{DynamicResource TextSecondaryBrush}">
                     <Run Text="{Binding HeatmapProgress}"/><Run Text="%"/>
                 </TextBlock>
+                <Button Content="{loc:Tr Tree_Power_Cancel}"
+                        HorizontalAlignment="Center" Margin="0,8,0,0"
+                        Command="{Binding TreeTab.CancelPowerCommand}"/>
             </StackPanel>
         </Border>
 
