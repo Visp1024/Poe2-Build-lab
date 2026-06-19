@@ -258,6 +258,7 @@ public sealed class TreeCanvas : Control
     // Cache for node-power heat-map colour lookup.
     // Rebuilt when the NodePowerOverlay reference changes; cleared when null.
     private Dictionary<int, Color>? _powerColorCache;
+    private Dictionary<int, double>? _powerBrightCache;
     private object? _powerOverlayRef;
 
     // ── Layered rendering: static connection bitmap ───────────────────────
@@ -633,13 +634,15 @@ public sealed class TreeCanvas : Control
             bool isSearch = search.Length > 0 && NodeMatchesSearch(node, search);
 
             // Heat-map declutter: when zoomed out (icons below sprite threshold) and a power
-            // overlay is active, draw only powered nodes (+ allocated / search) so the heat map
-            // reads clearly instead of a field of identical circles.
+            // overlay is active, draw only meaningfully-powered nodes (+ allocated / search).
+            // A brightness threshold (not just non-zero) is needed because in off/def mode
+            // almost every node contributes a little — only the bright ones should survive so
+            // the heat map's strong nodes stand out instead of a field of dim circles.
             if (NodePowerOverlay != null && !isAlloc && !isSearch)
             {
                 double iconHalfPx = GetIconHalfWorld(node.Type) * _scale;
                 bool zoomedOut = AssetStore == null || iconHalfPx < MinIconScreenPx;
-                if (zoomedOut && PowerColorFor(node.Id) == null)
+                if (zoomedOut && PowerBrightnessFor(node.Id) < HeatmapZoomOutThreshold)
                     continue;
             }
 
@@ -725,21 +728,40 @@ public sealed class TreeCanvas : Control
     // Minimum screen half-size (px) to bother rendering icons
     private const double MinIconScreenPx = 6.0;
 
+    /// <summary>Below this normalised heat-map brightness, nodes are hidden when the
+    /// tree is zoomed out (so only meaningful power nodes show). See the declutter
+    /// block in Render.</summary>
+    private const double HeatmapZoomOutThreshold = 0.25;
+
     private Color? PowerColorFor(int nodeId)
     {
+        EnsurePowerCache();
+        return _powerColorCache != null && _powerColorCache.TryGetValue(nodeId, out var v) ? v : (Color?)null;
+    }
+
+    /// <summary>Normalised heat-map brightness [0,1] for a node, or 0 when unpowered.</summary>
+    private double PowerBrightnessFor(int nodeId)
+    {
+        EnsurePowerCache();
+        return _powerBrightCache != null && _powerBrightCache.TryGetValue(nodeId, out var v) ? v : 0;
+    }
+
+    private void EnsurePowerCache()
+    {
         var overlay = NodePowerOverlay;
-        if (overlay is null) { _powerColorCache = null; _powerOverlayRef = null; return null; }
+        if (overlay is null) { _powerColorCache = null; _powerBrightCache = null; _powerOverlayRef = null; return; }
         if (!ReferenceEquals(overlay, _powerOverlayRef) || _powerColorCache is null)
         {
-            _powerColorCache = new();
+            _powerColorCache  = new();
+            _powerBrightCache = new();
             foreach (var e in overlay.Entries)
             {
                 var c = NodePowerColorizer.ColorFor(e, overlay.Max, overlay.OffDefMode);
                 if (c is { } col) _powerColorCache[e.Id] = col;
+                _powerBrightCache[e.Id] = NodePowerColorizer.Brightness(e, overlay.Max, overlay.OffDefMode);
             }
             _powerOverlayRef = overlay;
         }
-        return _powerColorCache.TryGetValue(nodeId, out var v) ? v : (Color?)null;
     }
 
     private void DrawNode(DrawingContext dc, TreeNodeDto node,
