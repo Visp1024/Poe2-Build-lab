@@ -60,6 +60,8 @@
   <data name="Tree_Power_Empty" xml:space="preserve"><value>Нет измеримого влияния на этот стат</value></data>
   <data name="Tree_Power_Generate" xml:space="preserve"><value>Сгенерировать</value></data>
   <data name="Tree_Power_Cancel" xml:space="preserve"><value>Отменить</value></data>
+  <data name="Tree_Power_DeltaTip" xml:space="preserve"><value>Изменение выбранной характеристики при выделении этой ноды</value></data>
+  <data name="Tree_Power_PerPointTip" xml:space="preserve"><value>Изменение на одно очко на пути к ноде</value></data>
 
   <!-- Skills tab -->
   <data name="Skill_Header"       xml:space="preserve"><value>Умения</value></data>

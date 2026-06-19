@@ -632,6 +632,17 @@ public sealed class TreeCanvas : Control
             bool isCan    = canAlloc?.Contains(node.Id) == true;
             bool isSearch = search.Length > 0 && NodeMatchesSearch(node, search);
 
+            // Heat-map declutter: when zoomed out (icons below sprite threshold) and a power
+            // overlay is active, draw only powered nodes (+ allocated / search) so the heat map
+            // reads clearly instead of a field of identical circles.
+            if (NodePowerOverlay != null && !isAlloc && !isSearch)
+            {
+                double iconHalfPx = GetIconHalfWorld(node.Type) * _scale;
+                bool zoomedOut = AssetStore == null || iconHalfPx < MinIconScreenPx;
+                if (zoomedOut && PowerColorFor(node.Id) == null)
+                    continue;
+            }
+
             DrawNode(dc, node, sx, sy, r, isAlloc, isCan, isSearch, node == _hoveredNode);
         }
 
