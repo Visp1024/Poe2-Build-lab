@@ -1,6 +1,10 @@
 using PBLEngine;
+using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace PBLEngine.Tests;
@@ -103,5 +107,28 @@ public class NodePowerTests : IClassFixture<LuaHostFixture>
 
         Assert.All(res.Entries, e =>
             Assert.Contains(e.Type, new[] { "Normal", "Notable", "Keystone" }));
+    }
+
+    [Fact]
+    public void BuildNodePower_CancelsPromptly_ReturnsEmpty()
+    {
+        // A full build over the ~4500-node tree takes tens of seconds; cancelling
+        // shortly after it starts must abort within ~one coroutine slice and return
+        // an empty result rather than running to completion.
+        using var cts = new CancellationTokenSource();
+        var sw = Stopwatch.StartNew();
+        var task = Task.Run(() => _host.BuildNodePower("FullDPS", null, null, cts.Token));
+        Thread.Sleep(250);   // let a few coroutine slices run
+        cts.Cancel();
+        var res = task.GetAwaiter().GetResult();
+        sw.Stop();
+
+        Assert.Empty(res.Entries);                                 // cancelled → no rows
+        Assert.True(sw.Elapsed.TotalSeconds < 20,                  // aborted, not run to completion
+            $"cancel took {sw.Elapsed.TotalSeconds:0.0}s — did the token check run?");
+
+        // State must be clean for the next build: a fresh build still succeeds.
+        var res2 = _host.BuildNodePower("FullDPS");
+        Assert.NotEmpty(res2.Entries);
     }
 }
