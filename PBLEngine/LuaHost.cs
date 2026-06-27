@@ -33,15 +33,32 @@ public sealed class LuaHost : IDisposable
 
         State.State.Encoding = System.Text.Encoding.UTF8;
 
+        // Make the CRT interpret file paths as UTF-8 so Lua's io.open/loadfile can
+        // open files under non-ASCII paths (e.g. installed in «D:\Игры\PoB\…»). On
+        // Windows the narrow fopen converts the UTF-8 path bytes (Encoding above) via
+        // LC_CTYPE; the default "C" locale mangles Cyrillic and the file is "not found",
+        // breaking build load (tree.lua etc.). Set ONLY the ctype category — switching
+        // LC_NUMERIC to a comma-decimal locale would break Lua number parsing/formatting.
+        // Done via DoString (no filesystem access) so it runs before compat.lua/HeadlessWrapper
+        // are loaded — those file loads themselves fail under a Cyrillic install path otherwise.
+        State.DoString("os.setlocale('.UTF-8', 'ctype')");
+
         Directory.SetCurrentDirectory(_srcDir);
 
         var runtimeLuaFwd = runtimeLuaDir.Replace('\\', '/');
         State.DoString($"package.path = '{runtimeLuaFwd}/?.lua;{runtimeLuaFwd}/?/init.lua;' .. package.path");
 
-        if (File.Exists(_compatLuaPath))
-            State.DoFile(_compatLuaPath);
-        else
+        // Load compat.lua by reading it in C# (Unicode-aware) and executing the source
+        // via DoString, NOT DoFile. DoFile marshals the absolute path through NLua and
+        // hands it to the narrow CRT fopen; under a non-ASCII install path (e.g. the bin
+        // sits in «D:\Игры\PoB\…») the Cyrillic bytes mismatch the locale codepage and the
+        // open fails ("Illegal byte sequence" / "No such file"), which kills host init and
+        // surfaces later as a build-load error. DoString takes the file content directly,
+        // so no path ever reaches fopen. HeadlessWrapper.lua below is loaded by a relative
+        // ASCII path (CWD is src/), which the CRT resolves against the Unicode CWD fine.
+        if (!File.Exists(_compatLuaPath))
             throw new FileNotFoundException($"compat.lua not found at: {_compatLuaPath}");
+        State.DoString(File.ReadAllText(_compatLuaPath), "@compat.lua");
 
         State.DoFile("HeadlessWrapper.lua");
 
