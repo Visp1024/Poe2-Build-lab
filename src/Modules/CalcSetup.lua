@@ -92,6 +92,7 @@ function calcs.initModDB(env, modDB)
 	modDB:NewMod("MassiveShrine", "FLAG", true, "Base", { type = "Condition", var = "MassiveShrine" })
 	modDB:NewMod("AlchemistsGenius", "FLAG", true, "Base", { type = "Condition", var = "AlchemistsGenius" })
 	modDB:NewMod("LuckyHits", "FLAG", true, "Base", { type = "Condition", var = "LuckyHits" })
+	modDB:NewMod("HeavyStunBuildup", "MORE", 50, "Base", { type = "Condition", var = "Dazed"})
 	modDB:NewMod("ColdCannotHeavyStun", "FLAG", true)
 	modDB:NewMod("Convergence", "FLAG", true, "Base", { type = "Condition", var = "Convergence" })
 	modDB:NewMod("PhysicalDamageReduction", "BASE", -15, "Base", { type = "Condition", var = "Crushed" })
@@ -394,6 +395,7 @@ function wipeEnv(env, accelerate)
 	if not accelerate.skills then
 		-- Player Active Skills generation
 		wipeTable(env.player.activeSkillList)
+		env.sourceGemPropertyInfo = { }
 
 		-- Enhances Active Skills with skill ModFlags, KeywordFlags
 		-- and modifiers that affect skill scaling (e.g., global buffs/effects)
@@ -963,7 +965,7 @@ function calcs.initEnv(build, mode, override, specEnv)
 			for _, slot in pairs(build.itemsTab.orderedSlots) do
 				local slotName = slot.slotName
 				if items[slotName] then
-					local srcList = items[slotName].modList or items[slotName].slotModList[slot.slotNum]
+					local srcList = items[slotName].modList or items[slotName].slotModList[slot.slotNum] or {}
 					for _, mod in ipairs(srcList) do
 						-- checks if it disables another slot
 						for _, tag in ipairs(mod) do
@@ -1372,8 +1374,18 @@ function calcs.initEnv(build, mode, override, specEnv)
 		local modList = env.player.itemList["Weapon 2"].modList
 		for _, mod in ipairs(modList) do
 			local modCopy = copyTable(mod)
-			modCopy.source = "Many Sources:" .. tostring(quiverEffectMod * 100) .. "% Quiver Bonus Effect"
+			modCopy.source = "Many Sources:".. colorCodes.SOURCE .. tostring(quiverEffectMod * 100) .. "% Quiver Bonus Effect"
 			modDB:ScaleAddMod(modCopy, quiverEffectMod)
+		end
+	end
+	
+	if env.player.itemList["Amulet"] and env.player.itemList["Amulet"].type == "Amulet" then
+		local amuletEffectMod = env.modDB:Sum("INC", nil, "EffectOfBonusesFromAmulet") / 100
+		local modList = env.player.itemList["Amulet"].modList
+		for _, mod in ipairs(modList) do
+			local modCopy = copyTable(mod)
+			modCopy.source = "Many Sources:".. colorCodes.SOURCE .. tostring(amuletEffectMod * 100) .. "% Amulet Bonus Effect"
+			modDB:ScaleAddMod(modCopy, amuletEffectMod)
 		end
 	end
 
@@ -1677,6 +1689,7 @@ function calcs.initEnv(build, mode, override, specEnv)
 									level = value.level,
 									quality = 0,
 									enabled = true,
+									isSupporting = { },
 								})
 							end
 						end
