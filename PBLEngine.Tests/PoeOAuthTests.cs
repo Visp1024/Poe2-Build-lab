@@ -32,9 +32,9 @@ public class PoeOAuthTests
     }
 
     [Fact]
-    public void BuildAuthorizeUrl_HasPobClientIdAndScopes()
+    public void BuildAuthorizeUrl_HasPobClientIdScopesAndRedirectUri()
     {
-        var url = PoeOAuthService.BuildAuthorizeUrl("aabbccdd11223344", "CHLG");
+        var url = PoeOAuthService.BuildAuthorizeUrl("aabbccdd11223344", "CHLG", 49082);
 
         Assert.StartsWith("https://www.pathofexile.com/oauth/authorize?", url);
         Assert.Contains("client_id=pob", url);
@@ -44,5 +44,14 @@ public class PoeOAuthTests
         Assert.Contains("code_challenge_method=S256", url);
         // scope как в PoEAPI.lua:5-10, пробелы как %20
         Assert.Contains("account:profile%20account:leagues%20account:characters%20account:trade", url);
+        // redirect_uri обязателен и добавляется как в LaunchServer.lua:32 (без URL-кодирования)
+        Assert.Contains("&redirect_uri=http://localhost:49082", url);
+    }
+
+    [Fact]
+    public void RedirectPorts_AreTheRegisteredPobPorts()
+    {
+        // GGG-клиент "pob" принимает redirect только на эти порты (LaunchServer.lua:11)
+        Assert.Equal([49082, 49083, 49084], PoeOAuthService.RedirectPorts);
     }
 }

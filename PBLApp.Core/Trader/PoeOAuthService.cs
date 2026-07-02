@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -55,12 +54,18 @@ public sealed class PoeOAuthService
         return (verifier, challenge);
     }
 
-    public static string BuildAuthorizeUrl(string state, string challenge) =>
+    /// <summary>Разрешённые redirect-порты клиента "pob" (LaunchServer.lua:11) —
+    /// GGG редиректит только на них, случайный порт не сработает.</summary>
+    public static readonly int[] RedirectPorts = [49082, 49083, 49084];
+
+    // redirect_uri добавляется без URL-кодирования — ровно как LaunchServer.lua:32
+    public static string BuildAuthorizeUrl(string state, string challenge, int port) =>
         "https://www.pathofexile.com/oauth/authorize?client_id=pob&response_type=code"
         + "&scope=" + Scopes.Replace(" ", "%20")
         + "&state=" + state
         + "&code_challenge=" + challenge
-        + "&code_challenge_method=S256";
+        + "&code_challenge_method=S256"
+        + $"&redirect_uri=http://localhost:{port}";
 
     private static string Base64Url(byte[] bytes) =>
         Convert.ToBase64String(bytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
@@ -74,13 +79,12 @@ public sealed class PoeOAuthService
         var (verifier, challenge) = CreatePkcePair();
         var state = Convert.ToHexString(RandomNumberGenerator.GetBytes(8)).ToLowerInvariant();
 
-        var port = GetFreeTcpPort();
-        using var listener = new HttpListener();
-        listener.Prefixes.Add($"http://localhost:{port}/");
-        listener.Start();
+        var (listener, port) = BindRegisteredPort();
+        if (listener is null) return false; // все три порта заняты
+        using var _ = listener;
         using var abort = ct.Register(() => { try { listener.Stop(); } catch { } });
 
-        openBrowser(BuildAuthorizeUrl(state, challenge));
+        openBrowser(BuildAuthorizeUrl(state, challenge, port));
 
         string? code, gotState;
         try
@@ -163,12 +167,22 @@ public sealed class PoeOAuthService
         _host.SetTradeAuth(access, string.IsNullOrEmpty(refresh) ? null : refresh, expiry);
     }
 
-    private static int GetFreeTcpPort()
+    private static (HttpListener? Listener, int Port) BindRegisteredPort()
     {
-        var l = new TcpListener(IPAddress.Loopback, 0);
-        l.Start();
-        var port = ((IPEndPoint)l.LocalEndpoint).Port;
-        l.Stop();
-        return port;
+        foreach (var port in RedirectPorts)
+        {
+            var listener = new HttpListener();
+            listener.Prefixes.Add($"http://localhost:{port}/");
+            try
+            {
+                listener.Start();
+                return (listener, port);
+            }
+            catch (HttpListenerException)
+            {
+                try { listener.Close(); } catch { }
+            }
+        }
+        return (null, 0);
     }
 }
