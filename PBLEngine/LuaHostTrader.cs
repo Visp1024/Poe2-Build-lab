@@ -252,6 +252,34 @@ public sealed partial class LuaHost
                 rl.ValueKind == System.Text.Json.JsonValueKind.Number ? rl.GetDouble() : 0);
     }
 
+    // ── Дифф результата ──────────────────────────────────────────────────────
+
+    public sealed record TraderDiff(double DpsDiff, double EhpDiff, double StatValue);
+
+    /// <summary>Считает Δ DPS/EHP и взвешенную ценность результата (calcFunc с repItem).
+    /// null — предмет не распарсился или калькулятор недоступен.</summary>
+    public async Task<TraderDiff?> ComputeListingDiffAsync(
+        string slotName, string itemText, string statWeightsJson, CancellationToken ct)
+    {
+        await _traderLua.WaitAsync(ct);
+        try
+        {
+            EnsureTraderInit();
+            State["_pblSlotName"] = slotName;
+            State["_pblItemText"] = itemText;
+            State["_pblWeights"] = statWeightsJson;
+            var json = (string)State.DoString(
+                "return PBLTrader.ComputeDiffJson(_pblSlotName, _pblItemText, _pblWeights)")[0];
+            var root = System.Text.Json.JsonDocument.Parse(json).RootElement;
+            if (root.TryGetProperty("err", out _)) return null;
+            return new TraderDiff(
+                root.GetProperty("dpsDiff").GetDouble(),
+                root.GetProperty("ehpDiff").GetDouble(),
+                root.GetProperty("statValue").GetDouble());
+        }
+        finally { _traderLua.Release(); }
+    }
+
     /// <summary>Доставить готовые HTTP-ответы Lua-callback'ам.
     /// Вызывать только с потока, владеющего Lua-состоянием (или под trader-семафором).</summary>
     public int DrainTraderHttp()
