@@ -9,8 +9,9 @@ namespace PBLEngine.Tests;
 
 public class TraderWebApiTests
 {
+    // Форма ответа api/trade2/data/leagues — ровно 4 лиги trade-сайта
     private const string LeaguesJson =
-        """[{"id":"Standard"},{"id":"SSF Standard"},{"id":"Rise of the Abyssal"},{"id":"HC SSF Rise of the Abyssal"}]""";
+        """{"result":[{"id":"Runes of Aldur","realm":"poe2","text":"Runes of Aldur"},{"id":"HC Runes of Aldur","realm":"poe2","text":"HC Runes of Aldur"},{"id":"Standard","realm":"poe2","text":"Standard"},{"id":"Hardcore","realm":"poe2","text":"Hardcore"}]}""";
 
     // Форма как в TradeQuery:PriceBuilderProcessPoENinjaResponse: lines[].id/primaryValue (в дивинах)
     private const string NinjaJson =
@@ -22,7 +23,7 @@ public class TraderWebApiTests
         fake.Responder = req =>
         {
             var url = req.RequestUri!.ToString();
-            var json = url.Contains("api/leagues") ? LeaguesJson
+            var json = url.Contains("trade2/data/leagues") ? LeaguesJson
                      : url.Contains("poe.ninja") ? NinjaJson
                      : "{}";
             return new HttpResponseMessage(HttpStatusCode.OK)
@@ -32,12 +33,12 @@ public class TraderWebApiTests
     }
 
     [Fact]
-    public async Task GetLeagues_FiltersSsf()
+    public async Task GetLeagues_ReturnsTradeSiteLeagues()
     {
         var api = new TraderWebApi(MakeHandler());
         var leagues = await api.GetLeaguesAsync();
 
-        Assert.Equal(["Standard", "Rise of the Abyssal"], leagues);
+        Assert.Equal(["Runes of Aldur", "HC Runes of Aldur", "Standard", "Hardcore"], leagues);
     }
 
     [Fact]

@@ -66,10 +66,10 @@
                         Command="{Binding ApplyPresetCommand}" CommandParameter="ehp" />
                 <Button Content="{loc:Tr Trader_PresetBalance}"
                         Command="{Binding ApplyPresetCommand}" CommandParameter="balance" />
-                <TextBlock Text="DPS ×" Classes="muted" VerticalAlignment="Center" Margin="12,0,0,0" />
+                <TextBlock Text="{loc:Tr Trader_WeightDps}" Classes="muted" VerticalAlignment="Center" Margin="12,0,0,0" />
                 <NumericUpDown Value="{Binding DpsWeight, Mode=TwoWay}" Minimum="0" Maximum="10"
                                Increment="0.1" FormatString="0.0#" Width="110" />
-                <TextBlock Text="EHP ×" Classes="muted" VerticalAlignment="Center" />
+                <TextBlock Text="{loc:Tr Trader_WeightEhp}" Classes="muted" VerticalAlignment="Center" />
                 <NumericUpDown Value="{Binding EhpWeight, Mode=TwoWay}" Minimum="0" Maximum="10"
                                Increment="0.1" FormatString="0.0#" Width="110" />
                 <TextBlock Text="{loc:Tr Trader_MaxPrice}" Classes="muted"
@@ -114,10 +114,11 @@
                                 <ItemsControl ItemsSource="{Binding Results}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="vm:TraderResultViewModel">
-                                            <Grid ColumnDefinitions="140,90,90,90,140,Auto,Auto"
+                                            <Grid ColumnDefinitions="230,90,90,90,150,Auto,Auto"
                                                   Margin="0,2"
                                                   ToolTip.Tip="{Binding Listing.ItemText}">
                                                 <TextBlock Grid.Column="0" Text="{Binding PriceText}"
+                                                           TextTrimming="CharacterEllipsis" Margin="0,0,8,0"
                                                            VerticalAlignment="Center" />
                                                 <TextBlock Grid.Column="1" VerticalAlignment="Center"
                                                            Text="{Binding DpsDiff, StringFormat='+0.#;-0.#;0'}" />
