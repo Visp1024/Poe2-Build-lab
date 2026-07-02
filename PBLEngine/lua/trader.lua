@@ -120,6 +120,38 @@ function PBLTrader.GetSearchStateJson()
 	})
 end
 
+-- ── Дифф результата ─────────────────────────────────────────────────────────
+
+function PBLTrader.ComputeDiffJson(slotName, itemString, statWeightsJson)
+	PBLTrader.Init()
+	local weights = dkjson.decode(statWeightsJson) or {}
+	local calcFunc, baseOutput = build.calcsTab:GetMiscCalculator()
+	if not calcFunc then return dkjson.encode({ err = "no calculator" }) end
+	local ok, item = pcall(function()
+		local it = new("Item", itemString)
+		-- конструктор только парсит текст; modList/slotModList строит BuildAndParseRaw
+		-- (так же делает генератор — TradeQueryGenerator.lua:697)
+		it:BuildAndParseRaw()
+		return it
+	end)
+	if not ok or not item or not item.baseName then
+		return dkjson.encode({ err = "bad item text" })
+	end
+	local okCalc, output = pcall(function()
+		return calcFunc({ repSlotName = slotName, repItem = item })
+	end)
+	if not okCalc or not output then
+		return dkjson.encode({ err = "calc failed: " .. tostring(output) })
+	end
+	local function dps(o) return o.FullDPS or o.CombinedDPS or o.TotalDPS or 0 end
+	local statValue = PBLTrader.generator.WeightedRatioOutputs(baseOutput, output, weights) * 1000
+	return dkjson.encode({
+		dpsDiff = dps(output) - dps(baseOutput),
+		ehpDiff = (output.TotalEHP or 0) - (baseOutput.TotalEHP or 0),
+		statValue = statValue,
+	})
+end
+
 function PBLTrader.GetSlotsJson()
 	local out = {}
 	for _, slotName in ipairs(PBLTrader.baseSlots) do
