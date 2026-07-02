@@ -19,6 +19,10 @@ function PBLTrader.Init()
 	if not PBLTrader.generator or PBLTrader.generator.itemsTab ~= build.itemsTab then
 		PBLTrader.generator = new("TradeQueryGenerator", { itemsTab = build.itemsTab })
 	end
+	-- tradeTypeIndex выставляет только UI-попап оригинала (RequestQuery); без него
+	-- status.option в query получается nil → API: "Invalid status type".
+	-- 1 = "securable" — дефолт оригинала (TradeQuery.lua:310).
+	PBLTrader.generator.tradeTypeIndex = PBLTrader.generator.tradeTypeIndex or 1
 end
 
 -- ── Генерация взвешенного запроса ────────────────────────────────────────────

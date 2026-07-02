@@ -215,8 +215,22 @@ public sealed partial class LuaHost
             finally { _traderLua.Release(); }
 
             var state = System.Text.Json.JsonDocument.Parse(stateJson).RootElement;
-            if (state.GetProperty("done").GetBoolean())
-                return ParseSearchState(state);
+            if (state.TryGetProperty("done", out var done) && done.GetBoolean())
+            {
+                try
+                {
+                    return ParseSearchState(state);
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    // Диагностика: реальный ответ API может не иметь ожидаемого поля —
+                    // сохраняем сырой JSON, чтобы увидеть, какого именно.
+                    var dump = Path.Combine(Path.GetTempPath(), "pbl-trader-search-state.json");
+                    try { File.WriteAllText(dump, stateJson); } catch { }
+                    throw new InvalidOperationException(
+                        $"Trade search state parse failed: {ex.Message} (raw json: {dump})", ex);
+                }
+            }
             await Task.Delay(150, ct);
         }
     }
@@ -229,17 +243,22 @@ public sealed partial class LuaHost
         {
             foreach (var it in items.EnumerateArray())
             {
+                // Все поля опциональны: Lua кладёт nil (dkjson опускает ключ) для
+                // whisper/trader у ~b/o-лотов и т.п. — жёсткий GetProperty падал.
+                static string Str(System.Text.Json.JsonElement el, string key) =>
+                    el.TryGetProperty(key, out var v) &&
+                    v.ValueKind == System.Text.Json.JsonValueKind.String ? v.GetString() ?? "" : "";
                 listings.Add(new TraderListing(
-                    it.GetProperty("id").GetString() ?? "",
-                    it.GetProperty("item_string").GetString() ?? "",
-                    it.GetProperty("amount").GetDouble(),
-                    it.GetProperty("currency").GetString() ?? "",
-                    it.TryGetProperty("priceType", out var pt) ? pt.GetString() ?? "" : "",
-                    it.GetProperty("whisper").GetString() ?? "",
-                    it.GetProperty("trader").GetString() ?? "",
-                    it.TryGetProperty("weight", out var w) && w.GetString() is { } ws &&
-                        double.TryParse(ws, System.Globalization.NumberStyles.Float,
-                            System.Globalization.CultureInfo.InvariantCulture, out var wd) ? wd : 0));
+                    Str(it, "id"),
+                    Str(it, "item_string"),
+                    it.TryGetProperty("amount", out var am) &&
+                        am.ValueKind == System.Text.Json.JsonValueKind.Number ? am.GetDouble() : 0,
+                    Str(it, "currency"),
+                    Str(it, "priceType"),
+                    Str(it, "whisper"),
+                    Str(it, "trader"),
+                    double.TryParse(Str(it, "weight"), System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture, out var wd) ? wd : 0));
             }
         }
         return new TraderSearchResult(

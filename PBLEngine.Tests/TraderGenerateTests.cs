@@ -31,6 +31,9 @@ public class TraderGenerateTests : IClassFixture<LuaHostFixture>
         Assert.NotNull(result.QueryJson);
         Assert.Contains("\"type\":\"weight\"", result.QueryJson);
         Assert.Contains("armour.helmet", result.QueryJson);
+        // status.option обязателен: без tradeTypeIndex генератор кладёт {} и API
+        // отвечает "[2: Invalid status type]"; дефолт оригинала — securable
+        Assert.Contains("\"status\":{\"option\":\"securable\"}", result.QueryJson);
     }
 
     /// <summary>IProgress с синхронным Report — Progress&lt;T&gt; постит в пул и гонится с завершением.</summary>

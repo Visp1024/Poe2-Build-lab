@@ -46,10 +46,11 @@ public class TraderSearchTests : IClassFixture<LuaHostFixture>
            "item":{"rarity":"RARE","name":"Grim Visor","typeLine":"Advanced Warrior Greathelm","ilvl":80,
                    "explicitMods":[{"description":"+90 to maximum Life","flags":{}}]},
            "listing":{"price":{"amount":2,"currency":"exalted","type":"buyout"},
-                      "whisper":"@Seller2 Hi, I would like to buy your Grim Visor",
                       "account":{"name":"Seller2"}}}
         ]}
         """;
+    // hashB намеренно БЕЗ whisper: реальные ~b/o-лоты его не имеют, dkjson опускает
+    // nil-ключ и парсер не должен падать (KeyNotFoundException — реальный баг).
 
     private FakeHttpHandler Setup()
     {
@@ -83,6 +84,10 @@ public class TraderSearchTests : IClassFixture<LuaHostFixture>
         Assert.StartsWith("@Seller1", first.Whisper);
         Assert.Contains("Doom Crown", first.ItemText);
         Assert.Contains("+120 to maximum Life", first.ItemText);
+        // лот без whisper парсится с пустой строкой, а не падает
+        var second = result.Listings[1];
+        Assert.Equal("", second.Whisper);
+        Assert.Equal("Seller2", second.Seller);
     }
 
     [Fact(Timeout = 30_000)]
