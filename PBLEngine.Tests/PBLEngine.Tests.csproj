@@ -16,5 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PBLEngine\PBLEngine.csproj" />
+    <ProjectReference Include="..\PBLApp.Core\PBLApp.Core.csproj" />
   </ItemGroup>
 </Project>
