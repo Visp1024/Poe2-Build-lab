@@ -51,6 +51,7 @@ local strrep, gsub, strsub, strbyte, strchar, strfind, strlen, strformat =
       string.find, string.len, string.format
 local strmatch = string.match
 local concat = table.concat
+local tablesort = table.sort -- localized: `local _ENV = nil` below breaks global access under Lua 5.2+
 
 local json = { version = "dkjson 2.5" }
 
@@ -135,7 +136,7 @@ local function sortedkeys(tbl)
   for k in pairs(tbl) do
     keys[#keys + 1] = k
   end
-  table.sort(keys, function(a, b)
+  tablesort(keys, function(a, b)
     local ta, tb = type(a), type(b)
     if ta == tb then
       return a < b
