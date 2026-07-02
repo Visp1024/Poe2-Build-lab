@@ -11,7 +11,7 @@ namespace PBLEngine;
 /// Owns the NLua state and the PoB Lua environment lifecycle.
 /// Call Initialize() once, then use NewBuild() / LoadBuildFromXml().
 /// </summary>
-public sealed class LuaHost : IDisposable
+public sealed partial class LuaHost : IDisposable
 {
     public Lua State { get; } = new Lua();
 
