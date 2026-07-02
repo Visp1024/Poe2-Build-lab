@@ -621,6 +621,34 @@ public class VisualTools
         throw new DirectoryNotFoundException("Cannot find repo root");
     }
 
+    [McpServerTool]
+    [Description(
+        "Get Trader tab state: league, login status, per-slot search status and results " +
+        "(price, seller, stat diffs). Poll this after visual_trader_search.")]
+    public async Task<string> VisualTraderState()
+    {
+        try { return await IpcClient.CallAsync("GET", "/trader/state"); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Start an upgrade search for an equipment slot on the Trader tab (e.g. 'Helmet', " +
+        "'Body Armour'). Runs async — poll visual_trader_state for stage/results.")]
+    public async Task<string> VisualTraderSearch(string slot)
+    {
+        try { return await IpcClient.CallAsync("POST", "/trader/search", new { slot }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description("Select the trade league on the Trader tab.")]
+    public async Task<string> VisualTraderSetLeague(string league)
+    {
+        try { return await IpcClient.CallAsync("POST", "/trader/set-league", new { league }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
     private static string Error(string msg)      => $"ERROR: {msg}";
     private static string Error(Exception ex)    => $"ERROR: {ex.GetType().Name}: {ex.Message}";
 }
