@@ -21,6 +21,72 @@ function PBLTrader.Init()
 	end
 end
 
+-- ── Генерация взвешенного запроса ────────────────────────────────────────────
+-- StartQuery создаёт корутину; C# гонит её через StepGenerate() до genDone.
+-- RequestQuery (UI-попап оригинала) не используется.
+
+function PBLTrader.StartGenerate(slotName, optionsJson)
+	PBLTrader.Init()
+	local options, _, jsonErr = dkjson.decode(optionsJson)
+	if not options then return "error: bad options json: " .. tostring(jsonErr) end
+	local slot = build.itemsTab.slots[slotName]
+	if not slot then return "error: unknown slot " .. tostring(slotName) end
+
+	PBLTrader.genDone, PBLTrader.genQuery, PBLTrader.genErr = false, nil, nil
+	-- HeadlessWrapper GetTime() = const 0, а yield-гейт корутины генератора —
+	-- GetTime()-start > 50 мс (TradeQueryGenerator.lua:710). Без реального времени
+	-- корутина не yield'ится и одна StepGenerate прогоняет всё разом (нет отмены).
+	-- Ставим real-time GetTime на время генерации; снимаем на всех выходах.
+	if not PBLTrader._origGetTime then
+		PBLTrader._origGetTime = GetTime
+		local t0 = os.clock()
+		GetTime = function() return (os.clock() - t0) * 1000 end
+	end
+	PBLTrader.generator.requesterContext = nil
+	PBLTrader.generator.requesterCallback = function(_, queryJson, errMsg)
+		PBLTrader.genQuery, PBLTrader.genErr, PBLTrader.genDone = queryJson, errMsg, true
+	end
+	PBLTrader.generator:StartQuery(slot, options)
+	-- StartQuery молча выходит для неподдерживаемых категорий (TradeQueryGenerator.lua:840-843)
+	if not (PBLTrader.generator.calcContext and PBLTrader.generator.calcContext.co) then
+		PBLTrader.genDone = true
+		PBLTrader.genErr = PBLTrader.genErr or "unsupported item category"
+		PBLTrader._restoreGetTime()
+	end
+	return "started"
+end
+
+function PBLTrader._restoreGetTime()
+	if PBLTrader._origGetTime then
+		GetTime = PBLTrader._origGetTime
+		PBLTrader._origGetTime = nil
+	end
+end
+
+function PBLTrader.StepGenerate()
+	if not PBLTrader.genDone then
+		PBLTrader.generator:OnFrame() -- resume корутины; по смерти сам зовёт FinishQuery → callback
+	end
+	if PBLTrader.genDone then
+		PBLTrader._restoreGetTime()
+	end
+	return PBLTrader.genDone
+end
+
+function PBLTrader.CancelGenerate()
+	local g = PBLTrader.generator
+	if g and g.calcContext and g.calcContext.co then
+		g.calcContext.co = nil
+		main:ClosePopup()
+	end
+	PBLTrader.genDone, PBLTrader.genQuery, PBLTrader.genErr = true, nil, "cancelled"
+	PBLTrader._restoreGetTime()
+end
+
+function PBLTrader.GetGenerateResult()
+	return PBLTrader.genQuery, PBLTrader.genErr
+end
+
 function PBLTrader.GetSlotsJson()
 	local out = {}
 	for _, slotName in ipairs(PBLTrader.baseSlots) do

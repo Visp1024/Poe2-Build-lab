@@ -123,6 +123,59 @@ public sealed partial class LuaHost
         });
     }
 
+    // ── Генерация взвешенного запроса ────────────────────────────────────────
+
+    /// <summary>Сериализует все trader-обращения к Lua-состоянию.</summary>
+    private readonly SemaphoreSlim _traderLua = new(1, 1);
+
+    public sealed record TraderQueryResult(string? QueryJson, string? Error);
+
+    /// <summary>Гонит корутину TradeQueryGenerator до готового query JSON.
+    /// resumeProgress получает число сделанных resume'ов (индикатор активности).</summary>
+    public async Task<TraderQueryResult> GenerateTradeQueryAsync(
+        string slotName, string optionsJson, IProgress<int>? resumeProgress, CancellationToken ct)
+    {
+        await _traderLua.WaitAsync(ct);
+        try
+        {
+            EnsureTraderInit();
+            State["_pblSlotName"] = slotName;
+            State["_pblOptions"] = optionsJson;
+            var start = (string)State.DoString(
+                "return PBLTrader.StartGenerate(_pblSlotName, _pblOptions)")[0];
+            if (start.StartsWith("error:"))
+                return new TraderQueryResult(null, start[6..].Trim());
+        }
+        finally { _traderLua.Release(); }
+
+        var resumes = 0;
+        while (true)
+        {
+            if (ct.IsCancellationRequested)
+            {
+                await _traderLua.WaitAsync(CancellationToken.None);
+                try { State.DoString("PBLTrader.CancelGenerate()"); }
+                finally { _traderLua.Release(); }
+                ct.ThrowIfCancellationRequested();
+            }
+            await _traderLua.WaitAsync(ct);
+            bool done;
+            try { done = (bool)State.DoString("return PBLTrader.StepGenerate()")[0]; }
+            finally { _traderLua.Release(); }
+            resumeProgress?.Report(++resumes);
+            if (done) break;
+            await Task.Yield(); // отпускаем семафор — UI/другие вызовы не голодают
+        }
+
+        await _traderLua.WaitAsync(CancellationToken.None);
+        try
+        {
+            var r = State.DoString("return PBLTrader.GetGenerateResult()");
+            return new TraderQueryResult(r[0] as string, r[1] as string);
+        }
+        finally { _traderLua.Release(); }
+    }
+
     /// <summary>Доставить готовые HTTP-ответы Lua-callback'ам.
     /// Вызывать только с потока, владеющего Lua-состоянием (или под trader-семафором).</summary>
     public int DrainTraderHttp()
