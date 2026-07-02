@@ -67,7 +67,16 @@ public partial class TraderTabViewModel : ViewModelBase
 
     public IReadOnlyList<string> CurrencyNames { get; } = Currencies.Select(c => c.Name).ToList();
 
-    [ObservableProperty] private double _totalTryOnDivs;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalTryOnText))]
+    [NotifyPropertyChangedFor(nameof(HasTryOns))]
+    private double _totalTryOnDivs;
+
+    public bool HasTryOns => TotalTryOnDivs > 0;
+
+    public string TotalTryOnText => string.Format(
+        LocalizationService.Get("Trader_TotalTryOn"),
+        TotalTryOnDivs.ToString("0.##", CultureInfo.InvariantCulture));
 
     /// <summary>Подключается View'ом (паттерн PromptRenameAsync).</summary>
     public Func<string, Task>? CopyToClipboardAsync { get; set; }
