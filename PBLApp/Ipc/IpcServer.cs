@@ -180,6 +180,9 @@ public sealed class IpcServer
                 "/skills/support-picker/set-mode" => await OnUi(() => SupportPickerSetMode(body)),
                 "/skills/support-picker/select"   => await OnUi(() => SupportPickerSelect(body)),
                 "/ui/text"                => await OnUi(() => DumpUiText(body)),
+                "/trader/state"      => await OnUi(TraderState),
+                "/trader/search"     => await OnUi(() => TraderSearch(body)),
+                "/trader/set-league" => await OnUi(() => TraderSetLeague(body)),
                 _ => new { error = $"Unknown endpoint: {path}" }
             };
 
@@ -1395,6 +1398,76 @@ public sealed class IpcServer
             return new { error = "Missing numeric 'itemId'." };
         t.PickJewelById(i.GetInt32());
         return new { ok = true };
+    }
+
+    // ── Trader tab ─────────────────────────────────────────────────────────
+
+    private static TraderTabViewModel? GetTraderVm()
+        => (GetMainVm()?.CurrentPage as BuildPageViewModel)?.TraderTab;
+
+    private static object TraderState()
+    {
+        if (GetTraderVm() is not { } t) return new { error = "TraderTab not ready." };
+        return new
+        {
+            ok = true,
+            league = t.SelectedLeague,
+            leagues = t.Leagues.ToArray(),
+            leagueLoadError = t.LeagueLoadError.Length > 0 ? t.LeagueLoadError : null,
+            loggedIn = t.IsLoggedIn,
+            account = t.AccountName,
+            dpsWeight = t.DpsWeight,
+            ehpWeight = t.EhpWeight,
+            totalTryOnDivs = t.TotalTryOnDivs,
+            slots = t.Slots.Select(s => new
+            {
+                slot = s.SlotName,
+                display = s.DisplayName,
+                item = s.CurrentItemName,
+                status = s.Status,
+                busy = s.IsBusy,
+                hasQuery = s.LastQueryJson is not null,
+                results = s.Results.Select(r => new
+                {
+                    price = r.Listing.Amount,
+                    currency = r.Listing.Currency,
+                    seller = r.Listing.Seller,
+                    dps = r.DpsDiff,
+                    ehp = r.EhpDiff,
+                    value = r.StatValue,
+                    valuePerDiv = r.ValuePerDiv,
+                    triedOn = r.IsTriedOn,
+                }).ToArray(),
+            }).ToArray(),
+        };
+    }
+
+    private static object TraderSearch(string body)
+    {
+        if (GetTraderVm() is not { } t) return new { error = "TraderTab not ready." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        var slotName = req.TryGetValue("slot", out var s) && s.ValueKind == JsonValueKind.String
+            ? s.GetString() : null;
+        var row = t.Slots.FirstOrDefault(r =>
+            r.SlotName.Equals(slotName, StringComparison.OrdinalIgnoreCase));
+        if (row is null)
+            return new { error = $"Unknown slot '{slotName}'.",
+                         available = t.Slots.Select(x => x.SlotName).ToArray() };
+        row.SearchCommand.Execute(null); // fire-and-forget; прогресс виден через /trader/state
+        return new { ok = true, started = row.SlotName };
+    }
+
+    private static object TraderSetLeague(string body)
+    {
+        if (GetTraderVm() is not { } t) return new { error = "TraderTab not ready." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        if (req.TryGetValue("league", out var l) && l.ValueKind == JsonValueKind.String &&
+            l.GetString() is { Length: > 0 } league)
+        {
+            t.SelectedLeague = league;
+            return new { ok = true, league };
+        }
+        return new { error = "Provide 'league'." };
     }
 
     public void Stop()
