@@ -65,7 +65,35 @@ public partial class TraderTabViewModel : ViewModelBase
         ("Mirror of Kalandra", "mirror"),
     ];
 
-    public IReadOnlyList<string> CurrencyNames { get; } = Currencies.Select(c => c.Name).ToList();
+    public IReadOnlyList<string> CurrencyNames { get; } = Currencies
+        .Select(c => c.Id is null
+            ? LocalizationService.Get("Trader_CurrencyEquiv")
+            : GameTranslationService.TItem(c.Name))
+        .ToList();
+
+    /// <summary>Локализованное имя валюты по trade-id ("mirror" → «Зеркало Каландры»); незнакомый id — как есть.</summary>
+    internal static string CurrencyDisplay(string currencyId)
+    {
+        foreach (var (name, id) in Currencies)
+            if (id == currencyId)
+                return GameTranslationService.TItem(name);
+        return currencyId;
+    }
+
+    /// <summary>Имя предмета через игровой перевод. Lua отдаёт составное
+    /// «Title, BaseName» — переводим части отдельно (TItem не знает композитов).</summary>
+    internal static string TranslateItemName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return "";
+        var idx = name.IndexOf(", ", StringComparison.Ordinal);
+        if (idx > 0)
+        {
+            var title = name[..idx];
+            var baseName = name[(idx + 2)..];
+            return GameTranslationService.TItem(title) + ", " + GameTranslationService.TItem(baseName);
+        }
+        return GameTranslationService.TItem(name);
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TotalTryOnText))]
@@ -108,7 +136,7 @@ public partial class TraderTabViewModel : ViewModelBase
         {
             var slotName = el.GetProperty("slotName").GetString() ?? "";
             var itemName = el.TryGetProperty("itemName", out var i) ? i.GetString() ?? "" : "";
-            Slots.Add(new TraderSlotRowViewModel(this, slotName, itemName));
+            Slots.Add(new TraderSlotRowViewModel(this, slotName, TranslateItemName(itemName)));
         }
     }
 
@@ -320,8 +348,12 @@ public partial class TraderSlotRowViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanOpenOnSite))]
     private void OpenOnSite()
     {
-        // Формат ссылки — как TradeQuery.lua:1244
-        var url = $"https://www.pathofexile.com/trade2/search/{Uri.EscapeDataString(_owner.SelectedLeague)}"
+        // Формат ссылки — как TradeQuery.lua:1244; хост — по языку приложения
+        // (у trade-сайта есть локализованные зеркала: ru.pathofexile.com и т.д.)
+        var host = LocalizationService.Instance.CurrentLanguage == "ru"
+            ? "https://ru.pathofexile.com"
+            : "https://www.pathofexile.com";
+        var url = $"{host}/trade2/search/{Uri.EscapeDataString(_owner.SelectedLeague)}"
                 + $"?q={Uri.EscapeDataString(LastQueryJson!)}";
         TraderTabViewModel.OpenInBrowser(url);
     }
@@ -351,7 +383,8 @@ public partial class TraderResultViewModel : ViewModelBase
     [ObservableProperty] private double? _statValue;
     [ObservableProperty] private bool _isTriedOn;
 
-    public string PriceText => $"{Listing.Amount:0.##} {Listing.Currency}";
+    public string PriceText =>
+        $"{Listing.Amount:0.##} {TraderTabViewModel.CurrencyDisplay(Listing.Currency)}";
 
     /// <summary>Цена в дивинах; null — курс валюты неизвестен.</summary>
     public double? DivValue =>

@@ -27,18 +27,24 @@ public sealed class TraderWebApi
         _http.DefaultRequestHeaders.UserAgent.ParseAdd("PathOfBuilding-PBLApp/1.0");
     }
 
-    /// <summary>Лиги PoE2 без SSF (как TradeQuery:PullLeagueList).</summary>
+    /// <summary>Лиги trade2-сайта — ровно те 4 варианта, что в его дропдауне
+    /// (api/leagues отдаёт общий список с PoE1-лигами, которых на трейде нет).</summary>
     public async Task<IReadOnlyList<string>> GetLeaguesAsync(CancellationToken ct = default)
     {
         var json = await _http.GetStringAsync(
-            "https://www.pathofexile.com/api/leagues?type=main&compact=1&realm=poe2", ct);
+            "https://www.pathofexile.com/api/trade2/data/leagues", ct);
         using var doc = JsonDocument.Parse(json);
         var leagues = new List<string>();
-        foreach (var league in doc.RootElement.EnumerateArray())
+        if (doc.RootElement.TryGetProperty("result", out var result) &&
+            result.ValueKind == JsonValueKind.Array)
         {
-            var id = league.GetProperty("id").GetString();
-            if (!string.IsNullOrEmpty(id) && !id.Contains("SSF"))
-                leagues.Add(id);
+            foreach (var league in result.EnumerateArray())
+            {
+                var id = league.TryGetProperty("id", out var i) ? i.GetString() : null;
+                var realm = league.TryGetProperty("realm", out var r) ? r.GetString() : "poe2";
+                if (!string.IsNullOrEmpty(id) && realm == "poe2")
+                    leagues.Add(id);
+            }
         }
         return leagues;
     }
