@@ -252,6 +252,35 @@ public sealed partial class LuaHost
                 rl.ValueKind == System.Text.Json.JsonValueKind.Number ? rl.GetDouble() : 0);
     }
 
+    // ── OAuth-токены ─────────────────────────────────────────────────────────
+
+    /// <summary>Инжектит trade-токены в Lua: main.lastToken/... + main.api.
+    /// Дальнейший refresh делает сам PoEAPI:ValidateAuth через DownloadPage-мост.</summary>
+    public void SetTradeAuth(string? accessToken, string? refreshToken, long? tokenExpiry)
+    {
+        _traderLua.Wait();
+        try
+        {
+            EnsureTraderInit();
+            State["_pblTok"] = accessToken;
+            State["_pblRef"] = refreshToken;
+            State["_pblExp"] = tokenExpiry.HasValue ? (double)tokenExpiry.Value : null;
+            State.DoString(@"
+                main.lastToken = _pblTok
+                main.lastRefreshToken = _pblRef
+                main.tokenExpiry = _pblExp
+                if main.api then
+                    main.api.authToken = _pblTok
+                    main.api.refreshToken = _pblRef
+                    main.api.tokenExpiry = _pblExp or 0
+                end");
+            State["_pblTok"] = null;
+            State["_pblRef"] = null;
+            State["_pblExp"] = null;
+        }
+        finally { _traderLua.Release(); }
+    }
+
     // ── Дифф результата ──────────────────────────────────────────────────────
 
     public sealed record TraderDiff(double DpsDiff, double EhpDiff, double StatValue);
