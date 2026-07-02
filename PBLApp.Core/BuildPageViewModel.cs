@@ -28,12 +28,13 @@ public partial class BuildPageViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsSkillsTab))]
     [NotifyPropertyChangedFor(nameof(IsCalcsTab))]
     [NotifyPropertyChangedFor(nameof(IsConfigTab))]
+    [NotifyPropertyChangedFor(nameof(IsTraderTab))]
     [NotifyPropertyChangedFor(nameof(CurrentTabContent))]
     [NotifyPropertyChangedFor(nameof(SelectedTabKey))]
     private int _selectedTabIndex = 0;
 
     public static readonly string[] TabKeys =
-        ["Items", "Tree", "Skills", "Calcs", "Config"];
+        ["Items", "Tree", "Skills", "Calcs", "Config", "Trader"];
 
     public string SelectedTabKey =>
         SelectedTabIndex >= 0 && SelectedTabIndex < TabKeys.Length
@@ -46,6 +47,7 @@ public partial class BuildPageViewModel : ViewModelBase
     public bool IsSkillsTab { get => SelectedTabIndex == 2; set { if (value) SelectedTabIndex = 2; } }
     public bool IsCalcsTab  { get => SelectedTabIndex == 3; set { if (value) SelectedTabIndex = 3; } }
     public bool IsConfigTab { get => SelectedTabIndex == 4; set { if (value) SelectedTabIndex = 4; } }
+    public bool IsTraderTab { get => SelectedTabIndex == 5; set { if (value) SelectedTabIndex = 5; } }
 
     /// <summary>Active tab's content VM, dispatched from <see cref="SelectedTabIndex"/>.</summary>
     public object? CurrentTabContent => SelectedTabIndex switch
@@ -55,6 +57,7 @@ public partial class BuildPageViewModel : ViewModelBase
         2 => SkillsTab,
         3 => CalcsTab,
         4 => ConfigTab,
+        5 => TraderTab,
         _ => null,
     };
 
@@ -64,6 +67,7 @@ public partial class BuildPageViewModel : ViewModelBase
     [ObservableProperty] private bool _isTreePoppedOut;
     [ObservableProperty] private bool _isSkillsPoppedOut;
     [ObservableProperty] private bool _isCalcsPoppedOut;
+    [ObservableProperty] private bool _isTraderPoppedOut;
 
     public bool IsTabPoppedOut(string key) => key switch
     {
@@ -71,6 +75,7 @@ public partial class BuildPageViewModel : ViewModelBase
         "Tree"   => IsTreePoppedOut,
         "Skills" => IsSkillsPoppedOut,
         "Calcs"  => IsCalcsPoppedOut,
+        "Trader" => IsTraderPoppedOut,
         _        => false,
     };
 
@@ -82,6 +87,7 @@ public partial class BuildPageViewModel : ViewModelBase
             case "Tree":   IsTreePoppedOut   = value; break;
             case "Skills": IsSkillsPoppedOut = value; break;
             case "Calcs":  IsCalcsPoppedOut  = value; break;
+            case "Trader": IsTraderPoppedOut = value; break;
         }
     }
 
@@ -106,6 +112,7 @@ public partial class BuildPageViewModel : ViewModelBase
     public TreeTabViewModel? TreeTab { get; private set; }
     public NotesTabViewModel? NotesTab { get; private set; }
     public ConfigTabViewModel? ConfigTab { get; private set; }
+    public TraderTabViewModel? TraderTab { get; private set; }
     public ImportTabViewModel? ImportTab { get; private set; }
 
     public IRelayCommand BackCommand { get; }
@@ -168,6 +175,8 @@ public partial class BuildPageViewModel : ViewModelBase
                 onItemsChanged: () => ItemsTab?.Refresh());
             NotesTab  = new NotesTabViewModel(model, xmlPath);
             ConfigTab = new ConfigTabViewModel(host, model);
+            TraderTab = new TraderTabViewModel(host, model,
+                onStatsChanged: () => { CalcsTab.Refresh(); ItemsTab?.Refresh(); SkillsTab?.Refresh(); });
             ImportTab = new ImportTabViewModel(host, model, xmlPath);
             // Seed the level from the loaded build without triggering OnCharacterLevelChanged
             // (direct field write) — otherwise we'd re-apply + flip auto-mode on every load.
@@ -180,6 +189,7 @@ public partial class BuildPageViewModel : ViewModelBase
             OnPropertyChanged(nameof(TreeTab));
             OnPropertyChanged(nameof(NotesTab));
             OnPropertyChanged(nameof(ConfigTab));
+            OnPropertyChanged(nameof(TraderTab));
             OnPropertyChanged(nameof(ImportTab));
             OnPropertyChanged(nameof(CurrentTabContent));
         }
