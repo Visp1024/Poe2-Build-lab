@@ -252,6 +252,59 @@ public sealed partial class LuaHost
                 rl.ValueKind == System.Text.Json.JsonValueKind.Number ? rl.GetDouble() : 0);
     }
 
+    // ── Примерка ─────────────────────────────────────────────────────────────
+
+    /// <summary>Импортирует itemText в пул и экипирует в слот (Undo вернёт).
+    /// false — предмет не распарсился.</summary>
+    public async Task<bool> TryOnListingAsync(string slotName, string itemText, CancellationToken ct)
+    {
+        await _traderLua.WaitAsync(ct);
+        try
+        {
+            State["_pblItemText"] = itemText;
+            State["_pblSlotName"] = slotName;
+            var r = State.DoString(@"
+                if not (build and build.itemsTab) then return false end
+                build.itemsTab:CreateDisplayItemFromRaw(_pblItemText)
+                local d = build.itemsTab.displayItem
+                if not (d and d.baseName) then return false end
+                if d.itemSocketCount and d.itemSocketCount > 0 and d.UpdateRunes
+                    and d.base and d.base.tags then
+                    pcall(function()
+                        d:UpdateRunes()
+                        if d.BuildAndParseRaw then d:BuildAndParseRaw() end
+                    end)
+                end
+                build.itemsTab:AddDisplayItem(true)  -- noAutoEquip = true
+                local newId = d.id
+                local slot = build.itemsTab.slots[_pblSlotName]
+                if slot and newId and build.itemsTab.items[newId] then
+                    slot:SetSelItemId(newId)
+                    build.itemsTab:PopulateSlots()
+                    build.itemsTab:AddUndoState()
+                    build.buildFlag = true
+                end
+                return true");
+            State["_pblItemText"] = null;
+            State["_pblSlotName"] = null;
+            TriggerRecalc();
+            return r is { Length: > 0 } && r[0] is bool b && b;
+        }
+        finally { _traderLua.Release(); }
+    }
+
+    /// <summary>Слоты трейдера с именами текущих предметов (JSON из PBLTrader.GetSlotsJson).</summary>
+    public string GetTraderSlotsJson()
+    {
+        _traderLua.Wait();
+        try
+        {
+            EnsureTraderInit();
+            return (string)State.DoString("return PBLTrader.GetSlotsJson()")[0];
+        }
+        finally { _traderLua.Release(); }
+    }
+
     // ── OAuth-токены ─────────────────────────────────────────────────────────
 
     /// <summary>Инжектит trade-токены в Lua: main.lastToken/... + main.api.
