@@ -390,7 +390,9 @@ public partial class TraderResultViewModel : ViewModelBase
         }
     }
 
-    [RelayCommand]
+    private bool CanCopyWhisper() => Listing.Whisper.Length > 0;
+
+    [RelayCommand(CanExecute = nameof(CanCopyWhisper))]
     private async Task CopyWhisperAsync()
     {
         if (_owner.CopyToClipboardAsync is { } copy)
