@@ -176,6 +176,82 @@ public sealed partial class LuaHost
         finally { _traderLua.Release(); }
     }
 
+    // ── Поиск и fetch ────────────────────────────────────────────────────────
+
+    public sealed record TraderListing(
+        string Id, string ItemText, double Amount, string Currency,
+        string PriceType, string Whisper, string Seller, double Weight);
+
+    public sealed record TraderSearchResult(
+        IReadOnlyList<TraderListing> Listings, string? QueryId, string? Error, double RateLimitWaitSec);
+
+    /// <summary>Поиск + fetch (realm фиксирован "poe2"). Качает очередь TradeQueryRequests
+    /// и доставляет HTTP-ответы, пока Lua не отдаст результаты.</summary>
+    public async Task<TraderSearchResult> SearchTradeAsync(
+        string league, string queryJson, CancellationToken ct)
+    {
+        await _traderLua.WaitAsync(ct);
+        try
+        {
+            EnsureTraderInit();
+            State["_pblLeague"] = league;
+            State["_pblQuery"] = queryJson;
+            State.DoString("PBLTrader.StartSearch('poe2', _pblLeague, _pblQuery)");
+        }
+        finally { _traderLua.Release(); }
+
+        while (true)
+        {
+            ct.ThrowIfCancellationRequested();
+            string stateJson;
+            await _traderLua.WaitAsync(ct);
+            try
+            {
+                DrainTraderHttp();
+                State.DoString("PBLTrader.Pump()");
+                DrainTraderHttp();
+                stateJson = (string)State.DoString("return PBLTrader.GetSearchStateJson()")[0];
+            }
+            finally { _traderLua.Release(); }
+
+            var state = System.Text.Json.JsonDocument.Parse(stateJson).RootElement;
+            if (state.GetProperty("done").GetBoolean())
+                return ParseSearchState(state);
+            await Task.Delay(150, ct);
+        }
+    }
+
+    private static TraderSearchResult ParseSearchState(System.Text.Json.JsonElement state)
+    {
+        var listings = new List<TraderListing>();
+        if (state.TryGetProperty("items", out var items) &&
+            items.ValueKind == System.Text.Json.JsonValueKind.Array)
+        {
+            foreach (var it in items.EnumerateArray())
+            {
+                listings.Add(new TraderListing(
+                    it.GetProperty("id").GetString() ?? "",
+                    it.GetProperty("item_string").GetString() ?? "",
+                    it.GetProperty("amount").GetDouble(),
+                    it.GetProperty("currency").GetString() ?? "",
+                    it.TryGetProperty("priceType", out var pt) ? pt.GetString() ?? "" : "",
+                    it.GetProperty("whisper").GetString() ?? "",
+                    it.GetProperty("trader").GetString() ?? "",
+                    it.TryGetProperty("weight", out var w) && w.GetString() is { } ws &&
+                        double.TryParse(ws, System.Globalization.NumberStyles.Float,
+                            System.Globalization.CultureInfo.InvariantCulture, out var wd) ? wd : 0));
+            }
+        }
+        return new TraderSearchResult(
+            listings,
+            state.TryGetProperty("queryId", out var q) &&
+                q.ValueKind == System.Text.Json.JsonValueKind.String ? q.GetString() : null,
+            state.TryGetProperty("err", out var e) &&
+                e.ValueKind == System.Text.Json.JsonValueKind.String ? e.GetString() : null,
+            state.TryGetProperty("rateLimitWait", out var rl) &&
+                rl.ValueKind == System.Text.Json.JsonValueKind.Number ? rl.GetDouble() : 0);
+    }
+
     /// <summary>Доставить готовые HTTP-ответы Lua-callback'ам.
     /// Вызывать только с потока, владеющего Lua-состоянием (или под trader-семафором).</summary>
     public int DrainTraderHttp()

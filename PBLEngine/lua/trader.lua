@@ -87,6 +87,39 @@ function PBLTrader.GetGenerateResult()
 	return PBLTrader.genQuery, PBLTrader.genErr
 end
 
+-- ── Поиск и fetch результатов ────────────────────────────────────────────────
+-- SearchWithQueryWeightAdjusted сам повторяет поиск при >10k результатов и
+-- фетчит блоки по 10; нам остаётся качать ProcessQueue и ждать callback.
+
+function PBLTrader.StartSearch(realm, league, queryJson)
+	PBLTrader.Init()
+	PBLTrader.searchDone, PBLTrader.searchErr = false, nil
+	PBLTrader.searchItems, PBLTrader.searchQueryId = nil, nil
+	PBLTrader.rateLimitWait = 0
+	PBLTrader.requests:SearchWithQueryWeightAdjusted(realm, league, queryJson,
+		function(items, errMsg)
+			PBLTrader.searchItems, PBLTrader.searchErr = items, errMsg
+			PBLTrader.searchDone = true
+		end,
+		{ callbackQueryId = function(id) PBLTrader.searchQueryId = id end })
+end
+
+function PBLTrader.Pump()
+	PBLTrader.requests:ProcessQueue(function(waitTime)
+		PBLTrader.rateLimitWait = waitTime or 0
+	end)
+end
+
+function PBLTrader.GetSearchStateJson()
+	return dkjson.encode({
+		done = PBLTrader.searchDone or false,
+		err = PBLTrader.searchErr,
+		queryId = PBLTrader.searchQueryId,
+		rateLimitWait = PBLTrader.rateLimitWait or 0,
+		items = PBLTrader.searchItems,
+	})
+end
+
 function PBLTrader.GetSlotsJson()
 	local out = {}
 	for _, slotName in ipairs(PBLTrader.baseSlots) do
