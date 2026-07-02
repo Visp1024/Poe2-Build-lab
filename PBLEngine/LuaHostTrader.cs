@@ -54,6 +54,21 @@ public sealed partial class LuaHost
         }
     }
 
+    private bool _traderInitLoaded;
+
+    /// <summary>Идемпотентно: HTTP-мост + загрузка trader.lua + PBLTrader.Init()
+    /// (пере-инициализация генератора при смене билда — внутри Init).</summary>
+    public void EnsureTraderInit()
+    {
+        EnsureTraderHttp();
+        if (!_traderInitLoaded)
+        {
+            State.DoString(File.ReadAllText(Path.Combine(EngineLuaDir, "trader.lua")), "@trader.lua");
+            _traderInitLoaded = true;
+        }
+        State.DoString("PBLTrader.Init()");
+    }
+
     // Вызывается ИЗ Lua (на Lua-потоке). Снимает данные и уходит в пул — Lua не блокируется.
     private void TraderHttpStart(long id, string url, string? header, string? body)
     {
