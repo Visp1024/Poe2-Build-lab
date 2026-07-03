@@ -34,7 +34,7 @@
   <data name="Slot_Weapon1Swap"   xml:space="preserve"><value>WEAPON 1 (SWAP)</value></data>
   <data name="Slot_Weapon2Swap"   xml:space="preserve"><value>WEAPON 2 (SWAP)</value></data>
   <data name="Trader_Login"            xml:space="preserve"><value>Sign in via pathofexile.com</value></data>
-  <data name="Trader_Logout"           xml:space="preserve"><value>Sign out</value></data>
+  <data name="Trader_Logout"           xml:space="preserve"><value>Log out</value></data>
   <data name="Trader_FindUpgrades"     xml:space="preserve"><value>Find upgrades</value></data>
   <data name="Trader_Cancel"           xml:space="preserve"><value>Cancel</value></data>
   <data name="Trader_Cancelled"        xml:space="preserve"><value>Cancelled</value></data>

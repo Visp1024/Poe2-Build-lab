@@ -58,6 +58,7 @@
                            Text="{Binding Session.LeagueLoadError}"
                            IsVisible="{Binding Session.LeagueLoadError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                 <TextBlock Grid.Column="3" VerticalAlignment="Center" Margin="0,0,10,0"
+                           Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="Medium"
                            Text="{Binding Session.AccountName}"
                            IsVisible="{Binding Session.IsLoggedIn}" />
                 <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6">
