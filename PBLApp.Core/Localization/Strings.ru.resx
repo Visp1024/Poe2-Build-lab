@@ -34,7 +34,7 @@
   <data name="Slot_Weapon1Swap"   xml:space="preserve"><value>ОРУЖИЕ 1 (СМЕНА)</value></data>
   <data name="Slot_Weapon2Swap"   xml:space="preserve"><value>ОРУЖИЕ 2 (СМЕНА)</value></data>
   <data name="Trader_Login"            xml:space="preserve"><value>Войти через pathofexile.com</value></data>
-  <data name="Trader_Logout"           xml:space="preserve"><value>Выйти</value></data>
+  <data name="Trader_Logout"           xml:space="preserve"><value>Разлогиниться</value></data>
   <data name="Trader_FindUpgrades"     xml:space="preserve"><value>Найти апгрейды</value></data>
   <data name="Trader_Cancel"           xml:space="preserve"><value>Отмена</value></data>
   <data name="Trader_Cancelled"        xml:space="preserve"><value>Отменено</value></data>
