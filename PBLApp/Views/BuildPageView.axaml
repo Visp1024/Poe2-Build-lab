@@ -387,13 +387,6 @@
                                      VerticalContentAlignment="Center">
                             <TextBlock Text="{loc:Tr Tab_Config}" VerticalAlignment="Center" />
                         </RadioButton>
-                        <RadioButton Classes="tab" GroupName="MainTabs"
-                                     IsChecked="{Binding IsTraderTab, Mode=TwoWay}"
-                                     IsVisible="{Binding Build, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                     VerticalAlignment="Stretch"
-                                     VerticalContentAlignment="Center">
-                            <TextBlock Text="{loc:Tr Tab_Trader}" VerticalAlignment="Center" />
-                        </RadioButton>
                     </StackPanel>
 
                     <!-- Notes / Import-Export: open their own windows; parked at the right

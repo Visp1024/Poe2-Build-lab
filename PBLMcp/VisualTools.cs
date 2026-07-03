@@ -623,8 +623,8 @@ public class VisualTools
 
     [McpServerTool]
     [Description(
-        "Get Trader tab state: league, login status, per-slot search status and results " +
-        "(price, seller, stat diffs). Poll this after visual_trader_search.")]
+        "Get trader window state: target slot, league, login status, search status and " +
+        "results (price, seller, stat diffs). Poll this after visual_trader_search.")]
     public async Task<string> VisualTraderState()
     {
         try { return await IpcClient.CallAsync("GET", "/trader/state"); }
@@ -633,8 +633,8 @@ public class VisualTools
 
     [McpServerTool]
     [Description(
-        "Start an upgrade search for an equipment slot on the Trader tab (e.g. 'Helmet', " +
-        "'Body Armour'). Runs async — poll visual_trader_state for stage/results.")]
+        "Start an upgrade search in the currently open trader window. Open a window first " +
+        "with visual_trader_open. Runs async — poll visual_trader_state for stage/results.")]
     public async Task<string> VisualTraderSearch(string slot)
     {
         try { return await IpcClient.CallAsync("POST", "/trader/search", new { slot }); }
@@ -642,7 +642,7 @@ public class VisualTools
     }
 
     [McpServerTool]
-    [Description("Select the trade league on the Trader tab.")]
+    [Description("Select the trade league (shared by the trader window).")]
     public async Task<string> VisualTraderSetLeague(string league)
     {
         try { return await IpcClient.CallAsync("POST", "/trader/set-league", new { league }); }

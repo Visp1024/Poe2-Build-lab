@@ -40,54 +40,59 @@ public class TraderTabViewModelTests : IClassFixture<LuaHostFixture>
     }
 
     [Fact]
-    public void ViewModel_PopulatesSlots_AndPresetsChangeWeights()
+    public void Session_PopulatesWeights_AndPresetsChangeWeights()
     {
-        var vm = new TraderTabViewModel(_host, new BuildModel(_host),
+        var session = new TraderSession(_host, new BuildModel(_host),
             webApi: new PBLApp.Core.Trader.TraderWebApi(new FakeHttpHandler()));
 
-        Assert.NotEmpty(vm.Slots);
-        Assert.Contains(vm.Slots, s => s.SlotName == "Helmet");
-        Assert.Contains(vm.Slots, s => s.SlotName == "Body Armour");
+        Assert.NotEmpty(session.WeightStats);
+        Assert.Contains(session.KnownSlots, s => s == "Helmet");
+        Assert.Contains(session.KnownSlots, s => s == "Body Armour");
 
-        vm.ApplyPresetCommand.Execute("ehp");
-        var fullDps = vm.WeightStats.First(w => w.Stat == "FullDPS");
-        var totalEhp = vm.WeightStats.First(w => w.Stat == "TotalEHP");
+        session.ApplyPresetCommand.Execute("ehp");
+        var fullDps = session.WeightStats.First(w => w.Stat == "FullDPS");
+        var totalEhp = session.WeightStats.First(w => w.Stat == "TotalEHP");
         Assert.Equal(0.1, fullDps.WeightMult, 6);
         Assert.Equal(1.0, totalEhp.WeightMult, 6);
-
-        Assert.Contains("\"statWeights\"", vm.OptionsJson);
-        Assert.Contains("FullDPS", vm.StatWeightsJson);
+        Assert.True(session.HasActiveWeights);
+        Assert.Contains("FullDPS", session.StatWeightsJson);
     }
 
     [Fact]
-    public void WeightStats_LoadedAndPresetChangesOptionsJson()
+    public void Window_BuildsOptionsJson_FromSessionWeightsAndMaxPrice()
     {
-        var vm = new TraderTabViewModel(_host, new BuildModel(_host),
+        var session = new TraderSession(_host, new BuildModel(_host),
             webApi: new PBLApp.Core.Trader.TraderWebApi(new FakeHttpHandler()));
-        Assert.NotEmpty(vm.WeightStats);
-        vm.ApplyPresetCommand.Execute("ehp");
-        Assert.Contains("TotalEHP", vm.StatWeightsJson);
-        Assert.True(vm.HasActiveWeights);
-        var full = vm.WeightStats.First(w => w.Stat == "FullDPS");
-        Assert.Equal(0.1, full.WeightMult, 6);
+        session.ApplyPresetCommand.Execute("dps");
+        var win = new TraderWindowViewModel(session, "Helmet");
+
+        Assert.Contains("\"statWeights\"", win.OptionsJson);
+        Assert.Contains("FullDPS", win.OptionsJson);
     }
 
     [Fact]
-    public void RequiredFilters_LoadAddAndBuildJson()
+    public void Window_RequiredFilters_LoadAddAndBuildJson_PersistPerSlotInSession()
     {
-        var vm = new TraderTabViewModel(_host, new BuildModel(_host),
+        var session = new TraderSession(_host, new BuildModel(_host),
             webApi: new PBLApp.Core.Trader.TraderWebApi(new FakeHttpHandler()));
-        var helmet = vm.Slots.First(s => s.SlotName == "Helmet");
-        Assert.True(helmet.HasStatCategory);
+        var win = new TraderWindowViewModel(session, "Helmet");
+        Assert.True(win.HasStatCategory);
 
-        helmet.LoadAvailableStatsCommand.Execute(null);
-        Assert.NotEmpty(helmet.AvailableStats);
+        win.LoadAvailableStatsCommand.Execute(null);
+        Assert.NotEmpty(win.AvailableStats);
 
-        var stat = helmet.AvailableStats[0];
-        helmet.AddRequiredCommand.Execute(stat);
-        helmet.RequiredFilters[0].Min = "75";
+        var stat = win.AvailableStats[0];
+        win.AddRequiredCommand.Execute(stat);
+        win.RequiredFilters[0].Min = "75";
 
-        Assert.Contains(stat.Id, helmet.RequiredJson);
-        Assert.Contains("\"min\":75", helmet.RequiredJson);
+        Assert.Contains(stat.Id, win.RequiredJson);
+        Assert.Contains("\"min\":75", win.RequiredJson);
+
+        // персист в сессии: перенацелить на другой слот и обратно — фильтр на месте
+        win.Retarget("Gloves");
+        Assert.Empty(win.RequiredFilters);
+        win.Retarget("Helmet");
+        Assert.Single(win.RequiredFilters);
+        Assert.Equal(stat.Id, win.RequiredFilters[0].Id);
     }
 }
