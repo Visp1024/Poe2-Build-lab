@@ -354,7 +354,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Helmet">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -376,7 +376,7 @@
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Amulet">
-                                            <TextBlock Text="🔍"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -399,7 +399,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Weapon 1">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -422,7 +422,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Weapon 1 Swap">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -444,7 +444,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Body Armour">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -466,7 +466,7 @@
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Ring 1">
-                                            <TextBlock Text="🔍"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -488,7 +488,7 @@
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Ring 2">
-                                            <TextBlock Text="🔍"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -511,7 +511,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Weapon 2">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -534,7 +534,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Weapon 2 Swap">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -556,7 +556,7 @@
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Belt">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -578,7 +578,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Gloves">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -600,7 +600,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Boots">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -622,7 +622,7 @@
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Charm 1">
-                                            <TextBlock Text="🔍"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -642,7 +642,7 @@
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Charm 2">
-                                            <TextBlock Text="🔍"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -662,7 +662,7 @@
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Charm 3">
-                                            <TextBlock Text="🔍"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -684,7 +684,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Flask 1">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -706,7 +706,7 @@
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
                                         <Border Classes="trader-strip" Tag="trader:Flask 2">
-                                            <TextBlock Text="🔍 Подбор"/>
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
                                         </Border>
                                     </Grid>
                                 </Border>

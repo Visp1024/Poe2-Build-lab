@@ -417,11 +417,21 @@ Pass over the Skills tab and the overall tabbing UX based on direct user feedbac
 
 ---
 
-### Phase 18 — Trader tab (trade upgrade search) ✅ DONE
+### Phase 18 — Trader (trade upgrade search) ✅ DONE
 
-Полный in-app аналог PoB Trader: вкладка «Трейдер» ищет апгрейды по слоту на
-pathofexile.com/trade2. Спек: `docs/superpowers/specs/2026-07-03-trader-tab-design.md`,
+Полный in-app аналог PoB Trader: подбор апгрейдов по слоту на pathofexile.com/trade2.
+Спек: `docs/superpowers/specs/2026-07-03-trader-tab-design.md`,
 план: `docs/superpowers/plans/2026-07-03-trader-tab.md`.
+
+> **Редизайн (2026-07-03)** — спек `…/specs/2026-07-03-trader-slot-window-redesign-design.md`,
+> план `…/plans/2026-07-03-trader-slot-window-redesign.md`: отдельная вкладка «Трейдер»
+> заменена на **пер-слот подбор**. Под каждой ячейкой фигуры Items — полоска «🔍 Подбор»,
+> открывающая единое перенацеливаемое немодальное окно `TraderWindow` для этого слота.
+> `TraderTabViewModel` расщеплён на `TraderSession` (глобальное: логин/лига/веса/курсы +
+> required-по-слотам) и `TraderWindowViewModel` (пер-слот поиск). Движок/Lua/OAuth не тронуты;
+> IPC/MCP (`/trader/open` + `visual_trader_open`) нацелены на активное окно. Пустой слот
+> показывает подсказку «экипируйте предмет» (полноценный поиск по категории без предмета
+> отложен — требует правки генератора в off-limits `src/Classes`).
 
 - **HTTP-мост**: `launch:DownloadPage` реализован поверх `HttpClient`
   (`PBLEngine/lua/trader_http.lua` + `LuaHostTrader.cs`); ответы (тело + сырые
