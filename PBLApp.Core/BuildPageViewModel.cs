@@ -123,7 +123,9 @@ public partial class BuildPageViewModel : ViewModelBase
     {
         if (TraderSession is null && _host is not null && Build is not null)
             TraderSession = new TraderSession(_host, Build,
-                onStatsChanged: () => { CalcsTab?.Refresh(); ItemsTab?.Refresh(); SkillsTab?.Refresh(); });
+                // Build.Refresh() — примерка экипирует предмет и рекалькулирует движок,
+                // но статы в шапке (BuildModel) без этого не обновятся.
+                onStatsChanged: () => { Build?.Refresh(); CalcsTab?.Refresh(); ItemsTab?.Refresh(); SkillsTab?.Refresh(); });
         return TraderSession!;
     }
 

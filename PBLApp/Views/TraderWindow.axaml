@@ -85,16 +85,21 @@
                                         BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
                                         CornerRadius="8" Padding="12">
                                 <StackPanel Width="360" Spacing="6">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <Button Content="{loc:Tr Trader_PresetDps}"
+                                    <!-- Пресеты компактной сеткой 2×2 (в один ряд не влезали) -->
+                                    <UniformGrid Rows="2" Columns="2">
+                                        <Button Content="{loc:Tr Trader_PresetDps}" Margin="2" FontSize="11"
+                                                Padding="6,3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                                                 Command="{Binding Session.ApplyPresetCommand}" CommandParameter="dps" />
-                                        <Button Content="{loc:Tr Trader_PresetEhp}"
+                                        <Button Content="{loc:Tr Trader_PresetEhp}" Margin="2" FontSize="11"
+                                                Padding="6,3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                                                 Command="{Binding Session.ApplyPresetCommand}" CommandParameter="ehp" />
-                                        <Button Content="{loc:Tr Trader_PresetBalance}"
+                                        <Button Content="{loc:Tr Trader_PresetBalance}" Margin="2" FontSize="11"
+                                                Padding="6,3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                                                 Command="{Binding Session.ApplyPresetCommand}" CommandParameter="balance" />
-                                        <Button Content="{loc:Tr Trader_WeightReset}"
-                                                Command="{Binding Session.ResetWeightsCommand}" HorizontalAlignment="Right" />
-                                    </StackPanel>
+                                        <Button Content="{loc:Tr Trader_WeightReset}" Margin="2" FontSize="11"
+                                                Padding="6,3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                Command="{Binding Session.ResetWeightsCommand}" />
+                                    </UniformGrid>
                                     <TextBox Text="{Binding Session.WeightSearch, Mode=TwoWay}"
                                              Watermark="{loc:Tr Trader_WeightSearch}" />
                                     <ScrollViewer MaxHeight="360">
