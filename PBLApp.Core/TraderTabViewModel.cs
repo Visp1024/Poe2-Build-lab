@@ -29,6 +29,7 @@ public partial class TraderTabViewModel : ViewModelBase
     private readonly PoeOAuthService _oauth;
     private IReadOnlyDictionary<string, double> _rates =
         new Dictionary<string, double>();
+    private bool _suppressWeightPush;
 
     /// <summary>Одновременно идёт максимум один поиск (генератор — один на билд).</summary>
     internal SemaphoreSlim SearchGate { get; } = new(1, 1);
@@ -135,11 +136,13 @@ public partial class TraderTabViewModel : ViewModelBase
     [RelayCommand]
     private void ResetWeights()
     {
-        foreach (var w in WeightStats)
-            w.WeightMult = 0;
-        SetWeight("FullDPS", 1.0);
-        SetWeight("TotalEHP", 0.5);
-        OnWeightsChanged();
+        BatchSetWeights(() =>
+        {
+            foreach (var w in WeightStats)
+                w.WeightMult = 0;
+            SetWeight("FullDPS", 1.0);
+            SetWeight("TotalEHP", 0.5);
+        });
     }
 
     private void SetWeight(string stat, double value)
@@ -150,6 +153,7 @@ public partial class TraderTabViewModel : ViewModelBase
 
     internal void OnWeightsChanged()
     {
+        if (_suppressWeightPush) return;
         Host.SetTraderWeights(StatWeightsJson);
         OnPropertyChanged(nameof(ActiveWeightCount));
         OnPropertyChanged(nameof(WeightsButtonText));
@@ -157,6 +161,14 @@ public partial class TraderTabViewModel : ViewModelBase
         OnPropertyChanged(nameof(FilteredWeightStats));
         OnPropertyChanged(nameof(OptionsJson));
         OnPropertyChanged(nameof(StatWeightsJson));
+    }
+
+    private void BatchSetWeights(Action apply)
+    {
+        _suppressWeightPush = true;
+        try { apply(); }
+        finally { _suppressWeightPush = false; }
+        OnWeightsChanged();
     }
 
     partial void OnWeightSearchChanged(string value) =>
@@ -181,15 +193,20 @@ public partial class TraderTabViewModel : ViewModelBase
             WeightStats.Add(new TraderWeightEntryViewModel(this, stat, label));
         }
 
-        // Наложить сохранённые веса
-        using var savedDoc = JsonDocument.Parse(host.GetTraderWeightsJson());
-        foreach (var el in savedDoc.RootElement.EnumerateArray())
+        // Наложить сохранённые веса (пришли из Lua, не переотправляем)
+        _suppressWeightPush = true;
+        try
         {
-            var stat = el.GetProperty("stat").GetString() ?? "";
-            var mult = el.TryGetProperty("weightMult", out var wm) ? wm.GetDouble() : 0.0;
-            var entry = WeightStats.FirstOrDefault(w => w.Stat == stat);
-            if (entry is not null) entry.WeightMult = mult;
+            using var savedDoc = JsonDocument.Parse(host.GetTraderWeightsJson());
+            foreach (var el in savedDoc.RootElement.EnumerateArray())
+            {
+                var stat = el.GetProperty("stat").GetString() ?? "";
+                var mult = el.TryGetProperty("weightMult", out var wm) ? wm.GetDouble() : 0.0;
+                var entry = WeightStats.FirstOrDefault(w => w.Stat == stat);
+                if (entry is not null) entry.WeightMult = mult;
+            }
         }
+        finally { _suppressWeightPush = false; }
 
         _ = InitLeaguesAsync();
     }
@@ -262,10 +279,12 @@ public partial class TraderTabViewModel : ViewModelBase
             "ehp" => (0.1, 1.0),
             _ => (1.0, 0.5), // balance
         };
-        foreach (var w in WeightStats) w.WeightMult = 0;
-        SetWeight("FullDPS", dps);
-        SetWeight("TotalEHP", ehp);
-        OnWeightsChanged();
+        BatchSetWeights(() =>
+        {
+            foreach (var w in WeightStats) w.WeightMult = 0;
+            SetWeight("FullDPS", dps);
+            SetWeight("TotalEHP", ehp);
+        });
     }
 
     public string StatWeightsJson =>

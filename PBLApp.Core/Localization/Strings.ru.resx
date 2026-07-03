@@ -59,8 +59,6 @@
   <data name="Trader_ColSeller"        xml:space="preserve"><value>Продавец</value></data>
   <data name="Trader_TotalTryOn"       xml:space="preserve"><value>Примерено на {0} див</value></data>
   <data name="Trader_NoResults"        xml:space="preserve"><value>Нет результатов</value></data>
-  <data name="Trader_WeightDps"        xml:space="preserve"><value>Урон ×</value></data>
-  <data name="Trader_WeightEhp"        xml:space="preserve"><value>EHP ×</value></data>
   <data name="Trader_Weights"          xml:space="preserve"><value>Настроить веса… ({0})</value></data>
   <data name="Trader_WeightSearch"     xml:space="preserve"><value>Поиск стата…</value></data>
   <data name="Trader_WeightReset"      xml:space="preserve"><value>Сброс</value></data>

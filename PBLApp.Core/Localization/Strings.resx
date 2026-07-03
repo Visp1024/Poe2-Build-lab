@@ -59,8 +59,6 @@
   <data name="Trader_ColSeller"        xml:space="preserve"><value>Seller</value></data>
   <data name="Trader_TotalTryOn"       xml:space="preserve"><value>Tried on: {0} div</value></data>
   <data name="Trader_NoResults"        xml:space="preserve"><value>No results</value></data>
-  <data name="Trader_WeightDps"        xml:space="preserve"><value>DPS ×</value></data>
-  <data name="Trader_WeightEhp"        xml:space="preserve"><value>EHP ×</value></data>
   <data name="Trader_Weights"          xml:space="preserve"><value>Adjust weights… ({0})</value></data>
   <data name="Trader_WeightSearch"     xml:space="preserve"><value>Search stat…</value></data>
   <data name="Trader_WeightReset"      xml:space="preserve"><value>Reset</value></data>
