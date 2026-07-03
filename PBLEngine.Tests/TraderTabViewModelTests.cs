@@ -71,4 +71,23 @@ public class TraderTabViewModelTests : IClassFixture<LuaHostFixture>
         var full = vm.WeightStats.First(w => w.Stat == "FullDPS");
         Assert.Equal(0.1, full.WeightMult, 6);
     }
+
+    [Fact]
+    public void RequiredFilters_LoadAddAndBuildJson()
+    {
+        var vm = new TraderTabViewModel(_host, new BuildModel(_host),
+            webApi: new PBLApp.Core.Trader.TraderWebApi(new FakeHttpHandler()));
+        var helmet = vm.Slots.First(s => s.SlotName == "Helmet");
+        Assert.True(helmet.HasStatCategory);
+
+        helmet.LoadAvailableStatsCommand.Execute(null);
+        Assert.NotEmpty(helmet.AvailableStats);
+
+        var stat = helmet.AvailableStats[0];
+        helmet.AddRequiredCommand.Execute(stat);
+        helmet.RequiredFilters[0].Min = "75";
+
+        Assert.Contains(stat.Id, helmet.RequiredJson);
+        Assert.Contains("\"min\":75", helmet.RequiredJson);
+    }
 }

@@ -357,6 +357,7 @@ public partial class TraderSlotRowViewModel : ViewModelBase
 {
     private readonly TraderTabViewModel _owner;
     private CancellationTokenSource? _cts;
+    private readonly string _cachedStatsJson;
 
     public string SlotName { get; }
     public string DisplayName { get; }
@@ -365,8 +366,90 @@ public partial class TraderSlotRowViewModel : ViewModelBase
     [ObservableProperty] private string _status = "";
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string? _lastQueryJson;
+    [ObservableProperty] private string _requiredSearch = "";
 
     public ObservableCollection<TraderResultViewModel> Results { get; } = [];
+    public ObservableCollection<TraderRequiredFilterViewModel> RequiredFilters { get; } = [];
+    public ObservableCollection<TraderAvailableStatViewModel> AvailableStats { get; } = [];
+
+    public bool HasStatCategory { get; }
+
+    public string RequiredButtonText =>
+        string.Format(LocalizationService.Get("Trader_Required"), RequiredFilters.Count);
+
+    public string RequiredJson
+    {
+        get
+        {
+            var nodes = new System.Text.Json.Nodes.JsonArray();
+            foreach (var f in RequiredFilters)
+            {
+                var obj = new System.Text.Json.Nodes.JsonObject();
+                obj["id"] = f.Id;
+                if (double.TryParse(f.Min, NumberStyles.Float, CultureInfo.InvariantCulture, out var min))
+                {
+                    if (min == Math.Floor(min))
+                        obj["min"] = (long)min;
+                    else
+                        obj["min"] = min;
+                }
+                nodes.Add(obj);
+            }
+            return nodes.ToJsonString();
+        }
+    }
+
+    public IEnumerable<TraderAvailableStatViewModel> FilteredAvailableStats
+    {
+        get
+        {
+            if (AvailableStats.Count == 0 && HasStatCategory)
+                LoadAvailableStats();
+            var search = RequiredSearch?.Trim() ?? "";
+            IEnumerable<TraderAvailableStatViewModel> all = AvailableStats;
+            if (!string.IsNullOrEmpty(search))
+                all = all.Where(s => s.Text.Contains(search, StringComparison.OrdinalIgnoreCase));
+            return all;
+        }
+    }
+
+    public IRelayCommand LoadAvailableStatsCommand { get; }
+    public IRelayCommand<TraderAvailableStatViewModel> AddRequiredCommand { get; }
+
+    internal void OnRequiredChanged()
+    {
+        OnPropertyChanged(nameof(RequiredButtonText));
+        OnPropertyChanged(nameof(RequiredJson));
+    }
+
+    private static bool IsEmptyStats(string json)
+    {
+        var t = json?.Trim() ?? "";
+        return t is "[]" or "{}" || string.IsNullOrEmpty(t);
+    }
+
+    private void LoadAvailableStats()
+    {
+        if (AvailableStats.Count > 0 || string.IsNullOrEmpty(_cachedStatsJson)) return;
+        try
+        {
+            using var doc = JsonDocument.Parse(_cachedStatsJson);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array) return;
+            foreach (var el in doc.RootElement.EnumerateArray())
+            {
+                var id = el.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
+                var rawText = el.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? "" : "";
+                var text = GameTranslationService.TTooltipLine(rawText);
+                if (string.IsNullOrEmpty(text) || text.StartsWith('['))
+                    text = rawText;
+                AvailableStats.Add(new TraderAvailableStatViewModel(id, text));
+            }
+        }
+        catch { /* malformed JSON — leave empty */ }
+    }
+
+    partial void OnRequiredSearchChanged(string value) =>
+        OnPropertyChanged(nameof(FilteredAvailableStats));
 
     public TraderSlotRowViewModel(TraderTabViewModel owner, string slotName, string itemName)
     {
@@ -374,6 +457,17 @@ public partial class TraderSlotRowViewModel : ViewModelBase
         SlotName = slotName;
         DisplayName = TraderTabViewModel.LocalizeSlot(slotName);
         _currentItemName = itemName;
+
+        _cachedStatsJson = owner.Host.GetTradeStatsForSlotJson(slotName);
+        HasStatCategory = !IsEmptyStats(_cachedStatsJson);
+
+        LoadAvailableStatsCommand = new RelayCommand(LoadAvailableStats);
+        AddRequiredCommand = new RelayCommand<TraderAvailableStatViewModel>(stat =>
+        {
+            if (stat is null || RequiredFilters.Any(f => f.Id == stat.Id)) return;
+            RequiredFilters.Add(new TraderRequiredFilterViewModel(stat.Id, stat.Text, this));
+            OnRequiredChanged();
+        });
     }
 
     [RelayCommand]
@@ -394,6 +488,13 @@ public partial class TraderSlotRowViewModel : ViewModelBase
             LastQueryJson = q.QueryJson;
             OpenOnSiteCommand.NotifyCanExecuteChanged();
 
+            if (RequiredFilters.Count > 0)
+            {
+                var patched = await _owner.Host.ApplyRequiredStatsAsync(
+                    q.QueryJson!, RequiredJson, _cts.Token);
+                if (patched is not null) LastQueryJson = patched;
+            }
+
             if (!_owner.IsLoggedIn)
             {
                 Status = LocalizationService.Get("Trader_NeedLogin");
@@ -402,7 +503,7 @@ public partial class TraderSlotRowViewModel : ViewModelBase
 
             Status = LocalizationService.Get("Trader_StatusSearching");
             var search = await _owner.Host.SearchTradeAsync(
-                _owner.SelectedLeague, q.QueryJson!, _cts.Token);
+                _owner.SelectedLeague, LastQueryJson!, _cts.Token);
             if (search.Error is not null) { Status = search.Error; return; }
             foreach (var l in search.Listings)
                 Results.Add(new TraderResultViewModel(this, _owner, l));
@@ -525,6 +626,41 @@ public partial class TraderResultViewModel : ViewModelBase
         if (_owner.CopyToClipboardAsync is { } copy)
             await copy(Listing.Whisper);
     }
+}
+
+/// <summary>Один обязательный фильтр по стату в строке слота.</summary>
+public partial class TraderRequiredFilterViewModel : ViewModelBase
+{
+    private readonly TraderSlotRowViewModel _row;
+
+    public string Id { get; }
+    public string Text { get; }
+
+    [ObservableProperty] private string _min = "";
+
+    public IRelayCommand RemoveCommand { get; }
+
+    public TraderRequiredFilterViewModel(string id, string text, TraderSlotRowViewModel row)
+    {
+        Id = id;
+        Text = text;
+        _row = row;
+        RemoveCommand = new RelayCommand(() =>
+        {
+            _row.RequiredFilters.Remove(this);
+            _row.OnRequiredChanged();
+        });
+    }
+
+    partial void OnMinChanged(string value) => _row.OnRequiredChanged();
+}
+
+/// <summary>Один доступный trade-стат для добавления в required-фильтры.</summary>
+public sealed class TraderAvailableStatViewModel
+{
+    public string Id { get; }
+    public string Text { get; }
+    public TraderAvailableStatViewModel(string id, string text) { Id = id; Text = text; }
 }
 
 /// <summary>Один стат в списке весов; изменение WeightMult уведомляет владельца.</summary>
