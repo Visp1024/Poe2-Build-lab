@@ -249,24 +249,22 @@
                                     <Border Classes="badge" Background="{DynamicResource BgRaisedBrush}"
                                             BorderBrush="{DynamicResource BorderSubtleBrush}">
                                         <TextBlock Foreground="{Binding DpsDiffColorHex}" FontWeight="Bold" FontSize="11"
-                                                   Text="{Binding DpsDiff, StringFormat='ΔDPS +0.#;ΔDPS -0.#;ΔDPS 0'}" />
+                                                   Text="{Binding DpsDiff, StringFormat='DPS +0.#;DPS -0.#;DPS 0'}" />
                                     </Border>
                                     <Border Classes="badge" Background="{DynamicResource BgRaisedBrush}"
                                             BorderBrush="{DynamicResource BorderSubtleBrush}">
                                         <TextBlock Foreground="{Binding EhpDiffColorHex}" FontWeight="Bold" FontSize="11"
-                                                   Text="{Binding EhpDiff, StringFormat='ΔEHP +0.#;ΔEHP -0.#;ΔEHP 0'}" />
+                                                   Text="{Binding EhpDiff, StringFormat='EHP +0.#;EHP -0.#;EHP 0'}" />
                                     </Border>
                                     <TextBlock Classes="muted" VerticalAlignment="Center" FontSize="11"
                                                Text="{Binding ValuePerDiv, StringFormat='· {0:0.##}/div'}" />
                                 </StackPanel>
                                 <!-- Продавец + действия -->
-                                <Grid ColumnDefinitions="*,Auto,Auto">
+                                <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" Classes="muted" VerticalAlignment="Center" FontSize="11"
                                                Text="{Binding Listing.Seller}" TextTrimming="CharacterEllipsis" />
-                                    <Button Grid.Column="1" Margin="0,0,6,0" Content="{loc:Tr Trader_TryOn}"
+                                    <Button Grid.Column="1" Content="{loc:Tr Trader_TryOn}"
                                             Command="{Binding TryOnCommand}" IsEnabled="{Binding !IsTriedOn}" />
-                                    <Button Grid.Column="2" Content="{loc:Tr Trader_Whisper}"
-                                            Command="{Binding CopyWhisperCommand}" />
                                 </Grid>
                             </StackPanel>
                         </Border>
