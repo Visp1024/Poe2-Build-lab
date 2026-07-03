@@ -1400,71 +1400,65 @@ public sealed class IpcServer
         return new { ok = true };
     }
 
-    // ── Trader tab ─────────────────────────────────────────────────────────
+    // ── Trader (session + active window) ─────────────────────────────────────
 
-    private static TraderTabViewModel? GetTraderVm()
-        => (GetMainVm()?.CurrentPage as BuildPageViewModel)?.TraderTab;
+    private static TraderSession? GetTraderSession()
+        => (GetMainVm()?.CurrentPage as BuildPageViewModel)?.TraderSession;
+
+    private static TraderWindowViewModel? GetTraderWindow()
+        => (GetMainVm()?.CurrentPage as BuildPageViewModel)?.ActiveTraderWindow;
 
     private static object TraderState()
     {
-        if (GetTraderVm() is not { } t) return new { error = "TraderTab not ready." };
+        var s = GetTraderSession();
+        if (s is null) return new { open = false, error = "Trader session not created." };
+        var w = GetTraderWindow();
         return new
         {
             ok = true,
-            league = t.SelectedLeague,
-            leagues = t.Leagues.ToArray(),
-            leagueLoadError = t.LeagueLoadError.Length > 0 ? t.LeagueLoadError : null,
-            loggedIn = t.IsLoggedIn,
-            account = t.AccountName,
-            activeWeightCount = t.ActiveWeightCount,
-            statWeightsJson = t.StatWeightsJson,
-            totalTryOnDivs = t.TotalTryOnDivs,
-            slots = t.Slots.Select(s => new
+            windowOpen = w is not null,
+            slot = w?.SlotName,
+            league = s.SelectedLeague,
+            leagues = s.Leagues.ToArray(),
+            leagueLoadError = s.LeagueLoadError.Length > 0 ? s.LeagueLoadError : null,
+            loggedIn = s.IsLoggedIn,
+            account = s.AccountName,
+            activeWeightCount = s.ActiveWeightCount,
+            statWeightsJson = s.StatWeightsJson,
+            status = w?.Status,
+            busy = w?.IsBusy ?? false,
+            hasQuery = w?.LastQueryJson is not null,
+            results = w?.Results.Select(r => new
             {
-                slot = s.SlotName,
-                display = s.DisplayName,
-                item = s.CurrentItemName,
-                status = s.Status,
-                busy = s.IsBusy,
-                hasQuery = s.LastQueryJson is not null,
-                results = s.Results.Select(r => new
-                {
-                    price = r.Listing.Amount,
-                    currency = r.Listing.Currency,
-                    seller = r.Listing.Seller,
-                    dps = r.DpsDiff,
-                    ehp = r.EhpDiff,
-                    value = r.StatValue,
-                    valuePerDiv = r.ValuePerDiv,
-                    triedOn = r.IsTriedOn,
-                }).ToArray(),
+                price = r.Listing.Amount,
+                currency = r.Listing.Currency,
+                seller = r.Listing.Seller,
+                dps = r.DpsDiff,
+                ehp = r.EhpDiff,
+                value = r.StatValue,
+                valuePerDiv = r.ValuePerDiv,
+                triedOn = r.IsTriedOn,
             }).ToArray(),
         };
     }
 
     private static object TraderSearch(string body)
     {
-        if (GetTraderVm() is not { } t) return new { error = "TraderTab not ready." };
-        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
-        var slotName = req.TryGetValue("slot", out var s) && s.ValueKind == JsonValueKind.String
-            ? s.GetString() : null;
-        var row = t.Slots.FirstOrDefault(r =>
-            r.SlotName.Equals(slotName, StringComparison.OrdinalIgnoreCase));
-        if (row is null)
-            return new { error = $"Unknown slot '{slotName}'.",
-                         available = t.Slots.Select(x => x.SlotName).ToArray() };
-        row.SearchCommand.Execute(null); // fire-and-forget; прогресс виден через /trader/state
-        return new { ok = true, started = row.SlotName };
+        var w = GetTraderWindow();
+        if (w is null) return new { error = "No trader window open. Call /trader/open first." };
+        w.SearchCommand.Execute(null); // fire-and-forget; прогресс виден через /trader/state
+        return new { ok = true, started = w.SlotName };
     }
 
     private static object TraderSetLeague(string body)
     {
-        if (GetTraderVm() is not { } t) return new { error = "TraderTab not ready." };
+        var s = GetTraderSession();
+        if (s is null) return new { error = "Trader session not created." };
         var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
         if (req.TryGetValue("league", out var l) && l.ValueKind == JsonValueKind.String &&
             l.GetString() is { Length: > 0 } league)
         {
-            t.SelectedLeague = league;
+            s.SelectedLeague = league;
             return new { ok = true, league };
         }
         return new { error = "Provide 'league'." };

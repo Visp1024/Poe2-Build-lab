@@ -28,13 +28,12 @@ public partial class BuildPageViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsSkillsTab))]
     [NotifyPropertyChangedFor(nameof(IsCalcsTab))]
     [NotifyPropertyChangedFor(nameof(IsConfigTab))]
-    [NotifyPropertyChangedFor(nameof(IsTraderTab))]
     [NotifyPropertyChangedFor(nameof(CurrentTabContent))]
     [NotifyPropertyChangedFor(nameof(SelectedTabKey))]
     private int _selectedTabIndex = 0;
 
     public static readonly string[] TabKeys =
-        ["Items", "Tree", "Skills", "Calcs", "Config", "Trader"];
+        ["Items", "Tree", "Skills", "Calcs", "Config"];
 
     public string SelectedTabKey =>
         SelectedTabIndex >= 0 && SelectedTabIndex < TabKeys.Length
@@ -47,7 +46,6 @@ public partial class BuildPageViewModel : ViewModelBase
     public bool IsSkillsTab { get => SelectedTabIndex == 2; set { if (value) SelectedTabIndex = 2; } }
     public bool IsCalcsTab  { get => SelectedTabIndex == 3; set { if (value) SelectedTabIndex = 3; } }
     public bool IsConfigTab { get => SelectedTabIndex == 4; set { if (value) SelectedTabIndex = 4; } }
-    public bool IsTraderTab { get => SelectedTabIndex == 5; set { if (value) SelectedTabIndex = 5; } }
 
     /// <summary>Active tab's content VM, dispatched from <see cref="SelectedTabIndex"/>.</summary>
     public object? CurrentTabContent => SelectedTabIndex switch
@@ -57,7 +55,6 @@ public partial class BuildPageViewModel : ViewModelBase
         2 => SkillsTab,
         3 => CalcsTab,
         4 => ConfigTab,
-        5 => TraderTab,
         _ => null,
     };
 
@@ -67,7 +64,6 @@ public partial class BuildPageViewModel : ViewModelBase
     [ObservableProperty] private bool _isTreePoppedOut;
     [ObservableProperty] private bool _isSkillsPoppedOut;
     [ObservableProperty] private bool _isCalcsPoppedOut;
-    [ObservableProperty] private bool _isTraderPoppedOut;
 
     public bool IsTabPoppedOut(string key) => key switch
     {
@@ -75,7 +71,6 @@ public partial class BuildPageViewModel : ViewModelBase
         "Tree"   => IsTreePoppedOut,
         "Skills" => IsSkillsPoppedOut,
         "Calcs"  => IsCalcsPoppedOut,
-        "Trader" => IsTraderPoppedOut,
         _        => false,
     };
 
@@ -87,7 +82,6 @@ public partial class BuildPageViewModel : ViewModelBase
             case "Tree":   IsTreePoppedOut   = value; break;
             case "Skills": IsSkillsPoppedOut = value; break;
             case "Calcs":  IsCalcsPoppedOut  = value; break;
-            case "Trader": IsTraderPoppedOut = value; break;
         }
     }
 
@@ -112,8 +106,26 @@ public partial class BuildPageViewModel : ViewModelBase
     public TreeTabViewModel? TreeTab { get; private set; }
     public NotesTabViewModel? NotesTab { get; private set; }
     public ConfigTabViewModel? ConfigTab { get; private set; }
-    public TraderTabViewModel? TraderTab { get; private set; }
     public ImportTabViewModel? ImportTab { get; private set; }
+
+    /// <summary>Активное окно подбора (владелец — BuildPageView). Задаётся при открытии/
+    /// перенацеливании окна, обнуляется при закрытии. Читается IPC для /trader/*.</summary>
+    public TraderWindowViewModel? ActiveTraderWindow { get; set; }
+
+    /// <summary>Просит View открыть/перенацелить окно подбора на слот. Ставит BuildPageView.</summary>
+    public Action<string>? RequestOpenTrader { get; set; }
+
+    public TraderSession? TraderSession { get; private set; }
+
+    /// <summary>Лениво создаёт сессию трейдера (её конструктор гоняет заметную Lua-работу:
+    /// QueryMods + скан статов слотов), незачем платить при каждом открытии билда.</summary>
+    public TraderSession EnsureTraderSession()
+    {
+        if (TraderSession is null && _host is not null && Build is not null)
+            TraderSession = new TraderSession(_host, Build,
+                onStatsChanged: () => { CalcsTab?.Refresh(); ItemsTab?.Refresh(); SkillsTab?.Refresh(); });
+        return TraderSession!;
+    }
 
     public IRelayCommand BackCommand { get; }
 
@@ -130,19 +142,6 @@ public partial class BuildPageViewModel : ViewModelBase
         CalcsTab?.Refresh();
         SkillsTab?.Refresh();
         _ = AutoSaveAsync();
-    }
-
-    partial void OnSelectedTabIndexChanged(int value)
-    {
-        // Трейдер создаётся лениво: его конструктор гоняет заметную Lua-работу
-        // (QueryMods + скан статов 18 слотов), незачем платить при каждом открытии билда
-        if (value == 5 && TraderTab is null && _host is not null && Build is not null)
-        {
-            TraderTab = new TraderTabViewModel(_host, Build,
-                onStatsChanged: () => { CalcsTab?.Refresh(); ItemsTab?.Refresh(); SkillsTab?.Refresh(); });
-            OnPropertyChanged(nameof(TraderTab));
-            OnPropertyChanged(nameof(CurrentTabContent));
-        }
     }
 
     private LuaHost? _host;
@@ -183,14 +182,15 @@ public partial class BuildPageViewModel : ViewModelBase
             // class's granted skills linger and new ones never appear).
             ItemsTab  = new ItemsTabViewModel(host, model,
                 onStatsChanged: () => { CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); TreeTab?.RefreshJewelRadii(); });
+            ItemsTab.OpenTraderForSlot = slot => RequestOpenTrader?.Invoke(slot);
             TreeTab   = new TreeTabViewModel(host,
                 onStatsChanged: () => { model.Refresh(); CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); ItemsTab?.Tattoos.Refresh(); ItemsTab?.Phylactery.Refresh(); },
                 onItemsChanged: () => ItemsTab?.Refresh());
             NotesTab  = new NotesTabViewModel(model, xmlPath);
             ConfigTab = new ConfigTabViewModel(host, model);
-            // TraderTab создаётся лениво в OnSelectedTabIndexChanged при первом
-            // переходе на вкладку Trader (index 5) — её конструктор гоняет заметную
-            // Lua-работу (QueryMods + скан статов 18 слотов), незачем платить при каждом открытии билда.
+            // TraderSession создаётся лениво в EnsureTraderSession при первом открытии
+            // окна подбора — её конструктор гоняет заметную Lua-работу (QueryMods + скан
+            // статов слотов), незачем платить при каждом открытии билда.
             ImportTab = new ImportTabViewModel(host, model, xmlPath);
             // Seed the level from the loaded build without triggering OnCharacterLevelChanged
             // (direct field write) — otherwise we'd re-apply + flip auto-mode on every load.

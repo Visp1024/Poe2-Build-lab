@@ -343,6 +343,10 @@ public partial class ItemsTabViewModel : ViewModelBase
     private readonly Action?    _onStatsChanged;
     private readonly List<ItemSlotViewModel> _allSlots;
 
+    /// <summary>Открыть окно подбора для слота. Ставит BuildPageViewModel; вызывается
+    /// код-бихайндом полоски «Подбор». Живёт здесь, чтобы работать и в pop-out окне вкладки.</summary>
+    public Action<string>? OpenTraderForSlot { get; set; }
+
     // ── Slot selection ──────────────────────────────────────────────────────
 
     [ObservableProperty] private string _selectedSlotName = "";
