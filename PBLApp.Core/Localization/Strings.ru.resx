@@ -39,7 +39,7 @@
   <data name="Trader_Cancel"           xml:space="preserve"><value>Отмена</value></data>
   <data name="Trader_Cancelled"        xml:space="preserve"><value>Отменено</value></data>
   <data name="Trader_TryOn"            xml:space="preserve"><value>Примерить</value></data>
-  <data name="Trader_Whisper"          xml:space="preserve"><value>Whisper</value></data>
+  <data name="Trader_Whisper"          xml:space="preserve"><value>Шёпот</value></data>
   <data name="Trader_OpenSite"         xml:space="preserve"><value>Открыть на trade-сайте</value></data>
   <data name="Trader_NeedLogin"        xml:space="preserve"><value>Войдите, чтобы видеть результаты в приложении</value></data>
   <data name="Trader_StatusGenerating" xml:space="preserve"><value>Взвешиваем моды…</value></data>

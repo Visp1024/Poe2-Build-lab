@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -274,29 +276,23 @@ public partial class TraderResultViewModel : ViewModelBase
 
     public LuaHost.TraderListing Listing { get; }
 
-    [ObservableProperty] private double? _dpsDiff;
-    [ObservableProperty] private double? _ehpDiff;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DpsDiffColorHex))]
+    private double? _dpsDiff;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EhpDiffColorHex))]
+    private double? _ehpDiff;
     [ObservableProperty] private double? _statValue;
     [ObservableProperty] private bool _isTriedOn;
 
-    /// <summary>Имя предмета для карточки — из ItemText (в record TraderListing имени нет,
-    /// а движок не трогаем). Формат PoB: строка 0 = «Rarity: X», 1 = имя, 2 = база.</summary>
-    public string ItemName
-    {
-        get
-        {
-            var lines = Listing.ItemText.Split('\n',
-                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if (lines.Length >= 2 && lines[0].StartsWith("Rarity:", StringComparison.OrdinalIgnoreCase))
-            {
-                var title = lines[1];
-                var baseName = lines.Length >= 3 ? lines[2] : "";
-                var composite = string.IsNullOrEmpty(baseName) ? title : $"{title}, {baseName}";
-                return TraderSession.TranslateItemName(composite);
-            }
-            return lines.Length > 0 ? lines[0] : "";
-        }
-    }
+    /// <summary>Имя и база предмета из ItemText (в record TraderListing имени нет, движок не
+    /// трогаем). Формат PoB: строка 0 = «Rarity: X», 1 = имя, 2 = база (для RARE/UNIQUE).</summary>
+    public string ItemTitle { get; }
+    public string ItemBase { get; }
+    public bool HasBase => ItemBase.Length > 0;
+    /// <summary>Хекс-цвет имени по редкости — как у слотов (Avalonia парсит строку в кисть).</summary>
+    public string NameColorHex { get; }
+
     public string PriceText => $"{Listing.Amount:0.##} {TraderSession.CurrencyDisplay(Listing.Currency)}";
 
     public double? DivValue =>
@@ -305,11 +301,90 @@ public partial class TraderResultViewModel : ViewModelBase
     public double? ValuePerDiv =>
         StatValue is { } sv && DivValue is { } dv && dv > 0 ? sv / dv : null;
 
+    /// <summary>Цвет дельты по знаку: зелёный прирост / красный спад / серый ноль.</summary>
+    public string DpsDiffColorHex => SignColor(DpsDiff);
+    public string EhpDiffColorHex => SignColor(EhpDiff);
+    private static string SignColor(double? v) =>
+        v is null || v.Value == 0 ? "#6E7689" : v.Value > 0 ? "#7FC78A" : "#D87171";
+
+    /// <summary>Стилизованный hover-тултип (как у слотов): заголовок цветом редкости,
+    /// метки/числа модов дифференцированы. Строим из ItemText — заголовок + строки модов
+    /// (метадата вроде «Item Level:»/«Implicits:» отфильтрована, моды переведены).</summary>
+    public HoverTooltipModel HoverTooltip => new(BuildHoverText(), NameColorHex);
+
+    private string BuildHoverText()
+    {
+        var lines = Listing.ItemText.Split('\n',
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var sb = new StringBuilder();
+        sb.Append(HasBase ? $"{ItemTitle}, {ItemBase}" : ItemTitle);
+        int start = HasBase ? 3 : 2; // пропустить Rarity + имя (+ база для RARE/UNIQUE/RELIC)
+        for (int i = start; i < lines.Length; i++)
+        {
+            if (IsMetadataLine(lines[i])) continue;
+            var clean = CleanModLine(lines[i]);
+            if (clean.Length == 0) continue;
+            sb.Append('\n').Append(GameTranslationService.Instance.TooltipLine(clean));
+        }
+        return sb.ToString();
+    }
+
+    // PoB-цветовые эскейпы (^xRRGGBB / ^d) и ведущие аннотации-теги
+    // ([enchant]/{crafted}/(rune)/[desecrated]…) — чистим до перевода, иначе они
+    // и в тултип протекают, и ломают сопоставление перевода мода.
+    private static readonly Regex ColorRx = new(@"\^x[0-9A-Fa-f]{6}|\^[0-9]", RegexOptions.Compiled);
+    private static readonly Regex LeadingTagRx =
+        new(@"^(?:\s*(?:\[[^\]]*\]|\{[^}]*\}|\([^)]*\)))+\s*", RegexOptions.Compiled);
+
+    private static string CleanModLine(string line)
+    {
+        line = ColorRx.Replace(line, "");
+        line = LeadingTagRx.Replace(line, "");
+        return line.Trim();
+    }
+
+    private static readonly string[] MetaPrefixes =
+    [
+        "Rarity:", "Item Level:", "Implicits:", "Requirements:", "Sockets:", "Level:",
+        "Quality:", "Armour:", "Evasion Rating:", "Energy Shield:", "Ward:", "Stack Size:",
+        "Radius:", "Limited to:", "Unique ID:", "Note:", "Corrupted", "LevelReq:", "Rune:",
+    ];
+
+    private static bool IsMetadataLine(string line)
+    {
+        if (line.Length == 0 || line[0] == '-') return true; // «--------» разделители
+        foreach (var p in MetaPrefixes)
+            if (line.StartsWith(p, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
+
     public TraderResultViewModel(TraderWindowViewModel win, TraderSession session, LuaHost.TraderListing listing)
     {
         _win = win;
         _session = session;
         Listing = listing;
+
+        var (rarity, title, baseName) = ParseName(listing.ItemText);
+        ItemTitle = title;
+        ItemBase = baseName;
+        NameColorHex = ItemSlotViewModel.RarityToColor(rarity);
+    }
+
+    private static (string rarity, string title, string baseName) ParseName(string itemText)
+    {
+        var lines = itemText.Split('\n',
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (lines.Length >= 2 && lines[0].StartsWith("Rarity:", StringComparison.OrdinalIgnoreCase))
+        {
+            var rarity = lines[0]["Rarity:".Length..].Trim().ToUpperInvariant();
+            // RARE/UNIQUE/RELIC: строка 1 = имя, строка 2 = база. NORMAL/MAGIC: строка 1 —
+            // уже базовое/магическое имя, отдельной базы нет.
+            var hasSeparateBase = rarity is "RARE" or "UNIQUE" or "RELIC" && lines.Length >= 3;
+            var title = TraderSession.TranslateItemName(lines[1]);
+            var baseName = hasSeparateBase ? TraderSession.TranslateItemName(lines[2]) : "";
+            return (rarity, title, baseName);
+        }
+        return ("", lines.Length > 0 ? lines[0] : "", "");
     }
 
     public void ApplyDiff(LuaHost.TraderDiff? diff)
