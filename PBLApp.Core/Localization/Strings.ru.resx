@@ -64,6 +64,9 @@
   <data name="Trader_WeightReset"      xml:space="preserve"><value>Сброс</value></data>
   <data name="Trader_NoWeights"        xml:space="preserve"><value>Выберите хотя бы один стат в весах</value></data>
   <data name="Trader_CurrencyEquiv"    xml:space="preserve"><value>Эквивалент возвышенных сфер</value></data>
+  <data name="Trader_Required"         xml:space="preserve"><value>Фильтры ({0})</value></data>
+  <data name="Trader_ReqSearch"        xml:space="preserve"><value>Поиск стата…</value></data>
+  <data name="Trader_ReqMin"           xml:space="preserve"><value>мин</value></data>
 
   <!-- Build list -->
   <data name="List_Title"         xml:space="preserve"><value>Билды</value></data>

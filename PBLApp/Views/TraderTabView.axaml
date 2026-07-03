@@ -111,7 +111,7 @@
                     <DataTemplate x:DataType="vm:TraderSlotRowViewModel">
                         <Border Classes="card" Margin="0,0,0,6" Padding="10,8">
                             <StackPanel Spacing="6">
-                                <Grid ColumnDefinitions="160,*,Auto,Auto,Auto">
+                                <Grid ColumnDefinitions="160,*,Auto,Auto,Auto,Auto">
                                     <TextBlock Grid.Column="0" Text="{Binding DisplayName}"
                                                FontWeight="SemiBold" VerticalAlignment="Center" />
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10"
@@ -120,15 +120,54 @@
                                                    VerticalAlignment="Center" />
                                         <TextBlock Text="{Binding Status}" VerticalAlignment="Center" />
                                     </StackPanel>
-                                    <Button Grid.Column="2" Margin="0,0,6,0"
+                                    <Button Grid.Column="2" Content="{Binding RequiredButtonText}"
+                                            IsVisible="{Binding HasStatCategory}" Margin="0,0,6,0">
+                                        <Button.Flyout>
+                                            <Flyout Placement="BottomEdgeAlignedRight">
+                                                <StackPanel Width="460" Spacing="6">
+                                                    <ItemsControl ItemsSource="{Binding RequiredFilters}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate x:DataType="vm:TraderRequiredFilterViewModel">
+                                                                <Grid ColumnDefinitions="*,90,Auto" Margin="0,1">
+                                                                    <TextBlock Grid.Column="0" Text="{Binding Text}"
+                                                                               VerticalAlignment="Center"
+                                                                               TextTrimming="CharacterEllipsis" />
+                                                                    <TextBox Grid.Column="1" Text="{Binding Min, Mode=TwoWay}"
+                                                                             Watermark="{loc:Tr Trader_ReqMin}" Margin="6,0" />
+                                                                    <Button Grid.Column="2" Content="✕"
+                                                                            Command="{Binding RemoveCommand}" />
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                    <TextBox Text="{Binding RequiredSearch, Mode=TwoWay}"
+                                                             Watermark="{loc:Tr Trader_ReqSearch}" />
+                                                    <ScrollViewer MaxHeight="300">
+                                                        <ItemsControl ItemsSource="{Binding FilteredAvailableStats}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate x:DataType="vm:TraderAvailableStatViewModel">
+                                                                    <Button Content="{Binding Text}"
+                                                                            HorizontalAlignment="Stretch"
+                                                                            HorizontalContentAlignment="Left"
+                                                                            Command="{Binding $parent[ItemsControl].((vm:TraderSlotRowViewModel)DataContext).AddRequiredCommand}"
+                                                                            CommandParameter="{Binding}" />
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </ScrollViewer>
+                                                </StackPanel>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                    <Button Grid.Column="3" Margin="0,0,6,0"
                                             Content="{loc:Tr Trader_FindUpgrades}"
                                             Command="{Binding SearchCommand}"
                                             IsEnabled="{Binding !IsBusy}" />
-                                    <Button Grid.Column="3" Margin="0,0,6,0"
+                                    <Button Grid.Column="4" Margin="0,0,6,0"
                                             Content="{loc:Tr Trader_Cancel}"
                                             Command="{Binding CancelCommand}"
                                             IsVisible="{Binding IsBusy}" />
-                                    <Button Grid.Column="4"
+                                    <Button Grid.Column="5"
                                             Content="{loc:Tr Trader_OpenSite}"
                                             Command="{Binding OpenOnSiteCommand}" />
                                 </Grid>
