@@ -170,3 +170,66 @@ function PBLTrader.GetSlotsJson()
 	end
 	return dkjson.encode(out)
 end
+
+-- ── Веса статов ──────────────────────────────────────────────────────────────
+-- Источник истины — build.itemsTab.tradeQuery.statSortSelectionList: его уже
+-- сериализует ItemsTab (узел TradeSearchWeights, ItemsTab.lua:1142/1238),
+-- т.е. персист в XML билда и совместимость с оригинальным PoB бесплатны.
+
+local function findPowerStat(statKey)
+	for _, entry in ipairs(data.powerStatList) do
+		if entry.stat == statKey then return entry end
+	end
+end
+
+function PBLTrader._enrichWeights(list)
+	local out = {}
+	for _, w in ipairs(list or {}) do
+		local ps = w.stat and findPowerStat(w.stat)
+		if ps and (tonumber(w.weightMult) or 0) > 0 then
+			table.insert(out, {
+				stat = ps.stat, label = ps.label, transform = ps.transform,
+				weightMult = tonumber(w.weightMult),
+			})
+		end
+	end
+	return out
+end
+
+function PBLTrader.GetWeightStatsJson()
+	local out = {}
+	for _, stat in ipairs(data.powerStatList) do
+		-- тот же фильтр, что попап оригинала (TradeQuery.lua:635-647)
+		if not stat.ignoreForItems and stat.label ~= "Name" and stat.stat then
+			table.insert(out, { stat = stat.stat, label = stat.label })
+		end
+	end
+	return dkjson.encode(out)
+end
+
+function PBLTrader._weightsList()
+	PBLTrader.Init()
+	local tq = build.itemsTab.tradeQuery
+	tq.statSortSelectionList = tq.statSortSelectionList or {}
+	if #tq.statSortSelectionList == 0 then
+		tq.statSortSelectionList = PBLTrader._enrichWeights({
+			{ stat = "FullDPS", weightMult = 1.0 },
+			{ stat = "TotalEHP", weightMult = 0.5 },
+		})
+	end
+	return tq.statSortSelectionList
+end
+
+function PBLTrader.GetWeightsJson()
+	local out = {}
+	for _, w in ipairs(PBLTrader._weightsList()) do
+		table.insert(out, { stat = w.stat, label = w.label, weightMult = w.weightMult })
+	end
+	return dkjson.encode(out)
+end
+
+function PBLTrader.SetWeightsJson(weightsJson)
+	PBLTrader.Init()
+	local list = dkjson.decode(weightsJson) or {}
+	build.itemsTab.tradeQuery.statSortSelectionList = PBLTrader._enrichWeights(list)
+end
