@@ -2,6 +2,7 @@
 -- НЕ трогает src/Classes/* — только использует их. Загружается лениво
 -- через LuaHost.EnsureTraderInit() после HeadlessWrapper.
 local dkjson = require("dkjson")
+local tradeHelpers = LoadModule("Classes/TradeHelpers")
 
 PBLTrader = PBLTrader or {}
 
@@ -157,6 +158,47 @@ function PBLTrader.ComputeDiffJson(slotName, itemString, statWeightsJson)
 		ehpDiff = (output.TotalEHP or 0) - (baseOutput.TotalEHP or 0),
 		statValue = statValue,
 	})
+end
+
+-- ── Required-фильтры ─────────────────────────────────────────────────────────
+
+function PBLTrader.GetTradeStatsForSlotJson(slotName)
+	PBLTrader.Init()
+	local slot = build.itemsTab.slots[slotName]
+	if not slot then return "[]" end
+	local existingItem = slot.selItemId and build.itemsTab.items[slot.selItemId]
+	local _, itemCategory = tradeHelpers.getTradeCategory(slotName, existingItem)
+	if not itemCategory then return "[]" end
+	if itemCategory == "Jewel" then itemCategory = "AnyJewel" end
+
+	local seen, out = {}, {}
+	for _, modType in ipairs({ "Explicit", "Implicit" }) do
+		for _, entry in pairs(PBLTrader.generator.modData[modType] or {}) do
+			-- доступность категории — как в GenerateModWeights (TradeQueryGenerator.lua:657)
+			if entry[itemCategory] ~= nil and not seen[entry.tradeMod.id] then
+				seen[entry.tradeMod.id] = true
+				table.insert(out, { id = entry.tradeMod.id, text = entry.tradeMod.text })
+			end
+		end
+	end
+	table.sort(out, function(a, b) return a.text < b.text end)
+	return dkjson.encode(out)
+end
+
+function PBLTrader.ApplyRequiredStats(queryJson, requiredJson)
+	local query = dkjson.decode(queryJson)
+	local required = dkjson.decode(requiredJson)
+	if not (query and query.query and required) then return nil end
+	local filters = {}
+	for _, r in ipairs(required) do
+		if r.id then
+			table.insert(filters, { id = r.id, value = r.min and { min = r.min } or nil })
+		end
+	end
+	if #filters == 0 then return queryJson end
+	query.query.stats = query.query.stats or {}
+	table.insert(query.query.stats, { type = "and", filters = filters })
+	return dkjson.encode(query)
 end
 
 function PBLTrader.GetSlotsJson()
