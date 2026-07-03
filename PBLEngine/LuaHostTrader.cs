@@ -324,6 +324,33 @@ public sealed partial class LuaHost
         finally { _traderLua.Release(); }
     }
 
+    public string GetTraderWeightStatsJson()
+    {
+        _traderLua.Wait();
+        try { EnsureTraderInit(); return (string)State.DoString("return PBLTrader.GetWeightStatsJson()")[0]; }
+        finally { _traderLua.Release(); }
+    }
+
+    public string GetTraderWeightsJson()
+    {
+        _traderLua.Wait();
+        try { EnsureTraderInit(); return (string)State.DoString("return PBLTrader.GetWeightsJson()")[0]; }
+        finally { _traderLua.Release(); }
+    }
+
+    public void SetTraderWeights(string weightsJson)
+    {
+        _traderLua.Wait();
+        try
+        {
+            EnsureTraderInit();
+            State["_pblWeights"] = weightsJson;
+            State.DoString("PBLTrader.SetWeightsJson(_pblWeights)");
+            State["_pblWeights"] = null;
+        }
+        finally { _traderLua.Release(); }
+    }
+
     // ── OAuth-токены ─────────────────────────────────────────────────────────
 
     /// <summary>Инжектит trade-токены в Lua: main.lastToken/... + main.api.
