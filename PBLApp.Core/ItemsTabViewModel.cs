@@ -885,6 +885,27 @@ public partial class ItemsTabViewModel : ViewModelBase
         catch { return false; }
     }
 
+    /// <summary>Right-click on a pool item: toggle-equip. If the item is already equipped
+    /// somewhere, unequip it; otherwise equip it into the first empty compatible slot,
+    /// falling back to the primary slot (overwriting it) when every compatible slot is full.</summary>
+    public bool RightClickEquipPoolItem(int itemId)
+    {
+        var entry = ItemPool.FirstOrDefault(p => p.ItemId == itemId);
+        if (entry is null) return false;
+
+        // Already equipped → toggle off.
+        if (!string.IsNullOrEmpty(entry.EquippedSlot))
+            return DragUnequipSlot(entry.EquippedSlot);
+
+        var slots = GetCompatibleSlots(entry).ToList();
+        if (slots.Count == 0) return false;
+
+        // First empty compatible slot, else the primary (first) slot — overwriting it.
+        var target = slots.FirstOrDefault(s => !ItemPool.Any(p => p.EquippedSlot == s))
+                     ?? slots[0];
+        return DragEquipPoolToSlot(itemId, target);
+    }
+
     /// <summary>Drag-and-drop entry point: move the item from one slot into another (swap-aware).</summary>
     public bool DragSwapSlots(string fromSlot, string toSlot)
     {
