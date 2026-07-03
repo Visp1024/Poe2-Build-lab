@@ -125,6 +125,7 @@ public sealed partial class LuaHost
 
     // ── Генерация взвешенного запроса ────────────────────────────────────────
 
+    // ВАЖНО: не добавлять ConfigureAwait(false) в trader-цепочках — DoString обязан выполняться на UI-потоке (единственный поток NLua-состояния).
     /// <summary>Сериализует все trader-обращения к Lua-состоянию.</summary>
     private readonly SemaphoreSlim _traderLua = new(1, 1);
 
@@ -146,7 +147,12 @@ public sealed partial class LuaHost
             if (start.StartsWith("error:"))
                 return new TraderQueryResult(null, start[6..].Trim());
         }
-        finally { _traderLua.Release(); }
+        finally
+        {
+            State["_pblSlotName"] = null;
+            State["_pblOptions"] = null;
+            _traderLua.Release();
+        }
 
         var resumes = 0;
         while (true)
@@ -198,7 +204,12 @@ public sealed partial class LuaHost
             State["_pblQuery"] = queryJson;
             State.DoString("PBLTrader.StartSearch('poe2', _pblLeague, _pblQuery)");
         }
-        finally { _traderLua.Release(); }
+        finally
+        {
+            State["_pblLeague"] = null;
+            State["_pblQuery"] = null;
+            _traderLua.Release();
+        }
 
         while (true)
         {
@@ -304,12 +315,15 @@ public sealed partial class LuaHost
                     build.buildFlag = true
                 end
                 return true");
-            State["_pblItemText"] = null;
-            State["_pblSlotName"] = null;
             TriggerRecalc();
             return r is { Length: > 0 } && r[0] is bool b && b;
         }
-        finally { _traderLua.Release(); }
+        finally
+        {
+            State["_pblItemText"] = null;
+            State["_pblSlotName"] = null;
+            _traderLua.Release();
+        }
     }
 
     /// <summary>Слоты трейдера с именами текущих предметов (JSON из PBLTrader.GetSlotsJson).</summary>
@@ -346,9 +360,12 @@ public sealed partial class LuaHost
             EnsureTraderInit();
             State["_pblWeights"] = weightsJson;
             State.DoString("PBLTrader.SetWeightsJson(_pblWeights)");
-            State["_pblWeights"] = null;
         }
-        finally { _traderLua.Release(); }
+        finally
+        {
+            State["_pblWeights"] = null;
+            _traderLua.Release();
+        }
     }
 
     /// <summary>Trade-статы, доступные категории слота (для required-фильтров).</summary>
@@ -359,11 +376,13 @@ public sealed partial class LuaHost
         {
             EnsureTraderInit();
             State["_pblSlotName"] = slotName;
-            var r = (string)State.DoString("return PBLTrader.GetTradeStatsForSlotJson(_pblSlotName)")[0];
-            State["_pblSlotName"] = null;
-            return r;
+            return (string)State.DoString("return PBLTrader.GetTradeStatsForSlotJson(_pblSlotName)")[0];
         }
-        finally { _traderLua.Release(); }
+        finally
+        {
+            State["_pblSlotName"] = null;
+            _traderLua.Release();
+        }
     }
 
     /// <summary>Добавляет and-группу required-фильтров в готовый query JSON.</summary>
@@ -377,11 +396,14 @@ public sealed partial class LuaHost
             State["_pblQuery"] = queryJson;
             State["_pblRequired"] = requiredJson;
             var r = State.DoString("return PBLTrader.ApplyRequiredStats(_pblQuery, _pblRequired)");
-            State["_pblQuery"] = null;
-            State["_pblRequired"] = null;
             return r is { Length: > 0 } ? r[0] as string : null;
         }
-        finally { _traderLua.Release(); }
+        finally
+        {
+            State["_pblQuery"] = null;
+            State["_pblRequired"] = null;
+            _traderLua.Release();
+        }
     }
 
     // ── OAuth-токены ─────────────────────────────────────────────────────────
@@ -406,11 +428,14 @@ public sealed partial class LuaHost
                     main.api.refreshToken = _pblRef
                     main.api.tokenExpiry = _pblExp or 0
                 end");
+        }
+        finally
+        {
             State["_pblTok"] = null;
             State["_pblRef"] = null;
             State["_pblExp"] = null;
+            _traderLua.Release();
         }
-        finally { _traderLua.Release(); }
     }
 
     // ── Дифф результата ──────────────────────────────────────────────────────
@@ -438,7 +463,13 @@ public sealed partial class LuaHost
                 root.GetProperty("ehpDiff").GetDouble(),
                 root.GetProperty("statValue").GetDouble());
         }
-        finally { _traderLua.Release(); }
+        finally
+        {
+            State["_pblSlotName"] = null;
+            State["_pblItemText"] = null;
+            State["_pblWeights"] = null;
+            _traderLua.Release();
+        }
     }
 
     /// <summary>Доставить готовые HTTP-ответы Lua-callback'ам.
@@ -448,13 +479,19 @@ public sealed partial class LuaHost
         var n = 0;
         while (_httpCompletions.TryDequeue(out var c))
         {
-            State["_pblHttpBody"] = c.Body;
-            State["_pblHttpHeader"] = c.Header;
-            State["_pblHttpErr"] = c.Error;
-            State.DoString($"_pblHttpComplete({c.Id}, _pblHttpBody, _pblHttpHeader, _pblHttpErr)");
-            State["_pblHttpBody"] = null;
-            State["_pblHttpHeader"] = null;
-            State["_pblHttpErr"] = null;
+            try
+            {
+                State["_pblHttpBody"] = c.Body;
+                State["_pblHttpHeader"] = c.Header;
+                State["_pblHttpErr"] = c.Error;
+                State.DoString($"_pblHttpComplete({c.Id}, _pblHttpBody, _pblHttpHeader, _pblHttpErr)");
+            }
+            finally
+            {
+                State["_pblHttpBody"] = null;
+                State["_pblHttpHeader"] = null;
+                State["_pblHttpErr"] = null;
+            }
             n++;
         }
         return n;
