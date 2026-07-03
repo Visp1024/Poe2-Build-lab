@@ -1416,8 +1416,8 @@ public sealed class IpcServer
             leagueLoadError = t.LeagueLoadError.Length > 0 ? t.LeagueLoadError : null,
             loggedIn = t.IsLoggedIn,
             account = t.AccountName,
-            dpsWeight = t.DpsWeight,
-            ehpWeight = t.EhpWeight,
+            activeWeightCount = t.ActiveWeightCount,
+            statWeightsJson = t.StatWeightsJson,
             totalTryOnDivs = t.TotalTryOnDivs,
             slots = t.Slots.Select(s => new
             {

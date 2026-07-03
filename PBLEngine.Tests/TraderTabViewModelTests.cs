@@ -50,10 +50,25 @@ public class TraderTabViewModelTests : IClassFixture<LuaHostFixture>
         Assert.Contains(vm.Slots, s => s.SlotName == "Body Armour");
 
         vm.ApplyPresetCommand.Execute("ehp");
-        Assert.Equal(0.1, vm.DpsWeight, 6);
-        Assert.Equal(1.0, vm.EhpWeight, 6);
+        var fullDps = vm.WeightStats.First(w => w.Stat == "FullDPS");
+        var totalEhp = vm.WeightStats.First(w => w.Stat == "TotalEHP");
+        Assert.Equal(0.1, fullDps.WeightMult, 6);
+        Assert.Equal(1.0, totalEhp.WeightMult, 6);
 
         Assert.Contains("\"statWeights\"", vm.OptionsJson);
         Assert.Contains("FullDPS", vm.StatWeightsJson);
+    }
+
+    [Fact]
+    public void WeightStats_LoadedAndPresetChangesOptionsJson()
+    {
+        var vm = new TraderTabViewModel(_host, new BuildModel(_host),
+            webApi: new PBLApp.Core.Trader.TraderWebApi(new FakeHttpHandler()));
+        Assert.NotEmpty(vm.WeightStats);
+        vm.ApplyPresetCommand.Execute("ehp");
+        Assert.Contains("TotalEHP", vm.StatWeightsJson);
+        Assert.True(vm.HasActiveWeights);
+        var full = vm.WeightStats.First(w => w.Stat == "FullDPS");
+        Assert.Equal(0.1, full.WeightMult, 6);
     }
 }

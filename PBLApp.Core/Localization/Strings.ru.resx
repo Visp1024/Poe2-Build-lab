@@ -61,6 +61,10 @@
   <data name="Trader_NoResults"        xml:space="preserve"><value>Нет результатов</value></data>
   <data name="Trader_WeightDps"        xml:space="preserve"><value>Урон ×</value></data>
   <data name="Trader_WeightEhp"        xml:space="preserve"><value>EHP ×</value></data>
+  <data name="Trader_Weights"          xml:space="preserve"><value>Настроить веса… ({0})</value></data>
+  <data name="Trader_WeightSearch"     xml:space="preserve"><value>Поиск стата…</value></data>
+  <data name="Trader_WeightReset"      xml:space="preserve"><value>Сброс</value></data>
+  <data name="Trader_NoWeights"        xml:space="preserve"><value>Выберите хотя бы один стат в весах</value></data>
   <data name="Trader_CurrencyEquiv"    xml:space="preserve"><value>Эквивалент возвышенных сфер</value></data>
 
   <!-- Build list -->
