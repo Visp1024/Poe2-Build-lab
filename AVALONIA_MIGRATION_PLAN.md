@@ -449,6 +449,16 @@ pathofexile.com/trade2. Спек: `docs/superpowers/specs/2026-07-03-trader-tab-
   `local _ENV = nil` падал под Lua 5.4 (encode); локализована `tablesort`.
 - Вне скоупа: jewel-слоты, поиск «похожих на предмет», перевод модов в списке
   результатов (тултип показывает EN-текст предмета).
+- **Веса статов + required-фильтры** (спек
+  `docs/superpowers/specs/2026-07-03-trader-weights-required-design.md`):
+  настраиваемый список весов как «Adjust search weights» оригинала — источник
+  истины `build.itemsTab.tradeQuery.statSortSelectionList` (XML-узел
+  `TradeSearchWeights` сериализует существующий ItemsTab → персист и
+  PoB-совместимость бесплатны), флайаут с поиском и множителями 0–1, пресеты;
+  transform-функции статов восстанавливает Lua (`PBLTrader._enrichWeights`).
+  Пер-слот required-мин-фильтры: полный список trade-статов категории слота
+  (`generator.modData`, фильтр `entry[category]`), and-группа добавляется в
+  готовый query (`PBLTrader.ApplyRequiredStats`) — генератор не тронут.
 
 ---
 
