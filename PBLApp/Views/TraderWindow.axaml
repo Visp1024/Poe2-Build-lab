@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:PBLApp.ViewModels"
+        xmlns:ctl="using:PBLApp.Controls"
         xmlns:loc="using:PBLApp.Localization"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -78,6 +79,11 @@
                     <Button Content="{Binding Session.WeightsButtonText}">
                         <Button.Flyout>
                             <Flyout Placement="BottomEdgeAlignedLeft">
+                                <!-- Непрозрачная тематическая поверхность: дефолтный
+                                     FlyoutPresenter здесь полупрозрачный (было видно окно сквозь). -->
+                                <Border Background="{DynamicResource BgMantleBrush}"
+                                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                                        CornerRadius="8" Padding="12">
                                 <StackPanel Width="360" Spacing="6">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
                                         <Button Content="{loc:Tr Trader_PresetDps}"
@@ -97,18 +103,25 @@
                                                 <DataTemplate x:DataType="vm:TraderWeightEntryViewModel">
                                                     <Grid ColumnDefinitions="*,110" Margin="0,1">
                                                         <TextBlock Grid.Column="0" Text="{Binding Label}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                                    VerticalAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis" />
                                                         <NumericUpDown Grid.Column="1"
                                                                        Value="{Binding WeightMult, Mode=TwoWay}"
                                                                        Minimum="0" Maximum="1" Increment="0.05"
-                                                                       FormatString="0.0#" />
+                                                                       FormatString="0.0#"
+                                                                       ShowButtonSpinner="False"
+                                                                       HorizontalContentAlignment="Right"
+                                                                       Background="{DynamicResource BgBaseBrush}"
+                                                                       Foreground="{DynamicResource Brand400Brush}"
+                                                                       BorderBrush="{DynamicResource BorderStrongBrush}" />
                                                     </Grid>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                     </ScrollViewer>
                                 </StackPanel>
+                                </Border>
                             </Flyout>
                         </Button.Flyout>
                     </Button>
@@ -117,12 +130,17 @@
                     <Button Content="{Binding RequiredButtonText}" IsVisible="{Binding HasStatCategory}">
                         <Button.Flyout>
                             <Flyout Placement="BottomEdgeAlignedLeft">
+                                <!-- Непрозрачная тематическая поверхность (см. флайаут весов). -->
+                                <Border Background="{DynamicResource BgMantleBrush}"
+                                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                                        CornerRadius="8" Padding="12">
                                 <StackPanel Width="420" Spacing="6">
                                     <ItemsControl ItemsSource="{Binding RequiredFilters}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="vm:TraderRequiredFilterViewModel">
                                                 <Grid ColumnDefinitions="*,90,Auto" Margin="0,1">
                                                     <TextBlock Grid.Column="0" Text="{Binding Text}"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                                VerticalAlignment="Center"
                                                                TextTrimming="CharacterEllipsis" />
                                                     <TextBox Grid.Column="1" Text="{Binding Min, Mode=TwoWay}"
@@ -148,6 +166,7 @@
                                         </ItemsControl>
                                     </ScrollViewer>
                                 </StackPanel>
+                                </Border>
                             </Flyout>
                         </Button.Flyout>
                     </Button>
@@ -188,29 +207,54 @@
                 <ItemsControl ItemsSource="{Binding Results}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:TraderResultViewModel">
-                        <Border Classes="card" ToolTip.Tip="{Binding Listing.ItemText}">
+                        <Border Classes="card"
+                                ctl:StyledHoverTooltip.Source="{Binding HoverTooltip}"
+                                ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
                             <StackPanel Spacing="8">
+                                <!-- Имя (по редкости) + база слева; цена с монетой справа -->
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="{Binding ItemName}"
-                                               FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="1" Text="{Binding PriceText}"
-                                               FontWeight="Bold" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="0" Spacing="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding ItemTitle}"
+                                                   Foreground="{Binding NameColorHex}"
+                                                   FontSize="13.5" FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding ItemBase}"
+                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                   FontSize="11" TextTrimming="CharacterEllipsis"
+                                                   IsVisible="{Binding HasBase}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                                                VerticalAlignment="Center">
+                                        <Ellipse Width="13" Height="13" VerticalAlignment="Center">
+                                            <Ellipse.Fill>
+                                                <RadialGradientBrush>
+                                                    <GradientStop Offset="0" Color="#FFE9A8" />
+                                                    <GradientStop Offset="0.65" Color="#C9A24E" />
+                                                    <GradientStop Offset="1" Color="#7A5F1F" />
+                                                </RadialGradientBrush>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                        <TextBlock Text="{Binding PriceText}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   FontWeight="Bold" FontSize="13" VerticalAlignment="Center" />
+                                    </StackPanel>
                                 </Grid>
+                                <!-- Дельты цветными бейджами (нейтральный фон + цвет по знаку) -->
                                 <StackPanel Orientation="Horizontal" Spacing="7">
-                                    <Border Classes="badge"
-                                            Background="#182a1c" BorderBrush="#2c4a33">
-                                        <TextBlock Foreground="{DynamicResource SuccessBrush}" FontWeight="Bold" FontSize="11"
+                                    <Border Classes="badge" Background="{DynamicResource BgRaisedBrush}"
+                                            BorderBrush="{DynamicResource BorderSubtleBrush}">
+                                        <TextBlock Foreground="{Binding DpsDiffColorHex}" FontWeight="Bold" FontSize="11"
                                                    Text="{Binding DpsDiff, StringFormat='ΔDPS +0.#;ΔDPS -0.#;ΔDPS 0'}" />
                                     </Border>
-                                    <Border Classes="badge"
-                                            Background="#182a1c" BorderBrush="#2c4a33">
-                                        <TextBlock Foreground="{DynamicResource SuccessBrush}" FontWeight="Bold" FontSize="11"
+                                    <Border Classes="badge" Background="{DynamicResource BgRaisedBrush}"
+                                            BorderBrush="{DynamicResource BorderSubtleBrush}">
+                                        <TextBlock Foreground="{Binding EhpDiffColorHex}" FontWeight="Bold" FontSize="11"
                                                    Text="{Binding EhpDiff, StringFormat='ΔEHP +0.#;ΔEHP -0.#;ΔEHP 0'}" />
                                     </Border>
                                     <TextBlock Classes="muted" VerticalAlignment="Center" FontSize="11"
                                                Text="{Binding ValuePerDiv, StringFormat='· {0:0.##}/div'}" />
                                 </StackPanel>
+                                <!-- Продавец + действия -->
                                 <Grid ColumnDefinitions="*,Auto,Auto">
                                     <TextBlock Grid.Column="0" Classes="muted" VerticalAlignment="Center" FontSize="11"
                                                Text="{Binding Listing.Seller}" TextTrimming="CharacterEllipsis" />
