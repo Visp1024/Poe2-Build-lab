@@ -958,15 +958,16 @@ public sealed class GameTranslationService
         if (string.IsNullOrEmpty(text) || _loadedLang == "en") return text;
         var hit = LookupTemplate(text);
         if (hit is not null) return hit;
-        // trade отдаёт «# to Dexterity», словари хранят «+# to Dexterity».
-        if (text.StartsWith("# ", StringComparison.Ordinal) && LookupTemplate("+" + text) is { } withPlus)
+        // trade отдаёт «# to Dexterity» / «#% to Cold Resistance», словари хранят
+        // форму с ведущим «+» («+# to Dexterity», «+#% to Cold Resistance»).
+        if (text.StartsWith("#", StringComparison.Ordinal) && LookupTemplate("+" + text) is { } withPlus)
             return withPlus;
         // trade добавляет суффикс « (Local)», которого нет в ключах.
         if (text.EndsWith(" (Local)", StringComparison.Ordinal))
         {
             var bare = text[..^" (Local)".Length];
             hit = LookupTemplate(bare)
-                  ?? (bare.StartsWith("# ", StringComparison.Ordinal) ? LookupTemplate("+" + bare) : null);
+                  ?? (bare.StartsWith("#", StringComparison.Ordinal) ? LookupTemplate("+" + bare) : null);
             if (hit is not null) return hit;
         }
         var t = TooltipLine(text);
