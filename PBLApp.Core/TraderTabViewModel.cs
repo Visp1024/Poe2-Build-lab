@@ -377,7 +377,7 @@ public partial class TraderSlotRowViewModel : ViewModelBase
     public string RequiredButtonText =>
         string.Format(LocalizationService.Get("Trader_Required"), RequiredFilters.Count);
 
-    public string RequiredJson
+    internal string RequiredJson
     {
         get
         {
