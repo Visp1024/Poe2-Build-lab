@@ -46,6 +46,12 @@
   <data name="Trader_StatusSearching"  xml:space="preserve"><value>Searching…</value></data>
   <data name="Trader_StatusDiffing"    xml:space="preserve"><value>Comparing {0}/{1}…</value></data>
   <data name="Trader_StatusRateLimit"  xml:space="preserve"><value>Rate limited, wait {0}s</value></data>
+  <data name="Trader_SortBy"           xml:space="preserve"><value>Sort</value></data>
+  <data name="Trader_SortValuePerDiv"  xml:space="preserve"><value>Value per price</value></data>
+  <data name="Trader_SortPrice"        xml:space="preserve"><value>Price</value></data>
+  <data name="Trader_SortValue"        xml:space="preserve"><value>Value</value></data>
+  <data name="Trader_SortDps"          xml:space="preserve"><value>DPS gain</value></data>
+  <data name="Trader_SortEhp"          xml:space="preserve"><value>EHP gain</value></data>
   <data name="Trader_PresetDps"        xml:space="preserve"><value>DPS</value></data>
   <data name="Trader_PresetEhp"        xml:space="preserve"><value>Survival</value></data>
   <data name="Trader_PresetBalance"    xml:space="preserve"><value>Balanced</value></data>
