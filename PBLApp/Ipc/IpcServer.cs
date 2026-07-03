@@ -181,6 +181,7 @@ public sealed class IpcServer
                 "/skills/support-picker/select"   => await OnUi(() => SupportPickerSelect(body)),
                 "/ui/text"                => await OnUi(() => DumpUiText(body)),
                 "/trader/state"      => await OnUi(TraderState),
+                "/trader/open"       => await OnUi(() => TraderOpen(body)),
                 "/trader/search"     => await OnUi(() => TraderSearch(body)),
                 "/trader/set-league" => await OnUi(() => TraderSetLeague(body)),
                 _ => new { error = $"Unknown endpoint: {path}" }
@@ -1440,6 +1441,19 @@ public sealed class IpcServer
                 triedOn = r.IsTriedOn,
             }).ToArray(),
         };
+    }
+
+    private static object TraderOpen(string body)
+    {
+        if (GetMainVm()?.CurrentPage is not BuildPageViewModel bp)
+            return new { error = "No build page." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        var slot = req.TryGetValue("slot", out var s) && s.ValueKind == JsonValueKind.String
+            ? s.GetString() : null;
+        if (string.IsNullOrEmpty(slot)) return new { error = "Provide 'slot'." };
+        if (bp.RequestOpenTrader is null) return new { error = "Trader open route not wired." };
+        bp.RequestOpenTrader(slot);
+        return new { ok = true, opened = slot };
     }
 
     private static object TraderSearch(string body)
