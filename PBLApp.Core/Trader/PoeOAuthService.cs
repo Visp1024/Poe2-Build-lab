@@ -82,7 +82,9 @@ public sealed class PoeOAuthService
         var (listener, port) = BindRegisteredPort();
         if (listener is null) return false; // все три порта заняты
         using var _ = listener;
-        using var abort = ct.Register(() => { try { listener.Stop(); } catch { } });
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(TimeSpan.FromMinutes(3));
+        using var abort = timeout.Token.Register(() => { try { listener.Stop(); } catch { } });
 
         openBrowser(BuildAuthorizeUrl(state, challenge, port));
 
@@ -95,10 +97,10 @@ public sealed class PoeOAuthService
             var html = Encoding.UTF8.GetBytes(
                 "<html><body><h3>PathBuildLab: авторизация завершена, вкладку можно закрыть.</h3></body></html>");
             ctx.Response.ContentType = "text/html; charset=utf-8";
-            await ctx.Response.OutputStream.WriteAsync(html, ct);
+            await ctx.Response.OutputStream.WriteAsync(html, timeout.Token);
             ctx.Response.Close();
         }
-        catch when (ct.IsCancellationRequested) { return false; }
+        catch when (timeout.Token.IsCancellationRequested) { return false; }
         finally { try { listener.Stop(); } catch { } }
 
         if (string.IsNullOrEmpty(code) || gotState != state)
@@ -114,9 +116,9 @@ public sealed class PoeOAuthService
             ["scope"] = Scopes,
             ["code_verifier"] = verifier,
         });
-        using var resp = await _http.PostAsync("https://www.pathofexile.com/oauth/token", form, ct);
+        using var resp = await _http.PostAsync("https://www.pathofexile.com/oauth/token", form, timeout.Token);
         if (!resp.IsSuccessStatusCode) return false;
-        using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
+        using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(timeout.Token));
         var root = doc.RootElement;
         var access = root.GetProperty("access_token").GetString();
         var refresh = root.TryGetProperty("refresh_token", out var r) ? r.GetString() : null;
@@ -128,7 +130,7 @@ public sealed class PoeOAuthService
         AppPreferences.Set(PrefRefresh, refresh ?? "");
         AppPreferences.Set(PrefExpiry, expiry.ToString());
 
-        await FetchAccountNameAsync(access, ct);
+        await FetchAccountNameAsync(access, timeout.Token);
         InjectIntoLua();
         return true;
     }

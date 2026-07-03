@@ -38,6 +38,7 @@ public class TraderWeightsTests : IClassFixture<LuaHostFixture>
         _host.SetTraderWeights(
             """[{"stat":"FullDPS","weightMult":0.7},{"stat":"Life","weightMult":1.0}]""");
         var xml = _host.SaveBuildToXml();
+        Assert.NotNull(xml);
         Assert.Contains("TradeSearchWeights", xml);
         Assert.Contains("Life", xml);
 

@@ -72,7 +72,12 @@ end
 
 function PBLTrader.StepGenerate()
 	if not PBLTrader.genDone then
-		PBLTrader.generator:OnFrame() -- resume корутины; по смерти сам зовёт FinishQuery → callback
+		-- pcall: при ошибке в OnFrame обязаны снять GetTime-override (он глобальный
+		-- и иначе протекает на весь движок) и завершить генерацию с ошибкой
+		local ok, err = pcall(function() PBLTrader.generator:OnFrame() end)
+		if not ok then
+			PBLTrader.genDone, PBLTrader.genQuery, PBLTrader.genErr = true, nil, tostring(err)
+		end
 	end
 	if PBLTrader.genDone then
 		PBLTrader._restoreGetTime()

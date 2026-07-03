@@ -132,6 +132,19 @@ public partial class BuildPageViewModel : ViewModelBase
         _ = AutoSaveAsync();
     }
 
+    partial void OnSelectedTabIndexChanged(int value)
+    {
+        // Трейдер создаётся лениво: его конструктор гоняет заметную Lua-работу
+        // (QueryMods + скан статов 18 слотов), незачем платить при каждом открытии билда
+        if (value == 5 && TraderTab is null && _host is not null && Build is not null)
+        {
+            TraderTab = new TraderTabViewModel(_host, Build,
+                onStatsChanged: () => { CalcsTab?.Refresh(); ItemsTab?.Refresh(); SkillsTab?.Refresh(); });
+            OnPropertyChanged(nameof(TraderTab));
+            OnPropertyChanged(nameof(CurrentTabContent));
+        }
+    }
+
     private LuaHost? _host;
 
     private string _xmlPath;
@@ -175,8 +188,9 @@ public partial class BuildPageViewModel : ViewModelBase
                 onItemsChanged: () => ItemsTab?.Refresh());
             NotesTab  = new NotesTabViewModel(model, xmlPath);
             ConfigTab = new ConfigTabViewModel(host, model);
-            TraderTab = new TraderTabViewModel(host, model,
-                onStatsChanged: () => { CalcsTab.Refresh(); ItemsTab?.Refresh(); SkillsTab?.Refresh(); });
+            // TraderTab создаётся лениво в OnSelectedTabIndexChanged при первом
+            // переходе на вкладку Trader (index 5) — её конструктор гоняет заметную
+            // Lua-работу (QueryMods + скан статов 18 слотов), незачем платить при каждом открытии билда.
             ImportTab = new ImportTabViewModel(host, model, xmlPath);
             // Seed the level from the loaded build without triggering OnCharacterLevelChanged
             // (direct field write) — otherwise we'd re-apply + flip auto-mode on every load.
@@ -189,7 +203,6 @@ public partial class BuildPageViewModel : ViewModelBase
             OnPropertyChanged(nameof(TreeTab));
             OnPropertyChanged(nameof(NotesTab));
             OnPropertyChanged(nameof(ConfigTab));
-            OnPropertyChanged(nameof(TraderTab));
             OnPropertyChanged(nameof(ImportTab));
             OnPropertyChanged(nameof(CurrentTabContent));
         }
