@@ -25,7 +25,13 @@ public partial class TraderWindowViewModel : ViewModelBase
     private string _cachedStatsJson = "";
 
     [ObservableProperty] private string _slotName = "";
-    [ObservableProperty] private string _displayName = "";
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(WindowTitle))]
+    private string _displayName = "";
+
+    /// <summary>Заголовок окна: «&lt;слот&gt; — Подбор», суффикс локализуется.</summary>
+    public string WindowTitle =>
+        string.Format(LocalizationService.Get("Trader_WindowTitle"), DisplayName);
     [ObservableProperty] private string _currentItemName = "";
     [ObservableProperty] private string _status = "";
     [ObservableProperty] private bool _isBusy;
@@ -38,6 +44,9 @@ public partial class TraderWindowViewModel : ViewModelBase
 
     public ObservableCollection<TraderResultViewModel> Results { get; } = [];
     public ObservableCollection<TraderAvailableStatViewModel> AvailableStats { get; } = [];
+
+    /// <summary>Пусто ли в списке результатов — для подсказки-заглушки области результатов.</summary>
+    public bool HasResults => Results.Count > 0;
 
     /// <summary>Required-фильтры активного слота — коллекция живёт в сессии (персист по слоту).</summary>
     public ObservableCollection<TraderRequiredFilterViewModel> RequiredFilters =>
@@ -53,6 +62,7 @@ public partial class TraderWindowViewModel : ViewModelBase
     public TraderWindowViewModel(TraderSession session, string slotName)
     {
         Session = session;
+        Results.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasResults));
         LoadAvailableStatsCommand = new RelayCommand(LoadAvailableStats);
         AddRequiredCommand = new RelayCommand<TraderAvailableStatViewModel>(stat =>
         {

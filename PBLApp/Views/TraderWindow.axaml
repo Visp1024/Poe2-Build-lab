@@ -7,7 +7,7 @@
         mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="620"
         x:Class="PBLApp.Views.TraderWindow"
         x:DataType="vm:TraderWindowViewModel"
-        Title="{Binding DisplayName, StringFormat={}{0} — Подбор}"
+        Title="{Binding WindowTitle}"
         Width="600" Height="640" MinWidth="480" MinHeight="420"
         Background="{DynamicResource BgBaseBrush}"
         WindowStartupLocation="CenterOwner">
@@ -177,7 +177,15 @@
 
         <!-- ── Результаты во всю ширину ───────────────────────────────────── -->
         <ScrollViewer Padding="12,10">
-            <ItemsControl ItemsSource="{Binding Results}">
+            <Panel>
+                <!-- Заглушка пустого состояния (до поиска / нет результатов) -->
+                <StackPanel IsVisible="{Binding !HasResults}" Spacing="10"
+                            HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0">
+                    <TextBlock Text="🔍" FontSize="28" Opacity="0.5" HorizontalAlignment="Center" />
+                    <TextBlock Text="{loc:Tr Trader_EmptyHint}" Classes="muted"
+                               TextAlignment="Center" TextWrapping="Wrap" MaxWidth="360" />
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding Results}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:TraderResultViewModel">
                         <Border Classes="card" ToolTip.Tip="{Binding Listing.ItemText}">
@@ -216,6 +224,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            </Panel>
         </ScrollViewer>
     </DockPanel>
 </Window>

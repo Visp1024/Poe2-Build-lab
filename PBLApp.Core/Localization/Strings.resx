@@ -29,7 +29,6 @@
   <data name="Tab_ImportExport"   xml:space="preserve"><value>Import / Export</value></data>
   <data name="Tab_Export"         xml:space="preserve"><value>Export</value></data>
   <data name="Tab_PopOut"         xml:space="preserve"><value>Open in separate window</value></data>
-  <data name="Tab_Trader"         xml:space="preserve"><value>Trader</value></data>
 
   <!-- Trader tab -->
   <data name="Slot_Weapon1Swap"   xml:space="preserve"><value>WEAPON 1 (SWAP)</value></data>
@@ -57,8 +56,12 @@
   <data name="Trader_ColEhp"           xml:space="preserve"><value>Δ EHP</value></data>
   <data name="Trader_ColValue"         xml:space="preserve"><value>Value/div</value></data>
   <data name="Trader_ColSeller"        xml:space="preserve"><value>Seller</value></data>
-  <data name="Trader_TotalTryOn"       xml:space="preserve"><value>Tried on: {0} div</value></data>
   <data name="Trader_NoResults"        xml:space="preserve"><value>No results</value></data>
+  <data name="Trader_WindowTitle"      xml:space="preserve"><value>{0} — Find upgrades</value></data>
+  <data name="Trader_EmptySlot"        xml:space="preserve"><value>Equip an item in this slot to search for an upgrade.</value></data>
+  <data name="Trader_EmptyHint"        xml:space="preserve"><value>Set stat weights and press “Find upgrades”.</value></data>
+  <data name="Trader_StripLabel"       xml:space="preserve"><value>🔍 Find</value></data>
+  <data name="Trader_StripIcon"        xml:space="preserve"><value>🔍</value></data>
   <data name="Trader_Weights"          xml:space="preserve"><value>Adjust weights… ({0})</value></data>
   <data name="Trader_WeightSearch"     xml:space="preserve"><value>Search stat…</value></data>
   <data name="Trader_WeightReset"      xml:space="preserve"><value>Reset</value></data>
