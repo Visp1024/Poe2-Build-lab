@@ -351,6 +351,39 @@ public sealed partial class LuaHost
         finally { _traderLua.Release(); }
     }
 
+    /// <summary>Trade-статы, доступные категории слота (для required-фильтров).</summary>
+    public string GetTradeStatsForSlotJson(string slotName)
+    {
+        _traderLua.Wait();
+        try
+        {
+            EnsureTraderInit();
+            State["_pblSlotName"] = slotName;
+            var r = (string)State.DoString("return PBLTrader.GetTradeStatsForSlotJson(_pblSlotName)")[0];
+            State["_pblSlotName"] = null;
+            return r;
+        }
+        finally { _traderLua.Release(); }
+    }
+
+    /// <summary>Добавляет and-группу required-фильтров в готовый query JSON.</summary>
+    public async Task<string?> ApplyRequiredStatsAsync(
+        string queryJson, string requiredJson, CancellationToken ct)
+    {
+        await _traderLua.WaitAsync(ct);
+        try
+        {
+            EnsureTraderInit();
+            State["_pblQuery"] = queryJson;
+            State["_pblRequired"] = requiredJson;
+            var r = State.DoString("return PBLTrader.ApplyRequiredStats(_pblQuery, _pblRequired)");
+            State["_pblQuery"] = null;
+            State["_pblRequired"] = null;
+            return r is { Length: > 0 } ? r[0] as string : null;
+        }
+        finally { _traderLua.Release(); }
+    }
+
     // ── OAuth-токены ─────────────────────────────────────────────────────────
 
     /// <summary>Инжектит trade-токены в Lua: main.lastToken/... + main.api.
