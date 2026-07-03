@@ -633,6 +633,16 @@ public class VisualTools
 
     [McpServerTool]
     [Description(
+        "Open (or retarget) the trader window for an equipment slot (e.g. 'Helmet', " +
+        "'Body Armour'). One reusable window; call before visual_trader_search.")]
+    public async Task<string> VisualTraderOpen(string slot)
+    {
+        try { return await IpcClient.CallAsync("POST", "/trader/open", new { slot }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
         "Start an upgrade search in the currently open trader window. Open a window first " +
         "with visual_trader_open. Runs async — poll visual_trader_state for stage/results.")]
     public async Task<string> VisualTraderSearch(string slot)
