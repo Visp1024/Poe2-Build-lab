@@ -37,6 +37,25 @@ public partial class ItemsTabView : UserControl
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        // Right-click = quick equip/unequip (mirrors original PoB).
+        // ПКМ по слоту (или его «Подбор»-полоске) снимает предмет; ПКМ по предмету
+        // в списке надевает его в первый свободный совместимый слот (или снимает,
+        // если он уже надет). ЛКМ-выделение и drag&drop не затрагиваются.
+        if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+        {
+            var rtag = (e.Source as Control)?.FindAncestorTag();
+            if (!string.IsNullOrEmpty(rtag) && DataContext is ItemsTabViewModel rvm)
+            {
+                if (rtag.StartsWith("slot:"))
+                { rvm.DragUnequipSlot(rtag[5..]); e.Handled = true; }
+                else if (rtag.StartsWith("trader:"))
+                { rvm.DragUnequipSlot(rtag["trader:".Length..]); e.Handled = true; }
+                else if (rtag.StartsWith("pool:") && int.TryParse(rtag[5..], out var rid))
+                { rvm.RightClickEquipPoolItem(rid); e.Handled = true; }
+            }
+            return;
+        }
+
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
         var tag = (e.Source as Control)?.FindAncestorTag();
 
