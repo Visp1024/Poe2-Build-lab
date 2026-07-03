@@ -66,12 +66,35 @@
                         Command="{Binding ApplyPresetCommand}" CommandParameter="ehp" />
                 <Button Content="{loc:Tr Trader_PresetBalance}"
                         Command="{Binding ApplyPresetCommand}" CommandParameter="balance" />
-                <TextBlock Text="{loc:Tr Trader_WeightDps}" Classes="muted" VerticalAlignment="Center" Margin="12,0,0,0" />
-                <NumericUpDown Value="{Binding DpsWeight, Mode=TwoWay}" Minimum="0" Maximum="10"
-                               Increment="0.1" FormatString="0.0#" Width="110" />
-                <TextBlock Text="{loc:Tr Trader_WeightEhp}" Classes="muted" VerticalAlignment="Center" />
-                <NumericUpDown Value="{Binding EhpWeight, Mode=TwoWay}" Minimum="0" Maximum="10"
-                               Increment="0.1" FormatString="0.0#" Width="110" />
+                <Button Content="{Binding WeightsButtonText}" Margin="12,0,0,0">
+                    <Button.Flyout>
+                        <Flyout Placement="BottomEdgeAlignedLeft">
+                            <StackPanel Width="420" Spacing="6">
+                                <TextBox Text="{Binding WeightSearch, Mode=TwoWay}"
+                                         Watermark="{loc:Tr Trader_WeightSearch}" />
+                                <ScrollViewer MaxHeight="420">
+                                    <ItemsControl ItemsSource="{Binding FilteredWeightStats}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:TraderWeightEntryViewModel">
+                                                <Grid ColumnDefinitions="*,120" Margin="0,1">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Label}"
+                                                               VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <NumericUpDown Grid.Column="1"
+                                                                   Value="{Binding WeightMult, Mode=TwoWay}"
+                                                                   Minimum="0" Maximum="1" Increment="0.05"
+                                                                   FormatString="0.0#" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                                <Button Content="{loc:Tr Trader_WeightReset}"
+                                        Command="{Binding ResetWeightsCommand}" HorizontalAlignment="Right" />
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
                 <TextBlock Text="{loc:Tr Trader_MaxPrice}" Classes="muted"
                            VerticalAlignment="Center" Margin="12,0,0,0" />
                 <TextBox Text="{Binding MaxPrice, Mode=TwoWay}" Width="80" Watermark="—" />

@@ -57,4 +57,16 @@ public class TraderWeightsTests : IClassFixture<LuaHostFixture>
         Assert.DoesNotContain("NoSuchStat", json);
         Assert.Contains("\"TotalEHP\"", json);
     }
+
+    [Fact(Timeout = 300_000)]
+    [Trait("Category", "Slow")]
+    public async Task Generate_WithCustomWeights_ProducesQuery()
+    {
+        // Life — стат с прямым output-ключом; проверяем что кастомный список работает end-to-end
+        var result = await _host.GenerateTradeQueryAsync("Helmet",
+            """{"statWeights":[{"stat":"Life","weightMult":1.0}],"includeCorrupted":false,"includeMirrored":false}""",
+            null, System.Threading.CancellationToken.None);
+        Assert.Null(result.Error);
+        Assert.Contains("\"type\":\"weight\"", result.QueryJson);
+    }
 }

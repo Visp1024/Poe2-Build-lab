@@ -42,10 +42,9 @@ public partial class TraderTabViewModel : ViewModelBase
     [ObservableProperty]
     private string _leagueLoadError = "";
 
-    // Веса статов: пресеты выставляют пары множителей
-    [ObservableProperty] private double _dpsWeight = 1.0;
-    [ObservableProperty] private double _ehpWeight = 0.5;
-
+    // Веса статов
+    public ObservableCollection<TraderWeightEntryViewModel> WeightStats { get; } = [];
+    [ObservableProperty] private string _weightSearch = "";
     [ObservableProperty] private string _maxPrice = "";
     [ObservableProperty] private int _maxPriceCurrencyIndex;
 
@@ -112,6 +111,57 @@ public partial class TraderTabViewModel : ViewModelBase
     public bool IsLoggedIn => _oauth.IsLoggedIn;
     public string? AccountName => _oauth.AccountName;
 
+    public IEnumerable<TraderWeightEntryViewModel> FilteredWeightStats
+    {
+        get
+        {
+            var search = WeightSearch?.Trim() ?? "";
+            var all = WeightStats.OrderByDescending(w => w.WeightMult > 0).AsEnumerable();
+            if (!string.IsNullOrEmpty(search))
+                all = all.Where(w =>
+                    w.Label.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    w.Stat.Contains(search, StringComparison.OrdinalIgnoreCase));
+            return all;
+        }
+    }
+
+    public int ActiveWeightCount => WeightStats.Count(w => w.WeightMult > 0);
+
+    public string WeightsButtonText =>
+        string.Format(LocalizationService.Get("Trader_Weights"), ActiveWeightCount);
+
+    public bool HasActiveWeights => ActiveWeightCount > 0;
+
+    [RelayCommand]
+    private void ResetWeights()
+    {
+        foreach (var w in WeightStats)
+            w.WeightMult = 0;
+        SetWeight("FullDPS", 1.0);
+        SetWeight("TotalEHP", 0.5);
+        OnWeightsChanged();
+    }
+
+    private void SetWeight(string stat, double value)
+    {
+        var entry = WeightStats.FirstOrDefault(w => w.Stat == stat);
+        if (entry is not null) entry.WeightMult = value;
+    }
+
+    internal void OnWeightsChanged()
+    {
+        Host.SetTraderWeights(StatWeightsJson);
+        OnPropertyChanged(nameof(ActiveWeightCount));
+        OnPropertyChanged(nameof(WeightsButtonText));
+        OnPropertyChanged(nameof(HasActiveWeights));
+        OnPropertyChanged(nameof(FilteredWeightStats));
+        OnPropertyChanged(nameof(OptionsJson));
+        OnPropertyChanged(nameof(StatWeightsJson));
+    }
+
+    partial void OnWeightSearchChanged(string value) =>
+        OnPropertyChanged(nameof(FilteredWeightStats));
+
     public TraderTabViewModel(LuaHost host, BuildModel build, Action? onStatsChanged = null,
         TraderWebApi? webApi = null, PoeOAuthService? oauth = null)
     {
@@ -121,6 +171,26 @@ public partial class TraderTabViewModel : ViewModelBase
         _oauth = oauth ?? new PoeOAuthService(host);
         _oauth.InjectIntoLua();
         RefreshSlots();
+
+        // Построить WeightStats из всех доступных статов
+        using var allDoc = JsonDocument.Parse(host.GetTraderWeightStatsJson());
+        foreach (var el in allDoc.RootElement.EnumerateArray())
+        {
+            var stat = el.GetProperty("stat").GetString() ?? "";
+            var label = el.TryGetProperty("label", out var lb) ? lb.GetString() ?? stat : stat;
+            WeightStats.Add(new TraderWeightEntryViewModel(this, stat, label));
+        }
+
+        // Наложить сохранённые веса
+        using var savedDoc = JsonDocument.Parse(host.GetTraderWeightsJson());
+        foreach (var el in savedDoc.RootElement.EnumerateArray())
+        {
+            var stat = el.GetProperty("stat").GetString() ?? "";
+            var mult = el.TryGetProperty("weightMult", out var wm) ? wm.GetDouble() : 0.0;
+            var entry = WeightStats.FirstOrDefault(w => w.Stat == stat);
+            if (entry is not null) entry.WeightMult = mult;
+        }
+
         _ = InitLeaguesAsync();
     }
 
@@ -186,32 +256,36 @@ public partial class TraderTabViewModel : ViewModelBase
     [RelayCommand]
     private void ApplyPreset(string preset)
     {
-        (DpsWeight, EhpWeight) = preset switch
+        var (dps, ehp) = preset switch
         {
             "dps" => (1.0, 0.1),
             "ehp" => (0.1, 1.0),
             _ => (1.0, 0.5), // balance
         };
+        foreach (var w in WeightStats) w.WeightMult = 0;
+        SetWeight("FullDPS", dps);
+        SetWeight("TotalEHP", ehp);
+        OnWeightsChanged();
     }
 
     public string StatWeightsJson =>
-        JsonSerializer.Serialize(new object[]
-        {
-            new { stat = "FullDPS", weightMult = DpsWeight },
-            new { stat = "TotalEHP", weightMult = EhpWeight },
-        });
+        JsonSerializer.Serialize(
+            WeightStats
+                .Where(w => w.WeightMult > 0)
+                .Select(w => new { stat = w.Stat, weightMult = w.WeightMult })
+                .ToArray());
 
     public string OptionsJson
     {
         get
         {
+            var activeWeights = WeightStats
+                .Where(w => w.WeightMult > 0)
+                .Select(w => new { stat = w.Stat, weightMult = w.WeightMult })
+                .ToArray();
             var opts = new Dictionary<string, object?>
             {
-                ["statWeights"] = new object[]
-                {
-                    new { stat = "FullDPS", weightMult = DpsWeight },
-                    new { stat = "TotalEHP", weightMult = EhpWeight },
-                },
+                ["statWeights"] = activeWeights,
                 ["includeCorrupted"] = true,
                 ["includeMirrored"] = false,
             };
@@ -286,6 +360,7 @@ public partial class TraderSlotRowViewModel : ViewModelBase
     [RelayCommand]
     private async Task SearchAsync()
     {
+        if (!_owner.HasActiveWeights) { Status = LocalizationService.Get("Trader_NoWeights"); return; }
         if (IsBusy) return;
         _cts = new CancellationTokenSource();
         IsBusy = true;
@@ -431,4 +506,24 @@ public partial class TraderResultViewModel : ViewModelBase
         if (_owner.CopyToClipboardAsync is { } copy)
             await copy(Listing.Whisper);
     }
+}
+
+/// <summary>Один стат в списке весов; изменение WeightMult уведомляет владельца.</summary>
+public partial class TraderWeightEntryViewModel : ViewModelBase
+{
+    private readonly TraderTabViewModel _owner;
+
+    public string Stat { get; }
+    public string Label { get; }
+
+    [ObservableProperty] private double _weightMult;
+
+    public TraderWeightEntryViewModel(TraderTabViewModel owner, string stat, string rawLabel)
+    {
+        _owner = owner;
+        Stat = stat;
+        Label = GameTranslationService.TCalcLabel(rawLabel);
+    }
+
+    partial void OnWeightMultChanged(double value) => _owner.OnWeightsChanged();
 }

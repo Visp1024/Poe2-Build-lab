@@ -33,6 +33,8 @@ function PBLTrader.StartGenerate(slotName, optionsJson)
 	PBLTrader.Init()
 	local options, _, jsonErr = dkjson.decode(optionsJson)
 	if not options then return "error: bad options json: " .. tostring(jsonErr) end
+	options.statWeights = PBLTrader._enrichWeights(options.statWeights or {})
+	if #options.statWeights == 0 then return "error: no stat weights selected" end
 	local slot = build.itemsTab.slots[slotName]
 	if not slot then return "error: unknown slot " .. tostring(slotName) end
 
@@ -129,6 +131,7 @@ end
 function PBLTrader.ComputeDiffJson(slotName, itemString, statWeightsJson)
 	PBLTrader.Init()
 	local weights = dkjson.decode(statWeightsJson) or {}
+	weights = PBLTrader._enrichWeights(weights)
 	local calcFunc, baseOutput = build.calcsTab:GetMiscCalculator()
 	if not calcFunc then return dkjson.encode({ err = "no calculator" }) end
 	local ok, item = pcall(function()
