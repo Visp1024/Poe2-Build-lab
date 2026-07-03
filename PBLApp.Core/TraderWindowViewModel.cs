@@ -143,7 +143,7 @@ public partial class TraderWindowViewModel : ViewModelBase
             {
                 var id = el.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
                 var rawText = el.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? "" : "";
-                var text = GameTranslationService.TTooltipLine(rawText);
+                var text = GameTranslationService.TTradeStat(rawText);
                 if (string.IsNullOrEmpty(text) || text.StartsWith('[')) text = rawText;
                 AvailableStats.Add(new TraderAvailableStatViewModel(id, text));
             }

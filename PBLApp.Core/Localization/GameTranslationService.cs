@@ -948,6 +948,39 @@ public sealed class GameTranslationService
     public static string TTooltipLine(string line) => Instance.TooltipLine(line);
     public static string TTooltipType(string name) => Instance.TooltipType(name);
 
+    /// <summary>Translate a trade-site stat description. Trade stats already carry «#»
+    /// placeholders ("#% increased maximum Life"), so the numeric-redaction path in
+    /// TooltipLine/PassiveStat never fires — look the text up directly in the «#»-keyed
+    /// template dictionaries (CSD stat-descriptions first — trade text derives from them).
+    /// Falls back to TooltipLine (concrete forms / prefix handlers), then English.</summary>
+    public string TradeStat(string text)
+    {
+        if (string.IsNullOrEmpty(text) || _loadedLang == "en") return text;
+        var hit = LookupTemplate(text);
+        if (hit is not null) return hit;
+        // trade отдаёт «# to Dexterity», словари хранят «+# to Dexterity».
+        if (text.StartsWith("# ", StringComparison.Ordinal) && LookupTemplate("+" + text) is { } withPlus)
+            return withPlus;
+        // trade добавляет суффикс « (Local)», которого нет в ключах.
+        if (text.EndsWith(" (Local)", StringComparison.Ordinal))
+        {
+            var bare = text[..^" (Local)".Length];
+            hit = LookupTemplate(bare)
+                  ?? (bare.StartsWith("# ", StringComparison.Ordinal) ? LookupTemplate("+" + bare) : null);
+            if (hit is not null) return hit;
+        }
+        var t = TooltipLine(text);
+        return string.IsNullOrEmpty(t) ? text : t;
+    }
+
+    private string? LookupTemplate(string s) =>
+        _itemModTemplatesCsd.TryGetValue(s, out var ru) ? ru
+        : _itemModTemplates.TryGetValue(s, out ru) ? ru
+        : _passiveStats.TryGetValue(s, out ru) ? ru
+        : null;
+
+    public static string TTradeStat(string text) => Instance.TradeStat(text);
+
     // Generic, non-GGPK node names that the passive dumps don't cover (socket /
     // mastery placeholders carry these as their display name).
     private static readonly Dictionary<string, string> _genericNodeNames = new(StringComparer.Ordinal)
