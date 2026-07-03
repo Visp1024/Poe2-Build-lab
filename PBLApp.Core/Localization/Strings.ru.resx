@@ -46,6 +46,12 @@
   <data name="Trader_StatusSearching"  xml:space="preserve"><value>Ищем…</value></data>
   <data name="Trader_StatusDiffing"    xml:space="preserve"><value>Сравниваем {0}/{1}…</value></data>
   <data name="Trader_StatusRateLimit"  xml:space="preserve"><value>Лимит запросов, ждём {0} с</value></data>
+  <data name="Trader_SortBy"           xml:space="preserve"><value>Сортировка</value></data>
+  <data name="Trader_SortValuePerDiv"  xml:space="preserve"><value>Эффективность к цене</value></data>
+  <data name="Trader_SortPrice"        xml:space="preserve"><value>Цена</value></data>
+  <data name="Trader_SortValue"        xml:space="preserve"><value>Эффективность</value></data>
+  <data name="Trader_SortDps"          xml:space="preserve"><value>Прирост урона</value></data>
+  <data name="Trader_SortEhp"          xml:space="preserve"><value>Прирост EHP</value></data>
   <data name="Trader_PresetDps"        xml:space="preserve"><value>Урон</value></data>
   <data name="Trader_PresetEhp"        xml:space="preserve"><value>Выживаемость</value></data>
   <data name="Trader_PresetBalance"    xml:space="preserve"><value>Баланс</value></data>

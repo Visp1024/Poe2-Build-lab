@@ -200,6 +200,18 @@
             </StackPanel>
         </Border>
 
+        <!-- ── Сортировка (как в PoB) — видна при наличии результатов ──────── -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource BgBaseBrush}"
+                Padding="12,6" IsVisible="{Binding HasResults}">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Text="{loc:Tr Trader_SortBy}" Classes="muted"
+                           VerticalAlignment="Center" FontSize="11" />
+                <ComboBox ItemsSource="{Binding SortOptions}"
+                          SelectedIndex="{Binding SelectedSortIndex, Mode=TwoWay}"
+                          MinWidth="190" FontSize="12" />
+            </StackPanel>
+        </Border>
+
         <!-- ── Результаты во всю ширину ───────────────────────────────────── -->
         <ScrollViewer Padding="12,10">
             <Panel>

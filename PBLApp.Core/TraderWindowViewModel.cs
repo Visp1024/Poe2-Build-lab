@@ -50,6 +50,18 @@ public partial class TraderWindowViewModel : ViewModelBase
     /// <summary>Пусто ли в списке результатов — для подсказки-заглушки области результатов.</summary>
     public bool HasResults => Results.Count > 0;
 
+    /// <summary>Варианты сортировки результатов (как в PoB Trader).</summary>
+    public IReadOnlyList<string> SortOptions { get; } =
+    [
+        LocalizationService.Get("Trader_SortValuePerDiv"),
+        LocalizationService.Get("Trader_SortPrice"),
+        LocalizationService.Get("Trader_SortValue"),
+        LocalizationService.Get("Trader_SortDps"),
+        LocalizationService.Get("Trader_SortEhp"),
+    ];
+    [ObservableProperty] private int _selectedSortIndex;
+    partial void OnSelectedSortIndexChanged(int value) => SortResults();
+
     /// <summary>Required-фильтры активного слота — коллекция живёт в сессии (персист по слоту).</summary>
     public ObservableCollection<TraderRequiredFilterViewModel> RequiredFilters =>
         Session.RequiredBySlot.TryGetValue(SlotName, out var list) ? list : _emptyRequired;
@@ -259,12 +271,20 @@ public partial class TraderWindowViewModel : ViewModelBase
 
     private void SortResults()
     {
-        var sorted = Results
-            .OrderByDescending(r => r.ValuePerDiv ?? double.MinValue)
-            .ThenByDescending(r => r.StatValue ?? double.MinValue)
-            .ToList();
+        IEnumerable<TraderResultViewModel> sorted = SelectedSortIndex switch
+        {
+            // Цена: дешёвые сначала (в дивинах для кросс-валютного порядка, иначе сырая сумма).
+            1 => Results.OrderBy(r => r.DivValue ?? r.Listing.Amount),
+            2 => Results.OrderByDescending(r => r.StatValue ?? double.MinValue),
+            3 => Results.OrderByDescending(r => r.DpsDiff ?? double.MinValue),
+            4 => Results.OrderByDescending(r => r.EhpDiff ?? double.MinValue),
+            // По умолчанию — прирост за цену, затем чистый прирост.
+            _ => Results.OrderByDescending(r => r.ValuePerDiv ?? double.MinValue)
+                        .ThenByDescending(r => r.StatValue ?? double.MinValue),
+        };
+        var list = sorted.ToList();
         Results.Clear();
-        foreach (var r in sorted) Results.Add(r);
+        foreach (var r in list) Results.Add(r);
     }
 }
 
