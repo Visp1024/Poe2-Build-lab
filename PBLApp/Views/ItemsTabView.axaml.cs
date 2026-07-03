@@ -39,6 +39,20 @@ public partial class ItemsTabView : UserControl
     {
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
         var tag = (e.Source as Control)?.FindAncestorTag();
+
+        // «Подбор» strip: its Tag ("trader:Slot") sits below the cell's "slot:Slot",
+        // so FindAncestorTag returns it first. Open the trader window and swallow the
+        // press so the tunnel doesn't also select/drag the slot.
+        if (!string.IsNullOrEmpty(tag) && tag.StartsWith("trader:"))
+        {
+            if (DataContext is ItemsTabViewModel tvm)
+                tvm.OpenTraderForSlot?.Invoke(tag["trader:".Length..]);
+            e.Handled = true;
+            _pendingPayload = null;
+            _pressEvent     = null;
+            return;
+        }
+
         if (string.IsNullOrEmpty(tag) ||
             (!tag.StartsWith("slot:") && !tag.StartsWith("pool:")))
         {
