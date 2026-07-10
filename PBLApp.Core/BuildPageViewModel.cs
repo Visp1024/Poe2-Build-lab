@@ -113,6 +113,27 @@ public partial class BuildPageViewModel : ViewModelBase
     public ConfigTabViewModel? ConfigTab { get; private set; }
     public ImportTabViewModel? ImportTab { get; private set; }
 
+    /// <summary>Активное окно подбора (владелец — BuildPageView). Задаётся при открытии/
+    /// перенацеливании окна, обнуляется при закрытии. Читается IPC для /trader/*.</summary>
+    public TraderWindowViewModel? ActiveTraderWindow { get; set; }
+
+    /// <summary>Просит View открыть/перенацелить окно подбора на слот. Ставит BuildPageView.</summary>
+    public Action<string>? RequestOpenTrader { get; set; }
+
+    public TraderSession? TraderSession { get; private set; }
+
+    /// <summary>Лениво создаёт сессию трейдера (её конструктор гоняет заметную Lua-работу:
+    /// QueryMods + скан статов слотов), незачем платить при каждом открытии билда.</summary>
+    public TraderSession EnsureTraderSession()
+    {
+        if (TraderSession is null && _host is not null && Build is not null)
+            TraderSession = new TraderSession(_host, Build,
+                // Build.Refresh() — примерка экипирует предмет и рекалькулирует движок,
+                // но статы в шапке (BuildModel) без этого не обновятся.
+                onStatsChanged: () => { Build?.Refresh(); CalcsTab?.Refresh(); ItemsTab?.Refresh(); SkillsTab?.Refresh(); });
+        return TraderSession!;
+    }
+
     public IRelayCommand BackCommand { get; }
 
     /// <summary>Character level (1-100). Bound to the level editor in the header; setting it
@@ -168,6 +189,7 @@ public partial class BuildPageViewModel : ViewModelBase
             // class's granted skills linger and new ones never appear).
             ItemsTab  = new ItemsTabViewModel(host, model,
                 onStatsChanged: () => { CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); TreeTab?.RefreshJewelRadii(); });
+            ItemsTab.OpenTraderForSlot = slot => RequestOpenTrader?.Invoke(slot);
             TreeTab   = new TreeTabViewModel(host,
                 onStatsChanged: () => { model.Refresh(); CalcsTab.RefreshSkillGroups(); CalcsTab.Refresh(); SkillsTab?.Refresh(); ItemsTab?.Tattoos.Refresh(); ItemsTab?.Phylactery.Refresh(); },
                 onItemsChanged: () => ItemsTab?.Refresh());
@@ -183,6 +205,9 @@ public partial class BuildPageViewModel : ViewModelBase
             }
             NotesTab  = new NotesTabViewModel(model, xmlPath);
             ConfigTab = new ConfigTabViewModel(host, model);
+            // TraderSession создаётся лениво в EnsureTraderSession при первом открытии
+            // окна подбора — её конструктор гоняет заметную Lua-работу (QueryMods + скан
+            // статов слотов), незачем платить при каждом открытии билда.
             ImportTab = new ImportTabViewModel(host, model, xmlPath);
             // Seed the level from the loaded build without triggering OnCharacterLevelChanged
             // (direct field write) — otherwise we'd re-apply + flip auto-mode on every load.

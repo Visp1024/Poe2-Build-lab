@@ -1,0 +1,308 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PBLApp.ViewModels"
+        xmlns:ctl="using:PBLApp.Controls"
+        xmlns:suki="https://github.com/kikipoulet/SukiUI"
+        xmlns:loc="using:PBLApp.Localization"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="620"
+        x:Class="PBLApp.Views.TraderWindow"
+        x:DataType="vm:TraderWindowViewModel"
+        Title="{Binding WindowTitle}"
+        Width="600" Height="640" MinWidth="480" MinHeight="420"
+        Background="{DynamicResource BgBaseBrush}"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Styles>
+        <Style Selector="Border.bar">
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="Padding" Value="12,10" />
+        </Style>
+        <Style Selector="TextBlock.muted">
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style Selector="Border.badge">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Padding" Value="6,2" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Button.go">
+            <Setter Property="Background" Value="{DynamicResource Brand500Brush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand400Brush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextOnBrandBrush}" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+    </Window.Styles>
+
+    <Grid>
+    <DockPanel>
+
+        <!-- ── Шапка: лига + логин (из сессии) ────────────────────────────── -->
+        <Border DockPanel.Dock="Top" Classes="bar">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" VerticalAlignment="Center">
+                <TextBlock Grid.Column="0" Text="{loc:Tr Trader_League}" Classes="muted"
+                           VerticalAlignment="Center" Margin="0,0,8,0" />
+                <ComboBox Grid.Column="1" MinWidth="180" Height="34"
+                          ItemsSource="{Binding Session.Leagues}"
+                          SelectedItem="{Binding Session.SelectedLeague, Mode=TwoWay}" />
+                <TextBlock Grid.Column="2" Classes="muted" VerticalAlignment="Center" Margin="16,0"
+                           Text="{Binding Session.LeagueLoadError}"
+                           IsVisible="{Binding Session.LeagueLoadError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <TextBlock Grid.Column="3" VerticalAlignment="Center" Margin="0,0,10,0"
+                           Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="Medium"
+                           Text="{Binding Session.AccountName}"
+                           IsVisible="{Binding Session.IsLoggedIn}" />
+                <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6">
+                    <Button Content="{loc:Tr Trader_Login}" Command="{Binding Session.LoginCommand}"
+                            IsVisible="{Binding !Session.IsLoggedIn}" />
+                    <Button Content="{loc:Tr Trader_Logout}" Command="{Binding Session.LogoutCommand}"
+                            IsVisible="{Binding Session.IsLoggedIn}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ── Панель управления: веса / фильтры / цена / искать ──────────── -->
+        <Border DockPanel.Dock="Top" Classes="bar">
+            <StackPanel Spacing="8">
+                <!-- Ряд 1: веса + фильтры + действия (цена — на отдельном ряду ниже,
+                     иначе в узком окне ряд не влезает и «Искать» клипается). -->
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <!-- Веса (флайаут, общие на билд — из сессии) -->
+                    <Button Content="{Binding Session.WeightsButtonText}">
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                <!-- Непрозрачная тематическая поверхность: дефолтный
+                                     FlyoutPresenter здесь полупрозрачный (было видно окно сквозь). -->
+                                <Border Background="{DynamicResource BgMantleBrush}"
+                                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                                        CornerRadius="8" Padding="12">
+                                <StackPanel Width="360" Spacing="6">
+                                    <!-- Пресеты компактной сеткой 2×2 (в один ряд не влезали) -->
+                                    <UniformGrid Rows="2" Columns="2">
+                                        <Button Content="{loc:Tr Trader_PresetDps}" Margin="2" FontSize="11"
+                                                Padding="6,3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                Command="{Binding Session.ApplyPresetCommand}" CommandParameter="dps" />
+                                        <Button Content="{loc:Tr Trader_PresetEhp}" Margin="2" FontSize="11"
+                                                Padding="6,3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                Command="{Binding Session.ApplyPresetCommand}" CommandParameter="ehp" />
+                                        <Button Content="{loc:Tr Trader_PresetBalance}" Margin="2" FontSize="11"
+                                                Padding="6,3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                Command="{Binding Session.ApplyPresetCommand}" CommandParameter="balance" />
+                                        <Button Content="{loc:Tr Trader_WeightReset}" Margin="2" FontSize="11"
+                                                Padding="6,3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                Command="{Binding Session.ResetWeightsCommand}" />
+                                    </UniformGrid>
+                                    <TextBox Text="{Binding Session.WeightSearch, Mode=TwoWay}"
+                                             Watermark="{loc:Tr Trader_WeightSearch}" />
+                                    <ScrollViewer MaxHeight="360">
+                                        <ItemsControl ItemsSource="{Binding Session.FilteredWeightStats}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:TraderWeightEntryViewModel">
+                                                    <Grid ColumnDefinitions="*,110" Margin="0,1">
+                                                        <TextBlock Grid.Column="0" Text="{Binding Label}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                                   VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <NumericUpDown Grid.Column="1"
+                                                                       Value="{Binding WeightMult, Mode=TwoWay}"
+                                                                       Minimum="0" Maximum="1" Increment="0.05"
+                                                                       FormatString="0.0#"
+                                                                       ShowButtonSpinner="False"
+                                                                       HorizontalContentAlignment="Right"
+                                                                       Background="{DynamicResource BgBaseBrush}"
+                                                                       Foreground="{DynamicResource Brand400Brush}"
+                                                                       BorderBrush="{DynamicResource BorderStrongBrush}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
+                                </Border>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+
+                    <!-- Фильтры (флайаут, required пер-слот) -->
+                    <Button Content="{Binding RequiredButtonText}" IsVisible="{Binding HasStatCategory}">
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                <!-- Непрозрачная тематическая поверхность (см. флайаут весов). -->
+                                <Border Background="{DynamicResource BgMantleBrush}"
+                                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                                        CornerRadius="8" Padding="12">
+                                <StackPanel Width="420" Spacing="6">
+                                    <ItemsControl ItemsSource="{Binding RequiredFilters}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:TraderRequiredFilterViewModel">
+                                                <Grid ColumnDefinitions="*,90,Auto" Margin="0,1">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Text}"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                                               VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBox Grid.Column="1" Text="{Binding Min, Mode=TwoWay}"
+                                                             Watermark="{loc:Tr Trader_ReqMin}" Margin="6,0" />
+                                                    <Button Grid.Column="2" Content="✕" Command="{Binding RemoveCommand}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBox Text="{Binding RequiredSearch, Mode=TwoWay}"
+                                             Watermark="{loc:Tr Trader_ReqSearch}" />
+                                    <ScrollViewer MaxHeight="280">
+                                        <ItemsControl ItemsSource="{Binding FilteredAvailableStats}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:TraderAvailableStatViewModel">
+                                                    <Button Content="{Binding Text}"
+                                                            HorizontalAlignment="Stretch"
+                                                            HorizontalContentAlignment="Left"
+                                                            Command="{Binding $parent[ItemsControl].((vm:TraderWindowViewModel)DataContext).AddRequiredCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
+                                </Border>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+
+                    <Button Classes="go" Content="{loc:Tr Trader_FindUpgrades}"
+                            Command="{Binding SearchCommand}" IsEnabled="{Binding !IsBusy}"
+                            Margin="8,0,0,0" />
+                    <Button Content="{loc:Tr Trader_Cancel}" Command="{Binding CancelCommand}"
+                            IsVisible="{Binding IsBusy}" />
+                </StackPanel>
+                <!-- Ряд 2: лимит цены слева, «Открыть на сайте» справа (свой ряд, чтобы
+                     кнопки ряда 1 не клипались в узком окне). -->
+                <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" VerticalAlignment="Center">
+                    <TextBlock Grid.Column="0" Text="{loc:Tr Trader_MaxPrice}" Classes="muted"
+                               VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBox Grid.Column="1" Text="{Binding MaxPrice, Mode=TwoWay}" Width="70" Watermark="—" />
+                    <ComboBox Grid.Column="2" ItemsSource="{Binding Session.CurrencyNames}"
+                              SelectedIndex="{Binding MaxPriceCurrencyIndex, Mode=TwoWay}"
+                              MinWidth="150" MaxWidth="190" Margin="8,0,0,0" />
+                    <Button Grid.Column="4" Content="{loc:Tr Trader_OpenSite}"
+                            Command="{Binding OpenOnSiteCommand}" />
+                </Grid>
+                <TextBlock Text="{Binding Status}" Classes="muted"
+                           IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            </StackPanel>
+        </Border>
+
+        <!-- ── Сортировка (как в PoB) — видна при наличии результатов ──────── -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource BgBaseBrush}"
+                Padding="12,6" IsVisible="{Binding HasResults}">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Text="{loc:Tr Trader_SortBy}" Classes="muted"
+                           VerticalAlignment="Center" FontSize="11" />
+                <ComboBox ItemsSource="{Binding SortOptions}"
+                          SelectedIndex="{Binding SelectedSortIndex, Mode=TwoWay}"
+                          MinWidth="190" FontSize="12" />
+            </StackPanel>
+        </Border>
+
+        <!-- ── Результаты во всю ширину ───────────────────────────────────── -->
+        <ScrollViewer Padding="12,10">
+            <Panel>
+                <!-- Заглушка пустого состояния (до поиска / нет результатов) -->
+                <StackPanel IsVisible="{Binding !HasResults}" Spacing="10"
+                            HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0">
+                    <TextBlock Text="🔍" FontSize="28" Opacity="0.5" HorizontalAlignment="Center" />
+                    <TextBlock Text="{loc:Tr Trader_EmptyHint}" Classes="muted"
+                               TextAlignment="Center" TextWrapping="Wrap" MaxWidth="360" />
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding Results}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TraderResultViewModel">
+                        <Border Classes="card"
+                                ctl:StyledHoverTooltip.Source="{Binding HoverTooltip}"
+                                ToolTip.ShowDelay="400" ToolTip.Placement="Pointer">
+                            <StackPanel Spacing="8">
+                                <!-- Имя (по редкости) + база слева; цена с монетой справа -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel Grid.Column="0" Spacing="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding ItemTitle}"
+                                                   Foreground="{Binding NameColorHex}"
+                                                   FontSize="13.5" FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding ItemBase}"
+                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                   FontSize="11" TextTrimming="CharacterEllipsis"
+                                                   IsVisible="{Binding HasBase}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                                                VerticalAlignment="Center">
+                                        <Ellipse Width="13" Height="13" VerticalAlignment="Center">
+                                            <Ellipse.Fill>
+                                                <RadialGradientBrush>
+                                                    <GradientStop Offset="0" Color="#FFE9A8" />
+                                                    <GradientStop Offset="0.65" Color="#C9A24E" />
+                                                    <GradientStop Offset="1" Color="#7A5F1F" />
+                                                </RadialGradientBrush>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                        <TextBlock Text="{Binding PriceText}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   FontWeight="Bold" FontSize="13" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Grid>
+                                <!-- Дельты цветными бейджами (нейтральный фон + цвет по знаку) -->
+                                <StackPanel Orientation="Horizontal" Spacing="7">
+                                    <Border Classes="badge" Background="{DynamicResource BgRaisedBrush}"
+                                            BorderBrush="{DynamicResource BorderSubtleBrush}">
+                                        <TextBlock Foreground="{Binding DpsDiffColorHex}" FontWeight="Bold" FontSize="11"
+                                                   Text="{Binding DpsDiff, StringFormat='DPS +0.#;DPS -0.#;DPS 0'}" />
+                                    </Border>
+                                    <Border Classes="badge" Background="{DynamicResource BgRaisedBrush}"
+                                            BorderBrush="{DynamicResource BorderSubtleBrush}">
+                                        <TextBlock Foreground="{Binding EhpDiffColorHex}" FontWeight="Bold" FontSize="11"
+                                                   Text="{Binding EhpDiff, StringFormat='EHP +0.#;EHP -0.#;EHP 0'}" />
+                                    </Border>
+                                    <TextBlock Classes="muted" VerticalAlignment="Center" FontSize="11"
+                                               Text="{Binding ValuePerDiv, StringFormat='· {0:0.##}/div'}" />
+                                </StackPanel>
+                                <!-- Продавец + действия -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Classes="muted" VerticalAlignment="Center" FontSize="11"
+                                               Text="{Binding Listing.Seller}" TextTrimming="CharacterEllipsis" />
+                                    <Button Grid.Column="1" Content="{loc:Tr Trader_TryOn}"
+                                            Command="{Binding TryOnCommand}" IsEnabled="{Binding !IsTriedOn}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            </Panel>
+        </ScrollViewer>
+    </DockPanel>
+
+    <!-- ── Блокирующий оверлей со спиннером на время поиска ────────────────
+         Border с непрозрачным-полупрозрачным фоном перехватывает клики → окно
+         заблокировано, пока идёт поиск. Отмена доступна. -->
+    <Border IsVisible="{Binding IsBusy}" Background="#CC12141A">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+            <suki:Loading Width="46" Height="46" HorizontalAlignment="Center"
+                          Foreground="{DynamicResource Brand400Brush}" />
+            <TextBlock Text="{Binding Status}" Foreground="{DynamicResource TextPrimaryBrush}"
+                       FontSize="13" HorizontalAlignment="Center" TextAlignment="Center"
+                       TextWrapping="Wrap" MaxWidth="360" />
+            <Button Content="{loc:Tr Trader_Cancel}" Command="{Binding CancelCommand}"
+                    HorizontalAlignment="Center" />
+        </StackPanel>
+    </Border>
+    </Grid>
+</Window>

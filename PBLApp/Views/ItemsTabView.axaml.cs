@@ -37,8 +37,41 @@ public partial class ItemsTabView : UserControl
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        // Right-click = quick equip/unequip (mirrors original PoB).
+        // ПКМ по слоту (или его «Подбор»-полоске) снимает предмет; ПКМ по предмету
+        // в списке надевает его в первый свободный совместимый слот (или снимает,
+        // если он уже надет). ЛКМ-выделение и drag&drop не затрагиваются.
+        if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+        {
+            var rtag = (e.Source as Control)?.FindAncestorTag();
+            if (!string.IsNullOrEmpty(rtag) && DataContext is ItemsTabViewModel rvm)
+            {
+                if (rtag.StartsWith("slot:"))
+                { rvm.DragUnequipSlot(rtag[5..]); e.Handled = true; }
+                else if (rtag.StartsWith("trader:"))
+                { rvm.DragUnequipSlot(rtag["trader:".Length..]); e.Handled = true; }
+                else if (rtag.StartsWith("pool:") && int.TryParse(rtag[5..], out var rid))
+                { rvm.RightClickEquipPoolItem(rid); e.Handled = true; }
+            }
+            return;
+        }
+
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
         var tag = (e.Source as Control)?.FindAncestorTag();
+
+        // «Подбор» strip: its Tag ("trader:Slot") sits below the cell's "slot:Slot",
+        // so FindAncestorTag returns it first. Open the trader window and swallow the
+        // press so the tunnel doesn't also select/drag the slot.
+        if (!string.IsNullOrEmpty(tag) && tag.StartsWith("trader:"))
+        {
+            if (DataContext is ItemsTabViewModel tvm)
+                tvm.OpenTraderForSlot?.Invoke(tag["trader:".Length..]);
+            e.Handled = true;
+            _pendingPayload = null;
+            _pressEvent     = null;
+            return;
+        }
+
         if (string.IsNullOrEmpty(tag) ||
             (!tag.StartsWith("slot:") && !tag.StartsWith("pool:")))
         {

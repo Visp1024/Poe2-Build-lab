@@ -13,6 +13,7 @@ public partial class BuildPageView : UserControl
 {
     private EventHandler? _langChangedHandler;
     private NotesWindow? _notesWindow;
+    private TraderWindow? _traderWindow;
     private SettingsWindow? _settingsWindow;
     private ImportExportWindow? _importExportWindow;
     private readonly Dictionary<string, TabWindow> _tabWindows = new();
@@ -26,7 +27,10 @@ public partial class BuildPageView : UserControl
         DataContextChanged += (_, _) =>
         {
             if (DataContext is BuildPageViewModel vm)
+            {
                 vm.PromptRenameAsync = PromptRenameAsync;
+                vm.RequestOpenTrader = OpenTrader;
+            }
         };
     }
 
@@ -168,6 +172,35 @@ public partial class BuildPageView : UserControl
         _importExportWindow.Closed += (_, _) => _importExportWindow = null;
         if (owner is not null) _importExportWindow.Show(owner);
         else _importExportWindow.Show();
+    }
+
+    private void OpenTrader(string slot)
+    {
+        if (DataContext is not BuildPageViewModel vm) return;
+        var session = vm.EnsureTraderSession();
+
+        if (_traderWindow is not null)
+        {
+            try
+            {
+                if (_traderWindow.DataContext is TraderWindowViewModel wvm) wvm.Retarget(slot);
+                _traderWindow.Activate();
+                return;
+            }
+            catch { _traderWindow = null; }
+        }
+
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        var winVm = new TraderWindowViewModel(session, slot);
+        _traderWindow = new TraderWindow { DataContext = winVm };
+        vm.ActiveTraderWindow = winVm;
+        _traderWindow.Closed += (_, _) =>
+        {
+            _traderWindow = null;
+            vm.ActiveTraderWindow = null;
+        };
+        if (owner is not null) _traderWindow.Show(owner);
+        else _traderWindow.Show();
     }
 
     private void OpenNotes_Click(object? sender, RoutedEventArgs e)

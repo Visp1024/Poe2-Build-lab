@@ -417,6 +417,61 @@ Pass over the Skills tab and the overall tabbing UX based on direct user feedbac
 
 ---
 
+### Phase 18 — Trader (trade upgrade search) ✅ DONE
+
+Полный in-app аналог PoB Trader: подбор апгрейдов по слоту на pathofexile.com/trade2.
+Спек: `docs/superpowers/specs/2026-07-03-trader-tab-design.md`,
+план: `docs/superpowers/plans/2026-07-03-trader-tab.md`.
+
+> **Редизайн (2026-07-03)** — спек `…/specs/2026-07-03-trader-slot-window-redesign-design.md`,
+> план `…/plans/2026-07-03-trader-slot-window-redesign.md`: отдельная вкладка «Трейдер»
+> заменена на **пер-слот подбор**. Под каждой ячейкой фигуры Items — полоска «🔍 Подбор»,
+> открывающая единое перенацеливаемое немодальное окно `TraderWindow` для этого слота.
+> `TraderTabViewModel` расщеплён на `TraderSession` (глобальное: логин/лига/веса/курсы +
+> required-по-слотам) и `TraderWindowViewModel` (пер-слот поиск). Движок/Lua/OAuth не тронуты;
+> IPC/MCP (`/trader/open` + `visual_trader_open`) нацелены на активное окно. Пустой слот
+> показывает подсказку «экипируйте предмет» (полноценный поиск по категории без предмета
+> отложен — требует правки генератора в off-limits `src/Classes`).
+
+- **HTTP-мост**: `launch:DownloadPage` реализован поверх `HttpClient`
+  (`PBLEngine/lua/trader_http.lua` + `LuaHostTrader.cs`); ответы (тело + сырые
+  заголовки со статус-строкой и `X-Rate-Limit-*`) доставляются Lua-callback'ам
+  на Lua-потоке через очередь (`DrainTraderHttp`). Весь Lua-код трейдера
+  (`TradeQueryGenerator` / `TradeQueryRequests` / `TradeQueryRateLimiter`)
+  работает без изменений; UI-класс `TradeQuery.lua` не используется.
+- **Glue**: `PBLEngine/lua/trader.lua` (`PBLTrader.*`) — генерация запроса
+  корутиной (real-time `GetTime`-override, отмена, как BuildNodePower), поиск
+  с weight-повтором, диффы через `calcFunc({repItem})` (+`BuildAndParseRaw`).
+- **C# API** (`LuaHostTrader.cs`, partial LuaHost): `GenerateTradeQueryAsync`,
+  `SearchTradeAsync`, `ComputeListingDiffAsync`, `TryOnListingAsync`,
+  `SetTradeAuth`; все Lua-обращения под общим `SemaphoreSlim`.
+- **OAuth**: `PoeOAuthService` — PKCE S256, `client_id=pob`, localhost-listener;
+  токены в `AppPreferences`, инжект в `main.api` (refresh делает Lua).
+  Без логина работает генерация + «Открыть на trade-сайте» (`?q=` URL).
+- **Web**: `TraderWebApi` — лиги (`api/leagues?realm=poe2`, без SSF) и курсы
+  poe.ninja в дивинах (кэш 1 ч).
+- **UI**: `TraderTabViewModel` + `TraderTabView` (вкладка №6 «Трейдер»):
+  лига/логин, пресеты весов DPS/EHP, лимит цены, строки слотов со стадиями
+  (взвешивание → поиск → диффы, отмена), результаты с ценой/Δ DPS/Δ EHP/
+  «ценность-за-див»/продавцом, примерка в билд (Undo), whisper в буфер.
+- **MCP/IPC**: `/trader/state|search|set-league` + `visual_trader_*`.
+- **Попутный фикс**: `runtime/lua/dkjson.lua` — `table.sort` после
+  `local _ENV = nil` падал под Lua 5.4 (encode); локализована `tablesort`.
+- Вне скоупа: jewel-слоты, поиск «похожих на предмет», перевод модов в списке
+  результатов (тултип показывает EN-текст предмета).
+- **Веса статов + required-фильтры** (спек
+  `docs/superpowers/specs/2026-07-03-trader-weights-required-design.md`):
+  настраиваемый список весов как «Adjust search weights» оригинала — источник
+  истины `build.itemsTab.tradeQuery.statSortSelectionList` (XML-узел
+  `TradeSearchWeights` сериализует существующий ItemsTab → персист и
+  PoB-совместимость бесплатны), флайаут с поиском и множителями 0–1, пресеты;
+  transform-функции статов восстанавливает Lua (`PBLTrader._enrichWeights`).
+  Пер-слот required-мин-фильтры: полный список trade-статов категории слота
+  (`generator.modData`, фильтр `entry[category]`), and-группа добавляется в
+  готовый query (`PBLTrader.ApplyRequiredStats`) — генератор не тронут.
+
+---
+
 ## Backlog (deferred / future work)
 
 ### Items / display
@@ -425,7 +480,7 @@ Pass over the Skills tab and the overall tabbing UX based on direct user feedbac
 - [ ] Unique flavour text translation (`unique_flavour_ru.json`) — generate from GGPK `Words.datc64` when schema becomes available, or hand-edit per unique.
 - [ ] Three Sekhema's Resolve element variants — slug mismatch on poe2db, need manual URL mapping.
 - [ ] Upgrade plain-text hover tooltips on slots / pool items to the full styled `ItemTooltipView` content (lazy-build VM on `ToolTip.Opening`).
-- [ ] **Open the trade site for an item** — «Купить на торговой площадке» action on a slot / pool item that builds an official `pathofexile.com/trade` (PoE2) search for that item and opens it in the default browser. PoB already ships the generator: `Classes/TradeQueryGenerator.lua` turns an item's mods into a query, `Classes/TradeQuery.lua` / `TradeHelpers.lua` build the URL, `Data/QueryMods.lua` + `Data/TradeSiteStats.lua` map mod text → trade stat ids. Scope for PBLApp: expose a `LuaHost.BuildTradeQueryUrl(itemId, slotName)` wrapper over the generator (no live API calls / rate-limiter needed — just the URL), wire a button in the item tooltip / editor header, open via `Process.Start(url)` (C# side, not Lua). Decide weighting mode (exact mods vs. "find upgrades"). Stretch: in-app price-check panel using `TradeQueryRequests` + `TradeQueryRateLimiter` (needs PoE session / OAuth — much larger).
+- [x] ~~Open the trade site for an item~~ — закрыто Phase 18 (вкладка «Трейдер»: in-app поиск апгрейдов + «Открыть на trade-сайте»). Остаток: точечный поиск «такого же предмета» из тултипа/редактора — см. вне-скоупа Phase 18. Исходная заметка: «Купить на торговой площадке» action on a slot / pool item that builds an official `pathofexile.com/trade` (PoE2) search for that item and opens it in the default browser. PoB already ships the generator: `Classes/TradeQueryGenerator.lua` turns an item's mods into a query, `Classes/TradeQuery.lua` / `TradeHelpers.lua` build the URL, `Data/QueryMods.lua` + `Data/TradeSiteStats.lua` map mod text → trade stat ids. Scope for PBLApp: expose a `LuaHost.BuildTradeQueryUrl(itemId, slotName)` wrapper over the generator (no live API calls / rate-limiter needed — just the URL), wire a button in the item tooltip / editor header, open via `Process.Start(url)` (C# side, not Lua). Decide weighting mode (exact mods vs. "find upgrades"). Stretch: in-app price-check panel using `TradeQueryRequests` + `TradeQueryRateLimiter` (needs PoE session / OAuth — much larger).
 
 ### Game integration (PoE2 0.5+)
 - [ ] **Generate an in-game Build Planner `.build` file** — PoE2 0.5 "Return of the Ancients" (29 May 2026) added a native **Build Planner** that reads a community `.build` file from `Documents/My Games/Path of Exile 2/BuildPlanner` and overlays the plan (passive nodes to take, main + weapon-set tree toggles, skill + support gems; items not yet supported by GGG's reader) onto the player's character in-game. poe.ninja shipped a prototype exporter (the file is JSON under a `.build` extension; export dialog lets you pick which parts to include). Scope for PBLApp: an "Export Build Planner" action (next to share-code export) that serialises the current build's `spec.allocNodes` (per weapon set) + socket groups/gems into the GGG `.build` JSON schema and writes it to the BuildPlanner folder (with a "copy JSON" alternative). **Needs research first**: reverse-engineer the exact JSON schema (node id keys, gem identifiers, weapon-set structure) from a poe.ninja-exported sample / GGG docs — capture it before implementing. Watch for schema changes as GGG iterates (still early prototype; item support is coming).
