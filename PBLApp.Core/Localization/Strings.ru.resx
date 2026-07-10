@@ -30,6 +30,53 @@
   <data name="Tab_Export"         xml:space="preserve"><value>Экспорт</value></data>
   <data name="Tab_PopOut"         xml:space="preserve"><value>Открыть в отдельном окне</value></data>
 
+  <!-- Trader tab -->
+  <data name="Slot_Weapon1Swap"   xml:space="preserve"><value>ОРУЖИЕ 1 (СМЕНА)</value></data>
+  <data name="Slot_Weapon2Swap"   xml:space="preserve"><value>ОРУЖИЕ 2 (СМЕНА)</value></data>
+  <data name="Trader_Login"            xml:space="preserve"><value>Войти через pathofexile.com</value></data>
+  <data name="Trader_Logout"           xml:space="preserve"><value>Разлогиниться</value></data>
+  <data name="Trader_FindUpgrades"     xml:space="preserve"><value>Найти апгрейды</value></data>
+  <data name="Trader_Cancel"           xml:space="preserve"><value>Отмена</value></data>
+  <data name="Trader_Cancelled"        xml:space="preserve"><value>Отменено</value></data>
+  <data name="Trader_TryOn"            xml:space="preserve"><value>Примерить</value></data>
+  <data name="Trader_Whisper"          xml:space="preserve"><value>Шёпот</value></data>
+  <data name="Trader_OpenSite"         xml:space="preserve"><value>Открыть на trade-сайте</value></data>
+  <data name="Trader_NeedLogin"        xml:space="preserve"><value>Войдите, чтобы видеть результаты в приложении</value></data>
+  <data name="Trader_StatusGenerating" xml:space="preserve"><value>Взвешиваем моды…</value></data>
+  <data name="Trader_StatusSearching"  xml:space="preserve"><value>Ищем…</value></data>
+  <data name="Trader_StatusDiffing"    xml:space="preserve"><value>Сравниваем {0}/{1}…</value></data>
+  <data name="Trader_StatusRateLimit"  xml:space="preserve"><value>Лимит запросов, ждём {0} с</value></data>
+  <data name="Trader_SortBy"           xml:space="preserve"><value>Сортировка</value></data>
+  <data name="Trader_SortValuePerDiv"  xml:space="preserve"><value>Эффективность к цене</value></data>
+  <data name="Trader_SortPrice"        xml:space="preserve"><value>Цена</value></data>
+  <data name="Trader_SortValue"        xml:space="preserve"><value>Эффективность</value></data>
+  <data name="Trader_SortDps"          xml:space="preserve"><value>Прирост урона</value></data>
+  <data name="Trader_SortEhp"          xml:space="preserve"><value>Прирост EHP</value></data>
+  <data name="Trader_PresetDps"        xml:space="preserve"><value>Урон</value></data>
+  <data name="Trader_PresetEhp"        xml:space="preserve"><value>Выживаемость</value></data>
+  <data name="Trader_PresetBalance"    xml:space="preserve"><value>Баланс</value></data>
+  <data name="Trader_MaxPrice"         xml:space="preserve"><value>Макс. цена</value></data>
+  <data name="Trader_League"           xml:space="preserve"><value>Лига</value></data>
+  <data name="Trader_ColPrice"         xml:space="preserve"><value>Цена</value></data>
+  <data name="Trader_ColDps"           xml:space="preserve"><value>Δ Урон</value></data>
+  <data name="Trader_ColEhp"           xml:space="preserve"><value>Δ EHP</value></data>
+  <data name="Trader_ColValue"         xml:space="preserve"><value>Ценность/див</value></data>
+  <data name="Trader_ColSeller"        xml:space="preserve"><value>Продавец</value></data>
+  <data name="Trader_NoResults"        xml:space="preserve"><value>Нет результатов</value></data>
+  <data name="Trader_WindowTitle"      xml:space="preserve"><value>{0} — Подбор</value></data>
+  <data name="Trader_EmptySlot"        xml:space="preserve"><value>Экипируйте предмет в этот слот, чтобы подобрать апгрейд.</value></data>
+  <data name="Trader_EmptyHint"        xml:space="preserve"><value>Настройте веса статов и нажмите «Найти апгрейды».</value></data>
+  <data name="Trader_StripLabel"       xml:space="preserve"><value>🔍 Подбор</value></data>
+  <data name="Trader_StripIcon"        xml:space="preserve"><value>🔍</value></data>
+  <data name="Trader_Weights"          xml:space="preserve"><value>Настроить веса… ({0})</value></data>
+  <data name="Trader_WeightSearch"     xml:space="preserve"><value>Поиск стата…</value></data>
+  <data name="Trader_WeightReset"      xml:space="preserve"><value>Сброс</value></data>
+  <data name="Trader_NoWeights"        xml:space="preserve"><value>Выберите хотя бы один стат в весах</value></data>
+  <data name="Trader_CurrencyEquiv"    xml:space="preserve"><value>Эквивалент возвышенных сфер</value></data>
+  <data name="Trader_Required"         xml:space="preserve"><value>Фильтры ({0})</value></data>
+  <data name="Trader_ReqSearch"        xml:space="preserve"><value>Поиск стата…</value></data>
+  <data name="Trader_ReqMin"           xml:space="preserve"><value>мин</value></data>
+
   <!-- Build list -->
   <data name="List_Title"         xml:space="preserve"><value>Билды</value></data>
   <data name="List_Empty"         xml:space="preserve"><value>Сборки не найдены. Нажмите «Новая сборка», чтобы создать.</value></data>

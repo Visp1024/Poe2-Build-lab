@@ -182,6 +182,10 @@ public sealed class IpcServer
                 "/skills/support-picker/set-mode" => await OnUi(() => SupportPickerSetMode(body)),
                 "/skills/support-picker/select"   => await OnUi(() => SupportPickerSelect(body)),
                 "/ui/text"                => await OnUi(() => DumpUiText(body)),
+                "/trader/state"      => await OnUi(TraderState),
+                "/trader/open"       => await OnUi(() => TraderOpen(body)),
+                "/trader/search"     => await OnUi(() => TraderSearch(body)),
+                "/trader/set-league" => await OnUi(() => TraderSetLeague(body)),
                 _ => new { error = $"Unknown endpoint: {path}" }
             };
 
@@ -1449,6 +1453,83 @@ public sealed class IpcServer
                 alloc    = r.IsAllocated,
             }).ToArray(),
         };
+    }
+
+    // ── Trader (session + active window) ─────────────────────────────────────
+
+    private static TraderSession? GetTraderSession()
+        => (GetMainVm()?.CurrentPage as BuildPageViewModel)?.TraderSession;
+
+    private static TraderWindowViewModel? GetTraderWindow()
+        => (GetMainVm()?.CurrentPage as BuildPageViewModel)?.ActiveTraderWindow;
+
+    private static object TraderState()
+    {
+        var s = GetTraderSession();
+        if (s is null) return new { open = false, error = "Trader session not created." };
+        var w = GetTraderWindow();
+        return new
+        {
+            ok = true,
+            windowOpen = w is not null,
+            slot = w?.SlotName,
+            league = s.SelectedLeague,
+            leagues = s.Leagues.ToArray(),
+            leagueLoadError = s.LeagueLoadError.Length > 0 ? s.LeagueLoadError : null,
+            loggedIn = s.IsLoggedIn,
+            account = s.AccountName,
+            activeWeightCount = s.ActiveWeightCount,
+            statWeightsJson = s.StatWeightsJson,
+            status = w?.Status,
+            busy = w?.IsBusy ?? false,
+            hasQuery = w?.LastQueryJson is not null,
+            results = w?.Results.Select(r => new
+            {
+                price = r.Listing.Amount,
+                currency = r.Listing.Currency,
+                seller = r.Listing.Seller,
+                dps = r.DpsDiff,
+                ehp = r.EhpDiff,
+                value = r.StatValue,
+                valuePerDiv = r.ValuePerDiv,
+                triedOn = r.IsTriedOn,
+            }).ToArray(),
+        };
+    }
+
+    private static object TraderOpen(string body)
+    {
+        if (GetMainVm()?.CurrentPage is not BuildPageViewModel bp)
+            return new { error = "No build page." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        var slot = req.TryGetValue("slot", out var s) && s.ValueKind == JsonValueKind.String
+            ? s.GetString() : null;
+        if (string.IsNullOrEmpty(slot)) return new { error = "Provide 'slot'." };
+        if (bp.RequestOpenTrader is null) return new { error = "Trader open route not wired." };
+        bp.RequestOpenTrader(slot);
+        return new { ok = true, opened = slot };
+    }
+
+    private static object TraderSearch(string body)
+    {
+        var w = GetTraderWindow();
+        if (w is null) return new { error = "No trader window open. Call /trader/open first." };
+        w.SearchCommand.Execute(null); // fire-and-forget; прогресс виден через /trader/state
+        return new { ok = true, started = w.SlotName };
+    }
+
+    private static object TraderSetLeague(string body)
+    {
+        var s = GetTraderSession();
+        if (s is null) return new { error = "Trader session not created." };
+        var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
+        if (req.TryGetValue("league", out var l) && l.ValueKind == JsonValueKind.String &&
+            l.GetString() is { Length: > 0 } league)
+        {
+            s.SelectedLeague = league;
+            return new { ok = true, league };
+        }
+        return new { error = "Provide 'league'." };
     }
 
     public void Stop()

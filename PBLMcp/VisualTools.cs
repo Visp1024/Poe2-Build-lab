@@ -638,6 +638,44 @@ public class VisualTools
         throw new DirectoryNotFoundException("Cannot find repo root");
     }
 
+    [McpServerTool]
+    [Description(
+        "Get trader window state: target slot, league, login status, search status and " +
+        "results (price, seller, stat diffs). Poll this after visual_trader_search.")]
+    public async Task<string> VisualTraderState()
+    {
+        try { return await IpcClient.CallAsync("GET", "/trader/state"); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Open (or retarget) the trader window for an equipment slot (e.g. 'Helmet', " +
+        "'Body Armour'). One reusable window; call before visual_trader_search.")]
+    public async Task<string> VisualTraderOpen(string slot)
+    {
+        try { return await IpcClient.CallAsync("POST", "/trader/open", new { slot }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description(
+        "Start an upgrade search in the currently open trader window. Open a window first " +
+        "with visual_trader_open. Runs async — poll visual_trader_state for stage/results.")]
+    public async Task<string> VisualTraderSearch(string slot)
+    {
+        try { return await IpcClient.CallAsync("POST", "/trader/search", new { slot }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
+    [McpServerTool]
+    [Description("Select the trade league (shared by the trader window).")]
+    public async Task<string> VisualTraderSetLeague(string league)
+    {
+        try { return await IpcClient.CallAsync("POST", "/trader/set-league", new { league }); }
+        catch (Exception ex) { return Error(ex); }
+    }
+
     private static string Error(string msg)      => $"ERROR: {msg}";
     private static string Error(Exception ex)    => $"ERROR: {ex.GetType().Name}: {ex.Message}";
 }

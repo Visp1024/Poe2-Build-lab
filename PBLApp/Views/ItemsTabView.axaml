@@ -40,6 +40,27 @@
             <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}"/>
             <Setter Property="BorderThickness" Value="3"/>
         </Style>
+
+        <!-- «Подбор» strip: overlay inside the slot cell at the bottom edge. Own
+             PointerPressed (e.Handled) so it doesn't trigger the tunnel slot-select. -->
+        <Style Selector="Border.trader-strip">
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="Height" Value="17"/>
+            <Setter Property="Background" Value="#E615171D"/>
+            <Setter Property="BorderBrush" Value="#22FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0,1,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Border.trader-strip:pointerover">
+            <Setter Property="Background" Value="#EE262A35"/>
+        </Style>
+        <Style Selector="Border.trader-strip TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Brand400Brush}"/>
+            <Setter Property="FontSize" Value="9.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
         <Style Selector="Button.pool-btn">
             <Setter Property="DragDrop.AllowDrop" Value="True"/>
         </Style>
@@ -332,6 +353,9 @@
                                                        Foreground="{Binding Helmet.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Helmet">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -351,6 +375,9 @@
                                                        Foreground="{Binding Amulet.NameColor}"
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Amulet">
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -371,6 +398,9 @@
                                                        Foreground="{Binding Weapon1.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Weapon 1">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -391,6 +421,9 @@
                                                        Foreground="{Binding Weapon1Swap.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Weapon 1 Swap">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -410,6 +443,9 @@
                                                        Foreground="{Binding BodyArmour.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Body Armour">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -429,6 +465,9 @@
                                                        Foreground="{Binding Ring1.NameColor}"
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Ring 1">
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -448,6 +487,9 @@
                                                        Foreground="{Binding Ring2.NameColor}"
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Ring 2">
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -468,6 +510,9 @@
                                                        Foreground="{Binding Weapon2.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Weapon 2">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -488,6 +533,9 @@
                                                        Foreground="{Binding Weapon2Swap.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Weapon 2 Swap">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -507,6 +555,9 @@
                                                        Foreground="{Binding Belt.NameColor}"
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Belt">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -526,6 +577,9 @@
                                                        Foreground="{Binding Gloves.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Gloves">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -545,6 +599,9 @@
                                                        Foreground="{Binding Boots.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Boots">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -564,6 +621,9 @@
                                                        Foreground="{Binding Charm1.NameColor}"
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Charm 1">
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
                                 <Border Canvas.Left="245" Canvas.Top="405" Width="50" Height="100" Classes="slot-cell"
@@ -581,6 +641,9 @@
                                                        Foreground="{Binding Charm2.NameColor}"
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Charm 2">
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
                                 <Border Canvas.Left="300" Canvas.Top="405" Width="50" Height="100" Classes="slot-cell"
@@ -598,6 +661,9 @@
                                                        Foreground="{Binding Charm3.NameColor}"
                                                        Classes="slot-fallback-name-compact"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Charm 3">
+                                            <TextBlock Text="{loc:Tr Trader_StripIcon}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -617,6 +683,9 @@
                                                        Foreground="{Binding Flask1.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Flask 1">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
@@ -636,6 +705,9 @@
                                                        Foreground="{Binding Flask2.NameColor}"
                                                        Classes="slot-fallback-name"/>
                                         </StackPanel>
+                                        <Border Classes="trader-strip" Tag="trader:Flask 2">
+                                            <TextBlock Text="{loc:Tr Trader_StripLabel}"/>
+                                        </Border>
                                     </Grid>
                                 </Border>
 
