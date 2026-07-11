@@ -11,6 +11,14 @@ public static class TreePowerService
     private static LuaWorkerPool? _pool;
     private static readonly object Gate = new();
 
+    /// <summary>Read-only peek at the current pool without creating one — safe to poll
+    /// from status surfaces (e.g. IPC <c>/tree/state</c>) that must not force a pool
+    /// spin-up (and its ~40s worker warmup) just by being observed.</summary>
+    public static LuaWorkerPool? Current
+    {
+        get { lock (Gate) return _pool; }
+    }
+
     /// <summary>Configured worker count: prefs key "tree.powerWorkers"
     /// ("auto" | "0".."8"), default auto = clamp(cores-2, 1, 4). 0 → пул выключен.</summary>
     public static int ConfiguredSize()

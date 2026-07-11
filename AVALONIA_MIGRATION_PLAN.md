@@ -470,6 +470,22 @@ Pass over the Skills tab and the overall tabbing UX based on direct user feedbac
   (`generator.modData`, фильтр `entry[category]`), and-группа добавляется в
   готовый query (`PBLTrader.ApplyRequiredStats`) — генератор не тронут.
 
+### Phase 19 — Tree node power heat-map ✅ DONE (v2)
+
+Панель «мощности» узлов дерева: подсвечивает, какие ещё не взятые узлы дают
+больше всего выбранного стата (DPS/EHP/…) на вложенное очко. v1 считала на
+основном Lua-хосте (блокирующе, минуты на большом дереве); v2 добавила пул
+Lua-воркеров (`LuaEngine/LuaWorkerPool`, ленивый прогрев при первом расчёте,
+авто-размер `clamp(cores-2, 1, 4)`, до 4), исправила подсчёт «шагов» (сколько
+доп. очков нужно до узла) и переодела панель в trader-style карточки
+(сортировка value/perPoint, фильтр по имени, статус воркеров, кольца
+топ-10 на канвасе). Тайминги на Huntress-Amazon L91 / FullDPS / ~2600 нод:
+v2-фолбэк на одном хосте 25.9 с → холодный пул (ленивый прогрев) 15.3 с →
+тёплый пул 9.2 с (v1 занимал минуты). Память: 721 МБ до пула → 2338 МБ с 4
+воркерами (~404 МБ/воркер, дефолт авто=4 в пределах бюджета — не менялся).
+IPC: `/tree/state` несёт `workersReady/workersTotal/powerSortIndex/powerFilter`,
+`/tree/power-report` — `steps`/`perPoint`/`typeBadge` на строку.
+
 ---
 
 ## Backlog (deferred / future work)
