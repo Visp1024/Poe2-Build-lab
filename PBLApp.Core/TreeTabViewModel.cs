@@ -620,6 +620,8 @@ public partial class TreeTabViewModel : ViewModelBase
         _powerCts = cts;
         var ctx = SynchronizationContext.Current;
         void Post(Action a) { if (ctx != null) ctx.Post(_ => a(), null); else a(); }
+        LuaWorkerPool? pool = null;
+        bool usedMainHost = false;   // any RunAsync that touches _host → hover must be gated
         try
         {
             IsPowerBuilding = true;
@@ -637,7 +639,7 @@ public partial class TreeTabViewModel : ViewModelBase
             if (string.IsNullOrEmpty(xml) || nodes.Count == 0) return;
 
             // 2. Workers: the pool (lazily warming up) or a fallback onto the main host.
-            var pool = TreePowerService.GetPool(RepoRoot);
+            pool = TreePowerService.GetPool(RepoRoot);
             IReadOnlyList<Task<IPowerWorker>> workers;
             if (pool != null)
             {
@@ -645,7 +647,10 @@ public partial class TreeTabViewModel : ViewModelBase
                 // ReadyChanged fires on a background (pool) thread — marshal through
                 // the UI SynchronizationContext captured above, not one read inside
                 // the handler (which would see no context and update off-thread).
-                if (_poolReadyHandler != null) pool.ReadyChanged -= _poolReadyHandler;
+                // The subscription is scoped to this build (removed in finally):
+                // the status label only matters while a calc is running, the static
+                // pool outlives this VM (never let it pin us), and a pool recreated
+                // with a new size would make a lingering subscription a stale no-op.
                 _poolReadyHandler = () => Post(UpdateWorkersStatus);
                 pool.ReadyChanged += _poolReadyHandler;
                 Post(UpdateWorkersStatus);
@@ -653,6 +658,12 @@ public partial class TreeTabViewModel : ViewModelBase
             else
             {
                 workers = [Task.FromResult<IPowerWorker>(new MainHostPowerWorker(_host, _luaQueue))];
+                // Fallback runs Lua on the main host from a background thread; raise
+                // IsToggleBusy (v1 behaviour) so GetNodeHoverInfo skips its UI-thread
+                // Lua call — a concurrent hover would crash the native KeraLua state.
+                // Pool-backed builds deliberately do NOT set this: _host is idle then.
+                usedMainHost = true;
+                IsToggleBusy = true;
             }
 
             void Progress(int pc) => Post(() => PowerBuildProgress = pc);
@@ -664,7 +675,10 @@ public partial class TreeTabViewModel : ViewModelBase
             }
             catch (InvalidOperationException) when (pool != null)
             {
-                // All pool workers died — fall back to the main host.
+                // All pool workers died — fall back to the main host (same hover
+                // gating as the pool-disabled path above).
+                usedMainHost = true;
+                IsToggleBusy = true;
                 result = await NodePowerOrchestrator.RunAsync(
                     xml!, stat.StatKey, stat.CombinedOffDef, nodes,
                     [Task.FromResult<IPowerWorker>(new MainHostPowerWorker(_host, _luaQueue))],
@@ -692,7 +706,19 @@ public partial class TreeTabViewModel : ViewModelBase
         finally
         {
             IsPowerBuilding = false;
+            if (usedMainHost)
+            {
+                // Don't blindly clear: a toggle enqueued while we held the Lua gate
+                // set IsToggleBusy for its own burst — keep it up until that drains.
+                IsToggleBusy = Volatile.Read(ref _pendingToggles) > 0;
+            }
+            if (pool != null && _poolReadyHandler != null)
+            {
+                pool.ReadyChanged -= _poolReadyHandler;
+                _poolReadyHandler = null;
+            }
             if (ReferenceEquals(_powerCts, cts)) _powerCts = null;
+            cts.Dispose();
         }
     }
 
@@ -707,16 +733,34 @@ public partial class TreeTabViewModel : ViewModelBase
     {
         private readonly LuaHost _worker;
         private readonly SemaphoreSlim _gate;
-        private bool _held;
+        private int _held;   // 0/1 via Interlocked so the gate can never double-release
 
         public MainHostPowerWorker(LuaHost host, SemaphoreSlim gate) { _worker = host; _gate = gate; }
+
+        private void ReleaseGate()
+        {
+            if (Interlocked.Exchange(ref _held, 0) == 1) _gate.Release();
+        }
 
         public async Task PrepareAsync(string buildXml, string? statKey, CancellationToken ct)
         {
             await _gate.WaitAsync(ct);
-            _held = true;
-            // buildXml is not reloaded — the main host's build is already the source of truth.
-            await Task.Run(() => _worker.BeginPowerSession(statKey), ct);
+            Volatile.Write(ref _held, 1);
+            try
+            {
+                // buildXml is not reloaded — the main host's build is already the source of truth.
+                await Task.Run(() => _worker.BeginPowerSession(statKey), ct);
+            }
+            catch
+            {
+                // The orchestrator only calls FinishAsync on successfully prepared
+                // workers. If BeginPowerSession throws — or the Task.Run delegate is
+                // cancelled before it starts (Cancel clicked right after Generate) —
+                // release the gate here, or every future tree toggle would deadlock
+                // behind a permanently-held semaphore.
+                ReleaseGate();
+                throw;
+            }
         }
 
         public Task<List<PowerBatchRow>> ComputeBatchAsync(int[] ids, CancellationToken ct)
@@ -728,7 +772,7 @@ public partial class TreeTabViewModel : ViewModelBase
         public Task FinishAsync() => Task.Run(() =>
         {
             try { _worker.EndPowerSession(); }
-            finally { if (_held) { _gate.Release(); _held = false; } }
+            finally { ReleaseGate(); }
         });
     }
 
@@ -776,10 +820,12 @@ public partial class TreeTabViewModel : ViewModelBase
 
     private static string TranslatedName(NodePowerEntry e) => GameTranslationService.TPassiveName(e.Name);
 
-    /// <summary>Subscribed to <c>LuaWorkerPool.ReadyChanged</c> for the lifetime of
-    /// the current pool; re-subscribed (replacing the previous one) at the start
-    /// of every <see cref="BuildPowerAsync"/> so it always posts through that
-    /// build's UI context.</summary>
+    /// <summary>Subscribed to <c>LuaWorkerPool.ReadyChanged</c> only for the duration
+    /// of a single <see cref="BuildPowerAsync"/> (added after <c>EnsureStarted</c>,
+    /// removed in its <c>finally</c>). Scoping it to the build keeps the static,
+    /// process-lifetime pool from pinning this VM (and its captured UI context)
+    /// after the tab is gone, and sidesteps stale subscriptions when the pool is
+    /// recreated with a different worker count.</summary>
     private Action? _poolReadyHandler;
 
     private void UpdateWorkersStatus()
