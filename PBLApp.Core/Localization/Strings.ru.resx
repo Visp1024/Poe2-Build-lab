@@ -109,6 +109,18 @@
   <data name="Tree_Power_Cancel" xml:space="preserve"><value>Отменить</value></data>
   <data name="Tree_Power_DeltaTip" xml:space="preserve"><value>Изменение выбранной характеристики при выделении этой ноды</value></data>
   <data name="Tree_Power_PerPointTip" xml:space="preserve"><value>Изменение на одно очко на пути к ноде</value></data>
+  <data name="Tree_Power_StepsFmt" xml:space="preserve"><value>за {0} оч.</value></data>
+  <data name="Tree_Power_Warmup" xml:space="preserve"><value>прогрев воркеров: {0}/{1}</value></data>
+  <data name="Tree_Power_Workers" xml:space="preserve"><value>воркеры: {0}/{1}</value></data>
+  <data name="Tree_Power_SortPower" xml:space="preserve"><value>По приросту</value></data>
+  <data name="Tree_Power_SortPerPoint" xml:space="preserve"><value>За очко</value></data>
+  <data name="Tree_Power_Filter" xml:space="preserve"><value>Фильтр по имени…</value></data>
+  <data name="Tree_Power_Type_Notable" xml:space="preserve"><value>Нотабль</value></data>
+  <data name="Tree_Power_Type_Keystone" xml:space="preserve"><value>Кистоун</value></data>
+  <data name="Tree_Power_Type_Normal" xml:space="preserve"><value>Малая</value></data>
+  <data name="Tree_Power_WorkerCount" xml:space="preserve"><value>Потоки</value></data>
+  <data name="Tree_Power_WorkerAuto" xml:space="preserve"><value>Авто</value></data>
+  <data name="Tree_Power_WorkerOff" xml:space="preserve"><value>Выкл</value></data>
 
   <!-- Skills tab -->
   <data name="Skill_Header"       xml:space="preserve"><value>Умения</value></data>

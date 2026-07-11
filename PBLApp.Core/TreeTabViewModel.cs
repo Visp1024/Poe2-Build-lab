@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PBLApp.Core;
 using PBLApp.Core.Localization;
 using PBLApp.Core.Items;
 using PBLEngine;
@@ -151,6 +152,13 @@ public partial class TreeTabViewModel : ViewModelBase
     [ObservableProperty] private bool _isPowerBuilding;
     [ObservableProperty] private int  _powerBuildProgress;
     [ObservableProperty] private bool _isPowerStale;
+    [ObservableProperty] private int    _powerSortIndex;   // 0 = by stat gain, 1 = per point
+    [ObservableProperty] private string _powerFilter = "";
+    [ObservableProperty] private string _powerWorkersStatus = "";
+    [ObservableProperty] private string? _powerError;
+    [ObservableProperty] private int    _workerCountIndex;  // 0=Auto,1=1,2=2,3=4,4=Off
+
+    private NodePowerResult? _lastPowerResult;
 
     public IReadOnlyList<PowerStatVm> PowerStatOptions { get; private set; } = [];
     public ObservableCollection<NodePowerRowViewModel> PowerReport { get; } = [];
@@ -299,6 +307,7 @@ public partial class TreeTabViewModel : ViewModelBase
         PowerStatOptions = host.GetPowerStatList().Select(o => new PowerStatVm(o)).ToList();
         _selectedPowerStat = PowerStatOptions.FirstOrDefault(o => o.Option.CombinedOffDef)
                           ?? PowerStatOptions.FirstOrDefault();
+        _workerCountIndex = MapWorkerPrefToIndex(AppPreferences.Get("tree.powerWorkers"));
         RefreshPowerCommand   = new RelayCommand(() => _ = BuildPowerAsync());
         GeneratePowerCommand  = new RelayCommand(() => _ = BuildPowerAsync());
         CancelPowerCommand    = new RelayCommand(() => _powerCts?.Cancel());
@@ -598,35 +607,69 @@ public partial class TreeTabViewModel : ViewModelBase
         PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>Runs the heat-map calc on a background thread (serialised through
-    /// the shared Lua queue), then fills the report + canvas overlay.</summary>
+    /// <summary>Runs the heat-map calc via the process-wide worker pool (falling
+    /// back to the main host when the pool is disabled or all workers died),
+    /// then fills the report + canvas overlay. See <see cref="TreePowerService"/>
+    /// and <c>PBLEngine.NodePowerOrchestrator</c> for the pool-dispatch details.</summary>
     private async Task BuildPowerAsync()
     {
         var stat = SelectedPowerStat?.Option;
-        if (stat == null) return;
-
-        await _luaQueue.WaitAsync();
+        if (stat is null || IsPowerBuilding) return;
+        _powerCts?.Cancel();
         var cts = new System.Threading.CancellationTokenSource();
         _powerCts = cts;
+        var ctx = SynchronizationContext.Current;
+        void Post(Action a) { if (ctx != null) ctx.Post(_ => a(), null); else a(); }
         try
         {
             IsPowerBuilding = true;
-            // BuildNodePower runs Lua on a background thread for a long time. NLua is
-            // single-threaded, so — exactly like RunBackgroundToggle — we raise
-            // IsToggleBusy for the duration so the canvas hover provider skips its own
-            // UI-thread Lua call (GetNodeHoverInfo). Without this, a hover-render that
-            // coincides with the build touches the Lua state concurrently and the native
-            // KeraLua state crashes the process (no managed exception, hard kill).
-            IsToggleBusy = true;
             PowerBuildProgress = 0;
-            var ctx = SynchronizationContext.Current;
-            void Progress(int pc)
+            PowerError = null;
+
+            // 1. Everything the main host needs to hand off — before batches are
+            //    dispatched (its Lua is not touched again until the end).
+            string? xml = null; IReadOnlyList<PowerNodeInfo> nodes = [];
+            await Task.Run(() =>
             {
-                if (ctx != null) ctx.Post(_ => PowerBuildProgress = pc, null);
-                else PowerBuildProgress = pc;
+                xml   = _host.SaveBuildToXml();
+                nodes = _host.GetPowerNodeList();
+            });
+            if (string.IsNullOrEmpty(xml) || nodes.Count == 0) return;
+
+            // 2. Workers: the pool (lazily warming up) or a fallback onto the main host.
+            var pool = TreePowerService.GetPool(RepoRoot);
+            IReadOnlyList<Task<IPowerWorker>> workers;
+            if (pool != null)
+            {
+                workers = pool.EnsureStarted();
+                // ReadyChanged fires on a background (pool) thread — marshal through
+                // the UI SynchronizationContext captured above, not one read inside
+                // the handler (which would see no context and update off-thread).
+                if (_poolReadyHandler != null) pool.ReadyChanged -= _poolReadyHandler;
+                _poolReadyHandler = () => Post(UpdateWorkersStatus);
+                pool.ReadyChanged += _poolReadyHandler;
+                Post(UpdateWorkersStatus);
+            }
+            else
+            {
+                workers = [Task.FromResult<IPowerWorker>(new MainHostPowerWorker(_host, _luaQueue))];
             }
 
-            var result = await Task.Run(() => _host.BuildNodePower(stat.StatKey, null, Progress, cts.Token));
+            void Progress(int pc) => Post(() => PowerBuildProgress = pc);
+            NodePowerResult result;
+            try
+            {
+                result = await NodePowerOrchestrator.RunAsync(
+                    xml!, stat.StatKey, stat.CombinedOffDef, nodes, workers, Progress, cts.Token);
+            }
+            catch (InvalidOperationException) when (pool != null)
+            {
+                // All pool workers died — fall back to the main host.
+                result = await NodePowerOrchestrator.RunAsync(
+                    xml!, stat.StatKey, stat.CombinedOffDef, nodes,
+                    [Task.FromResult<IPowerWorker>(new MainHostPowerWorker(_host, _luaQueue))],
+                    Progress, cts.Token);
+            }
 
             if (cts.IsCancellationRequested || !HeatmapEnabled)
             {
@@ -636,40 +679,136 @@ public partial class TreeTabViewModel : ViewModelBase
                 return;
             }
 
+            _lastPowerResult = result;
             PowerOverlay = result;
-            PowerReport.Clear();
-            bool lower = stat.LowerIsBetter;
-            var ordered = lower
-                ? result.Entries.OrderBy(e => e.Power)
-                : result.Entries.OrderByDescending(e => e.Power);
-            foreach (var e in ordered)
-            {
-                bool good = lower ? e.Power < 0 : e.Power > 0;
-                PowerReport.Add(new NodePowerRowViewModel
-                {
-                    NodeId      = e.Id,
-                    Name        = GameTranslationService.TPassiveName(e.Name),
-                    Type        = e.Type,
-                    PowerStr    = e.PowerStr,
-                    PerPointStr = e.PerPointStr ?? "",
-                    IsAllocated = e.Alloc,
-                    PowerColor  = good ? "#A6E3A1" : "#F38BA8",   // green / red
-                });
-            }
-            OnPropertyChanged(nameof(HasPowerReport));
+            RebuildPowerRows();               // applies current sort + filter
             IsPowerStale = false;
             PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
         }
-        catch { /* leave previous overlay/report intact on failure */ }
+        catch (Exception ex)
+        {
+            PowerError = ex.Message;          // surfaced in the panel (existing pattern)
+        }
         finally
         {
             IsPowerBuilding = false;
-            IsToggleBusy = false;
             if (ReferenceEquals(_powerCts, cts)) _powerCts = null;
-            cts.Dispose();
-            _luaQueue.Release();
         }
     }
+
+    /// <summary><see cref="IPowerWorker"/> that runs batches on the already-loaded
+    /// main <see cref="LuaHost"/> — used when the worker pool is disabled (prefs
+    /// "tree.powerWorkers"="0") or when every pool worker has died. Prepare/Finish
+    /// hold <paramref name="luaGate"/> (the VM's tree-toggle serialization
+    /// semaphore) for the whole session so a concurrent node alloc/dealloc never
+    /// touches the same NLua state mid-batch — only <see cref="RunBackgroundToggle"/>
+    /// and this worker ever call into <c>_host</c> from a background thread.</summary>
+    private sealed class MainHostPowerWorker : IPowerWorker
+    {
+        private readonly LuaHost _worker;
+        private readonly SemaphoreSlim _gate;
+        private bool _held;
+
+        public MainHostPowerWorker(LuaHost host, SemaphoreSlim gate) { _worker = host; _gate = gate; }
+
+        public async Task PrepareAsync(string buildXml, string? statKey, CancellationToken ct)
+        {
+            await _gate.WaitAsync(ct);
+            _held = true;
+            // buildXml is not reloaded — the main host's build is already the source of truth.
+            await Task.Run(() => _worker.BeginPowerSession(statKey), ct);
+        }
+
+        public Task<List<PowerBatchRow>> ComputeBatchAsync(int[] ids, CancellationToken ct)
+            => Task.Run(() => _worker.ComputePowerBatch(ids), ct);
+
+        public Task<List<PathPowerRow>> ComputePathBatchAsync(int[] ids, CancellationToken ct)
+            => Task.Run(() => _worker.ComputePathPowerBatch(ids), ct);
+
+        public Task FinishAsync() => Task.Run(() =>
+        {
+            try { _worker.EndPowerSession(); }
+            finally { if (_held) { _gate.Release(); _held = false; } }
+        });
+    }
+
+    /// <summary>Sort + filter <see cref="_lastPowerResult"/> into <see cref="PowerReport"/>.
+    /// Re-run whenever the result, sort mode, or filter text changes.</summary>
+    private void RebuildPowerRows()
+    {
+        PowerReport.Clear();
+        var r = _lastPowerResult;
+        if (r == null) { OnPropertyChanged(nameof(HasPowerReport)); return; }
+        bool lower = SelectedPowerStat?.Option.LowerIsBetter == true;
+        IEnumerable<NodePowerEntry> src = r.Entries.Where(e => e.Power != 0);
+        if (!string.IsNullOrWhiteSpace(PowerFilter))
+            src = src.Where(e => TranslatedName(e).Contains(PowerFilter, StringComparison.OrdinalIgnoreCase));
+        src = PowerSortIndex == 1
+            // "per point": the topped-up entries (path-power computed) come first, by per-point value
+            ? src.OrderByDescending(e => e.PathPower != null)
+                 .ThenByDescending(e => PerPoint(e) * (lower ? -1 : 1))
+            : (lower ? src.OrderBy(e => e.Power) : src.OrderByDescending(e => e.Power));
+        foreach (var e in src.Take(400))
+            PowerReport.Add(MakeRow(e, lower));
+        OnPropertyChanged(nameof(HasPowerReport));
+
+        static double PerPoint(NodePowerEntry e) =>
+            e.PathPower is { } pp && e.Steps is > 0 ? pp / e.Steps.Value : 0;
+    }
+
+    private NodePowerRowViewModel MakeRow(NodePowerEntry e, bool lower)
+    {
+        bool good = lower ? e.Power < 0 : e.Power > 0;
+        return new NodePowerRowViewModel
+        {
+            NodeId      = e.Id,
+            Name        = TranslatedName(e),
+            Type        = e.Type,
+            TypeBadge   = LocalizationService.Get("Tree_Power_Type_" + e.Type),
+            IsAllocated = e.Alloc,
+            PowerStr    = e.PowerStr,
+            PerPointStr = e.PerPointStr ?? "—",
+            StepsStr    = e.Steps is { } s
+                            ? string.Format(LocalizationService.Get("Tree_Power_StepsFmt"), s) : "",
+            PowerColor  = good ? "#A6E3A1" : "#F38BA8",
+        };
+    }
+
+    private static string TranslatedName(NodePowerEntry e) => GameTranslationService.TPassiveName(e.Name);
+
+    /// <summary>Subscribed to <c>LuaWorkerPool.ReadyChanged</c> for the lifetime of
+    /// the current pool; re-subscribed (replacing the previous one) at the start
+    /// of every <see cref="BuildPowerAsync"/> so it always posts through that
+    /// build's UI context.</summary>
+    private Action? _poolReadyHandler;
+
+    private void UpdateWorkersStatus()
+    {
+        var pool = TreePowerService.GetPool(RepoRoot);
+        PowerWorkersStatus = pool == null ? ""
+            : string.Format(LocalizationService.Get(
+                  pool.Ready < pool.Size && IsPowerBuilding ? "Tree_Power_Warmup" : "Tree_Power_Workers"),
+              pool.Ready, pool.Size);
+    }
+
+    partial void OnPowerSortIndexChanged(int value) => RebuildPowerRows();
+    partial void OnPowerFilterChanged(string value) => RebuildPowerRows();
+
+    /// <summary>0=Auto,1=1,2=2,3=4,4=Off → persisted "tree.powerWorkers" pref
+    /// ("auto"/"1"/"2"/"4"/"0"). Applied the next time <see cref="TreePowerService.GetPool"/>
+    /// is asked for a pool (current in-flight builds keep their workers).</summary>
+    partial void OnWorkerCountIndexChanged(int value)
+    {
+        AppPreferences.Set("tree.powerWorkers", value switch
+        {
+            1 => "1", 2 => "2", 3 => "4", 4 => "0", _ => "auto",
+        });
+    }
+
+    private static int MapWorkerPrefToIndex(string? raw) => raw switch
+    {
+        "1" => 1, "2" => 2, "4" => 3, "0" => 4, _ => 0,
+    };
 
     private void FocusReportRow(NodePowerRowViewModel? row)
     {
@@ -818,8 +957,13 @@ public sealed class NodePowerRowViewModel
     public int    NodeId      { get; init; }
     public string Name        { get; init; } = "";
     public string Type        { get; init; } = "Normal";
+    /// <summary>Localized node-type badge (e.g. "Notable" / "Нотабль").</summary>
+    public string TypeBadge   { get; init; } = "";
     public string PowerStr    { get; init; } = "";
     public string PerPointStr { get; init; } = "";
+    /// <summary>"for N pt" when the per-point value was computed for this entry
+    /// (top-K by path power), empty otherwise.</summary>
+    public string StepsStr    { get; init; } = "";
     public bool   IsAllocated { get; init; }
     public string PowerColor  { get; init; } = "#CDD6F4";
 }
