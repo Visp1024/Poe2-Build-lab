@@ -42,7 +42,7 @@ public static class NodePowerOrchestrator
         bool IsDead(IPowerWorker w) { lock (deadLock) return dead.Contains(w); }
 
         async Task Consume(Task<IPowerWorker> wt, ConcurrentQueue<int[]> q,
-                           Func<IPowerWorker, int[], Task<int>> work)
+                           Func<IPowerWorker, int[], Task<int>> work, int lo, int hi)
         {
             IPowerWorker w;
             try { w = await wt.WaitAsync(ct); } catch { return; }
@@ -59,7 +59,8 @@ public static class NodePowerOrchestrator
                     {
                         int n = await work(w, batch);
                         int d = Interlocked.Add(ref done, n);
-                        onProgress?.Invoke(Math.Min(80, (int)(d * 80.0 / Math.Max(1, total))));
+                        int mapped = lo + (int)(d * (hi - lo) / (double)Math.Max(1, total));
+                        onProgress?.Invoke(Math.Min(hi, mapped));
                     }
                     catch (OperationCanceledException) { q.Enqueue(batch); MarkDead(w); return; }
                     catch { q.Enqueue(batch); MarkDead(w); return; }   // воркер мёртв — батч назад, выходим
@@ -72,7 +73,7 @@ public static class NodePowerOrchestrator
         // Батч, вернувшийся в очередь после смерти своего воркера (Fix 1), подхватят
         // выжившие воркеры в следующем раунде — без этого он мог осиротеть, если
         // остальные консюмеры к тому моменту уже опустошили очередь и вышли.
-        async Task RunRounds(ConcurrentQueue<int[]> q, Func<IPowerWorker, int[], Task<int>> work)
+        async Task RunRounds(ConcurrentQueue<int[]> q, Func<IPowerWorker, int[], Task<int>> work, int lo, int hi)
         {
             while (!q.IsEmpty)
             {
@@ -88,7 +89,7 @@ public static class NodePowerOrchestrator
                 if (usable.Count == 0)
                     throw new InvalidOperationException("all workers failed");
 
-                await Task.WhenAll(usable.Select(wt => Consume(wt, q, work)).ToArray());
+                await Task.WhenAll(usable.Select(wt => Consume(wt, q, work, lo, hi)).ToArray());
 
                 if (ct.IsCancellationRequested) return;
             }
@@ -96,12 +97,12 @@ public static class NodePowerOrchestrator
 
         try
         {
-            // Фаза 1: power.
+            // Фаза 1: power. Прогресс 0-80.
             await RunRounds(queue, async (w, batch) =>
             {
                 foreach (var r in await w.ComputeBatchAsync(batch, ct)) rows[r.Id] = r;
                 return batch.Length;
-            });
+            }, 0, 80);
             if (ct.IsCancellationRequested)
                 return new NodePowerResult(offDefMode, new NodePowerMax(0, 0, 0), []);
 
@@ -115,11 +116,12 @@ public static class NodePowerOrchestrator
             {
                 var pathQueue = new ConcurrentQueue<int[]>(Chunk(top, PathBatchSize));
                 done = 0; total = top.Count;
+                // Фаза 2: pathPower. Прогресс 80-100.
                 await RunRounds(pathQueue, async (w, batch) =>
                 {
                     foreach (var r in await w.ComputePathBatchAsync(batch, ct)) pathRows[r.Id] = r;
                     return batch.Length;
-                });
+                }, 80, 100);
                 if (ct.IsCancellationRequested)
                     return new NodePowerResult(offDefMode, new NodePowerMax(0, 0, 0), []);
             }
