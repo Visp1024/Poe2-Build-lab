@@ -63,10 +63,12 @@ public sealed class LuaWorkerPool : IDisposable
                 // Замена мёртвых воркеров — стаггер не нужен, это редкая штучная замена.
                 for (int i = 0; i < _slots.Count; i++)
                 {
-                    if (Volatile.Read(ref _slots[i].Worker) is { IsDead: true })
+                    var dead = Volatile.Read(ref _slots[i].Worker);
+                    if (dead is { IsDead: true })
                     {
                         Interlocked.Decrement(ref _ready);
                         _slots[i] = Spawn(0);
+                        try { dead.Dispose(); } catch { /* best-effort */ }
                     }
                 }
             }
@@ -84,7 +86,10 @@ public sealed class LuaWorkerPool : IDisposable
             ct.ThrowIfCancellationRequested();
 
             var host = new LuaHost();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             host.Initialize(_repoRoot);
+            sw.Stop();
+            Console.Error.WriteLine($"[LuaWorkerPool] worker init {sw.ElapsedMilliseconds} ms");
             var worker = new LuaWorker(host);
             Volatile.Write(ref slot.Worker, worker);
             Interlocked.Increment(ref _ready);
@@ -136,6 +141,7 @@ internal sealed class LuaWorker : IPowerWorker, IDisposable
 {
     private readonly LuaHost _host;
     private readonly SemaphoreSlim _lock = new(1, 1);
+    private volatile bool _disposed;
     public bool IsDead { get; private set; }
 
     public LuaWorker(LuaHost host) => _host = host;
@@ -143,8 +149,13 @@ internal sealed class LuaWorker : IPowerWorker, IDisposable
     private async Task<T> Run<T>(Func<T> f, CancellationToken ct)
     {
         await _lock.WaitAsync(ct);
-        try { return await Task.Run(f, ct); }
+        try
+        {
+            if (_disposed) throw new ObjectDisposedException(nameof(LuaWorker));
+            return await Task.Run(f, ct);
+        }
         catch (OperationCanceledException) { throw; }
+        catch (ObjectDisposedException) { throw; }
         catch { IsDead = true; throw; }
         finally { _lock.Release(); }
     }
@@ -172,7 +183,12 @@ internal sealed class LuaWorker : IPowerWorker, IDisposable
 
     public void Dispose()
     {
+        _disposed = true;
         try { _host.Dispose(); } catch { /* best-effort */ }
-        _lock.Dispose();
+        // Intentionally not disposing _lock: a concurrent in-flight ComputeBatchAsync
+        // may still be holding it (finally { _lock.Release(); } would throw
+        // ObjectDisposedException on a disposed SemaphoreSlim). SemaphoreSlim without
+        // AvailableWaitHandle allocated holds no OS resources, so leaving it undisposed
+        // here is a documented-safe pattern — no leak.
     }
 }
