@@ -107,6 +107,26 @@ public class PowerDispatcherTests
     }
 
     [Fact]
+    public async Task RunAsync_LateWorker_QueueAlreadyDrained_SkipsPrepare()
+    {
+        // Single batch (one node), two workers: w1 resolves immediately and drains
+        // the lone batch before the late worker's WaitAsync even completes. The late
+        // worker must bail out before PrepareAsync — no point paying LoadBuildFromXml
+        // + BuildOutput for a queue that's already empty (F4).
+        var w1 = new FakeWorker();
+        var late = new FakeWorker();
+        var lateTask = Task.Delay(200).ContinueWith(_ => (IPowerWorker)late);
+        var result = await NodePowerOrchestrator.RunAsync(
+            "<xml/>", "FullDPS", false, Nodes(1),
+            new[] { Task.FromResult<IPowerWorker>(w1), lateTask },
+            null, CancellationToken.None);
+        Assert.Single(result.Entries);
+        Assert.Equal(1, w1.Prepared);
+        Assert.Equal(0, late.Prepared);
+        Assert.Equal(0, late.Batches);
+    }
+
+    [Fact]
     public async Task RunAsync_Progress_MonotonicAndPhased()
     {
         var w = new FakeWorker();

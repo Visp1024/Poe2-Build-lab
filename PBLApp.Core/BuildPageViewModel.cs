@@ -197,8 +197,12 @@ public partial class BuildPageViewModel : ViewModelBase
             {
                 TreeTab.PropertyChanged += (_, e) =>
                 {
-                    if (e.PropertyName == nameof(TreeTabViewModel.IsPowerBuilding))
-                        IsHeatmapBuilding = TreeTab.IsPowerBuilding;
+                    // Modal overlay only for calc that actually runs on the main host
+                    // (pool disabled, or fallback after "all workers failed") — the
+                    // pool path leaves the host free, so the UI must stay interactive
+                    // and only show the non-blocking "warming up workers" status.
+                    if (e.PropertyName == nameof(TreeTabViewModel.IsPowerBuildingModal))
+                        IsHeatmapBuilding = TreeTab.IsPowerBuildingModal;
                     else if (e.PropertyName == nameof(TreeTabViewModel.PowerBuildProgress))
                         HeatmapProgress = TreeTab.PowerBuildProgress;
                 };

@@ -27,6 +27,10 @@ public static class NodePowerOrchestrator
         IReadOnlyList<Task<IPowerWorker>> workerTasks,
         Action<int>? onProgress, CancellationToken ct)
     {
+        // Guard against duplicate/invalid ids before the dictionary build below —
+        // a duplicate Id throws from ToDictionary, and Id<=0 never legitimately
+        // appears in a real node list.
+        nodes = nodes.Where(n => n.Id > 0).DistinctBy(n => n.Id).ToList();
         var byId = nodes.ToDictionary(n => n.Id);
         // Группы одинаковых modKey — в один батч, чтобы работал кэш воркера.
         var ordered = nodes.OrderBy(n => n.ModKey, StringComparer.Ordinal).Select(n => n.Id).ToList();
@@ -37,8 +41,15 @@ public static class NodePowerOrchestrator
         var prepared = new ConcurrentBag<IPowerWorker>();
         var dead = new HashSet<IPowerWorker>();
         var deadLock = new object();
+        // Last exception that killed a worker — surfaced as InnerException on
+        // "all workers failed" so the UI/logs show *why* every worker died instead
+        // of just the fact that they did.
+        Exception? lastWorkerError = null;
 
-        void MarkDead(IPowerWorker w) { lock (deadLock) dead.Add(w); }
+        void MarkDead(IPowerWorker w, Exception? ex = null)
+        {
+            lock (deadLock) { dead.Add(w); if (ex != null) lastWorkerError = ex; }
+        }
         bool IsDead(IPowerWorker w) { lock (deadLock) return dead.Contains(w); }
 
         async Task Consume(Task<IPowerWorker> wt, ConcurrentQueue<int[]> q,
@@ -46,6 +57,10 @@ public static class NodePowerOrchestrator
         {
             IPowerWorker w;
             try { w = await wt.WaitAsync(ct); } catch { return; }
+            // A late worker (still warming up while faster ones drained the queue)
+            // must not pay PrepareAsync (LoadBuildFromXml + BuildOutput) just to find
+            // nothing left to do — skip straight out before Prepare if so.
+            if (q.IsEmpty) return;
             try
             {
                 if (!prepared.Contains(w))
@@ -62,11 +77,11 @@ public static class NodePowerOrchestrator
                         int mapped = lo + (int)(d * (hi - lo) / (double)Math.Max(1, total));
                         onProgress?.Invoke(Math.Min(hi, mapped));
                     }
-                    catch (OperationCanceledException) { q.Enqueue(batch); MarkDead(w); return; }
-                    catch { q.Enqueue(batch); MarkDead(w); return; }   // воркер мёртв — батч назад, выходим
+                    catch (OperationCanceledException ex) { q.Enqueue(batch); MarkDead(w, ex); return; }
+                    catch (Exception ex) { q.Enqueue(batch); MarkDead(w, ex); return; }   // воркер мёртв — батч назад, выходим
                 }
             }
-            catch { MarkDead(w); /* Prepare умер — воркер выбывает */ }
+            catch (Exception ex) { MarkDead(w, ex); /* Prepare умер — воркер выбывает */ }
         }
 
         // Раунды: пока в очереди что-то есть, гоняем консюмеров живых воркеров.
@@ -87,7 +102,7 @@ public static class NodePowerOrchestrator
                     usable.Add(wt);
                 }
                 if (usable.Count == 0)
-                    throw new InvalidOperationException("all workers failed");
+                    throw new InvalidOperationException("all workers failed", lastWorkerError);
 
                 await Task.WhenAll(usable.Select(wt => Consume(wt, q, work, lo, hi)).ToArray());
 

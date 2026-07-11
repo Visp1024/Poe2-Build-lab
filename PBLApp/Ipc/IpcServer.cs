@@ -1432,11 +1432,20 @@ public sealed class IpcServer
         t.GeneratePowerCommand.Execute(null);
 
         // Wait for the background build to drain so the screenshot reflects the result.
-        // Real builds can take ~85s; cap at 3600 iterations × 50ms = 180s.
-        for (int i = 0; i < 3600 && (t.IsPowerBuilding || t.PowerOverlay is null); i++)
+        // Real builds can take ~85s; cap at 3600 iterations × 50ms = 180s. Exit early on
+        // PowerError too — otherwise a failed build (e.g. "all workers failed" with no
+        // fallback) spins the full 180s since IsPowerBuilding/PowerOverlay never settle
+        // into the "done" shape the loop condition is waiting for.
+        for (int i = 0; i < 3600 && t.PowerError is null && (t.IsPowerBuilding || t.PowerOverlay is null); i++)
             await Task.Delay(50);
 
-        return new { ok = true, building = t.IsPowerBuilding, rows = t.PowerReport.Count };
+        return new
+        {
+            ok       = t.PowerError is null,
+            building = t.IsPowerBuilding,
+            rows     = t.PowerReport.Count,
+            error    = t.PowerError,
+        };
     }
 
     private static object TreePowerReport()
