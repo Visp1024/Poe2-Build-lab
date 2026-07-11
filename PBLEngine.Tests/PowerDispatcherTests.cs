@@ -36,7 +36,7 @@ public class PowerDispatcherTests
     [Fact]
     public async Task RunAsync_AllNodesComputed_AcrossWorkers()
     {
-        var w1 = new FakeWorker(); var w2 = new FakeWorker();
+        var w1 = new FakeWorker { DelayMs = 10 }; var w2 = new FakeWorker { DelayMs = 10 };
         var result = await NodePowerOrchestrator.RunAsync(
             "<xml/>", "FullDPS", false, Nodes(120),
             new[] { Task.FromResult<IPowerWorker>(w1), Task.FromResult<IPowerWorker>(w2) },
