@@ -28,6 +28,13 @@ public record NodePowerEntry(
     string  PerPointStr
 );
 
+/// <summary>One candidate node for the power calc. <see cref="Steps"/> is the
+/// number of points to spend to take the node (unallocated path incl. itself);
+/// null for allocated / cluster / unreachable nodes.</summary>
+public record PowerNodeInfo(
+    int Id, string ModKey, string Name, string Type,
+    bool Alloc, bool IsCluster, int? Steps);
+
 /// <summary>Per-channel maxima used to normalise colour brightness.</summary>
 public record NodePowerMax(double SingleStat, double Offence, double Defence);
 
