@@ -63,7 +63,7 @@ public sealed class LuaWorkerPool : IDisposable
                 // Замена мёртвых воркеров — стаггер не нужен, это редкая штучная замена.
                 for (int i = 0; i < _slots.Count; i++)
                 {
-                    if (_slots[i].Worker is { IsDead: true })
+                    if (Volatile.Read(ref _slots[i].Worker) is { IsDead: true })
                     {
                         Interlocked.Decrement(ref _ready);
                         _slots[i] = Spawn(0);
@@ -86,7 +86,7 @@ public sealed class LuaWorkerPool : IDisposable
             var host = new LuaHost();
             host.Initialize(_repoRoot);
             var worker = new LuaWorker(host);
-            slot.Worker = worker;
+            Volatile.Write(ref slot.Worker, worker);
             Interlocked.Increment(ref _ready);
             ReadyChanged?.Invoke();
             return (IPowerWorker)worker;
@@ -107,9 +107,10 @@ public sealed class LuaWorkerPool : IDisposable
             {
                 foreach (var slot in _slots)
                 {
-                    if (slot.Worker != null)
+                    var worker = Volatile.Read(ref slot.Worker);
+                    if (worker != null)
                     {
-                        slot.Worker.Dispose();
+                        worker.Dispose();
                     }
                     else
                     {
