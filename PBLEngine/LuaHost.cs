@@ -2814,6 +2814,75 @@ public sealed partial class LuaHost : IDisposable
         return list;
     }
 
+    /// <summary>Node candidates for the power calc, with correct "points to take"
+    /// steps. Mirrors PowerBuilder's eligibility filter (types, modKey, granted,
+    /// locked-ascendancy unlockConstraint) + unallocated cluster notables.</summary>
+    public IReadOnlyList<PowerNodeInfo> GetPowerNodeList()
+    {
+        var raw = State.DoString(@"
+            if not (build and build.spec) then return '' end
+            if build.spec._fastAllocDirty then
+                build.spec:BuildAllDependsAndPaths()
+                build.spec._fastAllocDirty = false
+            end
+            -- granted-мапа доступна только после BuildOutput; создаём при необходимости
+            local ct = build.calcsTab
+            if not (ct.mainEnv and ct.mainEnv.grantedPassives) then ct:BuildOutput() end
+            local granted = (ct.mainEnv and ct.mainEnv.grantedPassives) or {}
+            local rows = {}
+            local function emit(node, isCluster)
+                local steps = -1
+                if not node.alloc and not isCluster then
+                    local p = node.path and #node.path or 0
+                    if p > 0 then steps = p end
+                end
+                rows[#rows+1] = table.concat({
+                    node.id or 0,
+                    node.modKey or '',
+                    (node.dn or node.name or ''):gsub('[\t\31]', ' '),
+                    node.type or 'Normal',
+                    node.alloc and 1 or 0,
+                    isCluster and 1 or 0,
+                    steps
+                }, '\t')
+            end
+            for nodeId, node in pairs(build.spec.nodes) do
+                if (node.type == 'Normal' or node.type == 'Notable' or node.type == 'Keystone')
+                   and not node.ascendancyName
+                   and node.modKey ~= '' and not granted[nodeId] then
+                    local hidden = false
+                    if node.unlockConstraint then
+                        for _, unlockId in ipairs(node.unlockConstraint.nodes) do
+                            local un = build.spec.nodes[unlockId]
+                            if un and un.ascendancyName and not un.alloc then hidden = true break end
+                        end
+                    end
+                    if not hidden then emit(node, false) end
+                end
+            end
+            for _, node in pairs(build.spec.tree.clusterNodeMap or {}) do
+                if not node.alloc and node.modKey ~= '' and not granted[node.id]
+                   and (node.type == 'Normal' or node.type == 'Notable' or node.type == 'Keystone') then
+                    emit(node, true)
+                end
+            end
+            return table.concat(rows, '\31')
+        ");
+        var list = new List<PowerNodeInfo>();
+        var blob = raw is { Length: > 0 } ? raw[0] as string ?? "" : "";
+        foreach (var row in blob.Split('\x1F', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var f = row.Split('\t');
+            if (f.Length < 7) continue;
+            int steps = int.TryParse(f[6], out var s) ? s : -1;
+            list.Add(new PowerNodeInfo(
+                int.TryParse(f[0], out var id) ? id : 0,
+                f[1], f[2], f[3], f[4] == "1", f[5] == "1",
+                steps > 0 ? steps : null));
+        }
+        return list;
+    }
+
     /// <summary>Runs PoB's <c>CalcsTab:BuildPower()</c> for the given stat (null =
     /// the combined Offence/Defence default) and returns per-node power + maxima.
     /// Drives the Lua coroutine to completion, surfacing progress via

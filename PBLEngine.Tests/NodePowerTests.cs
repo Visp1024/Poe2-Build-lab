@@ -131,4 +131,34 @@ public class NodePowerTests : IClassFixture<LuaHostFixture>
         var res2 = _host.BuildNodePower("FullDPS");
         Assert.NotEmpty(res2.Entries);
     }
+
+    [Fact]
+    public void GetPowerNodeList_StepsMatchHoverPathLen()
+    {
+        var list = _host.GetPowerNodeList();
+        Assert.NotEmpty(list);
+
+        // Взятые и кластерные — без шагов.
+        Assert.All(list.Where(n => n.Alloc || n.IsCluster), n => Assert.Null(n.Steps));
+
+        // Для выборки достижимых невзятых нод Steps == PathLength из ховера
+        // (ховер — независимый, визуально проверенный источник длины пути).
+        var sample = list.Where(n => !n.Alloc && !n.IsCluster && n.Steps is > 0)
+                         .OrderBy(n => n.Id).Take(20).ToList();
+        Assert.NotEmpty(sample);
+        foreach (var n in sample)
+        {
+            var hover = _host.GetNodeHoverInfo(n.Id);
+            Assert.NotNull(hover);
+            Assert.Equal(hover!.PathLength, n.Steps);
+        }
+    }
+
+    [Fact]
+    public void GetPowerNodeList_FiltersAscendancyAndEmptyModKey()
+    {
+        var list = _host.GetPowerNodeList();
+        Assert.All(list, n => Assert.NotEqual("", n.ModKey));
+        Assert.All(list, n => Assert.Contains(n.Type, new[] { "Normal", "Notable", "Keystone" }));
+    }
 }
