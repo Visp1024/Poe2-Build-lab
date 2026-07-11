@@ -62,10 +62,15 @@ public partial class TreeTabView : UserControl
         if (_powerOverlayVm is not null && _powerOverlayHandler is not null)
             _powerOverlayVm.PowerOverlayChanged -= _powerOverlayHandler;
 
-        _powerOverlayHandler = (_, _) => canvas.NodePowerOverlay = vm.PowerOverlay;
+        _powerOverlayHandler = (_, _) =>
+        {
+            canvas.NodePowerOverlay = vm.PowerOverlay;
+            canvas.PowerTopIds = vm.PowerTopIds;
+        };
         vm.PowerOverlayChanged += _powerOverlayHandler;
         _powerOverlayVm = vm;
         canvas.NodePowerOverlay = vm.PowerOverlay;
+        canvas.PowerTopIds = vm.PowerTopIds;
     }
 
     private void PowerReportList_DoubleTapped(object? sender, TappedEventArgs e)
