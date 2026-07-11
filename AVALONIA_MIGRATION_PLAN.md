@@ -490,6 +490,9 @@ IPC: `/tree/state` несёт `workersReady/workersTotal/powerSortIndex/powerFil
 
 ## Backlog (deferred / future work)
 
+### Tree power (Phase 19 follow-ups)
+- [ ] Отмена `_powerCts` при teardown BuildPage (навигация назад mid-calc; сейчас брошенный расчёт доработает на воркерах и может столкнуться сессиями со следующим).
+
 ### Items / display
 - [ ] **Phase 10 #4 — Item search** in the pool by stat / mod text.
 - [ ] **Phase 10 #6 — Item sets** (PoB's `itemSets` — save multiple equipment configurations, switch between them).

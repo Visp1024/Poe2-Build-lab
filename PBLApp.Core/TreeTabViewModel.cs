@@ -744,6 +744,14 @@ public partial class TreeTabViewModel : ViewModelBase
         {
             IsPowerBuilding = false;
             IsPowerBuildingModal = false;
+            // Flush a mid-calc edit on the cancel/error exits too: those return past
+            // the success path's `IsPowerStale = _staleWhileBuilding`, and the next run
+            // resets the flag — without this, the on-screen (old) report would stay
+            // unmarked as fresh. Order matters: only after IsPowerBuilding=false, so a
+            // MarkPowerStale racing in right here takes the direct IsPowerStale=true
+            // branch instead of writing a _staleWhileBuilding we've already consumed.
+            if (_staleWhileBuilding && HeatmapEnabled && _lastPowerResult != null)
+                IsPowerStale = true;
             if (usedMainHost)
             {
                 // Don't blindly clear: a toggle enqueued while we held the Lua gate
