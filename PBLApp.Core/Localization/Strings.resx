@@ -109,6 +109,18 @@
   <data name="Tree_Power_Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Tree_Power_DeltaTip" xml:space="preserve"><value>Change to the selected stat if you allocate this node</value></data>
   <data name="Tree_Power_PerPointTip" xml:space="preserve"><value>Change per passive point spent reaching the node</value></data>
+  <data name="Tree_Power_StepsFmt" xml:space="preserve"><value>for {0} pt</value></data>
+  <data name="Tree_Power_Warmup" xml:space="preserve"><value>warming workers: {0}/{1}</value></data>
+  <data name="Tree_Power_Workers" xml:space="preserve"><value>workers: {0}/{1}</value></data>
+  <data name="Tree_Power_SortPower" xml:space="preserve"><value>By stat gain</value></data>
+  <data name="Tree_Power_SortPerPoint" xml:space="preserve"><value>Per point</value></data>
+  <data name="Tree_Power_Filter" xml:space="preserve"><value>Filter nodes…</value></data>
+  <data name="Tree_Power_Type_Notable" xml:space="preserve"><value>Notable</value></data>
+  <data name="Tree_Power_Type_Keystone" xml:space="preserve"><value>Keystone</value></data>
+  <data name="Tree_Power_Type_Normal" xml:space="preserve"><value>Small</value></data>
+  <data name="Tree_Power_WorkerCount" xml:space="preserve"><value>Workers</value></data>
+  <data name="Tree_Power_WorkerAuto" xml:space="preserve"><value>Auto</value></data>
+  <data name="Tree_Power_WorkerOff" xml:space="preserve"><value>Off</value></data>
 
   <!-- Skills tab -->
   <data name="Skill_Header"       xml:space="preserve"><value>Skills</value></data>
