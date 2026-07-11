@@ -133,7 +133,7 @@
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
         <Style Selector="Border.icon-del:pointerover PathIcon">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
         </Style>
 
         <!-- Gem tooltip panel style -->

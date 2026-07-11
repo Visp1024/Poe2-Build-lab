@@ -220,7 +220,7 @@
                                         Command="{Binding RefreshPowerCommand}"/>
                             </StackPanel>
                         </Border>
-                        <TextBlock Text="{Binding PowerError}" Foreground="#F38BA8" FontSize="12"
+                        <TextBlock Text="{Binding PowerError}" Foreground="{DynamicResource DangerBrush}" FontSize="12"
                                    IsVisible="{Binding PowerError, Converter={x:Static ObjectConverters.IsNotNull}}"
                                    TextWrapping="Wrap"/>
 

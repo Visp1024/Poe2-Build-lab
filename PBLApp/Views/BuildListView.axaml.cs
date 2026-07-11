@@ -102,6 +102,14 @@ public partial class BuildListView : UserControl
             LocalizationService.Instance.SetLanguage(tag);
     }
 
+    private void SettingsBtn_Click(object? sender, RoutedEventArgs e)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        var window = new AppSettingsWindow();
+        if (owner is not null) _ = window.ShowDialog(owner);
+        else window.Show();
+    }
+
     // ── Card click routing ────────────────────────────────────────────────
 
     private void Card_PointerPressed(object? sender, PointerPressedEventArgs e)

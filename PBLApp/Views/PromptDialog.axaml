@@ -36,7 +36,7 @@
                         Click="Ok_Click"
                         Padding="14,6"
                         Background="{DynamicResource Brand500Brush}"
-                        Foreground="White"
+                        Foreground="{DynamicResource TextOnBrandBrush}"
                         FontWeight="Bold" />
             </StackPanel>
         </Grid>

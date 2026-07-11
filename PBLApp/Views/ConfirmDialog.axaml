@@ -30,7 +30,7 @@
                         Click="Confirm_Click"
                         Padding="14,6"
                         Background="{DynamicResource DangerBrush}"
-                        Foreground="White"
+                        Foreground="{DynamicResource TextOnAccentBrush}"
                         FontWeight="Bold" />
             </StackPanel>
         </Grid>

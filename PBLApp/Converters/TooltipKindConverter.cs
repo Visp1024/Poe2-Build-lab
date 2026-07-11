@@ -57,9 +57,13 @@ public static class TooltipKindConverter
     /// without the VM (which has no Avalonia dependency) holding brushes directly.</summary>
     public static readonly IValueConverter BrushKey = new BrushKeyConverter();
 
-    private sealed class BrushKeyConverter : IValueConverter
+    /// <summary>Like <see cref="BrushKey"/> but empty/unresolved keys yield Transparent —
+    /// for optional row tints and badges where "no key" means "don't paint".</summary>
+    public static readonly IValueConverter BrushKeyOrTransparent = new BrushKeyConverter(Brushes.Transparent);
+
+    private sealed class BrushKeyConverter(IBrush? fallback = null) : IValueConverter
     {
-        private static readonly IBrush Fallback = new SolidColorBrush(Color.Parse("#E4E7EE"));
+        private readonly IBrush _fallback = fallback ?? new SolidColorBrush(Color.Parse("#E4E7EE"));
 
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
@@ -67,7 +71,7 @@ public static class TooltipKindConverter
             if (app is not null && value is string key && key.Length > 0
                 && app.TryGetResource(key, app.ActualThemeVariant, out var res) && res is IBrush b)
                 return b;
-            return Fallback;
+            return _fallback;
         }
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
             => throw new NotSupportedException();
@@ -94,21 +98,17 @@ public static class TooltipKindConverter
 
     private sealed class RuneAugTypeBrushConverter : IValueConverter
     {
-        // PoB-flavoured: idols violet, soul cores teal, abyssal eyes crimson, mist blue, runes neutral.
-        private static readonly IBrush Idol    = new SolidColorBrush(Color.Parse("#C792EA"));
-        private static readonly IBrush SoulCore = new SolidColorBrush(Color.Parse("#56C2C0"));
-        private static readonly IBrush Abyss   = new SolidColorBrush(Color.Parse("#E06C9F"));
-        private static readonly IBrush Mist    = new SolidColorBrush(Color.Parse("#7AA2F7"));
-        private static readonly IBrush Rune    = new SolidColorBrush(Color.Parse("#9AA4B2"));
-
+        // PoB-flavoured: idols violet, soul cores teal, abyssal eyes crimson, mist blue,
+        // runes neutral. Colours live in Tokens.Colors.axaml (Badge* keys); the hex here
+        // is only the resolve fallback.
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
             => (value as string) switch
             {
-                "Idol"          => Idol,
-                "SoulCore"      => SoulCore,
-                "AbyssalEye"    => Abyss,
-                "CongealedMist" => Mist,
-                _               => Rune,
+                "Idol"          => Services.ThemeService.Brush("BadgeIdolBrush", "#C792EA"),
+                "SoulCore"      => Services.ThemeService.Brush("BadgeSoulCoreBrush", "#56C2C0"),
+                "AbyssalEye"    => Services.ThemeService.Brush("BadgeAbyssalEyeBrush", "#E06C9F"),
+                "CongealedMist" => Services.ThemeService.Brush("BadgeMistBrush", "#7AA2F7"),
+                _               => Services.ThemeService.Brush("BadgeRuneBrush", "#9AA4B2"),
             };
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
             => throw new NotSupportedException();

@@ -46,13 +46,13 @@
         <Style Selector="Border.trader-strip">
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Height" Value="17"/>
-            <Setter Property="Background" Value="#E615171D"/>
-            <Setter Property="BorderBrush" Value="#22FFFFFF"/>
+            <Setter Property="Background" Value="{DynamicResource OverlayStripBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OverlayStripBorderBrush}"/>
             <Setter Property="BorderThickness" Value="0,1,0,0"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style Selector="Border.trader-strip:pointerover">
-            <Setter Property="Background" Value="#EE262A35"/>
+            <Setter Property="Background" Value="{DynamicResource OverlayStripHoverBgBrush}"/>
         </Style>
         <Style Selector="Border.trader-strip TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource Brand400Brush}"/>
@@ -839,7 +839,7 @@
                                                                         CornerRadius="3" Padding="4,0" VerticalAlignment="Center"
                                                                         IsVisible="{Binding AugType, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                                                                     <TextBlock Text="{Binding AugType, Converter={x:Static vm:TooltipKindConverter.RuneAugTypeLabel}}"
-                                                                               FontSize="10" FontWeight="Bold" Foreground="#15151F"/>
+                                                                               FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextOnBadgeBrush}"/>
                                                                 </Border>
                                                                 <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.RuneNameOrDash}}"
                                                                            FontSize="12" TextTrimming="CharacterEllipsis"

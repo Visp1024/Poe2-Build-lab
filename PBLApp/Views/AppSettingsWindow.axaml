@@ -1,0 +1,35 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PBLApp.ViewModels"
+        xmlns:loc="using:PBLApp.Localization"
+        x:Class="PBLApp.Views.AppSettingsWindow"
+        x:DataType="vm:AppSettingsViewModel"
+        Title="{loc:Tr AppSettings_Title}"
+        Width="440" SizeToContent="Height"
+        CanResize="False" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BgMantleBrush}">
+
+    <Border Padding="20" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
+        <!-- Vertical stack of sections; future sections (color customization) go below. -->
+        <StackPanel Spacing="12">
+
+            <!-- Appearance -->
+            <TextBlock Text="{loc:Tr AppSettings_Appearance}"
+                       FontSize="14" FontWeight="Bold"
+                       Foreground="{DynamicResource TextPrimaryBrush}" />
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <TextBlock Grid.Column="0"
+                           Text="{loc:Tr AppSettings_Theme}"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                <ComboBox Grid.Column="1"
+                          MinWidth="180" MaxWidth="260"
+                          HorizontalAlignment="Left"
+                          ItemsSource="{Binding ThemeOptions}"
+                          SelectedIndex="{Binding SelectedThemeIndex, Mode=TwoWay}" />
+            </Grid>
+
+        </StackPanel>
+    </Border>
+</Window>
