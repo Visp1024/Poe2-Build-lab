@@ -166,6 +166,12 @@ public partial class TreeTabViewModel : ViewModelBase
     /// <summary>Latest heat-map result handed to the canvas; null = no overlay.</summary>
     public NodePowerResult? PowerOverlay { get; private set; }
 
+    /// <summary>Ids of the 10 unallocated, non-cluster nodes with the strongest
+    /// <see cref="PowerOverlay"/> power (direction-aware for lower-is-better
+    /// stats), handed to the canvas for the yellow accent rings. Recomputed
+    /// alongside <see cref="PowerOverlay"/>; null/empty when there's no overlay.</summary>
+    public IReadOnlyList<int>? PowerTopIds { get; private set; }
+
     /// <summary>Raised when <see cref="PowerOverlay"/> changes so the View can push
     /// it onto the TreeCanvas (the canvas is a View-layer control).</summary>
     public event EventHandler? PowerOverlayChanged;
@@ -604,6 +610,7 @@ public partial class TreeTabViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasPowerReport));
         IsPowerStale = false;
         PowerOverlay = null;
+        PowerTopIds = null;
         PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -699,12 +706,14 @@ public partial class TreeTabViewModel : ViewModelBase
             {
                 // Heat map was turned off or cancelled while this build was in flight — keep it cleared.
                 PowerOverlay = null;
+                PowerTopIds = null;
                 PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
                 return;
             }
 
             _lastPowerResult = result;
             PowerOverlay = result;
+            PowerTopIds = ComputePowerTopIds(result, stat.LowerIsBetter);
             RebuildPowerRows();               // applies current sort + filter
             IsPowerStale = false;
             PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
@@ -789,6 +798,18 @@ public partial class TreeTabViewModel : ViewModelBase
             try { _worker.EndPowerSession(); }
             finally { ReleaseGate(); }
         });
+    }
+
+    /// <summary>10 unallocated, non-cluster nodes (<see cref="NodePowerEntry.Steps"/> is
+    /// null for allocated/cluster nodes — see <c>NodePower.cs</c>) with the strongest
+    /// power, for the canvas's accent rings. Direction mirrors <see cref="RebuildPowerRows"/>:
+    /// ascending (most negative = biggest win) for lower-is-better stats, descending
+    /// otherwise; zero-power entries are excluded either way.</summary>
+    private static List<int> ComputePowerTopIds(NodePowerResult result, bool lowerIsBetter)
+    {
+        IEnumerable<NodePowerEntry> src = result.Entries.Where(e => e.Steps != null && e.Power != 0);
+        src = lowerIsBetter ? src.OrderBy(e => e.Power) : src.OrderByDescending(e => e.Power);
+        return src.Take(10).Select(e => e.Id).ToList();
     }
 
     /// <summary>Sort + filter <see cref="_lastPowerResult"/> into <see cref="PowerReport"/>.

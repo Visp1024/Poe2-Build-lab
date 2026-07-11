@@ -77,6 +77,13 @@ public sealed class TreeCanvas : Control
     public static readonly StyledProperty<NodePowerResult?> NodePowerOverlayProperty =
         AvaloniaProperty.Register<TreeCanvas, NodePowerResult?>(nameof(NodePowerOverlay));
 
+    /// <summary>Top-10 (by power) unallocated non-cluster node ids for the active
+    /// heat-map stat — drawn as a yellow accent ring so the eye is drawn to the
+    /// strongest picks even when zoomed out. Set by the view alongside
+    /// <see cref="NodePowerOverlay"/>; null/empty = no rings.</summary>
+    public static readonly StyledProperty<IReadOnlyList<int>?> PowerTopIdsProperty =
+        AvaloniaProperty.Register<TreeCanvas, IReadOnlyList<int>?>(nameof(PowerTopIds));
+
     public IReadOnlyList<TreeNodeDto>? Nodes
     {
         get => GetValue(NodesProperty);
@@ -153,6 +160,12 @@ public sealed class TreeCanvas : Control
     {
         get => GetValue(NodePowerOverlayProperty);
         set => SetValue(NodePowerOverlayProperty, value);
+    }
+
+    public IReadOnlyList<int>? PowerTopIds
+    {
+        get => GetValue(PowerTopIdsProperty);
+        set => SetValue(PowerTopIdsProperty, value);
     }
 
     /// <summary>Raised on a left-click of an allocated jewel socket node, with the
@@ -321,6 +334,11 @@ public sealed class TreeCanvas : Control
         { DashStyle = new DashStyle(new double[] { 3, 2 }, 0) };
     private static readonly IPen PathPreviewNodePen = MkPen("#FAB387", 2.2);
 
+    // Top-10 power accent ring — yellow, distinct from the orange hover/path
+    // rings and the heat-map's own colour tones, so the "nodes to prioritise"
+    // stay legible over any heat colour and even when zoomed out.
+    private static readonly IPen PowerTopPen = MkPen("#F9E2AF", 2.0);
+
     // Unallocated node dimming overlay (60 % black)
     private static readonly IBrush DimBrush = new SolidColorBrush(Color.FromArgb(153, 0, 0, 0));
 
@@ -426,6 +444,10 @@ public sealed class TreeCanvas : Control
             InvalidateVisual();
         }
         else if (change.Property == NodePowerOverlayProperty)
+        {
+            InvalidateVisual();
+        }
+        else if (change.Property == PowerTopIdsProperty)
         {
             InvalidateVisual();
         }
@@ -663,6 +685,20 @@ public sealed class TreeCanvas : Control
                 bool useSprites   = AssetStore != null && iconHalfPx >= MinIconScreenPx;
                 double orPx       = useSprites ? iconHalfPx : GetRadius(pn.Type);
                 dc.DrawEllipse(null, PathPreviewNodePen, new Point(px, py), orPx + 3.0, orPx + 3.0);
+            }
+        }
+
+        // ── Top-10 power accent rings ────────────────────────────────────
+        if (PowerTopIds is { Count: > 0 } topIds && NodePowerOverlay != null)
+        {
+            foreach (var tid in topIds)
+            {
+                if (alloc!.Contains(tid) || !_nodeById.TryGetValue(tid, out var tn)) continue;
+                var (tx, ty) = W2S(tn);
+                double iconHalfPx = GetIconHalfWorld(tn.Type) * _scale;
+                bool useSprites   = AssetStore != null && iconHalfPx >= MinIconScreenPx;
+                double orPx       = useSprites ? iconHalfPx : GetRadius(tn.Type);
+                dc.DrawEllipse(null, PowerTopPen, new Point(tx, ty), orPx + 4.0, orPx + 4.0);
             }
         }
 
