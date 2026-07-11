@@ -26,10 +26,6 @@ public sealed partial class ExplicitModViewModel : ObservableObject
     public string AffixLabel { get; }
     public string Group      { get; }   // for duplicate prevention
 
-    public string TypeColor  => AffixType == "Prefix" ? "#89B4FA"
-                              : AffixType == "Suffix" ? "#A6E3A1"
-                              : "Transparent";
-
     /// <summary>Unified one-letter badge for the mod row (P/S/I/C or empty).</summary>
     public string TypeBadgeLabel =>
         IsCorruption            ? "C" :
@@ -37,13 +33,13 @@ public sealed partial class ExplicitModViewModel : ObservableObject
         AffixType == "Prefix"   ? "P" :
         AffixType == "Suffix"   ? "S" : "";
 
-    /// <summary>Color used for the unified badge.</summary>
-    public string TypeBadgeColor =>
-        IsCorruption            ? "#DD0022" :       // red — corruption
-        IsImplicit              ? "#74C7EC" :       // cyan — implicit
-        AffixType == "Prefix"   ? "#89B4FA" :       // blue — prefix
-        AffixType == "Suffix"   ? "#A6E3A1" :       // green — suffix
-        "Transparent";
+    /// <summary>Theme resource key for the unified badge colour.</summary>
+    public string TypeBadgeBrushKey =>
+        IsCorruption            ? "CorruptedAccentBrush" :  // red — corruption
+        IsImplicit              ? "ModEnchantBrush" :       // cyan — implicit
+        AffixType == "Prefix"   ? "AttrIntBrush" :          // blue — prefix
+        AffixType == "Suffix"   ? "AttrDexBrush" :          // green — suffix
+        "";
 
     /// <summary>True for mods added via the Corrupted-implicit picker. Used to paint
     /// the row in a distinct way (red badge + crimson tint) so corruption looks
@@ -53,10 +49,7 @@ public sealed partial class ExplicitModViewModel : ObservableObject
     /// <summary>Brush key for the row's background when corruption — gives the entire
     /// mod line a faint crimson tint so the picker → list pipeline is obviously
     /// "this is a corruption implicit, not a normal affix".</summary>
-    public string RowBackgroundColor => IsCorruption ? "#2A1015" : "Transparent";
-
-    /// <summary>Border colour for the corruption row's left edge — bold accent.</summary>
-    public string RowAccentColor => IsCorruption ? "#DD0022" : "Transparent";
+    public string RowBackgroundBrushKey => IsCorruption ? "CorruptedRowBgBrush" : "";
 
     // ── Slider (only for mods with exactly one integer range) ────────────────
 
@@ -251,7 +244,10 @@ public sealed class AffixEntryViewModel
 {
     private readonly ItemEditorViewModel _editor;
     public AffixEntry Entry      { get; }
-    public string TypeColor => Entry.AffixType == "Prefix" ? "#89B4FA" : "#A6E3A1";
+    /// <summary>Theme resource key for the P/S letter colour (resolved in XAML via
+    /// TooltipKindConverter.BrushKeyOrTransparent); attr accent tokens = the same
+    /// blue/green the picker used before theming.</summary>
+    public string TypeBrushKey => Entry.AffixType == "Prefix" ? "AttrIntBrush" : "AttrDexBrush";
     public string TypeLabel => Entry.AffixType == "Prefix" ? "P" : "S";
     /// <summary>Localised stat text shown in the affix picker.</summary>
     public string TranslatedStatText =>

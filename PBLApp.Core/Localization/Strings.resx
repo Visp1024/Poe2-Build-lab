@@ -83,6 +83,15 @@
   <data name="List_Language"      xml:space="preserve"><value>Language:</value></data>
   <data name="List_LevelAbbr"     xml:space="preserve"><value>Lvl</value></data>
 
+  <!-- App settings window -->
+  <data name="AppSettings_Title"      xml:space="preserve"><value>Application settings</value></data>
+  <data name="AppSettings_OpenTip"    xml:space="preserve"><value>Application settings</value></data>
+  <data name="AppSettings_Appearance" xml:space="preserve"><value>Appearance</value></data>
+  <data name="AppSettings_Theme"      xml:space="preserve"><value>Theme:</value></data>
+  <data name="Theme_System"           xml:space="preserve"><value>System</value></data>
+  <data name="Theme_Dark"             xml:space="preserve"><value>Dark</value></data>
+  <data name="Theme_Light"            xml:space="preserve"><value>Light</value></data>
+
   <!-- Build page -->
   <data name="Page_Loading"       xml:space="preserve"><value>Loading build...</value></data>
   <data name="BuildPage_HeatmapBuilding" xml:space="preserve"><value>Building heat map…</value></data>

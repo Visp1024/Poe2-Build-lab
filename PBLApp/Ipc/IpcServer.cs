@@ -183,6 +183,8 @@ public sealed class IpcServer
                 "/skills/support-picker/set-mode" => await OnUi(() => SupportPickerSetMode(body)),
                 "/skills/support-picker/select"   => await OnUi(() => SupportPickerSelect(body)),
                 "/ui/text"                => await OnUi(() => DumpUiText(body)),
+                "/app/open-settings"      => await OnUi(OpenAppSettings),
+                "/app/set-theme"          => await OnUi(() => SetAppTheme(body)),
                 "/trader/state"      => await OnUi(TraderState),
                 "/trader/open"       => await OnUi(() => TraderOpen(body)),
                 "/trader/search"     => await OnUi(() => TraderSearch(body)),
@@ -229,6 +231,27 @@ public sealed class IpcServer
 
     private static MainWindowViewModel? GetMainVm()
         => GetMainWindow()?.DataContext as MainWindowViewModel;
+
+    /// <summary>Test hook: open the app settings window (same as the gear button).</summary>
+    private static object OpenAppSettings()
+    {
+        var owner = GetMainWindow();
+        if (owner is null) return new { error = "MainWindow not available." };
+        var window = new Views.AppSettingsWindow();
+        _ = window.ShowDialog(owner);
+        return new { ok = true };
+    }
+
+    /// <summary>Test hook: apply a theme mode ("System"|"Dark"|"Light") through
+    /// ThemeService — the same path the settings ComboBox uses.</summary>
+    private static object SetAppTheme(string body)
+    {
+        var req = string.IsNullOrWhiteSpace(body)
+            ? new() : JsonSerializer.Deserialize<Dictionary<string, string>>(body) ?? new();
+        var mode = PBLApp.Core.AppThemeModes.Parse(req.GetValueOrDefault("mode"));
+        Services.ThemeService.Instance.Apply(mode);
+        return new { ok = true, applied = mode.ToString() };
+    }
 
     private static object GetState()
     {

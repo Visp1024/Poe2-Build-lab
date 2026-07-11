@@ -289,6 +289,10 @@ public sealed class TreeCanvas : Control
     private string  _staticFilter = "<unset>";
 
     // ── Brushes & pens (static) ────────────────────────────────────────────
+    // TODO(theming): the whole tree-canvas render palette below is deliberately
+    // dark-only for the light-theme iteration (the passive tree keeps its game-dark
+    // look in both variants). A future iteration can resolve these through
+    // Tokens.Colors.axaml (ThemeService.Brush) if a light canvas is ever wanted.
 
     private static readonly IBrush BgBrush = new SolidColorBrush(Color.Parse("#11111B"));
 

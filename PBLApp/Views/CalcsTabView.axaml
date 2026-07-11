@@ -179,7 +179,7 @@
 
         <!-- ── Breakdown drawer + scrim ── -->
         <Style Selector="Border.scrim">
-            <Setter Property="Background" Value="#73000000" />
+            <Setter Property="Background" Value="{DynamicResource DimOverlayBrush}" />
             <Setter Property="Opacity" Value="0" />
             <Setter Property="IsHitTestVisible" Value="False" />
             <Setter Property="Transitions">

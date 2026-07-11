@@ -245,6 +245,8 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
                                                 VerticalAlignment="Center">
+                                        <!-- TODO(theming): hardcoded gold-orb gradient + busy overlay below —
+                                             deferred; Trader is out of scope for the light-theme iteration. -->
                                         <Ellipse Width="13" Height="13" VerticalAlignment="Center">
                                             <Ellipse.Fill>
                                                 <RadialGradientBrush>

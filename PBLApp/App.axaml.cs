@@ -26,6 +26,10 @@ public partial class App : Application
         // subscribed yet), causing gem descriptions to display in English on first open.
         _ = GameTranslationService.Instance;
 
+        // Apply the saved theme before MainWindow is created so the window
+        // comes up in the right variant (no dark→light flash).
+        Services.ThemeService.Instance.InitializeAtStartup();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Surface UI-thread exceptions to crash.log instead of silent process exit.

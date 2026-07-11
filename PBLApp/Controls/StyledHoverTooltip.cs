@@ -33,10 +33,16 @@ public static class StyledHoverTooltip
     }
 
     private static readonly Regex NumberRx = new(@"[+\-]?\d+(?:[.,]\d+)?%?", RegexOptions.Compiled);
-    private const string NumberColor = "#F9E2AF";   // warm gold
-    private const string LabelColor  = "#8888FF";   // cornflower (mod blue)
-    private const string MutedColor  = "#7F7F7F";   // ilvl tag
-    private const string DefaultTitleColor = "#CDD6F4";
+
+    // Colours come from the HoverTip* tokens in Tokens.Colors.axaml. The frame is
+    // deliberately game-dark in BOTH theme variants (like the TooltipBg group) so
+    // rarity title colours from the VM stay readable; the hex strings here are only
+    // resolve fallbacks.
+    private static IBrush NumberBrush => Services.ThemeService.Brush("HoverTipNumberBrush", "#F9E2AF");
+    private static IBrush LabelBrush  => Services.ThemeService.Brush("HoverTipLabelBrush", "#8888FF");
+    private static IBrush MutedBrush  => Services.ThemeService.Brush("HoverTipMutedBrush", "#7F7F7F");
+    private static IBrush BgBrush     => Services.ThemeService.Brush("HoverTipBgBrush", "#15171D");
+    private const string DefaultTitleColor = "#CDD6F4";   // = HoverTipTitle token
 
     private static void Apply(Control owner)
     {
@@ -64,7 +70,7 @@ public static class StyledHoverTooltip
 
         var border = new Border
         {
-            Background       = (IBrush?)Avalonia.Application.Current?.Resources["BgMantleBrush"] ?? new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x2E)),
+            Background       = BgBrush,
             BorderBrush      = new SolidColorBrush(Color.Parse(titleColor)),
             BorderThickness  = new Thickness(1),
             CornerRadius     = new CornerRadius(3),
@@ -97,7 +103,7 @@ public static class StyledHoverTooltip
             });
             tb.Inlines.Add(new Run("  " + line[ilvlIdx..])
             {
-                Foreground = new SolidColorBrush(Color.Parse(MutedColor)),
+                Foreground = MutedBrush,
                 FontSize = 12,
             });
         }
@@ -118,8 +124,8 @@ public static class StyledHoverTooltip
             TextWrapping = TextWrapping.Wrap,
         };
 
-        var label = new SolidColorBrush(Color.Parse(LabelColor));
-        var num   = new SolidColorBrush(Color.Parse(NumberColor));
+        var label = LabelBrush;
+        var num   = NumberBrush;
 
         int last = 0;
         foreach (Match m in NumberRx.Matches(line))

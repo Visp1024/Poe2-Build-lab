@@ -425,8 +425,8 @@
                             Content="{loc:Tr Editor_AddCorruption}"
                             Command="{Binding OpenCorruptionPickerCommand}"
                             Background="{DynamicResource BgRaisedBrush}"
-                            BorderBrush="#DD0022" BorderThickness="1"
-                            Foreground="#DD0022"
+                            BorderBrush="{DynamicResource CorruptedAccentBrush}" BorderThickness="1"
+                            Foreground="{DynamicResource CorruptedAccentBrush}"
                             FontSize="13" FontWeight="Bold"
                             Padding="12,4"
                             VerticalAlignment="Center"/>
@@ -590,7 +590,7 @@
                                                     <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="6">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{Binding TypeLabel}"
-                                                                   Foreground="{Binding TypeColor}"
+                                                                   Foreground="{Binding TypeBrushKey, Converter={x:Static vm:TooltipKindConverter.BrushKeyOrTransparent}}"
                                                                    FontSize="13" FontWeight="Bold"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
@@ -622,13 +622,13 @@
                             IsVisible="{Binding IsCorruptionPickerOpen}"
                             Height="240"
                             Margin="0,0,0,10"
-                            Background="#1A0A10"
-                            BorderBrush="#DD0022" BorderThickness="1"
+                            Background="{DynamicResource CorruptedPickerBgBrush}"
+                            BorderBrush="{DynamicResource CorruptedAccentBrush}" BorderThickness="1"
                             CornerRadius="3">
                         <DockPanel Margin="8">
                             <TextBlock DockPanel.Dock="Top"
                                        Text="{loc:Tr Editor_CorruptionPickerHeader}"
-                                       Foreground="#DD0022" FontSize="12" FontWeight="Bold"
+                                       Foreground="{DynamicResource CorruptedAccentBrush}" FontSize="12" FontWeight="Bold"
                                        Margin="0,0,0,6"/>
                             <TextBox DockPanel.Dock="Top"
                                      Text="{Binding CorruptionSearch}"
@@ -636,7 +636,7 @@
                                      Watermark="{loc:Tr Editor_SearchCorruption}"
                                      Margin="0,0,0,6"/>
                             <Border Background="{DynamicResource BgBaseBrush}"
-                                    BorderBrush="#DD0022" BorderThickness="1">
+                                    BorderBrush="{DynamicResource CorruptedAccentBrush}" BorderThickness="1">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding FilteredCorruptionAffixes}">
                                         <ItemsControl.ItemTemplate>
@@ -647,7 +647,7 @@
                                                     <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="6">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="C"
-                                                                   Foreground="#DD0022"
+                                                                   Foreground="{DynamicResource CorruptedAccentBrush}"
                                                                    FontSize="13" FontWeight="Bold"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
@@ -693,20 +693,20 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="vm:ExplicitModViewModel">
                                         <Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1"
-                                                Background="{Binding RowBackgroundColor, Converter={x:Static vm:TooltipKindConverter.HexToBrush}}"
+                                                Background="{Binding RowBackgroundBrushKey, Converter={x:Static vm:TooltipKindConverter.BrushKeyOrTransparent}}"
                                                 Padding="6,5,6,5">
                                             <Grid ColumnDefinitions="3,16,*,Auto" ColumnSpacing="8">
                                                 <!-- Corruption accent stripe — vivid red left edge for corruption mods only -->
                                                 <Border Grid.Column="0"
                                                         Width="3"
                                                         IsVisible="{Binding IsCorruption}"
-                                                        Background="#DD0022"
+                                                        Background="{DynamicResource CorruptedAccentBrush}"
                                                         HorizontalAlignment="Left"
                                                         VerticalAlignment="Stretch"/>
                                                 <!-- Type badge (P / S / I / C / empty) -->
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding TypeBadgeLabel}"
-                                                           Foreground="{Binding TypeBadgeColor, Converter={x:Static vm:TooltipKindConverter.HexToBrush}}"
+                                                           Foreground="{Binding TypeBadgeBrushKey, Converter={x:Static vm:TooltipKindConverter.BrushKeyOrTransparent}}"
                                                            FontSize="14" FontWeight="Bold"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Top"
@@ -837,7 +837,7 @@
                                                                         CornerRadius="3" Padding="4,0" VerticalAlignment="Center">
                                                                     <TextBlock Text="{Binding AugType, Converter={x:Static vm:TooltipKindConverter.RuneAugTypeLabel}}"
                                                                                FontSize="10" FontWeight="Bold"
-                                                                               Foreground="#15151F"/>
+                                                                               Foreground="{DynamicResource TextOnBadgeBrush}"/>
                                                                 </Border>
                                                                 <TextBlock Text="{Binding Name, Converter={x:Static vm:TooltipKindConverter.TranslateRune}}"
                                                                            FontSize="13"

@@ -131,15 +131,15 @@ public partial class TreeTabView : UserControl
             CanResize      = false,
             ShowInTaskbar  = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            Background     = new SolidColorBrush(Color.Parse("#1E1E2E")),
-            Foreground     = new SolidColorBrush(Color.Parse("#CDD6F4")),
+            Background     = Services.ThemeService.Brush("BgMantleBrush", "#15171D"),
+            Foreground     = Services.ThemeService.Brush("TextPrimaryBrush", "#E4E7EE"),
         };
 
         var message = new TextBlock
         {
             Text         = LocalizationService.Get("Dlg_ChooseAttr_Msg"),
             TextWrapping = TextWrapping.Wrap,
-            Foreground   = new SolidColorBrush(Color.Parse("#CDD6F4")),
+            Foreground   = Services.ThemeService.Brush("TextPrimaryBrush", "#E4E7EE"),
             FontSize     = 13,
             Margin       = new Thickness(20, 20, 20, 16),
         };
@@ -151,8 +151,8 @@ public partial class TreeTabView : UserControl
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Padding             = new Thickness(0, 10),
             Margin              = new Thickness(0, 0, 0, 8),
-            Background          = new SolidColorBrush(Color.Parse("#C0392B")),
-            Foreground          = new SolidColorBrush(Color.Parse("#FFFFFF")),
+            Background          = Services.ThemeService.Brush("AttrStrFillBrush", "#C0392B"),
+            Foreground          = Services.ThemeService.Brush("TextOnAccentBrush", "#FFFFFF"),
             FontWeight          = Avalonia.Media.FontWeight.Bold,
         };
 
@@ -163,8 +163,8 @@ public partial class TreeTabView : UserControl
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Padding             = new Thickness(0, 10),
             Margin              = new Thickness(0, 0, 0, 8),
-            Background          = new SolidColorBrush(Color.Parse("#27AE60")),
-            Foreground          = new SolidColorBrush(Color.Parse("#FFFFFF")),
+            Background          = Services.ThemeService.Brush("AttrDexFillBrush", "#27AE60"),
+            Foreground          = Services.ThemeService.Brush("TextOnAccentBrush", "#FFFFFF"),
             FontWeight          = Avalonia.Media.FontWeight.Bold,
         };
 
@@ -175,8 +175,8 @@ public partial class TreeTabView : UserControl
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Padding             = new Thickness(0, 10),
             Margin              = new Thickness(0, 0, 0, 8),
-            Background          = new SolidColorBrush(Color.Parse("#2980B9")),
-            Foreground          = new SolidColorBrush(Color.Parse("#FFFFFF")),
+            Background          = Services.ThemeService.Brush("AttrIntFillBrush", "#2980B9"),
+            Foreground          = Services.ThemeService.Brush("TextOnAccentBrush", "#FFFFFF"),
             FontWeight          = Avalonia.Media.FontWeight.Bold,
         };
 
@@ -185,8 +185,8 @@ public partial class TreeTabView : UserControl
             Content             = LocalizationService.Get("Dlg_ChangeClass_Cancel"),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Padding             = new Thickness(0, 8),
-            Background          = new SolidColorBrush(Color.Parse("#313244")),
-            Foreground          = new SolidColorBrush(Color.Parse("#CDD6F4")),
+            Background          = Services.ThemeService.Brush("BgRaisedBrush", "#262A35"),
+            Foreground          = Services.ThemeService.Brush("TextPrimaryBrush", "#E4E7EE"),
         };
 
         strBtn.Click    += (_, _) => dialog.Close(1);
@@ -227,15 +227,15 @@ public partial class TreeTabView : UserControl
             CanResize      = false,
             ShowInTaskbar  = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            Background     = new SolidColorBrush(Color.Parse("#1E1E2E")),
-            Foreground     = new SolidColorBrush(Color.Parse("#CDD6F4")),
+            Background     = Services.ThemeService.Brush("BgMantleBrush", "#15171D"),
+            Foreground     = Services.ThemeService.Brush("TextPrimaryBrush", "#E4E7EE"),
         };
 
         var message = new TextBlock
         {
             Text         = LocalizationService.Get("Dlg_ChangeClass_Msg"),
             TextWrapping = TextWrapping.Wrap,
-            Foreground   = new SolidColorBrush(Color.Parse("#CDD6F4")),
+            Foreground   = Services.ThemeService.Brush("TextPrimaryBrush", "#E4E7EE"),
             FontSize     = 13,
             Margin       = new Thickness(20, 20, 20, 16),
         };
@@ -246,8 +246,8 @@ public partial class TreeTabView : UserControl
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Margin              = new Thickness(0, 0, 8, 0),
             Padding             = new Thickness(0, 8),
-            Background          = new SolidColorBrush(Color.Parse("#F38BA8")),
-            Foreground          = new SolidColorBrush(Color.Parse("#1E1E2E")),
+            Background          = Services.ThemeService.Brush("DangerBrush", "#D87171"),
+            Foreground          = Services.ThemeService.Brush("TextOnAccentBrush", "#FFFFFF"),
             FontWeight          = Avalonia.Media.FontWeight.Bold,
         };
 
@@ -256,8 +256,8 @@ public partial class TreeTabView : UserControl
             Content             = LocalizationService.Get("Dlg_ChangeClass_Cancel"),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Padding             = new Thickness(0, 8),
-            Background          = new SolidColorBrush(Color.Parse("#313244")),
-            Foreground          = new SolidColorBrush(Color.Parse("#CDD6F4")),
+            Background          = Services.ThemeService.Brush("BgRaisedBrush", "#262A35"),
+            Foreground          = Services.ThemeService.Brush("TextPrimaryBrush", "#E4E7EE"),
         };
 
         confirmBtn.Click += (_, _) => dialog.Close(true);

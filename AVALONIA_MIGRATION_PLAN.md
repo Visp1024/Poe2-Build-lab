@@ -202,7 +202,7 @@ Full item management suite. Core editor (sub-tasks 1–3) complete:
 - [x] i18n / Cyrillic — ResX-based localisation (Strings.resx + .ru.resx), TrExtension markup, GameTranslationService for game-data records (class/ascendancy names, gem names). Avalonia 12 indexer-binding refresh quirk worked around with a Binding+IValueConverter on CurrentLanguage.
 - [x] Branding — "PoE2 Build Lab" window title, multi-res icon.ico, BuildList header logo
 - [ ] HiDPI / DPI scaling
-- [ ] Dark / light theme
+- [x] Dark / light theme — configurable Dark / Light / System (follows Windows), instant apply, persisted in prefs (`AppTheme`). `ThemeService` (PBLApp) + `IThemeSwitcher`/`AppSettingsViewModel` (Core) + `AppSettingsWindow` (gear button in BuildList header). Light token palette already existed in `Tokens.Colors.axaml`; visible-screen hardcode swept to tokens. Tree canvas + item/hover tooltips deliberately stay game-dark in both variants. Deferred: Trader hardcode (TODO in XAML), tree-canvas light palette, user color customization.
 - [ ] GitHub Actions CI
 - [ ] **Jewel mod sliders** — PoB strips `(N-M)` templates from jewel raw lines after rolling (only concrete values remain, e.g. `5%`). `modLine.range` is preserved but `modList[i].min/max` is not directly accessible for `JewelFunc`-type radius mods. Need a Lua helper that walks `explicitModLines[k].modList` per-stat, looks up affix min/max from `data.itemMods.Jewel` (or equivalent), and reconstructs `(min-max)` templates so `ParseUniqueRaw` / `ExplicitModViewModel.ParseSingleIntRange` can detect ranges and render sliders. Complex because radius/threshold jewels use wrapper mod types.
 
@@ -518,7 +518,7 @@ IPC: `/tree/state` несёт `workersReady/workersTotal/powerSortIndex/powerFil
 
 ### UI polish
 - [ ] HiDPI / DPI scaling pass.
-- [ ] Dark / light theme switch.
+- [x] Dark / light theme switch — done (Phase 11 entry). Follow-ups deferred: Trader hardcode cleanup, light tree canvas, user color customization (level 3 of the theming plan).
 
 ### Engine / mod coverage
 - [ ] **Find & fix mods PoB doesn't support** — `ModParser.parseMod` returns an empty mod list (+ leftover text) for lines it can't parse; such mods contribute nothing to stats and surface in the UI as "(Not supported in PoB yet)" / via the Alt-hover internal-modifier view. PoB also has a dev hook that appends number-redacted unparsed forms to `unsupported.txt` (`ModParser.lua` ~line 7272). Goal: (1) **discover** — sweep a corpus (every unique in `Data/Uniques`, every affix in `Data/ModItem*.lua` / runes / corruptions, plus mods from the parity community builds) through `parseMod`, collect lines that yield `{}` or a non-empty leftover, dedupe to `{num}`-redacted templates (reuse the existing logger format); emit a ranked report. (2) **surface in PBLApp** — a diagnostics panel / MCP tool listing the current build's unsupported mods so users can report bleed-through. (3) **fix** — add the missing patterns to `ModParser.lua`, regenerate + commit `Data/ModCache.lua` (`REGENERATE_MOD_CACHE=1`, see the Ward fix for the workflow), and guard with a parity re-sweep. Keep backward-compat for old mod strings.

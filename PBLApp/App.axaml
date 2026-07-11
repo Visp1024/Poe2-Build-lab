@@ -2,8 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:suki="https://github.com/kikipoulet/SukiUI"
              xmlns:local="using:PBLApp"
-             x:Class="PBLApp.App"
-             RequestedThemeVariant="Dark">
+             x:Class="PBLApp.App">
 
     <Application.DataTemplates>
         <local:ViewLocator/>

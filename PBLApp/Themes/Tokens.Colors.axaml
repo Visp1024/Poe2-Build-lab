@@ -86,6 +86,44 @@
             <Color x:Key="ConfirmBg">#1E3A2F</Color>
             <Color x:Key="ConfirmHover">#2A4A3A</Color>
 
+            <!-- Scrims / dim overlays -->
+            <Color x:Key="BgScrim">#80000000</Color>
+            <Color x:Key="DimOverlay">#73000000</Color>
+
+            <!-- Text on saturated accent fills (Danger/attr buttons, hover fills) -->
+            <Color x:Key="TextOnAccent">#FFFFFF</Color>
+
+            <!-- Corruption (item editor: picker shell, row tint, accents) -->
+            <Color x:Key="CorruptedAccent">#DD0022</Color>
+            <Color x:Key="CorruptedPickerBg">#1A0A10</Color>
+            <Color x:Key="CorruptedRowBg">#2A1015</Color>
+
+            <!-- «Подбор» strip overlaid on ItemsTab slot cells -->
+            <Color x:Key="OverlayStripBg">#E615171D</Color>
+            <Color x:Key="OverlayStripBorder">#22FFFFFF</Color>
+            <Color x:Key="OverlayStripHoverBg">#EE262A35</Color>
+
+            <!-- Socketable-augment badges (fills; same in both variants, dark text on top) -->
+            <Color x:Key="BadgeIdol">#C792EA</Color>
+            <Color x:Key="BadgeSoulCore">#56C2C0</Color>
+            <Color x:Key="BadgeAbyssalEye">#E06C9F</Color>
+            <Color x:Key="BadgeMist">#7AA2F7</Color>
+            <Color x:Key="BadgeRune">#9AA4B2</Color>
+            <Color x:Key="TextOnBadge">#15151F</Color>
+
+            <!-- Hover tooltip (slot cells / trader pool). Frame stays game-dark in both
+                 variants, like the TooltipBg group, so rarity title colors stay readable. -->
+            <Color x:Key="HoverTipBg">#15171D</Color>
+            <Color x:Key="HoverTipTitle">#CDD6F4</Color>
+            <Color x:Key="HoverTipNumber">#F9E2AF</Color>
+            <Color x:Key="HoverTipLabel">#8888FF</Color>
+            <Color x:Key="HoverTipMuted">#7F7F7F</Color>
+
+            <!-- Attribute-choice dialog button fills (saturated; same in both variants) -->
+            <Color x:Key="AttrStrFill">#C0392B</Color>
+            <Color x:Key="AttrDexFill">#27AE60</Color>
+            <Color x:Key="AttrIntFill">#2980B9</Color>
+
             <!-- Brushes (same names + "Brush" suffix) -->
             <SolidColorBrush x:Key="BgBaseBrush" Color="{StaticResource BgBase}" />
             <SolidColorBrush x:Key="BgMantleBrush" Color="{StaticResource BgMantle}" />
@@ -150,6 +188,35 @@
 
             <SolidColorBrush x:Key="ConfirmBgBrush" Color="{StaticResource ConfirmBg}" />
             <SolidColorBrush x:Key="ConfirmHoverBrush" Color="{StaticResource ConfirmHover}" />
+
+            <SolidColorBrush x:Key="BgScrimBrush" Color="{StaticResource BgScrim}" />
+            <SolidColorBrush x:Key="DimOverlayBrush" Color="{StaticResource DimOverlay}" />
+            <SolidColorBrush x:Key="TextOnAccentBrush" Color="{StaticResource TextOnAccent}" />
+
+            <SolidColorBrush x:Key="CorruptedAccentBrush" Color="{StaticResource CorruptedAccent}" />
+            <SolidColorBrush x:Key="CorruptedPickerBgBrush" Color="{StaticResource CorruptedPickerBg}" />
+            <SolidColorBrush x:Key="CorruptedRowBgBrush" Color="{StaticResource CorruptedRowBg}" />
+
+            <SolidColorBrush x:Key="OverlayStripBgBrush" Color="{StaticResource OverlayStripBg}" />
+            <SolidColorBrush x:Key="OverlayStripBorderBrush" Color="{StaticResource OverlayStripBorder}" />
+            <SolidColorBrush x:Key="OverlayStripHoverBgBrush" Color="{StaticResource OverlayStripHoverBg}" />
+
+            <SolidColorBrush x:Key="BadgeIdolBrush" Color="{StaticResource BadgeIdol}" />
+            <SolidColorBrush x:Key="BadgeSoulCoreBrush" Color="{StaticResource BadgeSoulCore}" />
+            <SolidColorBrush x:Key="BadgeAbyssalEyeBrush" Color="{StaticResource BadgeAbyssalEye}" />
+            <SolidColorBrush x:Key="BadgeMistBrush" Color="{StaticResource BadgeMist}" />
+            <SolidColorBrush x:Key="BadgeRuneBrush" Color="{StaticResource BadgeRune}" />
+            <SolidColorBrush x:Key="TextOnBadgeBrush" Color="{StaticResource TextOnBadge}" />
+
+            <SolidColorBrush x:Key="HoverTipBgBrush" Color="{StaticResource HoverTipBg}" />
+            <SolidColorBrush x:Key="HoverTipTitleBrush" Color="{StaticResource HoverTipTitle}" />
+            <SolidColorBrush x:Key="HoverTipNumberBrush" Color="{StaticResource HoverTipNumber}" />
+            <SolidColorBrush x:Key="HoverTipLabelBrush" Color="{StaticResource HoverTipLabel}" />
+            <SolidColorBrush x:Key="HoverTipMutedBrush" Color="{StaticResource HoverTipMuted}" />
+
+            <SolidColorBrush x:Key="AttrStrFillBrush" Color="{StaticResource AttrStrFill}" />
+            <SolidColorBrush x:Key="AttrDexFillBrush" Color="{StaticResource AttrDexFill}" />
+            <SolidColorBrush x:Key="AttrIntFillBrush" Color="{StaticResource AttrIntFill}" />
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -216,6 +283,43 @@
             <Color x:Key="ConfirmBg">#1E3A2F</Color>
             <Color x:Key="ConfirmHover">#2A4A3A</Color>
 
+            <!-- Scrims / dim overlays (light: translucent white scrim, softer dim) -->
+            <Color x:Key="BgScrim">#B3FFFFFF</Color>
+            <Color x:Key="DimOverlay">#40000000</Color>
+
+            <!-- Text on saturated accent fills -->
+            <Color x:Key="TextOnAccent">#FFFFFF</Color>
+
+            <!-- Corruption (darker red + pale crimson tints for light surfaces) -->
+            <Color x:Key="CorruptedAccent">#B0001B</Color>
+            <Color x:Key="CorruptedPickerBg">#FBEDEF</Color>
+            <Color x:Key="CorruptedRowBg">#F7E3E7</Color>
+
+            <!-- «Подбор» strip overlaid on ItemsTab slot cells -->
+            <Color x:Key="OverlayStripBg">#E6FFFFFF</Color>
+            <Color x:Key="OverlayStripBorder">#22000000</Color>
+            <Color x:Key="OverlayStripHoverBg">#F2E8EBF1</Color>
+
+            <!-- Socketable-augment badges (fills; same as Dark, dark text on top) -->
+            <Color x:Key="BadgeIdol">#C792EA</Color>
+            <Color x:Key="BadgeSoulCore">#56C2C0</Color>
+            <Color x:Key="BadgeAbyssalEye">#E06C9F</Color>
+            <Color x:Key="BadgeMist">#7AA2F7</Color>
+            <Color x:Key="BadgeRune">#9AA4B2</Color>
+            <Color x:Key="TextOnBadge">#15151F</Color>
+
+            <!-- Hover tooltip — frame stays game-dark in both variants (see Dark block) -->
+            <Color x:Key="HoverTipBg">#15171D</Color>
+            <Color x:Key="HoverTipTitle">#CDD6F4</Color>
+            <Color x:Key="HoverTipNumber">#F9E2AF</Color>
+            <Color x:Key="HoverTipLabel">#8888FF</Color>
+            <Color x:Key="HoverTipMuted">#7F7F7F</Color>
+
+            <!-- Attribute-choice dialog button fills (same as Dark) -->
+            <Color x:Key="AttrStrFill">#C0392B</Color>
+            <Color x:Key="AttrDexFill">#27AE60</Color>
+            <Color x:Key="AttrIntFill">#2980B9</Color>
+
             <SolidColorBrush x:Key="BgBaseBrush" Color="{StaticResource BgBase}" />
             <SolidColorBrush x:Key="BgMantleBrush" Color="{StaticResource BgMantle}" />
             <SolidColorBrush x:Key="BgSurfaceBrush" Color="{StaticResource BgSurface}" />
@@ -279,6 +383,35 @@
 
             <SolidColorBrush x:Key="ConfirmBgBrush" Color="{StaticResource ConfirmBg}" />
             <SolidColorBrush x:Key="ConfirmHoverBrush" Color="{StaticResource ConfirmHover}" />
+
+            <SolidColorBrush x:Key="BgScrimBrush" Color="{StaticResource BgScrim}" />
+            <SolidColorBrush x:Key="DimOverlayBrush" Color="{StaticResource DimOverlay}" />
+            <SolidColorBrush x:Key="TextOnAccentBrush" Color="{StaticResource TextOnAccent}" />
+
+            <SolidColorBrush x:Key="CorruptedAccentBrush" Color="{StaticResource CorruptedAccent}" />
+            <SolidColorBrush x:Key="CorruptedPickerBgBrush" Color="{StaticResource CorruptedPickerBg}" />
+            <SolidColorBrush x:Key="CorruptedRowBgBrush" Color="{StaticResource CorruptedRowBg}" />
+
+            <SolidColorBrush x:Key="OverlayStripBgBrush" Color="{StaticResource OverlayStripBg}" />
+            <SolidColorBrush x:Key="OverlayStripBorderBrush" Color="{StaticResource OverlayStripBorder}" />
+            <SolidColorBrush x:Key="OverlayStripHoverBgBrush" Color="{StaticResource OverlayStripHoverBg}" />
+
+            <SolidColorBrush x:Key="BadgeIdolBrush" Color="{StaticResource BadgeIdol}" />
+            <SolidColorBrush x:Key="BadgeSoulCoreBrush" Color="{StaticResource BadgeSoulCore}" />
+            <SolidColorBrush x:Key="BadgeAbyssalEyeBrush" Color="{StaticResource BadgeAbyssalEye}" />
+            <SolidColorBrush x:Key="BadgeMistBrush" Color="{StaticResource BadgeMist}" />
+            <SolidColorBrush x:Key="BadgeRuneBrush" Color="{StaticResource BadgeRune}" />
+            <SolidColorBrush x:Key="TextOnBadgeBrush" Color="{StaticResource TextOnBadge}" />
+
+            <SolidColorBrush x:Key="HoverTipBgBrush" Color="{StaticResource HoverTipBg}" />
+            <SolidColorBrush x:Key="HoverTipTitleBrush" Color="{StaticResource HoverTipTitle}" />
+            <SolidColorBrush x:Key="HoverTipNumberBrush" Color="{StaticResource HoverTipNumber}" />
+            <SolidColorBrush x:Key="HoverTipLabelBrush" Color="{StaticResource HoverTipLabel}" />
+            <SolidColorBrush x:Key="HoverTipMutedBrush" Color="{StaticResource HoverTipMuted}" />
+
+            <SolidColorBrush x:Key="AttrStrFillBrush" Color="{StaticResource AttrStrFill}" />
+            <SolidColorBrush x:Key="AttrDexFillBrush" Color="{StaticResource AttrDexFill}" />
+            <SolidColorBrush x:Key="AttrIntFillBrush" Color="{StaticResource AttrIntFill}" />
         </ResourceDictionary>
 
     </ResourceDictionary.ThemeDictionaries>
