@@ -5,6 +5,7 @@ using Avalonia.Controls.Documents;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using PBLApp.Core;
 using PBLApp.Core.Localization;
 using PBLApp.ViewModels;
 using System;
@@ -1179,6 +1180,10 @@ public sealed class IpcServer
             powerStat          = t.SelectedPowerStat?.Option.StatKey,
             isPowerStale       = t.IsPowerStale,
             powerBuildProgress = t.PowerBuildProgress,
+            workersReady       = TreePowerService.Current?.Ready ?? 0,
+            workersTotal       = TreePowerService.Current?.Size ?? 0,
+            powerSortIndex     = t.PowerSortIndex,
+            powerFilter        = t.PowerFilter,
         };
     }
 
@@ -1445,12 +1450,14 @@ public sealed class IpcServer
             progress = t.PowerBuildProgress,
             rows = t.PowerReport.Take(30).Select(r => new
             {
-                id       = r.NodeId,
-                name     = r.Name,
-                type     = r.Type,
-                power    = r.PowerStr,
-                perPoint = r.PerPointStr,
-                alloc    = r.IsAllocated,
+                id        = r.NodeId,
+                name      = r.Name,
+                type      = r.Type,
+                typeBadge = r.TypeBadge,
+                power     = r.PowerStr,
+                perPoint  = r.PerPointStr,
+                steps     = r.StepsStr,
+                alloc     = r.IsAllocated,
             }).ToArray(),
         };
     }
