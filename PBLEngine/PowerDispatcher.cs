@@ -35,6 +35,11 @@ public static class NodePowerOrchestrator
         int total = nodes.Count, done = 0;
         var rows = new ConcurrentDictionary<int, PowerBatchRow>();
         var prepared = new ConcurrentBag<IPowerWorker>();
+        var dead = new HashSet<IPowerWorker>();
+        var deadLock = new object();
+
+        void MarkDead(IPowerWorker w) { lock (deadLock) dead.Add(w); }
+        bool IsDead(IPowerWorker w) { lock (deadLock) return dead.Contains(w); }
 
         async Task Consume(Task<IPowerWorker> wt, ConcurrentQueue<int[]> q,
                            Func<IPowerWorker, int[], Task<int>> work)
@@ -56,25 +61,49 @@ public static class NodePowerOrchestrator
                         int d = Interlocked.Add(ref done, n);
                         onProgress?.Invoke(Math.Min(80, (int)(d * 80.0 / Math.Max(1, total))));
                     }
-                    catch (OperationCanceledException) { q.Enqueue(batch); return; }
-                    catch { q.Enqueue(batch); return; }   // воркер мёртв — батч назад, выходим
+                    catch (OperationCanceledException) { q.Enqueue(batch); MarkDead(w); return; }
+                    catch { q.Enqueue(batch); MarkDead(w); return; }   // воркер мёртв — батч назад, выходим
                 }
             }
-            catch { /* Prepare умер — воркер выбывает */ }
+            catch { MarkDead(w); /* Prepare умер — воркер выбывает */ }
+        }
+
+        // Раунды: пока в очереди что-то есть, гоняем консюмеров живых воркеров.
+        // Батч, вернувшийся в очередь после смерти своего воркера (Fix 1), подхватят
+        // выжившие воркеры в следующем раунде — без этого он мог осиротеть, если
+        // остальные консюмеры к тому моменту уже опустошили очередь и вышли.
+        async Task RunRounds(ConcurrentQueue<int[]> q, Func<IPowerWorker, int[], Task<int>> work)
+        {
+            while (!q.IsEmpty)
+            {
+                if (ct.IsCancellationRequested) return;
+
+                var usable = new List<Task<IPowerWorker>>();
+                foreach (var wt in workerTasks)
+                {
+                    if (wt.IsFaulted || wt.IsCanceled) continue;
+                    if (wt.IsCompletedSuccessfully && IsDead(wt.Result)) continue;
+                    usable.Add(wt);
+                }
+                if (usable.Count == 0)
+                    throw new InvalidOperationException("all workers failed");
+
+                await Task.WhenAll(usable.Select(wt => Consume(wt, q, work)).ToArray());
+
+                if (ct.IsCancellationRequested) return;
+            }
         }
 
         try
         {
             // Фаза 1: power.
-            await Task.WhenAll(workerTasks.Select(wt => Consume(wt, queue, async (w, batch) =>
+            await RunRounds(queue, async (w, batch) =>
             {
                 foreach (var r in await w.ComputeBatchAsync(batch, ct)) rows[r.Id] = r;
                 return batch.Length;
-            })).ToArray());
+            });
             if (ct.IsCancellationRequested)
                 return new NodePowerResult(offDefMode, new NodePowerMax(0, 0, 0), []);
-            if (!queue.IsEmpty)
-                throw new InvalidOperationException("all workers failed");
 
             // Фаза 2: pathPower для топ-K достижимых невзятых нод c Steps > 1.
             var top = rows.Values
@@ -86,15 +115,13 @@ public static class NodePowerOrchestrator
             {
                 var pathQueue = new ConcurrentQueue<int[]>(Chunk(top, PathBatchSize));
                 done = 0; total = top.Count;
-                await Task.WhenAll(workerTasks.Select(wt => Consume(wt, pathQueue, async (w, batch) =>
+                await RunRounds(pathQueue, async (w, batch) =>
                 {
                     foreach (var r in await w.ComputePathBatchAsync(batch, ct)) pathRows[r.Id] = r;
                     return batch.Length;
-                })).ToArray());
+                });
                 if (ct.IsCancellationRequested)
                     return new NodePowerResult(offDefMode, new NodePowerMax(0, 0, 0), []);
-                if (!pathQueue.IsEmpty)
-                    throw new InvalidOperationException("all workers failed");
             }
             onProgress?.Invoke(100);
 
