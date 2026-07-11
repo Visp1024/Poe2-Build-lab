@@ -161,4 +161,64 @@ public class NodePowerTests : IClassFixture<LuaHostFixture>
         Assert.All(list, n => Assert.NotEqual("", n.ModKey));
         Assert.All(list, n => Assert.Contains(n.Type, new[] { "Normal", "Notable", "Keystone" }));
     }
+
+    [Fact]
+    public void PowerSession_MatchesBuildNodePower_OnSmallDepth()
+    {
+        // Эталон: оригинальная PoB-корутина, ограниченная глубиной 3 (быстро).
+        var reference = _host.BuildNodePower("FullDPS", maxDepth: 3);
+        var refById = reference.Entries.Where(e => !e.Alloc && e.Power != 0)
+                                       .ToDictionary(e => e.Id, e => e.Power);
+        Assert.NotEmpty(refById);
+
+        // Кандидаты: те же ноды через session-API.
+        var ids = refById.Keys.OrderBy(i => i).Take(40).ToList();
+        _host.BeginPowerSession("FullDPS");
+        try
+        {
+            var rows = _host.ComputePowerBatch(ids);
+            Assert.Equal(ids.Count, rows.Count);
+            foreach (var r in rows)
+            {
+                var expected = refById[r.Id];
+                Assert.True(Math.Abs(r.Power - expected) <= Math.Abs(expected) * 1e-6 + 1e-9,
+                    $"node {r.Id}: session={r.Power} reference={expected}");
+            }
+        }
+        finally { _host.EndPowerSession(); }
+    }
+
+    [Fact]
+    public void PowerSession_DoesNotPerturbMainOutput()
+    {
+        // Спека: расчёт не должен менять статы билда. Снимок до/после сессии.
+        var before = _host.GetStat("TotalDPS");
+        _host.BeginPowerSession("FullDPS");
+        try
+        {
+            var ids = _host.GetPowerNodeList().Where(n => !n.Alloc && n.Steps is > 0)
+                           .Take(10).Select(n => n.Id).ToList();
+            _host.ComputePowerBatch(ids);
+        }
+        finally { _host.EndPowerSession(); }
+        _host.RecalcStats();
+        Assert.Equal(before, _host.GetStat("TotalDPS"));
+    }
+
+    [Fact]
+    public void PowerSession_PathBatch_ReturnsPathPowerForMultiStepNodes()
+    {
+        var nodes = _host.GetPowerNodeList()
+            .Where(n => !n.Alloc && !n.IsCluster && n.Steps is > 1).Take(5).ToList();
+        Assert.NotEmpty(nodes);
+        _host.BeginPowerSession("FullDPS");
+        try
+        {
+            _host.ComputePowerBatch(nodes.Select(n => n.Id).ToList());
+            var rows = _host.ComputePathPowerBatch(nodes.Select(n => n.Id).ToList());
+            Assert.Equal(nodes.Count, rows.Count);
+            Assert.All(rows, r => Assert.False(string.IsNullOrEmpty(r.PerPointStr)));
+        }
+        finally { _host.EndPowerSession(); }
+    }
 }

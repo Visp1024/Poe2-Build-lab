@@ -651,7 +651,7 @@ public partial class TreeTabViewModel : ViewModelBase
                     Name        = GameTranslationService.TPassiveName(e.Name),
                     Type        = e.Type,
                     PowerStr    = e.PowerStr,
-                    PerPointStr = e.PerPointStr,
+                    PerPointStr = e.PerPointStr ?? "",
                     IsAllocated = e.Alloc,
                     PowerColor  = good ? "#A6E3A1" : "#F38BA8",   // green / red
                 });

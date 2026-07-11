@@ -2980,6 +2980,9 @@ public sealed partial class LuaHost : IDisposable
             end
 
             local rows = {}
+            -- pathDist column: -1 for allocated/cluster nodes (no points-to-take
+            -- path); otherwise #node.path (or -1 if that's empty/unreachable). The
+            -- C# side maps -1 to Steps/PathPower/PerPointStr = null (v2 shape).
             local function emit(node, isAlloc, pathDist)
                 local power     = (node.power and node.power.singleStat or 0)
                 local pathPower = (node.power and node.power.pathPower or 0)
@@ -2993,7 +2996,7 @@ public sealed partial class LuaHost : IDisposable
                     (node.dn or node.name or ''):gsub('[\t\31]', ' '),
                     node.type or 'Normal',
                     isAlloc and 1 or 0,
-                    pathDist or 1,
+                    pathDist,
                     power, pathPower, offence, defence,
                     powerStr, perPointStr
                 }, '\t')
@@ -3005,17 +3008,18 @@ public sealed partial class LuaHost : IDisposable
                    and not node.ascendancyName then
                     local pathDist
                     if isAlloc then
-                        pathDist = (#(node.depends or {}) == 0) and 1 or #node.depends
+                        pathDist = -1
                     else
-                        pathDist = (#(node.path or {}) == 0) and 1 or #node.path
+                        local p = node.path and #node.path or 0
+                        pathDist = (p > 0) and p or -1
                     end
                     emit(node, isAlloc, pathDist)
                 end
             end
-            -- cluster notables (unallocated) — pathDist column = 1
+            -- cluster notables (unallocated) — no meaningful path, pathDist column = -1
             for _, node in pairs(build.spec.tree.clusterNodeMap or {}) do
                 if not node.alloc and (node.type == 'Notable' or node.type == 'Normal' or node.type == 'Keystone') then
-                    emit(node, false, 1)
+                    emit(node, false, -1)
                 end
             end
 
@@ -3033,14 +3037,21 @@ public sealed partial class LuaHost : IDisposable
         {
             var f = rowStr.Split('\t');
             if (f.Length < 11) continue;
+            // pathDist column: -1 (or missing) means allocated/cluster — no path,
+            // so Steps/PathPower/PerPointStr all collapse to null (v2 shape).
+            int pd = int.TryParse(f[4], out var pdVal) ? pdVal : -1;
+            int? steps = pd > 0 ? pd : null;
             entries.Add(new NodePowerEntry(
                 int.TryParse(f[0], out var id) ? id : 0,
                 f[1],
                 f[2],
                 f[3] == "1",
-                int.TryParse(f[4], out var pd) ? pd : 1,
-                ParseD(f[5]), ParseD(f[6]), ParseD(f[7]), ParseD(f[8]),
-                f[9], f[10]));
+                steps,
+                ParseD(f[5]),
+                steps.HasValue ? ParseD(f[6]) : null,
+                ParseD(f[7]), ParseD(f[8]),
+                f[9],
+                steps.HasValue ? f[10] : null));
         }
 
         State["_powerStatKey"]  = null;
@@ -3054,6 +3065,167 @@ public sealed partial class LuaHost : IDisposable
             double.TryParse(s, System.Globalization.NumberStyles.Any,
                             System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0;
     }
+
+    /// <summary>Prepares this host for ComputePowerBatch calls: BuildOutput,
+    /// powerStat selection, misc calculator + modKey cache, id→node map.
+    /// The host must already have the target build loaded.</summary>
+    public void BeginPowerSession(string? statKey)
+    {
+        State["_pblStatKey"] = statKey;
+        State.DoString(@"
+            if build.spec._fastAllocDirty then
+                build.spec:BuildAllDependsAndPaths()
+                build.spec._fastAllocDirty = false
+            end
+            local ct = build.calcsTab
+            ct:BuildOutput()
+            local sel
+            if _pblStatKey == nil or _pblStatKey == '' then
+                for _, s in ipairs(data.powerStatList) do if s.combinedOffDef then sel = s break end end
+            else
+                for _, s in ipairs(data.powerStatList) do if s.stat == _pblStatKey then sel = s break end end
+            end
+            ct.powerStat = sel
+            local calcFunc, calcBase = ct:GetMiscCalculator()
+            local displayStat = { fmt = '.1f' }
+            if sel and sel.stat then
+                for _, ds in ipairs(build.displayStats) do
+                    if ds.stat == sel.stat then displayStat = ds break end
+                end
+            end
+            local byId = {}
+            for id, node in pairs(build.spec.nodes) do byId[id] = node end
+            for _, node in pairs(build.spec.tree.clusterNodeMap or {}) do
+                if node.id then byId[node.id] = node end
+            end
+            _pblPS = {
+                ct = ct, sel = sel, calcFunc = calcFunc, calcBase = calcBase,
+                cache = {}, byId = byId,
+                useFullDPS = (sel and sel.stat == 'FullDPS') or false,
+                scale = (displayStat.pc or displayStat.mod) and 100 or 1,
+                fmt = displayStat.fmt or '.1f',
+            }
+            _pblPS.fmtNum = function(v)
+                if v ~= 0 and math.abs(v) < 1 then return string.format('%.3g', v) end
+                local s = string.format('%' .. _pblPS.fmt, v)
+                if formatNumSep then s = formatNumSep(s) end
+                return s
+            end
+        ");
+        State["_pblStatKey"] = null;
+    }
+
+    /// <summary>Computes single-node power deltas for the given node ids.
+    /// Allocated nodes get the removal delta (single-stat mode only, like PoB).</summary>
+    public List<PowerBatchRow> ComputePowerBatch(IReadOnlyList<int> ids)
+    {
+        State["_pblIds"] = string.Join(",", ids);
+        var res = State.DoString(@"
+            local ps = _pblPS
+            local rows = {}
+            for idStr in _pblIds:gmatch('[^,]+') do
+                local node = ps.byId[tonumber(idStr)]
+                if node then
+                    local power, off, def = 0, 0, 0
+                    if not node.alloc then
+                        local key = node.modKey
+                        if not ps.cache[key] then
+                            ps.cache[key] = ps.calcFunc({ addNodes = { [node] = true } }, ps.useFullDPS)
+                        end
+                        local out = ps.cache[key]
+                        if ps.sel and ps.sel.stat then
+                            power = ps.ct:CalculatePowerStat(ps.sel, out, ps.calcBase)
+                        else
+                            off, def = ps.ct:CalculateCombinedOffDefStat(out, ps.calcBase)
+                            power = off
+                        end
+                    elseif ps.sel and ps.sel.stat then
+                        local key = node.modKey .. '_remove'
+                        if not ps.cache[key] then
+                            ps.cache[key] = ps.calcFunc({ removeNodes = { [node] = true } }, ps.useFullDPS)
+                        end
+                        power = ps.ct:CalculatePowerStat(ps.sel, ps.cache[key], ps.calcBase)
+                    end
+                    rows[#rows+1] = table.concat({
+                        node.id, power, off, def, ps.fmtNum(power * ps.scale)
+                    }, '\t')
+                end
+            end
+            return table.concat(rows, '\31')
+        ");
+        State["_pblIds"] = null;
+        var list = new List<PowerBatchRow>();
+        var blob = res is { Length: > 0 } ? res[0] as string ?? "" : "";
+        foreach (var row in blob.Split('\x1F', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var f = row.Split('\t');
+            if (f.Length < 5) continue;
+            list.Add(new PowerBatchRow(ParseI(f[0]), ParseD(f[1]), ParseD(f[2]), ParseD(f[3]), f[4]));
+        }
+        return list;
+
+        static int ParseI(string s) => int.TryParse(s, out var v) ? v : 0;
+        static double ParseD(string s) =>
+            double.TryParse(s, System.Globalization.NumberStyles.Any,
+                            System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0;
+    }
+
+    /// <summary>Computes whole-path power (lazy top-K phase) for unallocated
+    /// reachable nodes; perPoint = pathPower / steps.</summary>
+    public List<PathPowerRow> ComputePathPowerBatch(IReadOnlyList<int> ids)
+    {
+        State["_pblIds"] = string.Join(",", ids);
+        var res = State.DoString(@"
+            local ps = _pblPS
+            local rows = {}
+            for idStr in _pblIds:gmatch('[^,]+') do
+                local node = ps.byId[tonumber(idStr)]
+                if node and not node.alloc and node.path and #node.path > 0 then
+                    local steps = #node.path
+                    local pathPower
+                    if steps <= 1 then
+                        local out = ps.cache[node.modKey]
+                                  or ps.calcFunc({ addNodes = { [node] = true } }, ps.useFullDPS)
+                        if ps.sel and ps.sel.stat then
+                            pathPower = ps.ct:CalculatePowerStat(ps.sel, out, ps.calcBase)
+                        else
+                            pathPower = select(1, ps.ct:CalculateCombinedOffDefStat(out, ps.calcBase))
+                        end
+                    else
+                        local pathNodes = {}
+                        for _, pn in ipairs(node.path) do pathNodes[pn] = true end
+                        local out = ps.calcFunc({ addNodes = pathNodes }, ps.useFullDPS)
+                        if ps.sel and ps.sel.stat then
+                            pathPower = ps.ct:CalculatePowerStat(ps.sel, out, ps.calcBase)
+                        else
+                            pathPower = select(1, ps.ct:CalculateCombinedOffDefStat(out, ps.calcBase))
+                        end
+                    end
+                    rows[#rows+1] = table.concat({
+                        node.id, pathPower, ps.fmtNum(pathPower / steps * ps.scale)
+                    }, '\t')
+                end
+            end
+            return table.concat(rows, '\31')
+        ");
+        State["_pblIds"] = null;
+        var list = new List<PathPowerRow>();
+        var blob = res is { Length: > 0 } ? res[0] as string ?? "" : "";
+        foreach (var row in blob.Split('\x1F', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var f = row.Split('\t');
+            if (f.Length < 3) continue;
+            list.Add(new PathPowerRow(
+                int.TryParse(f[0], out var id) ? id : 0,
+                double.TryParse(f[1], System.Globalization.NumberStyles.Any,
+                                System.Globalization.CultureInfo.InvariantCulture, out var p) ? p : 0,
+                f[2]));
+        }
+        return list;
+    }
+
+    /// <summary>Clears session globals installed by BeginPowerSession.</summary>
+    public void EndPowerSession() => State.DoString("_pblPS = nil");
 
     public (List<TreeNodeDto> Nodes, HashSet<int> AllocatedIds) GetTreeData()
     {
