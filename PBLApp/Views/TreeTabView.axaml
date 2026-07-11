@@ -178,19 +178,20 @@
                     <!-- Header -->
                     <StackPanel DockPanel.Dock="Top" Spacing="8">
                         <TextBlock Text="{loc:Tr Tree_PowerReport}" FontWeight="SemiBold" FontSize="15"/>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <ComboBox Grid.Column="0" MaxWidth="340" HorizontalAlignment="Stretch"
-                                      ItemsSource="{Binding PowerStatOptions}"
-                                      SelectedItem="{Binding SelectedPowerStat}"/>
-                            <Button Grid.Column="1" Margin="8,0,0,0"
-                                    Content="{loc:Tr Tree_Power_Generate}"
-                                    Command="{Binding GeneratePowerCommand}"
-                                    IsVisible="{Binding !IsPowerBuilding}"/>
-                            <Button Grid.Column="1" Margin="8,0,0,0"
-                                    Content="{loc:Tr Tree_Power_Cancel}"
-                                    Command="{Binding CancelPowerCommand}"
-                                    IsVisible="{Binding IsPowerBuilding}"/>
-                        </Grid>
+                        <!-- Stat selector gets its own full-width row: sharing a row with
+                             the localized Generate button squeezed it to ~110px at the
+                             default panel width (same fix as TraderWindow header rows). -->
+                        <ComboBox MinWidth="180" HorizontalAlignment="Stretch"
+                                  ItemsSource="{Binding PowerStatOptions}"
+                                  SelectedItem="{Binding SelectedPowerStat}"/>
+                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                Content="{loc:Tr Tree_Power_Generate}"
+                                Command="{Binding GeneratePowerCommand}"
+                                IsVisible="{Binding !IsPowerBuilding}"/>
+                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                Content="{loc:Tr Tree_Power_Cancel}"
+                                Command="{Binding CancelPowerCommand}"
+                                IsVisible="{Binding IsPowerBuilding}"/>
                         <Grid ColumnDefinitions="Auto,*,Auto">
                             <TextBlock Grid.Column="0" Text="{loc:Tr Tree_Power_WorkerCount}"
                                        VerticalAlignment="Center" Opacity="0.7" FontSize="12"/>
@@ -230,7 +231,7 @@
                                 <ComboBoxItem Content="{loc:Tr Tree_Power_SortPower}"/>
                                 <ComboBoxItem Content="{loc:Tr Tree_Power_SortPerPoint}"/>
                             </ComboBox>
-                            <TextBox Grid.Column="1" Margin="6,0,0,0" FontSize="12"
+                            <TextBox Grid.Column="1" Margin="6,0,0,0" FontSize="12" MinWidth="110"
                                      PlaceholderText="{loc:Tr Tree_Power_Filter}"
                                      Text="{Binding PowerFilter, Mode=TwoWay}"/>
                         </Grid>
