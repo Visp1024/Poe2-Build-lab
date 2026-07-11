@@ -629,13 +629,23 @@ public partial class TreeTabViewModel : ViewModelBase
             PowerError = null;
 
             // 1. Everything the main host needs to hand off — before batches are
-            //    dispatched (its Lua is not touched again until the end).
+            //    dispatched (its Lua is not touched again until the end). Held under
+            //    _luaQueue: a RunBackgroundToggle burst (AllocNode/RecalcStats) may
+            //    still be running on _host from the thread pool (click node → stale →
+            //    immediate Refresh), and two threads in the native Lua state crash it.
+            //    Released right after the snapshot — pool paths never touch _host
+            //    again, and the fallback worker re-acquires the gate in PrepareAsync.
             string? xml = null; IReadOnlyList<PowerNodeInfo> nodes = [];
-            await Task.Run(() =>
+            await _luaQueue.WaitAsync();
+            try
             {
-                xml   = _host.SaveBuildToXml();
-                nodes = _host.GetPowerNodeList();
-            });
+                await Task.Run(() =>
+                {
+                    xml   = _host.SaveBuildToXml();
+                    nodes = _host.GetPowerNodeList();
+                });
+            }
+            finally { _luaQueue.Release(); }
             if (string.IsNullOrEmpty(xml) || nodes.Count == 0) return;
 
             // 2. Workers: the pool (lazily warming up) or a fallback onto the main host.
@@ -701,6 +711,11 @@ public partial class TreeTabViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+            // A cancelled fallback surfaces as InvalidOperationException("all workers
+            // failed") — OCE in PrepareAsync marks the lone main-host worker dead and
+            // the pool-null path has no `when (pool != null)` retry to swallow it.
+            // Deliberate cancellation must exit silently, like the in-flight check above.
+            if (cts.IsCancellationRequested) return;
             PowerError = ex.Message;          // surfaced in the panel (existing pattern)
         }
         finally
