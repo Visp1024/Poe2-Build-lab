@@ -105,4 +105,26 @@ public class PowerDispatcherTests
         var topWithPath = result.Entries.Where(e => e.PathPower != null).Count();
         Assert.True(topWithPath >= Math.Min(100, 150), $"топ-K досчитан (got {topWithPath})");
     }
+
+    [Fact]
+    public async Task RunAsync_Progress_MonotonicAndPhased()
+    {
+        var w = new FakeWorker();
+        var progress = new List<int>();
+        var result = await NodePowerOrchestrator.RunAsync(
+            "<xml/>", "FullDPS", false, Nodes(150),
+            new[] { Task.FromResult<IPowerWorker>(w) },
+            p => progress.Add(p), CancellationToken.None);
+
+        Assert.NotEmpty(progress);
+        for (int i = 1; i < progress.Count; i++)
+            Assert.True(progress[i] >= progress[i - 1], $"progress regressed at index {i}: {progress[i - 1]} -> {progress[i]}");
+        Assert.Equal(100, progress[^1]);
+
+        // Как только прогресс достиг фазы 2 (>=80), он не должен откатываться ниже 80.
+        int firstAt80 = progress.FindIndex(p => p >= 80);
+        Assert.True(firstAt80 >= 0, "прогресс должен достичь 80 (граница фазы 1/2)");
+        for (int i = firstAt80; i < progress.Count; i++)
+            Assert.True(progress[i] >= 80, $"progress dropped below 80 in phase 2 at index {i}: {progress[i]}");
+    }
 }
