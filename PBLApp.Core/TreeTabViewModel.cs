@@ -150,6 +150,10 @@ public partial class TreeTabViewModel : ViewModelBase
     [ObservableProperty] private double _powerPanelWidth = 320;
     [ObservableProperty] private PowerStatVm? _selectedPowerStat;
     [ObservableProperty] private bool _isPowerBuilding;
+    // True only while the calc actually runs on the main host (pool disabled, or the
+    // fallback retry after "all workers failed") — the only paths that need the modal
+    // overlay, since the pool path leaves the main host free for UI interaction.
+    [ObservableProperty] private bool _isPowerBuildingModal;
     [ObservableProperty] private int  _powerBuildProgress;
     [ObservableProperty] private bool _isPowerStale;
     [ObservableProperty] private int    _powerSortIndex;   // 0 = by stat gain, 1 = per point
@@ -632,6 +636,8 @@ public partial class TreeTabViewModel : ViewModelBase
         try
         {
             IsPowerBuilding = true;
+            IsPowerBuildingModal = false;
+            _staleWhileBuilding = false;
             PowerBuildProgress = 0;
             PowerError = null;
 
@@ -681,6 +687,7 @@ public partial class TreeTabViewModel : ViewModelBase
                 // Pool-backed builds deliberately do NOT set this: _host is idle then.
                 usedMainHost = true;
                 IsToggleBusy = true;
+                IsPowerBuildingModal = true;
             }
 
             void Progress(int pc) => Post(() => PowerBuildProgress = pc);
@@ -696,6 +703,7 @@ public partial class TreeTabViewModel : ViewModelBase
                 // gating as the pool-disabled path above).
                 usedMainHost = true;
                 IsToggleBusy = true;
+                IsPowerBuildingModal = true;
                 result = await NodePowerOrchestrator.RunAsync(
                     xml!, stat.StatKey, stat.CombinedOffDef, nodes,
                     [Task.FromResult<IPowerWorker>(new MainHostPowerWorker(_host, _luaQueue))],
@@ -715,7 +723,12 @@ public partial class TreeTabViewModel : ViewModelBase
             PowerOverlay = result;
             PowerTopIds = ComputePowerTopIds(result, stat.LowerIsBetter);
             RebuildPowerRows();               // applies current sort + filter
-            IsPowerStale = false;
+            // A tree edit that landed mid-calc (now possible on the non-modal pool path,
+            // see F1/F2) set _staleWhileBuilding via MarkPowerStale instead of IsPowerStale
+            // directly (which that method no-ops while IsPowerBuilding) — the report we
+            // just computed came from a snapshot taken before that edit, so it must still
+            // show stale rather than being blindly cleared here.
+            IsPowerStale = _staleWhileBuilding;
             PowerOverlayChanged?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
@@ -730,6 +743,7 @@ public partial class TreeTabViewModel : ViewModelBase
         finally
         {
             IsPowerBuilding = false;
+            IsPowerBuildingModal = false;
             if (usedMainHost)
             {
                 // Don't blindly clear: a toggle enqueued while we held the Lua gate
@@ -824,9 +838,12 @@ public partial class TreeTabViewModel : ViewModelBase
         if (!string.IsNullOrWhiteSpace(PowerFilter))
             src = src.Where(e => TranslatedName(e).Contains(PowerFilter, StringComparison.OrdinalIgnoreCase));
         src = PowerSortIndex == 1
-            // "per point": the topped-up entries (path-power computed) come first, by per-point value
+            // "per point": the topped-up entries (path-power computed) come first, by per-point value;
+            // rows without PathPower key to 0 and would otherwise tie in arbitrary order, so break
+            // the tie by |Power| descending (strongest raw stat gain first).
             ? src.OrderByDescending(e => e.PathPower != null)
                  .ThenByDescending(e => PerPoint(e) * (lower ? -1 : 1))
+                 .ThenByDescending(e => Math.Abs(e.Power))
             : (lower ? src.OrderBy(e => e.Power) : src.OrderByDescending(e => e.Power));
         foreach (var e in src.Take(400))
             PowerReport.Add(MakeRow(e, lower));
@@ -866,7 +883,11 @@ public partial class TreeTabViewModel : ViewModelBase
 
     private void UpdateWorkersStatus()
     {
-        var pool = TreePowerService.GetPool(RepoRoot);
+        // Read-only lookup: GetPool mutates (can create/Dispose the pool if the
+        // worker-count pref changed since this build started), which must never
+        // happen from a status-label poll mid-warmup — Current only ever reads
+        // the pool already handed to this build's workers.
+        var pool = TreePowerService.Current;
         PowerWorkersStatus = pool == null ? ""
             : string.Format(LocalizationService.Get(
                   pool.Ready < pool.Size && IsPowerBuilding ? "Tree_Power_Warmup" : "Tree_Power_Workers"),
@@ -897,10 +918,19 @@ public partial class TreeTabViewModel : ViewModelBase
         if (row != null) FocusCanvasNode?.Invoke(row.NodeId, null);
     }
 
+    // Set by MarkPowerStale when an edit lands while a power calc is already running
+    // (now possible on the non-modal pool path) — the in-flight result was snapshotted
+    // before the edit, so it must be flagged stale once it lands rather than the
+    // in-progress build's success path blindly clearing IsPowerStale. Reset at the
+    // start of each BuildPowerAsync run.
+    private bool _staleWhileBuilding;
+
     /// <summary>Marks the heat map out of date after a build edit (no auto-rebuild).</summary>
     private void MarkPowerStale()
     {
-        if (HeatmapEnabled && !IsPowerBuilding) IsPowerStale = true;
+        if (!HeatmapEnabled) return;
+        if (IsPowerBuilding) { _staleWhileBuilding = true; return; }
+        IsPowerStale = true;
     }
 
     partial void OnNodesChanged(IReadOnlyList<TreeNodeDto> value) => _nodeIndex = null;

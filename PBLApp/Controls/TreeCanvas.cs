@@ -334,10 +334,11 @@ public sealed class TreeCanvas : Control
         { DashStyle = new DashStyle(new double[] { 3, 2 }, 0) };
     private static readonly IPen PathPreviewNodePen = MkPen("#FAB387", 2.2);
 
-    // Top-10 power accent ring — yellow, distinct from the orange hover/path
-    // rings and the heat-map's own colour tones, so the "nodes to prioritise"
-    // stay legible over any heat colour and even when zoomed out.
-    private static readonly IPen PowerTopPen = MkPen("#F9E2AF", 2.0);
+    // Top-10 power accent ring — teal, distinct from the orange hover/path rings,
+    // the yellow SearchPen (same #F9E2AF collided with the old colour), and the
+    // heat-map's own colour tones, so the "nodes to prioritise" stay legible over
+    // any heat colour and even when zoomed out.
+    private static readonly IPen PowerTopPen = MkPen("#94E2D5", 2.0);
 
     // Unallocated node dimming overlay (60 % black)
     private static readonly IBrush DimBrush = new SolidColorBrush(Color.FromArgb(153, 0, 0, 0));

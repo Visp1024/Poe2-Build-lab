@@ -408,8 +408,11 @@
 
         </Grid>
 
-        <!-- Modal busy overlay: blocks ALL interaction while the heat-map build runs
-             (background Lua must not race UI-thread Lua). -->
+        <!-- Modal busy overlay: blocks ALL interaction only while the heat-map build
+             actually runs on the main host (pool disabled, or fallback after all pool
+             workers died) — background Lua must not race UI-thread Lua then. The normal
+             pool-backed calc leaves the main host free and does NOT show this overlay;
+             its progress/worker-warmup status is surfaced non-modally in the panel. -->
         <Border Grid.Row="0" Grid.RowSpan="3"
                 IsVisible="{Binding IsHeatmapBuilding}"
                 Background="#C0000000"
