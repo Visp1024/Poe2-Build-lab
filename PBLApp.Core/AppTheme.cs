@@ -24,11 +24,11 @@ public interface IThemeSwitcher
 public static class AppThemeModes
 {
     /// <summary>Parse the value stored in prefs (mode.ToString()). Unknown,
-    /// missing or corrupt values fall back to System — never throws.</summary>
+    /// missing or corrupt values fall back to Dark (the app default) — never throws.</summary>
     public static AppThemeMode Parse(string? stored) => stored switch
     {
-        nameof(AppThemeMode.Dark)  => AppThemeMode.Dark,
-        nameof(AppThemeMode.Light) => AppThemeMode.Light,
-        _                          => AppThemeMode.System,
+        nameof(AppThemeMode.System) => AppThemeMode.System,
+        nameof(AppThemeMode.Light)  => AppThemeMode.Light,
+        _                           => AppThemeMode.Dark,
     };
 }

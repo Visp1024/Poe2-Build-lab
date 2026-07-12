@@ -9,7 +9,7 @@ namespace PBLApp.Services;
 /// Single source of truth for the application theme. Reads/writes the
 /// "AppTheme" key in <see cref="AppPreferences"/> and applies the variant to
 /// <see cref="Application.Current"/>. Unknown/missing stored values fall back
-/// to <see cref="AppThemeMode.System"/> (follows Windows).
+/// to <see cref="AppThemeMode.Dark"/> (the app default).
 /// </summary>
 public sealed class ThemeService : IThemeSwitcher
 {
@@ -19,7 +19,7 @@ public sealed class ThemeService : IThemeSwitcher
 
     private ThemeService() { }
 
-    public AppThemeMode Current { get; private set; } = AppThemeMode.System;
+    public AppThemeMode Current { get; private set; } = AppThemeMode.Dark;
 
     /// <summary>Read the saved mode and apply it. Called before MainWindow is
     /// created so the window comes up in the right variant (no flash).</summary>
