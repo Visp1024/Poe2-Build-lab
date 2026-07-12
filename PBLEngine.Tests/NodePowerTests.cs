@@ -162,6 +162,36 @@ public class NodePowerTests : IClassFixture<LuaHostFixture>
         Assert.All(list, n => Assert.Contains(n.Type, new[] { "Normal", "Notable", "Keystone" }));
     }
 
+    // BuildDisplayStats lists several stats twice under mutually-exclusive skill
+    // flags (e.g. "Hit DPS" for notAverage vs showAverage, "Average Damage" for
+    // attack vs monsterExplode). The hover diff must honour those flags — otherwise
+    // both entries emit and the same label appears twice in one tooltip.
+    [Fact]
+    public void GetNodeHoverInfo_StatDiffs_HaveNoDuplicateLabels()
+    {
+        var allocated = _host.GetPowerNodeList()
+                             .Where(n => n.Alloc && !n.IsCluster)
+                             .Select(n => n.Id)
+                             .OrderBy(i => i)
+                             .ToList();
+        Assert.NotEmpty(allocated);
+
+        bool sawDamageDiff = false;
+        foreach (var id in allocated.Take(80))
+        {
+            var hover = _host.GetNodeHoverInfo(id);
+            if (hover is null) continue;
+
+            var labels = hover.StatDiffs.Select(d => d.Label).ToList();
+            Assert.Equal(labels.Count, labels.Distinct().Count());
+
+            if (labels.Contains("Hit DPS")) sawDamageDiff = true;
+        }
+
+        // Guard: the sweep must actually exercise the duplicate-prone path.
+        Assert.True(sawDamageDiff, "Expected at least one node whose diff includes Hit DPS.");
+    }
+
     [Fact]
     public void PowerSession_MatchesBuildNodePower_OnSmallDepth()
     {

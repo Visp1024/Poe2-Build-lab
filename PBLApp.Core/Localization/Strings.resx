@@ -94,7 +94,7 @@
 
   <!-- Build page -->
   <data name="Page_Loading"       xml:space="preserve"><value>Loading build...</value></data>
-  <data name="BuildPage_HeatmapBuilding" xml:space="preserve"><value>Building heat map…</value></data>
+  <data name="BuildPage_HeatmapBuilding" xml:space="preserve"><value>Finding best nodes…</value></data>
 
   <!-- Tree tab -->
   <data name="Tree_Class"         xml:space="preserve"><value>Class:</value></data>
@@ -103,9 +103,14 @@
   <data name="Tree_Search"        xml:space="preserve"><value>Search:</value></data>
   <data name="Tree_PhNodeName"    xml:space="preserve"><value>node name&#x2026;</value></data>
   <data name="Tree_Hint"          xml:space="preserve"><value>Drag=pan &#xB7; Wheel=zoom &#xB7; Click=toggle node</value></data>
-  <data name="Tree_Heatmap" xml:space="preserve"><value>Heat map</value></data>
+  <data name="Tree_Heatmap" xml:space="preserve"><value>Best nodes</value></data>
   <data name="Tree_PowerReport" xml:space="preserve"><value>Power Report</value></data>
   <data name="Tree_Power_OffDef" xml:space="preserve"><value>Offence/Defence</value></data>
+  <data name="Tree_PowerTip_OffDef" xml:space="preserve"><value>Combined score: how the node affects both damage and survivability at once (default mode).</value></data>
+  <data name="Tree_PowerTip_FullDPS" xml:space="preserve"><value>Combined damage of every skill group marked "Include in Full DPS".</value></data>
+  <data name="Tree_PowerTip_CombinedDPS" xml:space="preserve"><value>Main skill's damage: hit plus damage over time (DoT) together.</value></data>
+  <data name="Tree_PowerTip_HitDPS" xml:space="preserve"><value>Main skill's hit-only damage — the same value shown as "DPS" in the sidebar.</value></data>
+  <data name="Tree_PowerTip_Impale" xml:space="preserve"><value>Hit DPS including damage dealt by the Impale effect.</value></data>
   <data name="Tree_Power_Node" xml:space="preserve"><value>Node</value></data>
   <data name="Tree_Power_Type" xml:space="preserve"><value>Type</value></data>
   <data name="Tree_Power_Delta" xml:space="preserve"><value>Δ</value></data>
@@ -142,6 +147,8 @@
   <data name="Skill_ColQuality"   xml:space="preserve"><value>QUALITY</value></data>
   <data name="Skill_ColOn"        xml:space="preserve"><value>ON</value></data>
   <data name="Skill_LblOn"        xml:space="preserve"><value>On:</value></data>
+  <data name="Skill_LblFullDps"   xml:space="preserve"><value>Full DPS:</value></data>
+  <data name="Skill_FullDpsChip"  xml:space="preserve"><value>Full DPS</value></data>
   <data name="Skill_AddTip"       xml:space="preserve"><value>Select active skill to add</value></data>
   <data name="Skill_AddSupportTip" xml:space="preserve"><value>+ add support</value></data>
   <data name="Skill_AddNew"       xml:space="preserve"><value>+ Add Skill</value></data>
@@ -376,6 +383,8 @@
 
   <!-- BuildPage sidebar -->
   <data name="Sidebar_DPS"          xml:space="preserve"><value>DPS:</value></data>
+  <data name="Sidebar_FullDPS"      xml:space="preserve"><value>Full DPS:</value></data>
+  <data name="Sidebar_FullDPS_Tip"  xml:space="preserve"><value>Full DPS breakdown</value></data>
   <data name="Sidebar_Life"         xml:space="preserve"><value>Life:</value></data>
   <data name="Sidebar_ES"           xml:space="preserve"><value>ES:</value></data>
   <data name="Sidebar_Ward"         xml:space="preserve"><value>Ward:</value></data>

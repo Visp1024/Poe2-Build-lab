@@ -234,7 +234,8 @@ public sealed partial class LuaHost : IDisposable
                 elseif group.sourceItem then
                     sourceLabel = strip(group.sourceItem.name or group.sourceItem.title or '')
                 end
-                table.insert(out, { i, name, strip(group.label or ''), enabled, isTrigger, source, sourceLabel })
+                local incFull = group.includeInFullDPS and 1 or 0
+                table.insert(out, { i, name, strip(group.label or ''), enabled, isTrigger, source, sourceLabel, incFull })
             end
             return out
         ");
@@ -250,7 +251,8 @@ public sealed partial class LuaHost : IDisposable
                 var isTrigger = row[5L] is long tr && tr == 1L;
                 var source      = row[6L] as string ?? "";
                 var sourceLabel = row[7L] as string ?? "";
-                groups.Add(new SkillGroupEntry(idx, name, label, enabled, isTrigger, source, sourceLabel));
+                var incFull     = row[8L] is long inc && inc == 1L;
+                groups.Add(new SkillGroupEntry(idx, name, label, enabled, isTrigger, source, sourceLabel, incFull));
             }
         }
         return groups;
@@ -387,6 +389,52 @@ public sealed partial class LuaHost : IDisposable
         State.DoString("local g=build.skillsTab.socketGroupList[_grpIdx]; if g then g.enabled=_gemVal end");
         State["_grpIdx"] = null; State["_gemVal"] = null;
         TriggerRecalc();
+    }
+
+    /// <summary>Toggle whether a socket group's damage is rolled into Full DPS.
+    /// Mirrors <see cref="SetGroupEnabled"/>: writes group.includeInFullDPS then
+    /// recalcs so mainOutput.FullDPS / SkillDPS refresh.</summary>
+    public void SetGroupIncludeInFullDPS(int groupIdx, bool include)
+    {
+        State["_grpIdx"] = (long)groupIdx;
+        State["_gemVal"] = include;
+        State.DoString("local g=build.skillsTab.socketGroupList[_grpIdx]; if g then g.includeInFullDPS=_gemVal end");
+        State["_grpIdx"] = null; State["_gemVal"] = null;
+        TriggerRecalc();
+    }
+
+    /// <summary>Per-skill Full DPS breakdown from mainOutput.SkillDPS (populated by
+    /// calcs.buildOutput). Each entry is one contributing skill or an aggregated
+    /// ailment row ("Best Poison DPS", "Full DoT DPS", …). Empty when no group is
+    /// marked includeInFullDPS.</summary>
+    public List<FullDpsSkillEntry> GetFullDpsBreakdown()
+    {
+        var list = new List<FullDpsSkillEntry>();
+        var result = State.DoString(@"
+            local main = build and build.calcsTab and build.calcsTab.mainOutput
+            local sd = main and main.SkillDPS
+            if not sd then return nil end
+            local function strip(s)
+                return s and s:gsub('%^x%x%x%x%x%x%x?',''):gsub('%^%d','') or ''
+            end
+            local out = {}
+            for _, e in ipairs(sd) do
+                table.insert(out, { strip(e.name or ''), e.dps or 0, e.count or 1 })
+            end
+            return out
+        ");
+        if (result is { Length: > 0 } && result[0] is LuaTable tbl)
+        {
+            foreach (var k in tbl.Keys)
+            {
+                if (tbl[k] is not LuaTable row) continue;
+                var name  = row[1L] as string ?? "";
+                var dps   = row[2L] is null ? 0.0 : Convert.ToDouble(row[2L]);
+                var count = row[3L] is null ? 1 : (int)Math.Round(Convert.ToDouble(row[3L]));
+                list.Add(new FullDpsSkillEntry(name, dps, count));
+            }
+        }
+        return list;
     }
 
     public List<ActiveSkillEntry> GetActiveSkillsInGroup(int groupIndex)
@@ -3534,15 +3582,28 @@ public sealed partial class LuaHost : IDisposable
                 end
             end
 
+            -- Skill flags of the current main skill. BuildDisplayStats lists several
+            -- stats twice under mutually-exclusive flags (Hit DPS: notAverage/showAverage,
+            -- Average Damage: attack/monsterExplode); without honouring the flag+condFunc
+            -- gate the same label emits twice. Mirrors buildMode:CompareStatList.
+            local skillFlags = {}
+            do
+                local mp = build.calcsTab.mainEnv and build.calcsTab.mainEnv.player
+                local ms = mp and mp.mainSkill
+                local ss = ms and ms.activeEffect and ms.activeEffect.statSet
+                if ss and ss.skillFlags then skillFlags = ss.skillFlags end
+            end
+
             local function emitDiffs(baseOutput, compareOutput, nodeCount)
                 local list = {}
                 local function collect(stats, base, comp)
                     for _, sd in ipairs(stats) do
-                        if sd.stat and not sd.childStat and sd.stat ~= 'SkillDPS' then
+                        if sd.stat and (not sd.flag or skillFlags[sd.flag]) and not sd.childStat and sd.stat ~= 'SkillDPS' then
                             local v1 = comp[sd.stat] or 0
                             local v2 = base[sd.stat] or 0
                             local diff = v1 - v2
-                            if (diff > 0.001 or diff < -0.001) then
+                            if sd.stat == 'FullDPS' and not comp[sd.stat] then diff = 0 end
+                            if (diff > 0.001 or diff < -0.001) and (not sd.condFunc or sd.condFunc(v1, comp) or sd.condFunc(v2, base)) then
                                 local positive = (sd.lowerIsBetter and diff < 0) or (not sd.lowerIsBetter and diff > 0)
                                 local val = diff * ((sd.pc or sd.mod) and 100 or 1)
                                 local valStr = string.format('%+' .. sd.fmt, val)

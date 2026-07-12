@@ -431,7 +431,7 @@
                                         </Border>
                                     </ToolTip>
                                 </ToolTip.Tip>
-                                <Grid ColumnDefinitions="3,22,*,Auto" MinHeight="38">
+                                <Grid ColumnDefinitions="3,22,*,Auto,Auto" MinHeight="38">
                                     <!-- Left accent bar marking the selected group -->
                                     <Border Grid.Column="0"
                                             Background="{DynamicResource Brand400Brush}"
@@ -451,10 +451,21 @@
                                                FontSize="14" FontWeight="Medium"
                                                VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis" />
+                                    <!-- Full DPS chip: this group's damage is rolled into the build's Full DPS -->
+                                    <Border Grid.Column="3"
+                                            IsVisible="{Binding IncludeInFullDps}"
+                                            BorderBrush="{DynamicResource StatDpsBrush}" BorderThickness="1"
+                                            CornerRadius="4" Padding="5,1" Margin="4,0"
+                                            VerticalAlignment="Center"
+                                            ToolTip.Tip="{loc:Tr Sidebar_FullDPS_Tip}">
+                                        <TextBlock Text="{loc:Tr Skill_FullDpsChip}"
+                                                   Foreground="{DynamicResource StatDpsBrush}"
+                                                   FontSize="9" FontWeight="Bold" />
+                                    </Border>
                                     <!-- Granted-by badge: a lock glyph marking the
                                          group as non-removable; tooltip names the
                                          ascendancy node / item that grants it. -->
-                                    <PathIcon Grid.Column="3"
+                                    <PathIcon Grid.Column="4"
                                               Data="{StaticResource IconLock}"
                                               Width="13" Height="13"
                                               IsVisible="{Binding IsGranted}"
@@ -542,12 +553,22 @@
                                    FormatString="0" ShowButtonSpinner="True"
                                    Width="86" Height="28" />
 
-                    <!-- Group Enabled (main-skill toggle moved to unified top selector) -->
-                    <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="4" Margin="10,0,4,0">
-                        <TextBlock Text="{loc:Tr Skill_LblOn}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
-                                   VerticalAlignment="Center" />
-                        <CheckBox IsChecked="{Binding SelectedGroup.IsEnabled, Mode=TwoWay, FallbackValue=True}"
-                                  VerticalAlignment="Center" />
+                    <!-- Group toggles: Enabled + Include in Full DPS
+                         (main-skill toggle moved to unified top selector) -->
+                    <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="14" Margin="10,0,4,0">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{loc:Tr Skill_LblOn}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
+                                       VerticalAlignment="Center" />
+                            <CheckBox IsChecked="{Binding SelectedGroup.IsEnabled, Mode=TwoWay, FallbackValue=True}"
+                                      VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4"
+                                    ToolTip.Tip="{loc:Tr Sidebar_FullDPS_Tip}">
+                            <TextBlock Text="{loc:Tr Skill_LblFullDps}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
+                                       VerticalAlignment="Center" />
+                            <CheckBox IsChecked="{Binding SelectedGroup.IncludeInFullDps, Mode=TwoWay, FallbackValue=False}"
+                                      VerticalAlignment="Center" />
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </Border>

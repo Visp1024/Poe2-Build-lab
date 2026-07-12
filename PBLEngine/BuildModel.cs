@@ -19,6 +19,32 @@ public sealed class BuildModel : INotifyPropertyChanged
     private double _totalDps;
     public double TotalDps { get => _totalDps; private set => Set(ref _totalDps, value); }
 
+    // Combined DPS of every socket group marked "Include in Full DPS" (PoB's
+    // output.FullDPS). buildOutput always writes it — 0 when no group is marked —
+    // so HasFullDps gates the sidebar tile on a positive value, matching the
+    // original client's behaviour of only showing it when something is included.
+    private double _fullDps;
+    public double FullDps
+    {
+        get => _fullDps;
+        private set
+        {
+            Set(ref _fullDps, value);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasFullDps)));
+        }
+    }
+
+    /// <summary>True when at least one group contributes to Full DPS.</summary>
+    public bool HasFullDps => _fullDps > 0;
+
+    // Per-skill breakdown behind the Full DPS tile's tooltip (output.SkillDPS).
+    private IReadOnlyList<FullDpsSkillEntry> _fullDpsBreakdown = Array.Empty<FullDpsSkillEntry>();
+    public IReadOnlyList<FullDpsSkillEntry> FullDpsBreakdown
+    {
+        get => _fullDpsBreakdown;
+        private set { _fullDpsBreakdown = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FullDpsBreakdown))); }
+    }
+
     private double _averageDamage;
     public double AverageDamage { get => _averageDamage; private set => Set(ref _averageDamage, value); }
 
@@ -139,6 +165,8 @@ public sealed class BuildModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Notes)));
 
         TotalDps          = ReadDouble("TotalDPS");
+        FullDps           = ReadDouble("FullDPS");
+        FullDpsBreakdown  = _host.GetFullDpsBreakdown();
         AverageDamage     = ReadDouble("AverageDamage");
         Speed             = ReadDouble("Speed");
         CritChance        = ReadDouble("CritChance");
