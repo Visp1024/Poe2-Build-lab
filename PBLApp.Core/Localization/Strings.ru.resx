@@ -94,7 +94,7 @@
 
   <!-- Build page -->
   <data name="Page_Loading"       xml:space="preserve"><value>Загрузка сборки...</value></data>
-  <data name="BuildPage_HeatmapBuilding" xml:space="preserve"><value>Расчёт тепловой карты…</value></data>
+  <data name="BuildPage_HeatmapBuilding" xml:space="preserve"><value>Подбор лучших нод…</value></data>
 
   <!-- Tree tab -->
   <data name="Tree_Class"         xml:space="preserve"><value>Класс:</value></data>
@@ -103,9 +103,14 @@
   <data name="Tree_Search"        xml:space="preserve"><value>Поиск:</value></data>
   <data name="Tree_PhNodeName"    xml:space="preserve"><value>название ноды&#x2026;</value></data>
   <data name="Tree_Hint"          xml:space="preserve"><value>Тащи=пан &#xB7; Колесо=масштаб &#xB7; Клик=выбрать ноду</value></data>
-  <data name="Tree_Heatmap" xml:space="preserve"><value>Тепловая карта</value></data>
+  <data name="Tree_Heatmap" xml:space="preserve"><value>Лучшие ноды</value></data>
   <data name="Tree_PowerReport" xml:space="preserve"><value>Отчёт о силе</value></data>
   <data name="Tree_Power_OffDef" xml:space="preserve"><value>Атака/Защита</value></data>
+  <data name="Tree_PowerTip_OffDef" xml:space="preserve"><value>Совокупная оценка: как нода влияет одновременно на урон и на выживаемость (режим по умолчанию).</value></data>
+  <data name="Tree_PowerTip_FullDPS" xml:space="preserve"><value>Суммарный урон всех групп навыков, отмеченных «Полный ДПС».</value></data>
+  <data name="Tree_PowerTip_CombinedDPS" xml:space="preserve"><value>Урон основного навыка: попадания + периодический урон (DoT) вместе.</value></data>
+  <data name="Tree_PowerTip_HitDPS" xml:space="preserve"><value>Урон основного навыка только от попаданий — то же значение, что «ДПС» в сайдбаре.</value></data>
+  <data name="Tree_PowerTip_Impale" xml:space="preserve"><value>ДПС попаданий с учётом урона от эффекта «Пронзание».</value></data>
   <data name="Tree_Power_Node" xml:space="preserve"><value>Нода</value></data>
   <data name="Tree_Power_Type" xml:space="preserve"><value>Тип</value></data>
   <data name="Tree_Power_Delta" xml:space="preserve"><value>Δ</value></data>
@@ -142,6 +147,8 @@
   <data name="Skill_ColQuality"   xml:space="preserve"><value>КА.</value></data>
   <data name="Skill_ColOn"        xml:space="preserve"><value>ВКЛ</value></data>
   <data name="Skill_LblOn"        xml:space="preserve"><value>Вкл:</value></data>
+  <data name="Skill_LblFullDps"   xml:space="preserve"><value>Полный ДПС:</value></data>
+  <data name="Skill_FullDpsChip"  xml:space="preserve"><value>Полный ДПС</value></data>
   <data name="Skill_AddTip"       xml:space="preserve"><value>Выберите активное умение для добавления</value></data>
   <data name="Skill_AddSupportTip" xml:space="preserve"><value>+ добавить саппорт</value></data>
   <data name="Skill_AddNew"       xml:space="preserve"><value>+ Добавить умение</value></data>
@@ -376,6 +383,8 @@
 
   <!-- BuildPage sidebar -->
   <data name="Sidebar_DPS"          xml:space="preserve"><value>ДПС:</value></data>
+  <data name="Sidebar_FullDPS"      xml:space="preserve"><value>Полный ДПС:</value></data>
+  <data name="Sidebar_FullDPS_Tip"  xml:space="preserve"><value>Разбивка полного ДПС</value></data>
   <data name="Sidebar_Life"         xml:space="preserve"><value>Жизнь:</value></data>
   <data name="Sidebar_ES"           xml:space="preserve"><value>ЭЩ:</value></data>
   <data name="Sidebar_Ward"         xml:space="preserve"><value>Барьер:</value></data>

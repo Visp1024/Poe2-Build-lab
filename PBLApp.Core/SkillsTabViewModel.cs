@@ -379,6 +379,10 @@ public partial class SkillGroupViewModel : ObservableObject
 
     [ObservableProperty] private bool _isMain;
 
+    /// <summary>Whether this group's damage is rolled into the build's Full DPS
+    /// (PoB's group.includeInFullDPS). Drives the header checkbox and the list chip.</summary>
+    [ObservableProperty] private bool _includeInFullDps;
+
     /// <summary>True when this is the active group shown in the editor pane.
     /// Maintained by the parent on SelectedGroup changes; drives the single
     /// selection highlight on the group-list row (no ListBox selection chrome).</summary>
@@ -429,6 +433,7 @@ public partial class SkillGroupViewModel : ObservableObject
         _isMain    = isMain;
         _isEnabled = entry.IsEnabled;
         _isTrigger = entry.IsTrigger;
+        _includeInFullDps = entry.IncludeInFullDPS;
         _syncing = false;
 
         IsGranted   = !string.IsNullOrEmpty(entry.Source);
@@ -444,6 +449,12 @@ public partial class SkillGroupViewModel : ObservableObject
     {
         if (_syncing) return;
         _parent.SyncGroupEnabled(Index, value);
+    }
+
+    partial void OnIncludeInFullDpsChanged(bool value)
+    {
+        if (_syncing) return;
+        _parent.SyncGroupIncludeInFullDps(Index, value);
     }
 
     public void RebuildGems(IEnumerable<GemEntry> gems)
@@ -772,6 +783,12 @@ public partial class SkillsTabViewModel : ViewModelBase
     public void SyncGroupEnabled(int groupIdx, bool enabled)
     {
         _host.SetGroupEnabled(groupIdx, enabled);
+        AfterModify();
+    }
+
+    public void SyncGroupIncludeInFullDps(int groupIdx, bool include)
+    {
+        _host.SetGroupIncludeInFullDPS(groupIdx, include);
         AfterModify();
     }
 

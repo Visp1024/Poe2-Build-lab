@@ -1068,6 +1068,26 @@ public sealed class PowerStatVm
     public string DisplayName => Option.CombinedOffDef
         ? LocalizationService.Get("Tree_Power_OffDef")
         : GameTranslationService.TCalcLabel(Option.Label);
+
+    /// <summary>Per-option hover explanation for the confusing DPS-family metrics,
+    /// or null when the option is self-explanatory (no tooltip shown).</summary>
+    public string? Tooltip
+    {
+        get
+        {
+            var key = Option.CombinedOffDef ? "OffDef" : Option.StatKey switch
+            {
+                "FullDPS"       => "FullDPS",
+                "CombinedDPS"   => "CombinedDPS",
+                "TotalDPS"      => "HitDPS",
+                "WithImpaleDPS" => "Impale",
+                _               => null,
+            };
+            return key is null ? null : LocalizationService.Get($"Tree_PowerTip_{key}");
+        }
+    }
+    public bool HasTooltip => Tooltip is not null;
+
     public override string ToString() => DisplayName;
 }
 

@@ -24,6 +24,14 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="MinHeight" Value="28"/>
         </Style>
+        <!-- Best-nodes toggle: distinct accent while inactive so users notice it.
+             Checked state keeps the theme's default (gold) appearance. -->
+        <Style Selector="ToggleButton.bestNodes:not(:checked)">
+            <Setter Property="Background" Value="#227FC78A"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource StatLifeBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Foreground" Value="{DynamicResource StatLifeBrush}"/>
+        </Style>
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,*">
@@ -83,8 +91,11 @@
 
                 </WrapPanel>
 
-                <!-- Heat-map toggle pinned to the right edge -->
+                <!-- Best-nodes toggle pinned to the right edge. Accent outline while
+                     inactive so it stands out from the neutral toolbar buttons; the
+                     theme's gold fill takes over once checked. -->
                 <ToggleButton Grid.Column="1" Content="{loc:Tr Tree_Heatmap}"
+                              Classes="bestNodes"
                               IsChecked="{Binding HeatmapEnabled}"
                               VerticalAlignment="Center" Margin="8,0,0,0"/>
             </Grid>
@@ -183,7 +194,21 @@
                              default panel width (same fix as TraderWindow header rows). -->
                         <ComboBox MinWidth="180" HorizontalAlignment="Stretch"
                                   ItemsSource="{Binding PowerStatOptions}"
-                                  SelectedItem="{Binding SelectedPowerStat}"/>
+                                  SelectedItem="{Binding SelectedPowerStat}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PowerStatVm">
+                                    <!-- Transparent full-width Border so the tooltip triggers
+                                         anywhere on the item row, not only over the glyphs. -->
+                                    <Border Background="Transparent"
+                                            HorizontalAlignment="Stretch"
+                                            ToolTip.Tip="{Binding Tooltip}"
+                                            ToolTip.ShowDelay="300">
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   HorizontalAlignment="Stretch"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                         <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                                 Content="{loc:Tr Tree_Power_Generate}"
                                 Command="{Binding GeneratePowerCommand}"
