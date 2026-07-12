@@ -10,11 +10,11 @@ public class AppThemeTests
     [InlineData("Dark", AppThemeMode.Dark)]
     [InlineData("Light", AppThemeMode.Light)]
     [InlineData("System", AppThemeMode.System)]
-    [InlineData(null, AppThemeMode.System)]
-    [InlineData("", AppThemeMode.System)]
-    [InlineData("garbage", AppThemeMode.System)]
-    [InlineData("dark", AppThemeMode.System)]   // case-sensitive by design (we write nameof)
-    public void Parse_MapsStoredValue_WithSystemFallback(string? stored, AppThemeMode expected)
+    [InlineData(null, AppThemeMode.Dark)]
+    [InlineData("", AppThemeMode.Dark)]
+    [InlineData("garbage", AppThemeMode.Dark)]
+    [InlineData("light", AppThemeMode.Dark)]   // case-sensitive by design (we write nameof)
+    public void Parse_MapsStoredValue_WithDarkFallback(string? stored, AppThemeMode expected)
         => Assert.Equal(expected, AppThemeModes.Parse(stored));
 
     [Theory]
