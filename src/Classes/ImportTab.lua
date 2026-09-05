@@ -48,7 +48,7 @@ local ImportTabClass = newClass("ImportTab", "ControlHost", "Control", function(
 	self.controls.logoutApiButton.shown = function()
 		return (self.charImportMode == "SELECTCHAR" or self.charImportMode == "GETACCOUNTNAME") and main.api.authToken ~= nil
 	end
-	
+
 	self.controls.characterImportAnchor = new("Control", {"TOPLEFT",self.controls.sectionCharImport,"TOPLEFT"}, {6, 40, 200, 16})
 	self.controls.sectionCharImport.height = function() return self.charImportMode == "AUTHENTICATION" and 60 or 200 end
 
@@ -442,7 +442,7 @@ function ImportTabClass:DownloadCharacterList()
 			return "Standard"
 		end
 	end
-	
+
 	self.charImportMode = "DOWNLOADCHARLIST"
 	self.charImportStatus = "Retrieving character list..."
 	local realm = realmList[self.controls.accountRealm.selIndex]
@@ -954,10 +954,10 @@ function ImportTabClass:ImportItemsAndSkills(charData)
 	local funcGetGemInstance = function(skillData)
 		local typeLine = sanitiseText(skillData.typeLine) .. (skillData.support and " Support" or "")
 		local gemId = self.build.data.gemForBaseName[typeLine:lower()]
-		
+
 		if typeLine:match("^Spectre:") then
 			gemId = "Metadata/Items/Gems/SkillGemSummonSpectre"
-		end		
+		end
 		if typeLine:match("^Companion:") then
 			gemId = "Metadata/Items/Gems/SkillGemSummonBeast"
 		end
@@ -1061,7 +1061,7 @@ function ImportTabClass:ImportItemsAndSkills(charData)
 	end
 	for _, skillData in pairs(charData.skills) do
 		local gemInstance = funcGetGemInstance(skillData)
-		
+
 		if gemInstance then
 			local group = { label = "", enabled = true, gemList = { } }
 			t_insert(group.gemList, gemInstance )
@@ -1146,7 +1146,7 @@ function ImportTabClass:ImportItemsAndSkills(charData)
 	return charData -- For the wrapper
 end
 
-local rarityMap = { [0] = "NORMAL", "MAGIC", "RARE", "UNIQUE", [9] = "RELIC", [10] = "RELIC", [13] = "RARE", [14] = "UNIQUE" }
+local rarityMap = { [0] = "NORMAL", "MAGIC", "RARE", "UNIQUE", [9] = "RELIC", [10] = "RELIC", [11] = "NORMAL", [12] = "MAGIC", [13] = "RARE", [14] = "UNIQUE" }
 local slotMap = { ["Weapon"] = "Weapon 1", ["Offhand"] = "Weapon 2", ["Weapon2"] = "Weapon 1 Swap", ["Offhand2"] = "Weapon 2 Swap", ["Helm"] = "Helmet", ["BodyArmour"] = "Body Armour", ["Gloves"] = "Gloves", ["Boots"] = "Boots", ["Amulet"] = "Amulet", ["Ring"] = "Ring 1", ["Ring2"] = "Ring 2", ["Ring3"] = "Ring 3", ["Belt"] = "Belt", ["IncursionArmLeft"] = "Arm 2", ["IncursionArmRight"] = "Arm 1", ["IncursionLegLeft"] = "Leg 2", ["IncursionLegRight"] = "Leg 1" }
 
 function ImportTabClass:ImportItem(itemData, slotName)
@@ -1302,6 +1302,11 @@ function ImportTabClass:ImportItem(itemData, slotName)
 			end
 		end
 	end
+	local dbItem = item:GetUniqueDBItem()
+	if dbItem then
+		item.requirements = item.requirements or { }
+		item.requirements.level = dbItem.requirements.naturalLevel or dbItem.requirements.level
+	end
 	item.enchantModLines = { }
 	item.runeModLines = { }
 	item.classRequirementModLines = { }
@@ -1324,13 +1329,15 @@ function ImportTabClass:ImportItem(itemData, slotName)
 		end
 	end
 	if itemData.implicitMods then
-		for _, line in ipairs(itemData.implicitMods) do
-			for line in line:gmatch("[^\n]+") do
+		for _, itemMod in ipairs(itemData.implicitMods) do
+			local modLine = itemMod.description or itemMod
+			for line in modLine:gmatch("[^\n]+") do
 				local modList, extra = modLib.parseMod(line)
 				t_insert(item.implicitModLines, { line = line, extra = extra, mods = modList or { } })
 			end
 		end
 	end
+	-- TODO: Remove once 3.29 releases https://www.pathofexile.com/developer/docs/changelog#3-29-0
 	if itemData.fracturedMods then
 		for _, line in ipairs(itemData.fracturedMods) do
 			for line in line:gmatch("[^\n]+") do
@@ -1340,10 +1347,14 @@ function ImportTabClass:ImportItem(itemData, slotName)
 		end
 	end
 	if itemData.explicitMods then
-		for _, line in ipairs(itemData.explicitMods) do
-			for line in line:gmatch("[^\n]+") do
+		for _, itemMod in ipairs(itemData.explicitMods) do
+			local modLine = itemMod.description or itemMod
+			for line in modLine:gmatch("[^\n]+") do
 				local modList, extra = modLib.parseMod(line)
-				t_insert(item.explicitModLines, { line = line, extra = extra, mods = modList or { } })
+				t_insert(item.explicitModLines, { line = line, extra = extra, mods = modList or { },
+					fractured = itemMod.fractured,
+					crafted = itemMod.crafted,
+					mutated = itemMod.mutated })
 			end
 		end
 	end
@@ -1355,6 +1366,7 @@ function ImportTabClass:ImportItem(itemData, slotName)
 			end
 		end
 	end
+	-- TODO: Remove once 3.29 releases https://www.pathofexile.com/developer/docs/changelog#3-29-0
 	if itemData.mutatedMods then
 		for _, line in ipairs(itemData.mutatedMods) do
 			for line in line:gmatch("[^\n]+") do
@@ -1363,6 +1375,7 @@ function ImportTabClass:ImportItem(itemData, slotName)
 			end
 		end
 	end
+	-- TODO: Remove once 3.29 releases https://www.pathofexile.com/developer/docs/changelog#3-29-0
 	if itemData.craftedMods then
 		for _, line in ipairs(itemData.craftedMods) do
 			for line in line:gmatch("[^\n]+") do

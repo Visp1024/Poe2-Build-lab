@@ -32,21 +32,6 @@ function table.containsId(table, element)
 	return false
 end
 
--- used for calculating the hash field of a stat
-local GGG_STAT_HASH32_SEED = 0xC58F1A7B
--- used for calculating the trade hash from stat hash fields
-local GGG_TRADE_SEED = 0x02312233
----@param stats string[]
----@return integer
-local function hashStats(stats)
-	local statHashes = ""
-	for _, statName in ipairs(stats) do
-		local newHash = intToBytes(murmurHash2(statName, GGG_STAT_HASH32_SEED))
-		statHashes = statHashes..newHash
-	end
-	return murmurHash2(statHashes, GGG_TRADE_SEED)
-end
-
 local whiteListStat = {
 	["dummy_stat_display_nothing"] = true,
 }
@@ -109,36 +94,19 @@ local function writeMods(outName, condFunc)
 				out:write('}, ')
 				out:write('weightVal = { ', table.concat(mod.SpawnWeight, ', '), ' }, ')
 				if mod.GenerationWeightTags[1] then
-					-- make large clusters only have 1 notable suffix
-					if mod.GenerationType == GenTypes.Suffix and mod.Tags[1] and outName == "../Data/ModJewelCluster.lua" and mod.Tags[1].Id == "has_affliction_notable" then
-						out:write('weightMultiplierKey = { "has_affliction_notable2", ')
-						for _, tag in ipairs(mod.GenerationWeightTags) do
-							out:write('"', tag.Id, '", ')
-						end
-						out:write('}, ')
-						out:write('weightMultiplierVal = { 0, ', table.concat(mod.GenerationWeightValues, ', '), ' }, ')
-						if mod.Tags[1] then
-							out:write('tags = { "has_affliction_notable2", ')
-							for _, tag in ipairs(mod.Tags) do
-								out:write('"', tag.Id, '", ')
-							end
-							out:write('}, ')
-						end
-					else
-						out:write('weightMultiplierKey = { ')
-						for _, tag in ipairs(mod.GenerationWeightTags) do
-							out:write('"', tag.Id, '", ')
-						end
-						out:write('}, ')
-						out:write('weightMultiplierVal = { ', table.concat(mod.GenerationWeightValues, ', '), ' }, ')
-						if mod.Tags[1] then
-							out:write('tags = { ')
-							for _, tag in ipairs(mod.Tags) do
-								out:write('"', tag.Id, '", ')
-							end
-							out:write('}, ')
-						end
+					out:write('weightMultiplierKey = { ')
+					for _, tag in ipairs(mod.GenerationWeightTags) do
+						out:write('"', tag.Id, '", ')
 					end
+					out:write('}, ')
+					out:write('weightMultiplierVal = { ', table.concat(mod.GenerationWeightValues, ', '), ' }, ')
+				end
+				if mod.Tags[1] then
+					out:write('tags = { ')
+					for _, tag in ipairs(mod.Tags) do
+						out:write('"', tag.Id, '", ')
+					end
+					out:write('}, ')
 				end
 				out:write('modTags = { ', stats.modTags, ' }, ')
 				if mod.NodeType ~= 3 then
@@ -197,14 +165,15 @@ local function writeMods(outName, condFunc)
 					local stats = copyTable(statEntry.stats)
 					-- radius jewels lack a proper stat descriptor and so we add it manually
 					local prefix
+					local extraStat
 					-- radius jewel mods:
 					-- notable
 					if mod.NodeType == 2 then
-						table.insert(stats, "local_jewel_mod_stats_added_to_notable_passives")
+						extraStat = "local_jewel_mod_stats_added_to_notable_passives"
 						prefix = "Notable Passive Skills in Radius also grant "
 					-- small
 					elseif mod.NodeType and mod.NodeType == 1 then
-						table.insert(stats, "local_jewel_mod_stats_added_to_small_passives")
+						extraStat = "local_jewel_mod_stats_added_to_small_passives"
 						prefix = "Small Passive Skills in Radius also grant "
 					end
 
@@ -217,7 +186,7 @@ local function writeMods(outName, condFunc)
 						end
 					end
 
-					local tradeHash = hashStats(stats)
+					local tradeHash = HashStats(stats, extraStat)
 					tradeHashes[tradeHash] = description
 					::innerContinue::
 				end

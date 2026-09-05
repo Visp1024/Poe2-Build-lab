@@ -127,7 +127,7 @@ function itemLib.applyRange(line, range, valueScalar, baseValueScalar)
 					modifiedLine = replaceNthInstance(modifiedLine, "#", values[i], i - substituted)
 					substituted = substituted + 1
 				end
-	
+
 				-- Check if the modified line matches any scalability data
 				local key = modifiedLine:gsub("+#", "#")
 				if data.modScalability[key] then
@@ -349,7 +349,7 @@ function itemLib.formatModLine(modLine, dbMode)
 			line = line .. "   ^1'" .. modLine.extra .. "'"
 		end
 	else
-		colorCode = (modLine.crafted and colorCodes.CRAFTED) or (modLine.enchant and colorCodes.ENCHANTED) or (modLine.fractured and colorCodes.FRACTURED) or (modLine.mutated and colorCodes.MUTATED) or (modLine.custom and (not modLine.desecrated and colorCodes.CUSTOM)) or colorCodes.MAGIC
+		colorCode = (modLine.fractured and colorCodes.FRACTURED) or (modLine.crafted and colorCodes.CRAFTED) or (modLine.enchant and colorCodes.ENCHANTED) or (modLine.mutated and colorCodes.MUTATED) or (modLine.custom and (not modLine.desecrated and colorCodes.CUSTOM)) or colorCodes.MAGIC
 	end
 	return colorCode..line
 end
