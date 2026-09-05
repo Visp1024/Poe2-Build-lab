@@ -433,6 +433,7 @@ Delayed Gratification         		----		SupportDelayedGratificationPlayer
 Delayed Reaction              		----		SupportDelayedReactionPlayer
 Deliberation                  		----		SupportDeliberationPlayer
 Dominus' Grasp                		----		SupportPietysMercyPlayer
+Dreamer's Knell               		----		SupportDreamersKnellPlayer	TriggeredDreamersKnellPlayer
 Durability                    		----		SupportDurabilityPlayer
 Electrocute                   		----		SupportElectrocutePlayer
 Eonyr's Thunder               		----		SupportEonyrsThunderPlayer	TriggeredLightningDetonateDeadPlayer
@@ -443,6 +444,7 @@ Flow                          		----		SupportFlowPlayer
 Fork                          		----		SupportForkPlayer
 Frenzied Riposte              		----		SupportFrenziedRipostePlayer
 Frozen Spite                  		----		SupportFrozenSpitePlayer	TriggeredSupportFrozenSpiteIceFragmentPlayer
+Fusillade                     		----		SupportFusilladePlayer
 Garukhan's Resolve            		----		SupportGarukhansResolvePlayer
 Heightened Accuracy I         		----		SupportHeightenedAccuracyPlayer
 Heightened Accuracy II        		----		SupportHeightenedAccuracyPlayerTwo
@@ -550,6 +552,7 @@ Window of Opportunity II      		----		SupportWindowOfOpportunityPlayerTwo
 Explosive Demise              		----		DestructiveLinkSkeletonBombadierMinion
 
 						--------- Active Intelligence ---------
+Abyssal Pact                  		----		AbyssalPactPlayer
 Arc                           		----		ArcPlayer
 Archmage                      		----		ArchmagePlayer
 Arctic Armour                 		----		ArcticArmourPlayer
@@ -681,6 +684,7 @@ Temporal Chains               		----		TemporalChainsPlayer
 Trinity                       		----		TrinityPlayer
 Unearth                       		----		UnearthPlayer
 Unleash                       		----		UnleashPlayer
+Untether                      		----		AbyssalLivingBomb
 Vaulting Impact               		----		VaultingImpactPlayer
 Volatile Dead                 		----		VolatileDeadPlayer
 Vulnerability                 		----		VulnerabilityPlayer
@@ -831,6 +835,7 @@ Morgana's Tempest             		----		SupportMorganasTempestPlayer
 Muster                        		----		SupportMusterPlayer
 Mysticism I                   		----		SupportMysticismPlayer
 Mysticism II                  		----		SupportMysticismPlayerTwo
+Nadir                         		----		SupportNadirPlayer
 Oisín's Oath                 		----		SupportOisinsOathPlayer
 Perpetual Charge              		----		SupportPerpetualChargePlayer
 Physical Mastery              		----		SupportPhysicalMasteryPlayer

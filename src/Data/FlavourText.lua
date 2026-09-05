@@ -2515,7 +2515,7 @@ return {
 	},
 	{
 		["id"] = "FourUniqueOneHandMace13",
-		["name"] = "Mjolner",
+		["name"] = "Mjölner",
 		["origin"] = "Kalguuran",
 		["text"] = {
 			"Look the storm in the eye and you will have its respect.",

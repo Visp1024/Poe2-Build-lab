@@ -242,6 +242,25 @@ do
     end
 end
 
+-- HashStats: src/Modules/Common.lua. Since upstream 0.23.x mods.lua computes the
+-- trade hash through it, the headless runner has to provide it alongside the
+-- murmur helpers above.
+do
+    local GGG_STAT_HASH32_SEED = 0xC58F1A7B
+    local GGG_TRADE_SEED = 0x02312233
+    function HashStats(stats, extraStat)
+        if extraStat then
+            stats = copyTable(stats)
+            table.insert(stats, extraStat)
+        end
+        local statHashes = ""
+        for _, statName in ipairs(stats) do
+            statHashes = statHashes .. intToBytes(murmurHash2(statName, GGG_STAT_HASH32_SEED))
+        end
+        return murmurHash2(statHashes, GGG_TRADE_SEED)
+    end
+end
+
 -- getFile(path) -> raw binary string of a Bundles2 asset extracted by
 -- pathofexile-dat into PBLExport/ggpk_export/files/. pathofexile-dat encodes
 -- the file path by replacing '/' with '@', so "Data/StatDescriptions/foo.csd"

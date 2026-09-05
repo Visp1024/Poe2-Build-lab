@@ -2927,6 +2927,17 @@
 #mods
 #skillEnd
 
+#skill SupportDreamersKnellPlayer
+#set SupportDreamersKnellPlayer
+#mods
+#skillEnd
+
+#skill TriggeredDreamersKnellPlayer
+#set TriggeredDreamersKnellPlayer
+#flags
+#mods
+#skillEnd
+
 #skill SupportDurabilityPlayer
 #set SupportDurabilityPlayer
 #mods
@@ -2986,6 +2997,11 @@
 #skill TriggeredSupportFrozenSpiteIceFragmentPlayer
 #set TriggeredSupportFrozenSpiteIceFragmentPlayer
 #flags
+#mods
+#skillEnd
+
+#skill SupportFusilladePlayer
+#set SupportFusilladePlayer
 #mods
 #skillEnd
 
@@ -3524,6 +3540,12 @@
 
 
 						--------- Active Intelligence ---------
+#skill AbyssalPactPlayer
+#set AbyssalPactPlayer
+#flags
+#mods
+#skillEnd
+
 #skill ArcPlayer
 #set ArcPlayer
 #flags
@@ -4607,6 +4629,12 @@
 #mods
 #skillEnd
 
+#skill AbyssalLivingBomb
+#set AbyssalLivingBomb
+#flags
+#mods
+#skillEnd
+
 #skill VaultingImpactPlayer
 #set VaultingImpactPlayer
 #flags
@@ -5524,6 +5552,11 @@
 
 #skill SupportMysticismPlayerTwo
 #set SupportMysticismPlayerTwo
+#mods
+#skillEnd
+
+#skill SupportNadirPlayer
+#set SupportNadirPlayer
 #mods
 #skillEnd
 

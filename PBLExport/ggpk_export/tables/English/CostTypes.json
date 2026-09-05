@@ -2,7 +2,7 @@
   {
     "_index": 0,
     "Id": "Mana",
-    "Stat": 10945,
+    "Stat": 10946,
     "FormatText": "{0} Mana",
     "Divisor": 1,
     "PerMinute": false
@@ -10,7 +10,7 @@
   {
     "_index": 1,
     "Id": "Life",
-    "Stat": 13102,
+    "Stat": 13103,
     "FormatText": "{0} Life",
     "Divisor": 1,
     "PerMinute": false
@@ -18,7 +18,7 @@
   {
     "_index": 2,
     "Id": "ES",
-    "Stat": 13909,
+    "Stat": 13911,
     "FormatText": "{0} Energy Shield",
     "Divisor": 1,
     "PerMinute": false
@@ -26,7 +26,7 @@
   {
     "_index": 3,
     "Id": "Rage",
-    "Stat": 13139,
+    "Stat": 13140,
     "FormatText": "{0} Rage",
     "Divisor": 1,
     "PerMinute": false
@@ -34,7 +34,7 @@
   {
     "_index": 4,
     "Id": "Ward",
-    "Stat": 25183,
+    "Stat": 25188,
     "FormatText": "{0} Ward",
     "Divisor": 1,
     "PerMinute": false
@@ -42,7 +42,7 @@
   {
     "_index": 5,
     "Id": "ManaPercent",
-    "Stat": 13101,
+    "Stat": 13102,
     "FormatText": "{0}% Mana",
     "Divisor": 1,
     "PerMinute": false
@@ -50,7 +50,7 @@
   {
     "_index": 6,
     "Id": "LifePercent",
-    "Stat": 13103,
+    "Stat": 13104,
     "FormatText": "{0}% Life",
     "Divisor": 1,
     "PerMinute": false
@@ -58,7 +58,7 @@
   {
     "_index": 7,
     "Id": "WardPercent",
-    "Stat": 25185,
+    "Stat": 25190,
     "FormatText": "{0}% Ward",
     "Divisor": 1,
     "PerMinute": false
@@ -66,7 +66,7 @@
   {
     "_index": 8,
     "Id": "UnreservedManaPercent",
-    "Stat": 13355,
+    "Stat": 13356,
     "FormatText": "{0}% Unreserved Mana ",
     "Divisor": 1,
     "PerMinute": false
@@ -74,7 +74,7 @@
   {
     "_index": 9,
     "Id": "ManaPerMinute",
-    "Stat": 13751,
+    "Stat": 13753,
     "FormatText": "{0} Mana per second",
     "Divisor": 60,
     "PerMinute": true
@@ -82,7 +82,7 @@
   {
     "_index": 10,
     "Id": "LifePerMinute",
-    "Stat": 13752,
+    "Stat": 13754,
     "FormatText": "{0} Life per second",
     "Divisor": 60,
     "PerMinute": true
@@ -90,7 +90,7 @@
   {
     "_index": 11,
     "Id": "ManaPercentPerMinute",
-    "Stat": 13755,
+    "Stat": 13757,
     "FormatText": "{0}% Mana per second",
     "Divisor": 60,
     "PerMinute": true
@@ -98,7 +98,7 @@
   {
     "_index": 12,
     "Id": "LifePercentPerMinute",
-    "Stat": 13756,
+    "Stat": 13758,
     "FormatText": "{0}% Life per second",
     "Divisor": 60,
     "PerMinute": true
@@ -106,7 +106,7 @@
   {
     "_index": 13,
     "Id": "ESPerMinute",
-    "Stat": 13831,
+    "Stat": 13833,
     "FormatText": "{0} Energy Shield per second",
     "Divisor": 60,
     "PerMinute": true
@@ -114,7 +114,7 @@
   {
     "_index": 14,
     "Id": "ESPercentPerMinute",
-    "Stat": 13832,
+    "Stat": 13834,
     "FormatText": "{0}% Energy Shield per second",
     "Divisor": 60,
     "PerMinute": true
@@ -122,7 +122,7 @@
   {
     "_index": 15,
     "Id": "ESPercent",
-    "Stat": 21450,
+    "Stat": 21455,
     "FormatText": "{0}% Energy Shield",
     "Divisor": 1,
     "PerMinute": false
@@ -130,7 +130,7 @@
   {
     "_index": 16,
     "Id": "RagePerMinute",
-    "Stat": 24187,
+    "Stat": 24192,
     "FormatText": "{0} Rage per second",
     "Divisor": 60,
     "PerMinute": true
@@ -138,7 +138,7 @@
   {
     "_index": 17,
     "Id": "WardPerMinute",
-    "Stat": 25187,
+    "Stat": 25192,
     "FormatText": "{0} Ward per second",
     "Divisor": 60,
     "PerMinute": true

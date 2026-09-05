@@ -73,21 +73,21 @@
     "_index": 10,
     "Essence": 49,
     "TargetItemCategory": 7,
-    "Mod": 4582,
+    "Mod": 4589,
     "DisplayMod": null
   },
   {
     "_index": 11,
     "Essence": 50,
     "TargetItemCategory": 6,
-    "Mod": 4580,
+    "Mod": 4587,
     "DisplayMod": null
   },
   {
     "_index": 12,
     "Essence": 51,
     "TargetItemCategory": 8,
-    "Mod": 4581,
+    "Mod": 4588,
     "DisplayMod": null
   },
   {
@@ -143,7 +143,7 @@
     "_index": 20,
     "Essence": 36,
     "TargetItemCategory": 7,
-    "Mod": 14416,
+    "Mod": 14323,
     "DisplayMod": null
   },
   {
@@ -185,7 +185,7 @@
     "_index": 26,
     "Essence": 37,
     "TargetItemCategory": 36,
-    "Mod": 14417,
+    "Mod": 14324,
     "DisplayMod": null
   },
   {
@@ -193,27 +193,27 @@
     "Essence": 2,
     "TargetItemCategory": 2,
     "Mod": null,
-    "DisplayMod": 14394
+    "DisplayMod": 14300
   },
   {
     "_index": 28,
     "Essence": 14,
     "TargetItemCategory": 2,
     "Mod": null,
-    "DisplayMod": 14396
+    "DisplayMod": 14302
   },
   {
     "_index": 29,
     "Essence": 26,
     "TargetItemCategory": 2,
     "Mod": null,
-    "DisplayMod": 14398
+    "DisplayMod": 14304
   },
   {
     "_index": 30,
     "Essence": 38,
     "TargetItemCategory": 9,
-    "Mod": 14418,
+    "Mod": 14325,
     "DisplayMod": null
   },
   {
@@ -262,14 +262,14 @@
     "_index": 37,
     "Essence": 39,
     "TargetItemCategory": 21,
-    "Mod": 14419,
+    "Mod": 14326,
     "DisplayMod": null
   },
   {
     "_index": 38,
     "Essence": 39,
     "TargetItemCategory": 22,
-    "Mod": 14420,
+    "Mod": 14327,
     "DisplayMod": null
   },
   {
@@ -318,14 +318,14 @@
     "_index": 45,
     "Essence": 40,
     "TargetItemCategory": 21,
-    "Mod": 14421,
+    "Mod": 14328,
     "DisplayMod": null
   },
   {
     "_index": 46,
     "Essence": 40,
     "TargetItemCategory": 22,
-    "Mod": 14422,
+    "Mod": 14329,
     "DisplayMod": null
   },
   {
@@ -374,14 +374,14 @@
     "_index": 53,
     "Essence": 41,
     "TargetItemCategory": 21,
-    "Mod": 14423,
+    "Mod": 14330,
     "DisplayMod": null
   },
   {
     "_index": 54,
     "Essence": 41,
     "TargetItemCategory": 22,
-    "Mod": 14424,
+    "Mod": 14331,
     "DisplayMod": null
   },
   {
@@ -430,14 +430,14 @@
     "_index": 61,
     "Essence": 42,
     "TargetItemCategory": 21,
-    "Mod": 14425,
+    "Mod": 14332,
     "DisplayMod": null
   },
   {
     "_index": 62,
     "Essence": 42,
     "TargetItemCategory": 22,
-    "Mod": 14426,
+    "Mod": 14333,
     "DisplayMod": null
   },
   {
@@ -465,7 +465,7 @@
     "_index": 66,
     "Essence": 43,
     "TargetItemCategory": 7,
-    "Mod": 14430,
+    "Mod": 14337,
     "DisplayMod": null
   },
   {
@@ -493,14 +493,14 @@
     "_index": 70,
     "Essence": 44,
     "TargetItemCategory": 21,
-    "Mod": 14431,
+    "Mod": 14338,
     "DisplayMod": null
   },
   {
     "_index": 71,
     "Essence": 44,
     "TargetItemCategory": 22,
-    "Mod": 14432,
+    "Mod": 14339,
     "DisplayMod": null
   },
   {
@@ -549,14 +549,14 @@
     "_index": 78,
     "Essence": 45,
     "TargetItemCategory": 40,
-    "Mod": 14433,
+    "Mod": 14340,
     "DisplayMod": null
   },
   {
     "_index": 79,
     "Essence": 45,
     "TargetItemCategory": 18,
-    "Mod": 14434,
+    "Mod": 14341,
     "DisplayMod": null
   },
   {
@@ -605,7 +605,7 @@
     "_index": 86,
     "Essence": 46,
     "TargetItemCategory": 1,
-    "Mod": 14435,
+    "Mod": 14342,
     "DisplayMod": null
   },
   {
@@ -613,28 +613,28 @@
     "Essence": 11,
     "TargetItemCategory": 0,
     "Mod": null,
-    "DisplayMod": 14402
+    "DisplayMod": 14308
   },
   {
     "_index": 88,
     "Essence": 23,
     "TargetItemCategory": 0,
     "Mod": null,
-    "DisplayMod": 14403
+    "DisplayMod": 14309
   },
   {
     "_index": 89,
     "Essence": 35,
     "TargetItemCategory": 0,
     "Mod": null,
-    "DisplayMod": 14404
+    "DisplayMod": 14310
   },
   {
     "_index": 90,
     "Essence": 47,
     "TargetItemCategory": 9,
     "Mod": null,
-    "DisplayMod": 14406
+    "DisplayMod": 14312
   },
   {
     "_index": 91,
@@ -703,7 +703,7 @@
     "_index": 100,
     "Essence": 55,
     "TargetItemCategory": 7,
-    "Mod": 14441,
+    "Mod": 14348,
     "DisplayMod": null
   },
   {
@@ -731,7 +731,7 @@
     "_index": 104,
     "Essence": 61,
     "TargetItemCategory": 8,
-    "Mod": 14427,
+    "Mod": 14334,
     "DisplayMod": null
   },
   {
@@ -759,7 +759,7 @@
     "_index": 108,
     "Essence": 65,
     "TargetItemCategory": 30,
-    "Mod": 14428,
+    "Mod": 14335,
     "DisplayMod": null
   },
   {
@@ -787,7 +787,7 @@
     "_index": 112,
     "Essence": 69,
     "TargetItemCategory": 37,
-    "Mod": 14429,
+    "Mod": 14336,
     "DisplayMod": null
   },
   {
@@ -836,14 +836,14 @@
     "_index": 119,
     "Essence": 73,
     "TargetItemCategory": 23,
-    "Mod": 14436,
+    "Mod": 14343,
     "DisplayMod": null
   },
   {
     "_index": 120,
     "Essence": 73,
     "TargetItemCategory": 18,
-    "Mod": 14437,
+    "Mod": 14344,
     "DisplayMod": null
   },
   {
@@ -871,7 +871,7 @@
     "_index": 124,
     "Essence": 77,
     "TargetItemCategory": 37,
-    "Mod": 14442,
+    "Mod": 14349,
     "DisplayMod": null
   },
   {
@@ -899,343 +899,350 @@
     "_index": 128,
     "Essence": 81,
     "TargetItemCategory": 35,
-    "Mod": 14443,
+    "Mod": 14350,
     "DisplayMod": null
   },
   {
     "_index": 129,
     "Essence": 57,
     "TargetItemCategory": 12,
-    "Mod": 4585,
+    "Mod": 4592,
     "DisplayMod": null
   },
   {
     "_index": 130,
     "Essence": 82,
     "TargetItemCategory": 36,
-    "Mod": 15541,
+    "Mod": 15483,
     "DisplayMod": null
   },
   {
     "_index": 131,
     "Essence": 82,
     "TargetItemCategory": 9,
-    "Mod": 15543,
+    "Mod": 15485,
     "DisplayMod": null
   },
   {
     "_index": 132,
     "Essence": 82,
     "TargetItemCategory": 8,
-    "Mod": 15542,
+    "Mod": 15484,
     "DisplayMod": null
   },
   {
     "_index": 133,
     "Essence": 83,
     "TargetItemCategory": 18,
-    "Mod": 15546,
+    "Mod": 15488,
     "DisplayMod": null
   },
   {
     "_index": 134,
     "Essence": 83,
     "TargetItemCategory": 40,
-    "Mod": 15545,
+    "Mod": 15487,
     "DisplayMod": null
   },
   {
     "_index": 135,
     "Essence": 83,
     "TargetItemCategory": 35,
-    "Mod": 15547,
+    "Mod": 15489,
     "DisplayMod": null
   },
   {
     "_index": 136,
     "Essence": 83,
     "TargetItemCategory": 37,
-    "Mod": 15548,
+    "Mod": 15490,
     "DisplayMod": null
   },
   {
     "_index": 137,
     "Essence": 84,
     "TargetItemCategory": 8,
-    "Mod": 15549,
+    "Mod": 15491,
     "DisplayMod": null
   },
   {
     "_index": 138,
     "Essence": 84,
     "TargetItemCategory": 43,
-    "Mod": 15552,
+    "Mod": 15494,
     "DisplayMod": null
   },
   {
     "_index": 139,
     "Essence": 84,
     "TargetItemCategory": 38,
-    "Mod": 15544,
+    "Mod": 15486,
     "DisplayMod": null
   },
   {
     "_index": 140,
     "Essence": 85,
     "TargetItemCategory": 37,
-    "Mod": 15553,
+    "Mod": 15495,
     "DisplayMod": null
   },
   {
     "_index": 141,
     "Essence": 85,
     "TargetItemCategory": 7,
-    "Mod": 15554,
+    "Mod": 15496,
     "DisplayMod": null
   },
   {
     "_index": 142,
     "Essence": 85,
     "TargetItemCategory": 30,
-    "Mod": 15555,
+    "Mod": 15497,
     "DisplayMod": null
   },
   {
     "_index": 143,
     "Essence": 85,
     "TargetItemCategory": 28,
-    "Mod": 15556,
+    "Mod": 15498,
     "DisplayMod": null
   },
   {
     "_index": 144,
     "Essence": 86,
     "TargetItemCategory": 37,
-    "Mod": 15557,
+    "Mod": 15499,
     "DisplayMod": null
   },
   {
     "_index": 145,
     "Essence": 86,
     "TargetItemCategory": 36,
-    "Mod": 15558,
+    "Mod": 15500,
     "DisplayMod": null
   },
   {
     "_index": 146,
     "Essence": 86,
     "TargetItemCategory": 8,
-    "Mod": 15559,
+    "Mod": 15501,
     "DisplayMod": null
   },
   {
     "_index": 147,
     "Essence": 86,
     "TargetItemCategory": 41,
-    "Mod": 15560,
+    "Mod": 15502,
     "DisplayMod": null
   },
   {
     "_index": 148,
     "Essence": 87,
     "TargetItemCategory": 7,
-    "Mod": 15561,
+    "Mod": 15503,
     "DisplayMod": null
   },
   {
     "_index": 149,
     "Essence": 87,
     "TargetItemCategory": 28,
-    "Mod": 15562,
+    "Mod": 15504,
     "DisplayMod": null
   },
   {
     "_index": 150,
     "Essence": 87,
     "TargetItemCategory": 37,
-    "Mod": 15563,
+    "Mod": 15505,
     "DisplayMod": null
   },
   {
     "_index": 151,
     "Essence": 87,
     "TargetItemCategory": 30,
-    "Mod": 15564,
+    "Mod": 15506,
     "DisplayMod": null
   },
   {
     "_index": 152,
     "Essence": 88,
     "TargetItemCategory": 37,
-    "Mod": 15565,
+    "Mod": 15507,
     "DisplayMod": null
   },
   {
     "_index": 153,
     "Essence": 88,
     "TargetItemCategory": 1,
-    "Mod": 15566,
+    "Mod": 15508,
     "DisplayMod": null
   },
   {
     "_index": 154,
     "Essence": 88,
     "TargetItemCategory": 29,
-    "Mod": 15567,
+    "Mod": 15509,
     "DisplayMod": null
   },
   {
     "_index": 155,
     "Essence": 88,
     "TargetItemCategory": 35,
-    "Mod": 15568,
+    "Mod": 15510,
     "DisplayMod": null
   },
   {
     "_index": 156,
     "Essence": 89,
     "TargetItemCategory": 30,
-    "Mod": 15569,
+    "Mod": 15511,
     "DisplayMod": null
   },
   {
     "_index": 157,
     "Essence": 89,
     "TargetItemCategory": 37,
-    "Mod": 15570,
+    "Mod": 15512,
     "DisplayMod": null
   },
   {
     "_index": 158,
     "Essence": 89,
     "TargetItemCategory": 28,
-    "Mod": 15571,
+    "Mod": 15513,
     "DisplayMod": null
   },
   {
     "_index": 159,
     "Essence": 89,
     "TargetItemCategory": 32,
-    "Mod": 15572,
+    "Mod": 15514,
     "DisplayMod": null
   },
   {
     "_index": 160,
     "Essence": 89,
     "TargetItemCategory": 3,
-    "Mod": 15573,
+    "Mod": 15515,
     "DisplayMod": null
   },
   {
     "_index": 161,
     "Essence": 90,
     "TargetItemCategory": 43,
-    "Mod": 15574,
+    "Mod": 15516,
     "DisplayMod": null
   },
   {
     "_index": 162,
     "Essence": 90,
     "TargetItemCategory": 2,
-    "Mod": 15550,
+    "Mod": 15492,
     "DisplayMod": null
   },
   {
     "_index": 163,
     "Essence": 90,
     "TargetItemCategory": 4,
-    "Mod": 15575,
+    "Mod": 15517,
     "DisplayMod": null
   },
   {
     "_index": 164,
     "Essence": 91,
     "TargetItemCategory": 42,
-    "Mod": 15576,
+    "Mod": 15518,
     "DisplayMod": null
   },
   {
     "_index": 165,
     "Essence": 91,
     "TargetItemCategory": 1,
-    "Mod": 15577,
+    "Mod": 15519,
     "DisplayMod": null
   },
   {
     "_index": 166,
     "Essence": 92,
     "TargetItemCategory": 18,
-    "Mod": 15579,
+    "Mod": 15521,
     "DisplayMod": null
   },
   {
     "_index": 167,
     "Essence": 92,
-    "TargetItemCategory": 1,
-    "Mod": 15580,
+    "TargetItemCategory": 23,
+    "Mod": 15522,
     "DisplayMod": null
   },
   {
     "_index": 168,
-    "Essence": 93,
-    "TargetItemCategory": 18,
-    "Mod": 15582,
+    "Essence": 92,
+    "TargetItemCategory": 1,
+    "Mod": 15523,
     "DisplayMod": null
   },
   {
     "_index": 169,
     "Essence": 93,
-    "TargetItemCategory": 40,
-    "Mod": 15583,
+    "TargetItemCategory": 18,
+    "Mod": 15525,
     "DisplayMod": null
   },
   {
     "_index": 170,
-    "Essence": 94,
-    "TargetItemCategory": 44,
-    "Mod": 15584,
+    "Essence": 93,
+    "TargetItemCategory": 40,
+    "Mod": 15526,
     "DisplayMod": null
   },
   {
     "_index": 171,
     "Essence": 94,
-    "TargetItemCategory": 45,
-    "Mod": 15585,
+    "TargetItemCategory": 44,
+    "Mod": 15527,
     "DisplayMod": null
   },
   {
     "_index": 172,
-    "Essence": 93,
-    "TargetItemCategory": 35,
-    "Mod": 15586,
+    "Essence": 94,
+    "TargetItemCategory": 45,
+    "Mod": 15528,
     "DisplayMod": null
   },
   {
     "_index": 173,
-    "Essence": 94,
-    "TargetItemCategory": 46,
-    "Mod": 15587,
+    "Essence": 93,
+    "TargetItemCategory": 35,
+    "Mod": 15529,
     "DisplayMod": null
   },
   {
     "_index": 174,
-    "Essence": 93,
-    "TargetItemCategory": 47,
-    "Mod": 15588,
+    "Essence": 94,
+    "TargetItemCategory": 46,
+    "Mod": 15530,
     "DisplayMod": null
   },
   {
     "_index": 175,
-    "Essence": 94,
-    "TargetItemCategory": 48,
-    "Mod": 15589,
+    "Essence": 93,
+    "TargetItemCategory": 47,
+    "Mod": 15531,
     "DisplayMod": null
   },
   {
     "_index": 176,
+    "Essence": 94,
+    "TargetItemCategory": 48,
+    "Mod": 15532,
+    "DisplayMod": null
+  },
+  {
+    "_index": 177,
     "Essence": 93,
     "TargetItemCategory": 49,
-    "Mod": 15590,
+    "Mod": 15533,
     "DisplayMod": null
   }
 ]

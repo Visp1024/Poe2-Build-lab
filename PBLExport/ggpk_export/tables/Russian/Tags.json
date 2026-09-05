@@ -4101,23 +4101,23 @@
   },
   {
     "_index": 1025,
-    "Id": "2HSharpMetal_onhit_audio"
+    "Id": "Sword2H_onhit_audio"
   },
   {
     "_index": 1026,
-    "Id": "1HSword_onhit_audio"
+    "Id": "Sword1H_onhit_audio"
   },
   {
     "_index": 1027,
-    "Id": "2HBluntWood_onhit_audio"
+    "Id": "Mace2HWood_onhit_audio"
   },
   {
     "_index": 1028,
-    "Id": "Stab_onhit_audio"
+    "Id": "Stab1HMetal_onhit_audio"
   },
   {
     "_index": 1029,
-    "Id": "Claw_onhit_audio"
+    "Id": "Slice1HMetal_onhit_audio"
   },
   {
     "_index": 1030,
@@ -4133,7 +4133,7 @@
   },
   {
     "_index": 1033,
-    "Id": "2HBluntMetal_onhit_audio"
+    "Id": "Mace2HMetal_onhit_audio"
   },
   {
     "_index": 1034,
@@ -4141,11 +4141,11 @@
   },
   {
     "_index": 1035,
-    "Id": "1HAxe_onhit_audio"
+    "Id": "Axe1HMetal_onhit_audio"
   },
   {
     "_index": 1036,
-    "Id": "Flail_onhit_audio"
+    "Id": "FlailMetal_onhit_audio"
   },
   {
     "_index": 1037,
@@ -4233,15 +4233,15 @@
   },
   {
     "_index": 1058,
-    "Id": "1HBluntWood_onhit_audio"
+    "Id": "Mace1HWood_onhit_audio"
   },
   {
     "_index": 1059,
-    "Id": "1HBluntMetal_onhit_audio"
+    "Id": "Mace1HMetal_onhit_audio"
   },
   {
     "_index": 1060,
-    "Id": "2HAxe_onhit_audio"
+    "Id": "Axe2HMetal_onhit_audio"
   },
   {
     "_index": 1061,
@@ -4433,870 +4433,926 @@
   },
   {
     "_index": 1108,
-    "Id": "soul_core_vaal"
+    "Id": "soul_core_tier4"
   },
   {
     "_index": 1109,
-    "Id": "str_radius_jewel"
+    "Id": "soul_core_vaal"
   },
   {
     "_index": 1110,
-    "Id": "dex_radius_jewel"
+    "Id": "str_radius_jewel"
   },
   {
     "_index": 1111,
-    "Id": "int_radius_jewel"
+    "Id": "dex_radius_jewel"
   },
   {
     "_index": 1112,
-    "Id": "radius_jewel"
+    "Id": "int_radius_jewel"
   },
   {
     "_index": 1113,
-    "Id": "titan_boss"
+    "Id": "radius_jewel"
   },
   {
     "_index": 1114,
-    "Id": "currency_strongbox"
+    "Id": "titan_boss"
   },
   {
     "_index": 1115,
-    "Id": "waystone_strongbox"
+    "Id": "currency_strongbox"
   },
   {
     "_index": 1116,
-    "Id": "martial_strongbox"
+    "Id": "waystone_strongbox"
   },
   {
     "_index": 1117,
-    "Id": "caster_strongbox"
+    "Id": "martial_strongbox"
   },
   {
     "_index": 1118,
-    "Id": "armourer_strongbox"
+    "Id": "caster_strongbox"
   },
   {
     "_index": 1119,
-    "Id": "jeweller_strongbox"
+    "Id": "armourer_strongbox"
   },
   {
     "_index": 1120,
-    "Id": "affliction_daemon"
+    "Id": "jeweller_strongbox"
   },
   {
     "_index": 1121,
-    "Id": "socket_currency"
+    "Id": "affliction_daemon"
   },
   {
     "_index": 1122,
-    "Id": "rare_socket_currency"
+    "Id": "socket_currency"
   },
   {
     "_index": 1123,
-    "Id": "karui_crafting_option"
+    "Id": "rare_socket_currency"
   },
   {
     "_index": 1124,
-    "Id": "lightning_crafting_option"
+    "Id": "karui_crafting_option"
   },
   {
     "_index": 1125,
-    "Id": "fire_crafting_option"
+    "Id": "lightning_crafting_option"
   },
   {
     "_index": 1126,
-    "Id": "cold_crafting_option"
+    "Id": "fire_crafting_option"
   },
   {
     "_index": 1127,
-    "Id": "chaos_crafting_option"
+    "Id": "cold_crafting_option"
   },
   {
     "_index": 1128,
-    "Id": "tower_augment"
+    "Id": "chaos_crafting_option"
   },
   {
     "_index": 1129,
-    "Id": "1HBluntStone_onhit_audio"
+    "Id": "tower_augment"
   },
   {
     "_index": 1130,
-    "Id": "2HBluntStone_onhit_audio"
+    "Id": "Mace1HStone_onhit_audio"
   },
   {
     "_index": 1131,
-    "Id": "ShieldStone_onhit_audio"
+    "Id": "Mace2HStone_onhit_audio"
   },
   {
     "_index": 1132,
-    "Id": "pale_faction"
+    "Id": "ShieldStone_onhit_audio"
   },
   {
     "_index": 1133,
-    "Id": "demon_faction"
+    "Id": "pale_faction"
   },
   {
     "_index": 1134,
-    "Id": "flesh_faction"
+    "Id": "demon_faction"
   },
   {
     "_index": 1135,
-    "Id": "azmeri_warden_dusted_monster"
+    "Id": "flesh_faction"
   },
   {
     "_index": 1136,
-    "Id": "azmeri_shaman_dusted_monster"
+    "Id": "azmeri_warden_dusted_monster"
   },
   {
     "_index": 1137,
-    "Id": "azmeri_primalist_dusted_monster"
+    "Id": "azmeri_shaman_dusted_monster"
   },
   {
     "_index": 1138,
-    "Id": "drop"
+    "Id": "azmeri_primalist_dusted_monster"
   },
   {
     "_index": 1139,
-    "Id": "VaalStrongbox"
+    "Id": "azmeri_sacred_dusted_monster"
   },
   {
     "_index": 1140,
-    "Id": "MarakethStrongbox"
+    "Id": "drop"
   },
   {
     "_index": 1141,
-    "Id": "EzomyteStrongbox"
+    "Id": "VaalStrongbox"
   },
   {
     "_index": 1142,
-    "Id": "vivid_idol"
+    "Id": "MarakethStrongbox"
   },
   {
     "_index": 1143,
-    "Id": "wild_idol"
+    "Id": "EzomyteStrongbox"
   },
   {
     "_index": 1144,
-    "Id": "primal_idol"
+    "Id": "vivid_idol"
   },
   {
     "_index": 1145,
-    "Id": "sacred_idol"
+    "Id": "wild_idol"
   },
   {
     "_index": 1146,
-    "Id": "corrupted_idol"
+    "Id": "primal_idol"
   },
   {
     "_index": 1147,
-    "Id": "queen_idol"
+    "Id": "sacred_idol"
   },
   {
     "_index": 1148,
-    "Id": "currency_duplicate"
+    "Id": "corrupted_idol"
   },
   {
     "_index": 1149,
-    "Id": "currency_lock"
+    "Id": "queen_idol"
   },
   {
     "_index": 1150,
-    "Id": "rune_lesser"
+    "Id": "currency_duplicate"
   },
   {
     "_index": 1151,
-    "Id": "rune_normal"
+    "Id": "currency_lock"
   },
   {
     "_index": 1152,
-    "Id": "rune_greater"
+    "Id": "rune_lesser"
   },
   {
     "_index": 1153,
-    "Id": "rune_perfect"
+    "Id": "rune_normal"
   },
   {
     "_index": 1154,
-    "Id": "charm"
+    "Id": "rune_greater"
   },
   {
     "_index": 1155,
-    "Id": "karui_shrine"
+    "Id": "rune_perfect"
   },
   {
     "_index": 1156,
-    "Id": "twilight_order_shrine"
+    "Id": "charm"
   },
   {
     "_index": 1157,
-    "Id": "carver_shrine"
+    "Id": "karui_shrine"
   },
   {
     "_index": 1158,
-    "Id": "lost_men_shrine"
+    "Id": "twilight_order_shrine"
   },
   {
     "_index": 1159,
-    "Id": "ezomyte_shrine"
+    "Id": "carver_shrine"
   },
   {
     "_index": 1160,
-    "Id": "faridun_shrine"
+    "Id": "lost_men_shrine"
   },
   {
     "_index": 1161,
-    "Id": "maraketh_shrine"
+    "Id": "ezomyte_shrine"
   },
   {
     "_index": 1162,
-    "Id": "vaal_shrine"
+    "Id": "faridun_shrine"
   },
   {
     "_index": 1163,
-    "Id": "rune"
+    "Id": "maraketh_shrine"
   },
   {
     "_index": 1164,
-    "Id": "map_monster_rarity"
+    "Id": "vaal_shrine"
   },
   {
     "_index": 1165,
-    "Id": "map_item_rarity"
+    "Id": "rune"
   },
   {
     "_index": 1166,
-    "Id": "map_pack_size"
+    "Id": "map_monster_rarity"
   },
   {
     "_index": 1167,
-    "Id": "no_title_card"
+    "Id": "map_item_rarity"
   },
   {
     "_index": 1168,
-    "Id": "blackblood_faction"
+    "Id": "map_pack_size"
   },
   {
     "_index": 1169,
-    "Id": "lightless_faction"
+    "Id": "no_title_card"
   },
   {
     "_index": 1170,
-    "Id": "pit_faction"
+    "Id": "blackblood_faction"
   },
   {
     "_index": 1171,
-    "Id": "KaruiStrongbox"
+    "Id": "lightless_faction"
   },
   {
     "_index": 1172,
-    "Id": "historic_abyss_jewel_1"
+    "Id": "pit_faction"
   },
   {
     "_index": 1173,
-    "Id": "historic_abyss_jewel_2"
+    "Id": "KaruiStrongbox"
   },
   {
     "_index": 1174,
-    "Id": "historic_abyss_jewel_3"
+    "Id": "historic_abyss_jewel_1"
   },
   {
     "_index": 1175,
-    "Id": "historic_abyss_jewel_4"
+    "Id": "historic_abyss_jewel_2"
   },
   {
     "_index": 1176,
-    "Id": "kulemak_abyss_special_prefix"
+    "Id": "historic_abyss_jewel_3"
   },
   {
     "_index": 1177,
-    "Id": "kulemak_abyss_prefix"
+    "Id": "historic_abyss_jewel_4"
   },
   {
     "_index": 1178,
-    "Id": "watcher_abyss_suffix"
+    "Id": "kulemak_abyss_special_prefix"
   },
   {
     "_index": 1179,
-    "Id": "karui_basetype"
+    "Id": "kulemak_abyss_prefix"
   },
   {
     "_index": 1180,
-    "Id": "heart_unique_jewel_prefix"
+    "Id": "watcher_abyss_suffix"
   },
   {
     "_index": 1181,
-    "Id": "heart_unique_jewel_suffix"
+    "Id": "karui_basetype"
   },
   {
     "_index": 1182,
-    "Id": "ulaman_mod"
+    "Id": "heart_unique_jewel_prefix"
   },
   {
     "_index": 1183,
-    "Id": "amanamu_mod"
+    "Id": "heart_unique_jewel_suffix"
   },
   {
     "_index": 1184,
-    "Id": "kurgal_mod"
+    "Id": "ulaman_mod"
   },
   {
     "_index": 1185,
-    "Id": "frost_shrine"
+    "Id": "amanamu_mod"
   },
   {
     "_index": 1186,
-    "Id": "mutatedunique_vaal"
+    "Id": "kurgal_mod"
   },
   {
     "_index": 1187,
-    "Id": "abyssal_eye"
+    "Id": "frost_shrine"
   },
   {
     "_index": 1188,
-    "Id": "incursion_rare_forgemaster"
+    "Id": "mutatedunique_vaal"
   },
   {
     "_index": 1189,
-    "Id": "incursion_unique_forgemaster"
+    "Id": "abyssal_eye"
   },
   {
     "_index": 1190,
-    "Id": "incursion_rare_forgehand"
+    "Id": "incursion_rare_forgemaster"
   },
   {
     "_index": 1191,
-    "Id": "incursion_rare_spymaster"
+    "Id": "incursion_unique_forgemaster"
   },
   {
     "_index": 1192,
-    "Id": "incursion_unique_spymaster"
+    "Id": "incursion_rare_forgehand"
   },
   {
     "_index": 1193,
-    "Id": "incursion_rare_drill_sergeant"
+    "Id": "incursion_rare_spymaster"
   },
   {
     "_index": 1194,
-    "Id": "incursion_rare_flesh_surgeon"
+    "Id": "incursion_unique_spymaster"
   },
   {
     "_index": 1195,
-    "Id": "incursion_t3_rare_flesh_surgeon"
+    "Id": "incursion_rare_drill_sergeant"
   },
   {
     "_index": 1196,
-    "Id": "incursion_unique_queen_flesh_surgeon"
+    "Id": "incursion_rare_flesh_surgeon"
   },
   {
     "_index": 1197,
-    "Id": "incursion_rare_thaumaturge"
+    "Id": "incursion_t3_rare_flesh_surgeon"
   },
   {
     "_index": 1198,
-    "Id": "incursion_unique_thaumaturge"
+    "Id": "incursion_unique_queen_flesh_surgeon"
   },
   {
     "_index": 1199,
-    "Id": "incursion_rare_blood_priest"
+    "Id": "incursion_rare_thaumaturge"
   },
   {
     "_index": 1200,
-    "Id": "incursion_unique_blood_priest"
+    "Id": "incursion_unique_thaumaturge"
   },
   {
     "_index": 1201,
-    "Id": "incursion_rare_commander_past"
+    "Id": "incursion_rare_blood_priest"
   },
   {
     "_index": 1202,
-    "Id": "incursion_unique_commander_past"
+    "Id": "incursion_unique_blood_priest"
   },
   {
     "_index": 1203,
-    "Id": "incursion_rare_commander_present"
+    "Id": "incursion_rare_commander_past"
   },
   {
     "_index": 1204,
-    "Id": "incursion_unique_commander_present"
+    "Id": "incursion_unique_commander_past"
   },
   {
     "_index": 1205,
-    "Id": "incursion_unique_statue_boss"
+    "Id": "incursion_rare_commander_present"
   },
   {
     "_index": 1206,
-    "Id": "incursion_unique_quadrilla"
+    "Id": "incursion_unique_commander_present"
   },
   {
     "_index": 1207,
-    "Id": "incursion_unique_fused_skeleton"
+    "Id": "incursion_unique_statue_boss"
   },
   {
     "_index": 1208,
-    "Id": "incursion_unique_sentinel"
+    "Id": "incursion_unique_quadrilla"
   },
   {
     "_index": 1209,
-    "Id": "incursion_unique_colossus"
+    "Id": "incursion_unique_fused_skeleton"
   },
   {
     "_index": 1210,
-    "Id": "incursion_unique_sun_priest"
+    "Id": "incursion_unique_sentinel"
   },
   {
     "_index": 1211,
-    "Id": "incursion_unique_chained_beast"
+    "Id": "incursion_unique_colossus"
   },
   {
     "_index": 1212,
-    "Id": "unmutatable"
+    "Id": "incursion_unique_sun_priest"
   },
   {
     "_index": 1213,
-    "Id": "upgraded_corruption_mod"
+    "Id": "incursion_unique_chained_beast"
   },
   {
     "_index": 1214,
-    "Id": "ezomyte"
+    "Id": "unmutatable"
   },
   {
     "_index": 1215,
-    "Id": "faridun"
+    "Id": "upgraded_corruption_mod"
   },
   {
     "_index": 1216,
-    "Id": "strongbox"
+    "Id": "ezomyte"
   },
   {
     "_index": 1217,
-    "Id": "precursor_shrine"
+    "Id": "faridun"
   },
   {
     "_index": 1218,
-    "Id": "oriathan_shrine"
+    "Id": "strongbox"
   },
   {
     "_index": 1219,
-    "Id": "sanctified_monster"
+    "Id": "precursor_shrine"
   },
   {
     "_index": 1220,
-    "Id": "basic_strongbox"
+    "Id": "oriathan_shrine"
   },
   {
     "_index": 1221,
-    "Id": "strongbox_can_roll_attribute_replacements"
+    "Id": "sanctified_monster"
   },
   {
     "_index": 1222,
-    "Id": "maraketh_culture_area"
+    "Id": "basic_strongbox"
   },
   {
     "_index": 1223,
-    "Id": "vaal_culture_area"
+    "Id": "strongbox_can_roll_attribute_replacements"
   },
   {
     "_index": 1224,
-    "Id": "neutral_culture_area"
+    "Id": "maraketh_culture_area"
   },
   {
     "_index": 1225,
-    "Id": "karui_culture_area"
+    "Id": "vaal_culture_area"
   },
   {
     "_index": 1226,
-    "Id": "ezomyte_culture_area"
+    "Id": "neutral_culture_area"
   },
   {
     "_index": 1227,
-    "Id": "twilightorder_culture_area"
+    "Id": "karui_culture_area"
   },
   {
     "_index": 1228,
-    "Id": "precursor_culture_area"
+    "Id": "ezomyte_culture_area"
   },
   {
     "_index": 1229,
-    "Id": "precursor_monster"
+    "Id": "twilightorder_culture_area"
   },
   {
     "_index": 1230,
-    "Id": "oriathan_culture_area"
+    "Id": "precursor_culture_area"
   },
   {
     "_index": 1231,
-    "Id": "carver_culture_area"
+    "Id": "precursor_monster"
   },
   {
     "_index": 1232,
-    "Id": "lostmen_culture_area"
+    "Id": "oriathan_culture_area"
   },
   {
     "_index": 1233,
-    "Id": "faridun_culture_area"
+    "Id": "carver_culture_area"
   },
   {
     "_index": 1234,
-    "Id": "strongbox_can_roll_currency_replacements"
+    "Id": "lostmen_culture_area"
   },
   {
     "_index": 1235,
-    "Id": "strongbox_can_roll_waystone_replacements"
+    "Id": "faridun_culture_area"
   },
   {
     "_index": 1236,
-    "Id": "strongbox_can_roll_caster_replacements"
+    "Id": "strongbox_can_roll_currency_replacements"
   },
   {
     "_index": 1237,
-    "Id": "strongbox_can_roll_jeweller_replacements"
+    "Id": "strongbox_can_roll_waystone_replacements"
   },
   {
     "_index": 1238,
-    "Id": "runic_core"
+    "Id": "strongbox_can_roll_caster_replacements"
   },
   {
     "_index": 1239,
-    "Id": "strongbox_can_roll_vase_mods"
+    "Id": "strongbox_can_roll_jeweller_replacements"
   },
   {
     "_index": 1240,
-    "Id": "strongbox_is_possessed"
+    "Id": "runic_core"
   },
   {
     "_index": 1241,
-    "Id": "runeforged_mod"
+    "Id": "strongbox_can_roll_vase_mods"
   },
   {
     "_index": 1242,
-    "Id": "jewel_catalyst"
+    "Id": "strongbox_is_possessed"
   },
   {
     "_index": 1243,
-    "Id": "strongbox_guarded_by_rares"
+    "Id": "runeforged_mod"
   },
   {
     "_index": 1244,
-    "Id": "strongbox_guarded_by_rares_have_mod"
+    "Id": "jewel_catalyst"
   },
   {
     "_index": 1245,
-    "Id": "verisium_common"
+    "Id": "strongbox_guarded_by_rares"
   },
   {
     "_index": 1246,
-    "Id": "verisium_uncommon"
+    "Id": "strongbox_guarded_by_rares_have_mod"
   },
   {
     "_index": 1247,
-    "Id": "verisium_rare"
+    "Id": "verisium_common"
   },
   {
     "_index": 1248,
-    "Id": "verisium_mythic"
+    "Id": "verisium_uncommon"
   },
   {
     "_index": 1249,
-    "Id": "verisium_crafting"
+    "Id": "verisium_rare"
   },
   {
     "_index": 1250,
-    "Id": "runeforged"
+    "Id": "verisium_mythic"
   },
   {
     "_index": 1251,
-    "Id": "runic_ward"
+    "Id": "verisium_crafting"
   },
   {
     "_index": 1252,
-    "Id": "breach_desecration"
+    "Id": "runeforged"
   },
   {
     "_index": 1253,
-    "Id": "has_water_biome_monsters"
+    "Id": "runic_ward"
   },
   {
     "_index": 1254,
-    "Id": "has_mountain_biome_monsters"
+    "Id": "breach_desecration"
   },
   {
     "_index": 1255,
-    "Id": "has_grass_biome_monsters"
+    "Id": "has_water_biome_monsters"
   },
   {
     "_index": 1256,
-    "Id": "has_forest_biome_monsters"
+    "Id": "has_mountain_biome_monsters"
   },
   {
     "_index": 1257,
-    "Id": "has_swamp_biome_monsters"
+    "Id": "has_grass_biome_monsters"
   },
   {
     "_index": 1258,
-    "Id": "has_desert_biome_monsters"
+    "Id": "has_forest_biome_monsters"
   },
   {
     "_index": 1259,
-    "Id": "has_ezomyte_city_monsters"
+    "Id": "has_swamp_biome_monsters"
   },
   {
     "_index": 1260,
-    "Id": "has_faridun_city_monsters"
+    "Id": "has_desert_biome_monsters"
   },
   {
     "_index": 1261,
-    "Id": "has_vaal_city_monsters"
+    "Id": "has_ezomyte_city_monsters"
   },
   {
     "_index": 1262,
-    "Id": "elemental_resistance"
+    "Id": "has_faridun_city_monsters"
   },
   {
     "_index": 1263,
-    "Id": "fire_resistance"
+    "Id": "has_vaal_city_monsters"
   },
   {
     "_index": 1264,
-    "Id": "cold_resistance"
+    "Id": "elemental_resistance"
   },
   {
     "_index": 1265,
-    "Id": "lightning_resistance"
+    "Id": "fire_resistance"
   },
   {
     "_index": 1266,
-    "Id": "strongbox_can_roll_attribute_replacements_strength"
+    "Id": "cold_resistance"
   },
   {
     "_index": 1267,
-    "Id": "strongbox_can_roll_attribute_replacements_dexterity"
+    "Id": "lightning_resistance"
   },
   {
     "_index": 1268,
-    "Id": "strongbox_can_roll_attribute_replacements_intelligence"
+    "Id": "strongbox_can_roll_attribute_replacements_strength"
   },
   {
     "_index": 1269,
-    "Id": "expedition_heath_remnant"
+    "Id": "strongbox_can_roll_attribute_replacements_dexterity"
   },
   {
     "_index": 1270,
-    "Id": "expedition_digsite_remnant"
+    "Id": "strongbox_can_roll_attribute_replacements_intelligence"
   },
   {
     "_index": 1271,
-    "Id": "expedition_prairie_remnant"
+    "Id": "expedition_heath_remnant"
   },
   {
     "_index": 1272,
-    "Id": "expedition_wastes_sulphite_remnant"
+    "Id": "expedition_digsite_remnant"
   },
   {
     "_index": 1273,
-    "Id": "expedition_wastes_karui_remnant"
+    "Id": "expedition_prairie_remnant"
   },
   {
     "_index": 1274,
-    "Id": "expedition_reef_clam_remnant"
+    "Id": "expedition_wastes_sulphite_remnant"
   },
   {
     "_index": 1275,
-    "Id": "currency_strongbox_highertiermod"
+    "Id": "expedition_wastes_karui_remnant"
   },
   {
     "_index": 1276,
-    "Id": "waystone_strongbox_highertiermod"
+    "Id": "expedition_reef_clam_remnant"
   },
   {
     "_index": 1277,
-    "Id": "martial_strongbox_highertiermod"
+    "Id": "currency_strongbox_highertiermod"
   },
   {
     "_index": 1278,
-    "Id": "armourer_strongbox_highertiermod"
+    "Id": "waystone_strongbox_highertiermod"
   },
   {
     "_index": 1279,
-    "Id": "caster_strongbox_highertiermod"
+    "Id": "martial_strongbox_highertiermod"
   },
   {
     "_index": 1280,
-    "Id": "default_highertiermod"
+    "Id": "armourer_strongbox_highertiermod"
   },
   {
     "_index": 1281,
-    "Id": "jeweller_strongbox_highertiermod"
+    "Id": "caster_strongbox_highertiermod"
   },
   {
     "_index": 1282,
-    "Id": "basic_strongbox_highertiermod"
+    "Id": "default_highertiermod"
   },
   {
     "_index": 1283,
-    "Id": "strongbox_can_roll_attribute_replacements_strength_martial"
+    "Id": "jeweller_strongbox_highertiermod"
   },
   {
     "_index": 1284,
-    "Id": "strongbox_can_roll_attribute_replacements_dexterity_martial"
+    "Id": "basic_strongbox_highertiermod"
   },
   {
     "_index": 1285,
-    "Id": "strongbox_can_roll_attribute_replacements_intelligence_martial"
+    "Id": "strongbox_can_roll_attribute_replacements_strength_martial"
   },
   {
     "_index": 1286,
-    "Id": "chronomancy"
+    "Id": "strongbox_can_roll_attribute_replacements_dexterity_martial"
   },
   {
     "_index": 1287,
-    "Id": "soul"
+    "Id": "strongbox_can_roll_attribute_replacements_intelligence_martial"
   },
   {
     "_index": 1288,
-    "Id": "berserking"
+    "Id": "chronomancy"
   },
   {
     "_index": 1289,
-    "Id": "marksman"
+    "Id": "soul"
   },
   {
     "_index": 1290,
-    "Id": "decay"
+    "Id": "berserking"
   },
   {
     "_index": 1291,
-    "Id": "destruction"
+    "Id": "marksman"
   },
   {
     "_index": 1292,
-    "Id": "cannon"
+    "Id": "decay"
   },
   {
     "_index": 1293,
-    "Id": "chaos_resistance"
+    "Id": "destruction"
   },
   {
     "_index": 1294,
-    "Id": "minion_resistance"
+    "Id": "cannon"
   },
   {
     "_index": 1295,
-    "Id": "minion_speed"
+    "Id": "chaos_resistance"
   },
   {
     "_index": 1296,
-    "Id": "minion_damage"
+    "Id": "minion_resistance"
   },
   {
     "_index": 1297,
-    "Id": "caster_speed"
+    "Id": "minion_speed"
   },
   {
     "_index": 1298,
-    "Id": "caster_critical"
+    "Id": "minion_damage"
   },
   {
     "_index": 1299,
-    "Id": "jewellers_orb"
+    "Id": "caster_speed"
   },
   {
     "_index": 1300,
-    "Id": "genesis_tree_caster"
+    "Id": "caster_critical"
   },
   {
     "_index": 1301,
-    "Id": "genesis_tree_minion"
+    "Id": "jewellers_orb"
   },
   {
     "_index": 1302,
-    "Id": "atziri_final_chest"
+    "Id": "genesis_tree_caster"
   },
   {
     "_index": 1303,
-    "Id": "life_catalyst"
+    "Id": "genesis_tree_minion"
   },
   {
     "_index": 1304,
-    "Id": "mana_catalyst"
+    "Id": "atziri_final_chest"
   },
   {
     "_index": 1305,
-    "Id": "defences_catalyst"
+    "Id": "life_catalyst"
   },
   {
     "_index": 1306,
-    "Id": "physical_catalyst"
+    "Id": "mana_catalyst"
   },
   {
     "_index": 1307,
-    "Id": "fire_catalyst"
+    "Id": "defences_catalyst"
   },
   {
     "_index": 1308,
-    "Id": "cold_catalyst"
+    "Id": "physical_catalyst"
   },
   {
     "_index": 1309,
-    "Id": "lightning_catalyst"
+    "Id": "fire_catalyst"
   },
   {
     "_index": 1310,
-    "Id": "chaos_catalyst"
+    "Id": "cold_catalyst"
   },
   {
     "_index": 1311,
-    "Id": "attack_catalyst"
+    "Id": "lightning_catalyst"
   },
   {
     "_index": 1312,
-    "Id": "caster_catalyst"
+    "Id": "chaos_catalyst"
   },
   {
     "_index": 1313,
-    "Id": "speed_catalyst"
+    "Id": "attack_catalyst"
   },
   {
     "_index": 1314,
-    "Id": "attribute_catalyst"
+    "Id": "caster_catalyst"
   },
   {
     "_index": 1315,
-    "Id": "minion_catalyst"
+    "Id": "speed_catalyst"
   },
   {
     "_index": 1316,
-    "Id": "map_monster_potency"
+    "Id": "attribute_catalyst"
   },
   {
     "_index": 1317,
-    "Id": "hilda_great_beast"
+    "Id": "minion_catalyst"
   },
   {
     "_index": 1318,
-    "Id": "strongbox_monster"
+    "Id": "map_monster_potency"
   },
   {
     "_index": 1319,
-    "Id": "strongbox_robot_rare_guard"
+    "Id": "hilda_great_beast"
   },
   {
     "_index": 1320,
-    "Id": "incursion_currency"
+    "Id": "strongbox_monster"
   },
   {
     "_index": 1321,
-    "Id": "vaal_beacon_chest"
+    "Id": "strongbox_robot_rare_guard"
   },
   {
     "_index": 1322,
-    "Id": "expedition_gully_devourer_remnant"
+    "Id": "incursion_currency"
   },
   {
     "_index": 1323,
-    "Id": "pinnacle_unique"
+    "Id": "vaal_beacon_chest"
   },
   {
     "_index": 1324,
+    "Id": "expedition_gully_devourer_remnant"
+  },
+  {
+    "_index": 1325,
+    "Id": "pinnacle_unique"
+  },
+  {
+    "_index": 1326,
     "Id": "pinnacle_lineage"
+  },
+  {
+    "_index": 1327,
+    "Id": "expedition_monster_mod_rune"
+  },
+  {
+    "_index": 1328,
+    "Id": "brequel_encounter_skill_daemon"
+  },
+  {
+    "_index": 1329,
+    "Id": "fire_implicit_skill"
+  },
+  {
+    "_index": 1330,
+    "Id": "cold_implicit_skill"
+  },
+  {
+    "_index": 1331,
+    "Id": "lightning_implicit_skill"
+  },
+  {
+    "_index": 1332,
+    "Id": "physical_implicit_skill"
+  },
+  {
+    "_index": 1333,
+    "Id": "chaos_implicit_skill"
+  },
+  {
+    "_index": 1334,
+    "Id": "strongbox_arcane_can_roll_modifiers_forcing_implicits"
+  },
+  {
+    "_index": 1335,
+    "Id": "strongbox_blacksmith_can_roll_modifiers_forcing_weapon_types"
+  },
+  {
+    "_index": 1336,
+    "Id": "strongbox_armourer_can_roll_modifiers_forcing_armour_slot"
+  },
+  {
+    "_index": 1337,
+    "Id": "Axe1HStone_onhit_audio"
+  },
+  {
+    "_index": 1338,
+    "Id": "Axe2HStone_onhit_audio"
   }
 ]
