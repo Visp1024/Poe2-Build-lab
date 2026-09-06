@@ -3,7 +3,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <!-- Release version. Bump together with the archive name + git tag (see RELEASE.md). -->
+    <!-- Release version. Bump together with the archive name + git tag (see RELEASE_PBLApp.md). -->
     <Version>0.3</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>

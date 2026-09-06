@@ -67,12 +67,12 @@ avalonia  avaloniaui  dotnet  csharp  lua  nlua  gaming  russian
 - [x] **CI апстрима удалён** — 8 workflow'ов PoB (backport в PoB1, публикация
       beta-ветки по расписанию, NSIS-инсталлятор, spellcheck и т. д.) убраны
       целиком; на их месте `ci.yml` и `release.yml` под этот проект.
-- [ ] **`.kanban-slot`** — служебный файл доски Makestead, добавлен в
+- [x] **`.kanban-slot`** — служебный файл доски Makestead, добавлен в
       `.gitignore` (не трекался и раньше).
 
-### Требует решения человека
+### Замечания аудита
 
-- **`client_id=pob` в OAuth трейдера** (`PBLApp.Core/Trader/PoeOAuthService.cs`).
+- **Требует решения человека: `client_id=pob` в OAuth трейдера** (`PBLApp.Core/Trader/PoeOAuthService.cs`).
   Это публичный PKCE-клиент, зарегистрированный GGG на *оригинальный* Path of
   Building; мы унаследовали его из `src/Classes/PoEAPI.lua`. Секрета в нём нет
   (PKCE), но в публичном форке это чужой идентификатор приложения — если GGG
@@ -80,16 +80,20 @@ avalonia  avaloniaui  dotnet  csharp  lua  nlua  gaming  russian
   путь — зарегистрировать собственный OAuth-клиент у GGG. Не блокирует
   публикацию, но стоит держать в виду.
 
-- **Мусор в корне репозитория.** Публике эти файлы ничего не говорят, но и
-  вреда не приносят — удалять без отдельного решения не стал:
+- **Мусор в корне репозитория** — вычищено (та же задача #36):
 
-  | Файл | Что это |
+  | Удалено | Что это было |
   |---|---|
-  | `REPORT_2026-05-28.md` | одноразовый отчёт по состоянию проекта |
-  | `fix_ascendancy_positions.py` | разовый скрипт-правка позиций восхождений |
-  | `runtime-win32.zip` | бинарный архив в корне (трекается) |
-  | `help.txt`, `changelog.txt` | остатки Lua-версии PoB |
-  | `RELEASE.md` | релизный процесс апстрима (NSIS + GitHub Actions), к нашему приложению не применяется — актуален `RELEASE_PBLApp.md` |
+  | `REPORT_2026-05-28.md` | одноразовый отчёт по автономной сессии |
+  | `fix_ascendancy_positions.py` | разовый скрипт-правка позиций восхождений, звался только из `RELEASE.md` |
+  | `runtime-win32.zip` | 6,4 МБ бинарника в git; на него не ссылались ни скрипты, ни `manifest.xml` |
+  | `RELEASE.md` | релизный процесс апстрима (NSIS + его GitHub Actions, которые тоже удалены) — к нашему приложению неприменим, актуален `RELEASE_PBLApp.md` |
+
+  **Оставлены, хотя выглядят мусором:** `help.txt` и `changelog.txt` — это живые
+  файлы Lua-приложения. `help.txt` читает `src/Modules/Main.lua:1390`,
+  `changelog.txt` — `Main.lua` и `src/UpdateCheck.lua`; оба перечислены в
+  `manifest.xml` с контрольными суммами, а `changelog.txt` вдобавок тянется
+  из апстрима (`sync_paths` в `.upstream-sync.yaml`).
 
 - **Внутренние документы в корне** (`CLAUDE.md`, `AVALONIA_MIGRATION_PLAN.md`,
   `LOCALIZATION_PLAN.md`, `UPDATE_PIPELINE.md`, `CUSTOM_MOD_INJECTIONS.md`) —
@@ -100,9 +104,10 @@ avalonia  avaloniaui  dotnet  csharp  lua  nlua  gaming  russian
 
 ## 5. Осталось после этой задачи
 
-- **Скриншоты для README** — ждут завершения задачи #37 («Отсутствуют
-  изображения предметов»). Секции в `README.md` / `README.en.md` уже
-  размечены, файлы кладутся в `docs/assets/screenshots/`:
+- **Скриншоты для README** — задача **#38**. Блокер снят: исправление #37
+  («Отсутствуют изображения предметов») влито в `main`. Секции в
+  `README.md` / `README.en.md` размечены, файлы кладутся в
+  `docs/assets/screenshots/`:
   `tree.png`, `items.png`, `skills.png`, `calcs.png`.
 - **Подпись сборок** — маршрут описан в [`CODE_SIGNING.md`](CODE_SIGNING.md):
   SignPath Foundation, бесплатно для опенсорса, но требует, чтобы релиз собирался

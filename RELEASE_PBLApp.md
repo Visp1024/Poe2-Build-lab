@@ -1,8 +1,8 @@
 # Release process — PoE2 Build Lab (PBLApp, Avalonia)
 
 How to cut a public Windows build of the C#/Avalonia app. (The upstream Lua PoB
-release flow lives in [`RELEASE.md`](RELEASE.md) — that's GitHub Actions + NSIS
-and does **not** apply here.)
+release flow — GitHub Actions + NSIS — does not apply here and its `RELEASE.md`
+was dropped from this fork.)
 
 Derived from the existing releases (`publish/PoE2BuildLab-win-x64-v0.1.zip`,
 `…-v0.1.1.zip`), the publish profile
