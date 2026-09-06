@@ -20,14 +20,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up .NET 9
+      - name: Set up .NET SDKs
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: |
+            9.0.x
+            10.0.x
 
       # PBLApp pulls in PBLEngine + PBLApp.Core, so building it covers the whole
-      # shipping chain. PBLMcp/PBLParity/PBLHost/PBLExport are dev tooling and
-      # are built separately below so a break there is still caught.
+      # shipping chain. PBLMcp/PBLParity/PBLHost/PBLExport/PBLDataExport are dev
+      # tooling and are built separately below so a break there is still caught.
       - name: Build app
         run: dotnet build PBLApp/PBLApp.csproj -c Release --nologo
 
@@ -35,6 +37,10 @@ jobs:
         run: |
           dotnet build PBLMcp/PBLMcp.csproj -c Release --nologo
           dotnet build PBLParity/PBLParity.csproj -c Release --nologo
+          dotnet build PBLHost/PBLHost.csproj -c Release --nologo
+          dotnet build PBLDataExport/PBLDataExport.csproj -c Release --nologo
+          # PBLExport targets net10.0 — hence the second SDK in setup-dotnet above.
+          dotnet build PBLExport/PBLExport.csproj -c Release --nologo
 
       # LuaHost init takes ~40 s and every test class shares one instance, so
       # the whole suite runs sequentially — 195 tests, ~18 min on a loaded dev
