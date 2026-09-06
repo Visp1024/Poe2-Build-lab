@@ -19,11 +19,14 @@
 ```powershell
 dotnet build PBLApp/PBLApp.csproj      # приложение (тянет PBLEngine + PBLApp.Core)
 dotnet run   --project PBLApp          # запуск
-dotnet test  PBLEngine.Tests/PBLEngine.Tests.csproj   # тесты (~1-2 мин)
+dotnet test  PBLEngine.Tests/PBLEngine.Tests.csproj   # тесты (~18 мин, см. ниже)
 ```
 
-Первая инициализация Lua-движка занимает ~40 с — это нормально, все тесты
-переиспользуют один экземпляр.
+Полный прогон тестов занимает ~18 минут (то же число стоит в
+`.github/workflows/ci.yml`) — это нормально, не прерывайте его. Инициализация
+Lua-движка занимает ~40 с, и все тестовые классы делят один экземпляр
+`LuaHost`, поэтому вся сюита (~195 тестов) выполняется строго последовательно,
+без параллелизма. В CI на этот шаг заложен таймаут 60 минут.
 
 Структура C#-части и история миграции — в
 [`AVALONIA_MIGRATION_PLAN.md`](AVALONIA_MIGRATION_PLAN.md), соглашения тестов —
