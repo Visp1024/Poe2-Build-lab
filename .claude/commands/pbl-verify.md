@@ -18,14 +18,15 @@ Steps:
 
 2. **Build**:
    ```powershell
-   dotnet build D:\Work\PathBuildLab\PBLApp\PBLApp.csproj --nologo -v quiet
+   dotnet build PBLApp/PBLApp.csproj --nologo -v quiet
    ```
    Abort and report errors if the build is red.
 
 3. **Launch with IPC**:
    ```powershell
-   Start-Process -FilePath "D:\Work\PathBuildLab\PBLApp\bin\Debug\net9.0\PBLApp.exe" `
-     -WorkingDirectory "D:\Work\PathBuildLab\PBLApp\bin\Debug\net9.0" `
+   $exeDir = Join-Path $PWD "PBLApp/bin/Debug/net9.0"
+   Start-Process -FilePath (Join-Path $exeDir "PBLApp.exe") `
+     -WorkingDirectory $exeDir `
      -ArgumentList "--enable-ipc"
    Start-Sleep -Seconds 9     # LuaHost init takes ~7-9s
    ```
