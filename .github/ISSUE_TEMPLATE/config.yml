@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Telegram-чат
+    url: https://t.me/PoE2BuildLab
+    about: Вопросы, обсуждение, быстрая помощь — быстрее, чем в Issues.
+  - name: Поддержать проект
+    url: https://boosty.to/poe2buildlab
+    about: Boosty.

@@ -1,47 +1,120 @@
-name: Release next version
-run-name: Release version ${{ inputs.releaseVersion }}
+name: Release
+
+# Publishes a Windows x64 build when a v* tag is pushed.
+# Mirrors the manual procedure in RELEASE_PBLApp.md — keep the two in sync.
+
 on:
+  push:
+    tags: ['v*']
   workflow_dispatch:
-      inputs:
-          releaseVersion:
-              description: 'Version number to use for this release'
-              required: true
-              default: '0.x.x'
-          releaseNoteUrl:
-              description: 'Enter the location of edited release notes to use'
-              required: false
+    inputs:
+      draft:
+        description: 'Create the release as a draft'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
 jobs:
   release:
-    runs-on: ubuntu-latest
-    steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-              with:
-                ref: 'dev'
-            - name: Generate Release notes
-              if: ${{ github.event.inputs.releaseNoteUrl == '' }}
-              run: >
-                echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token;
-                gh release view $(basename $(gh release create v${{ github.event.inputs.releaseVersion }} --title "Release ${{ github.event.inputs.releaseVersion }}" --draft --generate-notes)) > temp_change.md
-            - name: Use existing Release notes
-              if: ${{ github.event.inputs.releaseNoteUrl != '' }}
-              run: >
-                echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token;
-                gh release view $(basename ${{ github.event.inputs.releaseNoteUrl }}) > temp_change.md
-            - name: Tweak changelogs
-              run: |
-                # Remove carriage returns to be able to run the script
-                sed -i 's/\r$//' .github/tweak_changelogs.sh
-                chmod +x .github/tweak_changelogs.sh
-                .github/tweak_changelogs.sh "v${{ github.event.inputs.releaseVersion }}"
-            - name: Create Pull Request
-              uses: peter-evans/create-pull-request@v5
-              with:
-                  draft: true
-                  title: Release ${{ github.event.inputs.releaseVersion }}
-                  branch: release-${{ github.event.inputs.releaseVersion }}
-                  body: |
-                      Draft release of ${{ github.event.inputs.releaseVersion }}.
+    name: Publish win-x64
+    runs-on: windows-latest
+    timeout-minutes: 90
 
-                      Edits will be made as necessary to prepare the codebase for release.
-                  commit-message: 'Prepare release ${{ github.event.inputs.releaseVersion }}'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Test
+        run: dotnet test PBLEngine.Tests/PBLEngine.Tests.csproj -c Release --nologo -v minimal
+
+      # Version comes from the csproj (it stamps the exe); the game version goes
+      # into the archive name. Both are single sources of truth — see RELEASE_PBLApp.md.
+      - name: Read versions
+        id: ver
+        shell: pwsh
+        run: |
+          $ver  = (Select-String 'PBLApp\PBLApp.csproj' -Pattern '<Version>([0-9.]+)</Version>').Matches[0].Groups[1].Value
+          $game = (Select-String '.upstream-sync.yaml' -Pattern '^game_version:\s*([0-9.]+)').Matches[0].Groups[1].Value
+          "version=$ver"   >> $env:GITHUB_OUTPUT
+          "game=$game"     >> $env:GITHUB_OUTPUT
+          "archive=PoE2BuildLab-win-x64-v$ver-poe$game.zip" >> $env:GITHUB_OUTPUT
+
+      # A tag that disagrees with the csproj version would ship an exe stamped
+      # with the wrong number — fail loudly instead.
+      - name: Check tag matches csproj version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}" -replace '^v',''
+          if ($tag -ne "${{ steps.ver.outputs.version }}") {
+            throw "Tag v$tag does not match <Version>${{ steps.ver.outputs.version }}</Version> in PBLApp.csproj"
+          }
+
+      - name: Publish
+        run: dotnet publish PBLApp/PBLApp.csproj -p:PublishProfile=win-x64 -o publish/win-x64
+
+      # Compress-Archive would nest everything under a win-x64/ folder;
+      # CreateFromDirectory(includeBaseDirectory: $false) keeps PBLApp.exe at the root.
+      - name: Create archive
+        shell: pwsh
+        run: |
+          $out = "publish/${{ steps.ver.outputs.archive }}"
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::CreateFromDirectory(
+              (Resolve-Path 'publish/win-x64'), (Join-Path (Get-Location) $out),
+              [System.IO.Compression.CompressionLevel]::Optimal, $false)
+
+      - name: Verify archive
+        shell: pwsh
+        run: |
+          $out = "publish/${{ steps.ver.outputs.archive }}"
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $z = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $out))
+          $entries  = $z.Entries.Count
+          $hasExe   = [bool]($z.Entries | Where-Object { $_.FullName -eq 'PBLApp.exe' })
+          $hasTree  = [bool]($z.Entries | Where-Object { $_.FullName -like 'Assets/TreeData/*' } | Select-Object -First 1)
+          $z.Dispose()
+          "entries: $entries; exe at root: $hasExe; TreeData: $hasTree"
+          if (-not $hasExe)  { throw 'PBLApp.exe is not at the archive root' }
+          if (-not $hasTree) { throw 'Assets/TreeData/* missing from the archive' }
+          if ($entries -lt 1000) { throw "Only $entries entries — the publish output looks incomplete" }
+
+      # The build is unsigned, so publish the hash for anyone who wants to
+      # verify the download. See docs/CODE_SIGNING.md for the signing roadmap.
+      - name: Compute SHA-256
+        id: hash
+        shell: pwsh
+        run: |
+          $out = "publish/${{ steps.ver.outputs.archive }}"
+          $h = (Get-FileHash $out -Algorithm SHA256).Hash
+          "sha256=$h" >> $env:GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: PoE2 Build Lab v${{ steps.ver.outputs.version }}
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.ver.outputs.version) }}
+          draft: ${{ github.event_name == 'workflow_dispatch' && inputs.draft || false }}
+          generate_release_notes: true
+          files: publish/${{ steps.ver.outputs.archive }}
+          body: |
+            **Path of Exile 2 — ${{ steps.ver.outputs.game }}**
+
+            Распакуйте архив в любую папку и запустите `PBLApp.exe`.
+            Windows 10/11 x64, .NET устанавливать не нужно.
+
+            Сборка не подписана — SmartScreen предупредит про неизвестного
+            издателя. Проверить целостность архива можно по хешу:
+
+            ```
+            SHA-256: ${{ steps.hash.outputs.sha256 }}
+            ```
+
+            [Telegram](https://t.me/PoE2BuildLab) · [Boosty](https://boosty.to/poe2buildlab)

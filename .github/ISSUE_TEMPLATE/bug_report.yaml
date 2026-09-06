@@ -1,0 +1,46 @@
+name: Баг
+description: Что-то работает не так
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Версия PoE2 Build Lab
+      description: Видно в заголовке окна или в имени скачанного архива.
+      placeholder: "0.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: Что произошло
+      description: Что вы делали и что получили вместо ожидаемого.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Шаги воспроизведения
+      placeholder: |
+        1. Открыть билд …
+        2. Перейти на вкладку …
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: build
+    attributes:
+      label: Код билда
+      description: >
+        Импорт/Экспорт → «Сгенерировать код билда». Без него баги расчётов
+        воспроизвести почти невозможно.
+      render: text
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Скриншоты, логи
+      description: Скриншот перетаскивается прямо в это поле.

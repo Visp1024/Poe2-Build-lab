@@ -28,7 +28,28 @@ PATCH (`0.1.1`) for fixes / small features on top of a minor line; MINOR
 (`0.2`) for larger feature batches. There's no separate CHANGELOG — the git log
 plus the tag annotation is the record.
 
-## Steps
+## The normal path: CI
+
+Releases are cut by [`.github/workflows/release.yml`](.github/workflows/release.yml).
+Bump `<Version>` in `PBLApp.csproj`, commit, then push an annotated `v<version>`
+tag — the workflow runs the tests, publishes win-x64, zips it, verifies the
+archive, computes the SHA-256 and creates the GitHub Release with the archive
+attached. The workflow refuses to run if the tag and the csproj version disagree.
+
+```powershell
+git tag -a v0.3 -m "PoE2 Build Lab v0.3"
+git push origin v0.3
+```
+
+`workflow_dispatch` builds the same thing as a **draft** release, for a dry run.
+
+Builds are **not signed** — see [`docs/CODE_SIGNING.md`](docs/CODE_SIGNING.md)
+for why and what it takes to change that.
+
+## Manual steps (fallback)
+
+Only needed when CI is unavailable or you want a local archive. Keep this in
+sync with `release.yml` — the two must produce identical archives.
 
 Run from the repo root in PowerShell.
 

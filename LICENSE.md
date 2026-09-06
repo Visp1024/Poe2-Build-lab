@@ -1,3 +1,14 @@
+# Third-party licences
+
+The licence of **PoE2 Build Lab itself is MIT** — see [`LICENSE`](LICENSE).
+
+This file is the collection of **third-party notices**: licences of the upstream
+Path of Building code, the embedded Lua interpreter, engine dependencies and
+game-derived data. It is kept for attribution and is considered part of the
+documentation.
+
+-------------------------------------------------------------------------------
+
 Path of Building Community:
 
 *******************************************************************************

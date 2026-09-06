@@ -1,3 +1,55 @@
+# Как участвовать в PoE2 Build Lab
+
+> Ниже — короткая часть про этот форк. Всё, что после разделителя, — оригинальное
+> руководство Path of Building Community по Lua-части: оно по-прежнему актуально
+> для движка расчётов, экспорта данных из GGPK и тестов busted, но описывает
+> процесс апстрима (ветка `dev`, их репозиторий), а не наш.
+
+## Куда писать
+
+- **Баг или идея** — [Issues](https://github.com/Visp1024/Poe2-Build-lab/issues).
+- **Вопрос, обсуждение** — [Telegram](https://t.me/PoE2BuildLab).
+- **Pull request** — в ветку `main` этого репозитория.
+
+## Сборка и запуск
+
+Нужен [.NET SDK 9](https://dotnet.microsoft.com/download/dotnet/9.0). Файла
+решения нет — проекты собираются по отдельности:
+
+```powershell
+dotnet build PBLApp/PBLApp.csproj      # приложение (тянет PBLEngine + PBLApp.Core)
+dotnet run   --project PBLApp          # запуск
+dotnet test  PBLEngine.Tests/PBLEngine.Tests.csproj   # тесты (~1-2 мин)
+```
+
+Первая инициализация Lua-движка занимает ~40 с — это нормально, все тесты
+переиспользуют один экземпляр.
+
+Структура C#-части и история миграции — в
+[`AVALONIA_MIGRATION_PLAN.md`](AVALONIA_MIGRATION_PLAN.md), соглашения тестов —
+в [`PBLEngine.Tests/TESTS.md`](PBLEngine.Tests/TESTS.md), релиз —
+в [`RELEASE_PBLApp.md`](RELEASE_PBLApp.md).
+
+## Что проверяется в CI
+
+`.github/workflows/ci.yml` на каждый push и PR собирает `PBLApp`, `PBLMcp`,
+`PBLParity` в Release и прогоняет xUnit-тесты на `windows-latest`. PR с красным
+CI не мержатся.
+
+## Правила, о которых легко забыть
+
+- **Изменения в парсинге модов** (`src/Modules/ModParser.lua`) требуют
+  пересборки `src/Data/ModCache.lua` — она должна попасть в тот же коммит.
+- **Изменения в `src/Modules/Calc*.lua`, `ItemTools.lua` или compat-шимах**
+  требуют прогона паритета с оригинальным PoB:
+  `pwsh ./scripts/parity.ps1` (см. [`tools/parity/README.md`](tools/parity/README.md)).
+- **Обратная совместимость текстов модов обязательна** — старые билды хранят
+  сырые строки модов.
+- **Локализация**: новые строки интерфейса идут в `Strings.resx` /
+  `Strings.ru.resx`, не хардкодом в XAML (см. [`LOCALIZATION_PLAN.md`](LOCALIZATION_PLAN.md)).
+
+-------------------------------------------------------------------------------
+
 # Contributing to Path of Building
 
 # Table of contents

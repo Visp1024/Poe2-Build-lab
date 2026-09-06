@@ -1,63 +1,111 @@
-# Path of Building 2 Community
-## Welcome to Path of Building 2, an offline build planner for Path of Exile 2!
+# PoE2 Build Lab
 
+**Планировщик билдов для Path of Exile 2 — на русском языке, с нативным интерфейсом.**
+
+Форк [Path of Building Community (PoE2)](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2)
+с полностью переписанным интерфейсом на .NET 9 / Avalonia и сквозной русской
+локализацией. Движок расчётов — оригинальный, проверенный PoB.
+
+[English version](README.en.md) · [Telegram](https://t.me/PoE2BuildLab) · [Boosty](https://boosty.to/poe2buildlab)
+
+<!-- SCREENSHOTS: заполняется после задачи #37 (иконки предметов). Файлы — docs/assets/screenshots/ -->
 <p float="middle">
-  <img alt="Tree tab" src="https://github.com/user-attachments/assets/225bf25f-1ac4-4639-b280-565a24d2a2fc" width="48%" />
-  <img alt="Items tab" src="https://github.com/user-attachments/assets/de8e6dc0-1e1a-46c5-b8a4-18877e67d48d" width="48%" />
+  <img alt="Вкладка «Дерево»" src="docs/assets/screenshots/tree.png" width="48%" />
+  <img alt="Вкладка «Предметы»" src="docs/assets/screenshots/items.png" width="48%" />
+</p>
+<p float="middle">
+  <img alt="Вкладка «Умения»" src="docs/assets/screenshots/skills.png" width="48%" />
+  <img alt="Вкладка «Расчёты»" src="docs/assets/screenshots/calcs.png" width="48%" />
 </p>
 
-## Download
-Head over to the [Releases](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/releases) page to download the install wizard or portable zip.
+## Скачать
 
-## Features
-* Comprehensive offence + defence calculations:
-  * Calculate your skill DPS, damage over time, life/mana/ES totals and much more!
-  * Can factor in auras, buffs, charges, curses, monster resistances and more, to estimate your effective DPS
-  * Also calculates life/mana reservations
-  * Shows a summary of character stats in the side bar, as well as a detailed calculations breakdown tab which can show you how the stats were derived
-  * Supports all skills and support gems, and most passives and item modifiers
-    * Throughout the program, supported modifiers will show in blue and unsupported ones in red
-  * Full support for minions
-  * Support for party play and support builds
-* Passive skill tree planner:
-  * Support for jewels including most radius/conversion and timeless jewels
-  * Features alternate path tracing (mouse over a sequence of nodes while holding shift, then click to allocate them all)
-  * Fully integrated with the offence/defence calculations; see exactly how each node will affect your character!
-  * Can import PathOfExile.com and PoEPlanner.com passive tree links; links shortened with PoEURL.com also work
-* Skill planner:
-  * Add any number of main or supporting skills to your build
-  * Supporting skills (auras, curses, buffs) can be toggled on and off
-  * Automatically applies Socketed Gem modifiers from the item a skill is socketed into
-  * Automatically applies support gems granted by items
-* Item planner:
-  * Add items from in game by copying and pasting them straight into the program!
-  * Automatically adds quality to non-corrupted items
-  * Search the trade site for the most impactful items
-  * Fully integrated with the offence/defence calculations; see exactly how much of an upgrade a given item is!
-  * Contains a searchable database of all uniques that are currently in game (and some that aren't yet!)
-    * You can choose the modifier rolls when you add a unique to your build
-    * Includes all league-specific items and legacy variants
-  * Features an item crafting system:
-    * You can select from any of the game's base item types
-    * You can select prefix/suffix modifiers from lists
-    * Custom modifiers can be added, with Master and Essence modifiers available
-  * Also contains a database of rare item templates:
-    * Allows you to create rare items for your build to approximate the gear you will be using
-    * Choose which modifiers appear on each item, and the rolls for each modifier, to suit your needs
-    * Has templates that should cover the majority of builds
-* Other features:
-  * You can import passive tree, items, and skills from existing characters
-  * Share builds with other users by generating a share code
-  * Automatic updating; most updates will only take a couple of seconds to apply
+Готовые сборки — на странице [Releases](https://github.com/Visp1024/Poe2-Build-lab/releases).
 
-## Changelog
-You can find the full version history [here](CHANGELOG.md).
+- Windows 10/11, x64;
+- устанавливать ничего не нужно: архив распаковывается в любую папку и запускается;
+- .NET на компьютере **не требуется** — он уже внутри сборки.
 
-## Contribute
-You can find instructions on how to contribute code and bug reports [here](CONTRIBUTING.md).
+## Чем отличается от оригинального Path of Building
 
-## Licence
-[MIT](https://opensource.org/licenses/MIT)
+| | Оригинальный PoB2 | PoE2 Build Lab |
+|---|---|---|
+| Интерфейс | Lua + собственный рендерер SimpleGraphic (DirectX) | нативный .NET 9 / Avalonia |
+| Язык | только английский | **русский** (интерфейс, гемы, статы, ноды дерева, моды предметов) |
+| Движок расчётов | Lua 5.1 / LuaJIT | тот же код на Lua 5.4 через NLua |
+| Окна | одно окно, вкладки внутри | вкладки отрываются в отдельные окна, заметки и настройки — свои окна |
 
-For 3rd-party licences, see [LICENSE](LICENSE.md).
-The licencing information is considered to be part of the documentation.
+Расчёты — это буквально тот же самый Lua-код, что и в апстриме: он не
+переписывался, а был перенесён на Lua 5.4 и покрыт автоматической проверкой
+паритета — каждый билд прогоняется через оба движка и все статы сравниваются
+до шестого знака.
+
+## Возможности
+
+**Дерево пассивных умений**
+- полное дерево PoE2 с классами и восхождениями, поиск по узлам;
+- **тепловая карта мощности узлов** — показывает, какой ещё не взятый узел
+  даёт больше всего выбранного стата (DPS, EHP и т. д.) на вложенное очко,
+  с учётом того, сколько очков до него нужно потратить;
+- расчёт идёт в пуле фоновых воркеров, интерфейс не замирает.
+
+**Предметы**
+- фигура персонажа со всеми слотами, пул предметов, базы и уникальные;
+- тултипы в стиле игры — с русским переводом каждой строки модов;
+- редактор предметов: база, редкость, аффиксы с ползунками роллов, качество,
+  руны, порча;
+- при наведении показывается разница статов с уже надетым предметом;
+- **подбор апгрейдов через официальный трейд** — под каждым слотом кнопка
+  «Подбор», окно ищет предметы на pathofexile.com/trade2 по выбранным весам
+  статов (вход по официальному OAuth GGG).
+
+**Умения**
+- группы умений, активные и поддерживающие гемы, уровни и качество;
+- переведённые описания гемов и теги;
+- моды с сокетов и гемы, выдаваемые предметами, применяются автоматически.
+
+**Расчёты**
+- полная разбивка урона и защит из PoB — как именно получилась каждая цифра;
+- сводка ключевых статов в шапке билда.
+
+**Прочее**
+- импорт персонажа с pathofexile.com, импорт и экспорт кодов билдов;
+- заметки к билду в отдельном окне;
+- конфигурация боя (ауры, баффы, заряды, проклятия, сопротивления врага…);
+- размеры и положение окон запоминаются между запусками.
+
+## Сообщество и поддержка
+
+- **Telegram** — [@PoE2BuildLab](https://t.me/PoE2BuildLab): анонсы версий,
+  вопросы, баг-репорты, обсуждение.
+- **Boosty** — [boosty.to/poe2buildlab](https://boosty.to/poe2buildlab):
+  поддержать разработку.
+
+Баги и предложения также можно оставлять в
+[Issues](https://github.com/Visp1024/Poe2-Build-lab/issues).
+
+## Благодарности
+
+Проект существует благодаря
+[Path of Building Community](https://github.com/PathOfBuildingCommunity) и
+изначальному Path of Building Openarl'а — весь движок расчётов, база данных
+модов и логика билдов пришли оттуда. Апстрим регулярно вливается обратно в этот
+форк.
+
+Path of Exile 2 — торговая марка Grinding Gear Games. Проект не связан с GGG и
+не поддерживается ими.
+
+## Лицензия
+
+[MIT](LICENSE) — как и у оригинального Path of Building.
+
+Лицензии сторонних компонентов (Lua PUC-Rio, зависимости движка и данные)
+собраны в [LICENSE.md](LICENSE.md). Лицензионная информация считается частью
+документации.
+
+## Разработка
+
+Инструкции по сборке, тестам и вкладу в код — в
+[CONTRIBUTING.md](CONTRIBUTING.md); архитектура C#-части описана в
+[AVALONIA_MIGRATION_PLAN.md](AVALONIA_MIGRATION_PLAN.md), процесс релиза — в
+[RELEASE_PBLApp.md](RELEASE_PBLApp.md).

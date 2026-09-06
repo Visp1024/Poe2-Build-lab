@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & test (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      # PBLApp pulls in PBLEngine + PBLApp.Core, so building it covers the whole
+      # shipping chain. PBLMcp/PBLParity/PBLHost/PBLExport are dev tooling and
+      # are built separately below so a break there is still caught.
+      - name: Build app
+        run: dotnet build PBLApp/PBLApp.csproj -c Release --nologo
+
+      - name: Build tooling
+        run: |
+          dotnet build PBLMcp/PBLMcp.csproj -c Release --nologo
+          dotnet build PBLParity/PBLParity.csproj -c Release --nologo
+
+      # LuaHost init takes ~40 s and every test class shares one instance, so
+      # the whole suite runs sequentially — 195 tests, ~18 min on a loaded dev
+      # box. Hence the generous job timeout above.
+      - name: Test
+        run: dotnet test PBLEngine.Tests/PBLEngine.Tests.csproj -c Release --nologo -v minimal
+
+      # NOTE: the upstream Lua busted suite (spec/, docker-compose.yml) is
+      # deliberately NOT wired in here. It targets LuaJIT 5.1 while we run the
+      # engine on Lua 5.4 via NLua, and its green/red state in this fork is
+      # unverified. Engine coverage comes from PBLEngine.Tests (which exercises
+      # the same Lua through NLua) and from the PBLParity sweep, which is run
+      # manually after upstream syncs — see tools/parity/README.md.

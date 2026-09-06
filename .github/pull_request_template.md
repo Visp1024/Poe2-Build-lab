@@ -1,14 +1,11 @@
-Fixes # .
+## Что изменилось
 
-### Description of the problem being solved:
 
-### Steps taken to verify a working solution:
--
--
--
 
-### Link to a build that showcases this PR:
+## Как проверялось
 
-### Before screenshot:
+<!-- Тесты, ручная проверка, скриншоты для изменений интерфейса. -->
 
-### After screenshot:
+- [ ] `dotnet test PBLEngine.Tests/PBLEngine.Tests.csproj` проходит
+- [ ] для изменений в UI приложены скриншоты
+- [ ] при правках парсинга модов пересобран и закоммичен `src/Data/ModCache.lua`
