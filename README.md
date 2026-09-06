@@ -29,7 +29,22 @@ calculation engine is the original, battle-tested PoB one.
 </tr>
 </table>
 
-[Telegram](https://t.me/PoE2BuildLab) · [Boosty](https://boosty.to/poe2buildlab) · [Releases](https://github.com/Visp1024/Poe2-Build-lab/releases)
+<p align="center">
+  <a href="https://github.com/Visp1024/Poe2-Build-lab/releases/latest">
+    <img alt="Скачать для Windows / Download for Windows" height="46"
+         src="https://img.shields.io/github/v/release/Visp1024/Poe2-Build-lab?style=for-the-badge&color=e0a940&labelColor=1c1c1c&logo=windows&logoColor=white&label=%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C%20%C2%B7%20Download">
+  </a>
+</p>
+
+<p align="center">
+  <sub>Windows 10/11 x64 · без установки · .NET не требуется —
+  <a href="https://github.com/Visp1024/Poe2-Build-lab/releases">все версии</a></sub>
+</p>
+
+<p align="center">
+  <a href="https://t.me/PoE2BuildLab">Telegram</a> ·
+  <a href="https://boosty.to/poe2buildlab">Boosty</a>
+</p>
 
 <p float="middle">
   <img alt="Дерево пассивных умений с тепловой картой мощности / Passive tree with the node power heat-map" src="docs/assets/screenshots/tree.png" width="48%" />
@@ -48,7 +63,12 @@ calculation engine is the original, battle-tested PoB one.
 
 ### Скачать
 
-Готовые сборки — на странице [Releases](https://github.com/Visp1024/Poe2-Build-lab/releases).
+<a href="https://github.com/Visp1024/Poe2-Build-lab/releases/latest">
+  <img alt="Скачать последнюю версию" height="40"
+       src="https://img.shields.io/github/v/release/Visp1024/Poe2-Build-lab?style=for-the-badge&color=e0a940&labelColor=1c1c1c&logo=windows&logoColor=white&label=%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C">
+</a>
+
+Все сборки — на странице [Releases](https://github.com/Visp1024/Poe2-Build-lab/releases).
 
 - Windows 10/11, x64;
 - устанавливать ничего не нужно: архив распаковывается в любую папку и запускается;
@@ -125,7 +145,7 @@ Path of Exile 2 — торговая марка Grinding Gear Games. Проек�
 
 ### Лицензия
 
-[MIT](LICENSE) — как и у оригинального Path of Building.
+[MIT](LICENSE).
 
 Лицензии сторонних компонентов (Lua PUC-Rio, зависимости движка и данные)
 собраны в [LICENSE.md](LICENSE.md). Лицензионная информация считается частью
@@ -146,7 +166,12 @@ Path of Exile 2 — торговая марка Grinding Gear Games. Проек�
 
 ### Download
 
-Prebuilt binaries are on the [Releases](https://github.com/Visp1024/Poe2-Build-lab/releases) page.
+<a href="https://github.com/Visp1024/Poe2-Build-lab/releases/latest">
+  <img alt="Download the latest release" height="40"
+       src="https://img.shields.io/github/v/release/Visp1024/Poe2-Build-lab?style=for-the-badge&color=e0a940&labelColor=1c1c1c&logo=windows&logoColor=white&label=Download">
+</a>
+
+All builds are on the [Releases](https://github.com/Visp1024/Poe2-Build-lab/releases) page.
 
 - Windows 10/11, x64;
 - no installer — unpack the archive anywhere and run it;
@@ -222,7 +247,7 @@ affiliated with or endorsed by GGG.
 
 ### Licence
 
-[MIT](LICENSE) — the same as upstream Path of Building.
+[MIT](LICENSE).
 
 Third-party licences (PUC-Rio Lua, engine dependencies and data) are collected
 in [LICENSE.md](LICENSE.md). The licensing information is considered to be part
