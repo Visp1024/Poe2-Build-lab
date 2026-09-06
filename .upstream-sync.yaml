@@ -8,10 +8,11 @@ upstream_branch: dev
 
 # Последний синхронизированный upstream commit и его версия.
 # При первом синке = точка форка (Release 0.15.0).
-last_synced_sha: a7dec3f5a8c2acb3790026dea73ebed96bcf024b  # Release 0.21.1 (incl. 0.5.3 + 0.5.4 data exports)
-last_synced_version: 0.21.1
+last_synced_sha: 7d6f530cbdab20389ff8bc6ba97a37ac27f74e41  # Release 0.23.1
+last_synced_version: 0.23.1
 game_version: 0.5.4           # PoE2 game patch this sync targets — goes in the release archive name
-last_synced_date: 2026-06-27
+                              # GGPK-реген снят с клиента Bundles2 от 2026-09-04 (новее апстрима)
+last_synced_date: 2026-09-06
 
 # Пути в upstream, которые мы тянем 3-way патчем.
 # Avalonia/UI и runtime/*.dll НЕ трогаем.
