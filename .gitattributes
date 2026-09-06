@@ -67,3 +67,9 @@
 # (https://git-scm.com/docs/gitattributes#_executable)
 ###############################################################################
 runtime/*.exe binary
+###############################################################################
+# Item icon cache (PBLExport/icons/cache) is committed as-is — mark the image
+# formats binary explicitly so no platform ever line-ending-normalises them.
+###############################################################################
+*.webp binary
+*.png  binary

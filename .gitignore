@@ -52,9 +52,9 @@ src/poe_api_response.json
 publish/
 *.user
 
-# Item icon cache — downloaded from cdn.poe2db.tw, regeneratable via tools/download_icons.mjs
-PBLExport/icons/cache/
-PBLExport/icons/icon_map.preliminary.json
+# Item icons: the cache (PBLExport/icons/cache/) and icon_map.preliminary.json are
+# COMMITTED — poe2db returns 403 for a growing share of items, so re-downloading them
+# is no longer a reliable recovery path. Only the scripts' diagnostic output is ignored.
 PBLExport/icons/missing.json
 
 # Node dependencies and intermediate render output for the icon-tooling scripts
