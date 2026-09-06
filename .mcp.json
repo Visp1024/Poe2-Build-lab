@@ -6,7 +6,7 @@
       "args": [
         "run",
         "--project",
-        "D:\\Work\\PathBuildLab\\PBLMcp\\PBLMcp.csproj",
+        "PBLMcp/PBLMcp.csproj",
         "--no-build"
       ],
       "env": {}
