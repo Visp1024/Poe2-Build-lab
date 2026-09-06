@@ -104,11 +104,11 @@ avalonia  avaloniaui  dotnet  csharp  lua  nlua  gaming  russian
 
 ## 5. Осталось после этой задачи
 
-- **Скриншоты для README** — задача **#38**. Блокер снят: исправление #37
-  («Отсутствуют изображения предметов») влито в `main`. Секции в
-  `README.md` / `README.en.md` размечены, файлы кладутся в
-  `docs/assets/screenshots/`:
-  `tree.png`, `items.png`, `skills.png`, `calcs.png`.
+- ~~**Скриншоты для README**~~ — сняты 2026-09-06 и лежат в
+  `docs/assets/screenshots/` (`tree.png`, `items.png`, `skills.png`,
+  `calcs.png`). Задачу **#38** можно закрывать.
+- **Social preview 1280×640** — всё ещё нужна отдельная картинка для
+  Settings → General → Social preview; годится кадр дерева с подписью проекта.
 - **Подпись сборок** — маршрут описан в [`CODE_SIGNING.md`](CODE_SIGNING.md):
   SignPath Foundation, бесплатно для опенсорса, но требует, чтобы релиз собирался
   в CI. Теперь собирается — можно подавать заявку после публикации репозитория.
