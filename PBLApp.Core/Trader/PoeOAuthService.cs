@@ -25,10 +25,12 @@ public sealed class PoeOAuthService
     private const string PrefExpiry = "TraderTokenExpiry";
     private const string PrefAccount = "TraderAccountName";
 
-    private readonly LuaHost _host;
+    private readonly LuaHost? _host;
     private readonly HttpClient _http;
 
-    public PoeOAuthService(LuaHost host, HttpMessageHandler? handler = null)
+    /// <summary>host = null — режим без Lua (импорт персонажа ходит в API сам,
+    /// токен в Lua прокидывать некому); инжект в main.api тогда пропускается.</summary>
+    public PoeOAuthService(LuaHost? host, HttpMessageHandler? handler = null)
     {
         _host = host;
         _http = handler is null
@@ -156,7 +158,56 @@ public sealed class PoeOAuthService
         AppPreferences.Set(PrefRefresh, "");
         AppPreferences.Set(PrefExpiry, "");
         AppPreferences.Set(PrefAccount, "");
-        _host.SetTradeAuth(null, null, null);
+        _host?.SetTradeAuth(null, null, null);
+    }
+
+    // ── Обновление токена ────────────────────────────────────────────────────
+
+    /// <summary>Обмен refresh_token на новую пару — форма как в PoEAPI.lua:36.
+    /// Ничего не сохраняет: prefs пишет <see cref="GetAccessTokenAsync"/>.</summary>
+    public async Task<(string Access, string? Refresh, long ExpiresIn)?> RefreshAsync(
+        string refreshToken, CancellationToken ct = default)
+    {
+        var form = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["client_id"] = "pob",
+            ["grant_type"] = "refresh_token",
+            ["refresh_token"] = refreshToken,
+        });
+        using var resp = await _http.PostAsync("https://www.pathofexile.com/oauth/token", form, ct);
+        if (!resp.IsSuccessStatusCode) return null;
+        using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
+        var root = doc.RootElement;
+        var access = root.TryGetProperty("access_token", out var a) ? a.GetString() : null;
+        if (string.IsNullOrEmpty(access)) return null;
+        var refresh = root.TryGetProperty("refresh_token", out var r) ? r.GetString() : null;
+        var expiresIn = root.TryGetProperty("expires_in", out var e) ? e.GetInt64() : 3600;
+        return (access, refresh, expiresIn);
+    }
+
+    /// <summary>Валидный access-токен для запросов к api.pathofexile.com: сохранённый,
+    /// а по истечении срока — обновлённый по refresh_token (с записью в prefs и
+    /// инжектом в Lua). null — входа нет или обновление не удалось.</summary>
+    public async Task<string?> GetAccessTokenAsync(CancellationToken ct = default)
+    {
+        var access = AppPreferences.Get(PrefAccess);
+        var expiry = long.TryParse(AppPreferences.Get(PrefExpiry), out var e) ? e : 0;
+        // Минута запаса — чтобы токен не истёк между проверкой и запросом.
+        if (!string.IsNullOrEmpty(access) && expiry - 60 > DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+            return access;
+
+        var refresh = AppPreferences.Get(PrefRefresh);
+        if (string.IsNullOrEmpty(refresh)) return string.IsNullOrEmpty(access) ? null : access;
+
+        var refreshed = await RefreshAsync(refresh, ct);
+        if (refreshed is null) return null;
+
+        AppPreferences.Set(PrefAccess, refreshed.Value.Access);
+        AppPreferences.Set(PrefRefresh, refreshed.Value.Refresh ?? refresh);
+        AppPreferences.Set(PrefExpiry,
+            (DateTimeOffset.UtcNow.ToUnixTimeSeconds() + refreshed.Value.ExpiresIn).ToString());
+        InjectIntoLua();
+        return refreshed.Value.Access;
     }
 
     /// <summary>Прокинуть сохранённые токены в Lua (main.api) — звать после инициализации хоста.</summary>
@@ -166,7 +217,7 @@ public sealed class PoeOAuthService
         if (string.IsNullOrEmpty(access)) return;
         var refresh = AppPreferences.Get(PrefRefresh);
         long? expiry = long.TryParse(AppPreferences.Get(PrefExpiry), out var e) ? e : null;
-        _host.SetTradeAuth(access, string.IsNullOrEmpty(refresh) ? null : refresh, expiry);
+        _host?.SetTradeAuth(access, string.IsNullOrEmpty(refresh) ? null : refresh, expiry);
     }
 
     private static (HttpListener? Listener, int Port) BindRegisteredPort()

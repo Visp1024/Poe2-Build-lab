@@ -486,6 +486,32 @@ v2-фолбэк на одном хосте 25.9 с → холодный пул (
 IPC: `/tree/state` несёт `workersReady/workersTotal/powerSortIndex/powerFilter`,
 `/tree/power-report` — `steps`/`perPoint`/`typeBadge` на строку.
 
+### Phase 20 — Импорт персонажа из игры ✅ DONE
+
+Загрузка персонажа с аккаунта pathofexile.com — **только с экрана выбора билда**: персонаж
+всегда становится НОВЫМ билдом (импорта в открытый билд нет).
+
+- `PBLApp.Core/Import/CharacterApi.cs` — `GET api.pathofexile.com/character/poe2` (список) и
+  `/character/poe2/<имя>` (сам персонаж, сырой JSON). Коды разобраны как в
+  `ImportTab:DownloadCharacterList`: 401 → нужен вход, 403 → приватный профиль, 404 → не найден,
+  429 → `Retry-After`. Токен приходит через провайдер (`Func<CancellationToken, Task<string?>>`),
+  поэтому тесты обходятся без prefs и сети.
+- `PoeOAuthService` (общий с «Трейдером» вход): добавлены `RefreshAsync` (обмен refresh_token) и
+  `GetAccessTokenAsync` (валидный токен + запись в prefs + инжект в Lua). `LuaHost` стал
+  необязательным — импорту он не нужен.
+- `PBLEngine/LuaHostImport.cs` — `ImportCharacter(json, CharacterImportOptions)`: декод `dkjson`,
+  проставление чекбоксов `build.importTab.controls.*`, вызов штатных
+  `ImportPassiveTreeAndJewels` / `ImportItemsAndSkills` под `pcall`. Парсинг НЕ дублируется на C#.
+  `ResolveCharacterClassName` переводит внутренний id восхождения из API («Witch2») в имя
+  («Blood Mage») через `tree.internalAscendNameMap` — как `ImportTab.lua:499`.
+- `CharacterImportViewModel` + `PBLApp/Views/CharacterImportWindow.axaml`: вход → список
+  (фильтр по лиге + поиск) → выбор что импортировать → импорт. 401 при загрузке списка чистит
+  токен и возвращает экран входа. Строки — `CharImport_*` в обеих resx.
+- Точка входа: вторая строка действия в карточке «Создать билд» (`BuildListView`).
+- Служебное IPC для агентской проверки (окно дочернее, скриншот MainWindow его не видит):
+  `/character-import/open` (`{"screen": N}` — открыть и увести на монитор N), `/app/screens`
+  (список мониторов), `/app/move-to-screen` (`{"screen": N, "window": "main"|"character-import"|"all"}`).
+
 ---
 
 ## Backlog (deferred / future work)

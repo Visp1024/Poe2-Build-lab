@@ -506,4 +506,35 @@
   <data name="Credits_DontShow"     xml:space="preserve"><value>Больше не показывать</value></data>
   <data name="Credits_Close"        xml:space="preserve"><value>Закрыть</value></data>
 
+  <!-- Импорт персонажа из игры (#47) -->
+  <data name="CharImport_Title"            xml:space="preserve"><value>Импорт персонажа</value></data>
+  <data name="CharImport_Entry"            xml:space="preserve"><value>&#x2913; Импорт персонажа</value></data>
+  <data name="CharImport_LoginTitle"       xml:space="preserve"><value>Вход в аккаунт Path of Exile</value></data>
+  <data name="CharImport_LoginDesc"        xml:space="preserve"><value>Откроется браузер с формой входа GGG. PathBuildLab не видит ваш пароль &#x2014; только выданный токен доступа. Тот же вход используется вкладкой &#x00AB;Трейдер&#x00BB;.</value></data>
+  <data name="CharImport_LoginButton"      xml:space="preserve"><value>Войти через pathofexile.com</value></data>
+  <data name="CharImport_Logout"           xml:space="preserve"><value>Выйти</value></data>
+  <data name="CharImport_League"           xml:space="preserve"><value>Лига</value></data>
+  <data name="CharImport_AllLeagues"       xml:space="preserve"><value>Все лиги</value></data>
+  <data name="CharImport_SearchPlaceholder" xml:space="preserve"><value>Поиск по имени&#x2026;</value></data>
+  <data name="CharImport_RefreshTip"       xml:space="preserve"><value>Обновить список персонажей</value></data>
+  <data name="CharImport_WhatToImport"     xml:space="preserve"><value>Что импортировать</value></data>
+  <data name="CharImport_Tree"             xml:space="preserve"><value>Дерево пассивных умений и самоцветы</value></data>
+  <data name="CharImport_Items"            xml:space="preserve"><value>Снаряжение и умения</value></data>
+  <data name="CharImport_IgnoreWeaponSwap" xml:space="preserve"><value>Игнорировать вторую связку оружия</value></data>
+  <data name="CharImport_Button"           xml:space="preserve"><value>Импортировать</value></data>
+  <data name="CharImport_NotAuthenticated" xml:space="preserve"><value>Не авторизован</value></data>
+  <data name="CharImport_WaitingBrowser"   xml:space="preserve"><value>Ожидаю подтверждение входа в браузере&#x2026;</value></data>
+  <data name="CharImport_LoginFailed"      xml:space="preserve"><value>Войти не удалось: вход отменён или отклонён.</value></data>
+  <data name="CharImport_LoadingList"      xml:space="preserve"><value>Загружаю список персонажей&#x2026;</value></data>
+  <data name="CharImport_ListLoaded"       xml:space="preserve"><value>Выберите персонажа для импорта.</value></data>
+  <data name="CharImport_NoCharacters"     xml:space="preserve"><value>На аккаунте нет персонажей Path of Exile 2.</value></data>
+  <data name="CharImport_Downloading"      xml:space="preserve"><value>Загружаю данные персонажа&#x2026;</value></data>
+  <data name="CharImport_Importing"        xml:space="preserve"><value>Импортирую&#x2026;</value></data>
+  <data name="CharImport_Done"             xml:space="preserve"><value>Персонаж импортирован.</value></data>
+  <data name="CharImport_ImportFailed"     xml:space="preserve"><value>Не удалось импортировать: {0}</value></data>
+  <data name="CharImport_PrivateProfile"   xml:space="preserve"><value>Профиль аккаунта скрыт настройками приватности на сайте.</value></data>
+  <data name="CharImport_NotFound"         xml:space="preserve"><value>Аккаунт или персонаж не найден.</value></data>
+  <data name="CharImport_RateLimited"      xml:space="preserve"><value>Слишком частые запросы, повторите через {0} с.</value></data>
+  <data name="CharImport_NetworkError"     xml:space="preserve"><value>Ошибка сети: {0}</value></data>
+
 </root>

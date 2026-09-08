@@ -27,6 +27,10 @@ public partial class BuildListViewModel : ViewModelBase
     /// view-model. View wires this on construction.</summary>
     public Func<ImportTabViewModel, Task>? ShowImportWindow { get; set; }
 
+    /// <summary>Asks the view to show the character-import window (new-build mode).
+    /// View wires this on construction.</summary>
+    public Func<CharacterImportViewModel, Task>? ShowCharacterImportWindow { get; set; }
+
     /// <summary>Asks the view for a new build name (prompt dialog), seeded with the
     /// current name. Returns the entered name, or null if cancelled. View wires this.</summary>
     public Func<string, Task<string?>>? PromptRenameAsync { get; set; }
@@ -140,6 +144,25 @@ public partial class BuildListViewModel : ViewModelBase
         {
             StatusMessage = "Error opening import: " + ex.Message;
             WriteErrorLog("OpenImport", ex);
+        }
+    }
+
+    /// <summary>Импорт персонажа с аккаунта GGG в НОВЫЙ билд (#47): окно само
+    /// пишет файл билда и зовёт OnBuildImported, который его открывает.</summary>
+    [RelayCommand]
+    private async Task OpenCharacterImport()
+    {
+        StatusMessage = "";
+        try
+        {
+            var vm = new CharacterImportViewModel(_hostTask, GetBuildsPath(), OnBuildImported);
+            if (ShowCharacterImportWindow != null)
+                await ShowCharacterImportWindow(vm);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "Error opening character import: " + ex.Message;
+            WriteErrorLog("OpenCharacterImport", ex);
         }
     }
 

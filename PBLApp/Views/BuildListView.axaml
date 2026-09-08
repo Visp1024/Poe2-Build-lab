@@ -248,6 +248,13 @@
                                                 ToolTip.Tip="{loc:Tr List_ImportCard}">
                                             <TextBlock Text="{loc:Tr List_ImportCard}" />
                                         </Border>
+                                        <!-- Импорт персонажа с аккаунта GGG (#47) -->
+                                        <Border Classes="import-row"
+                                                Tag="{Binding}"
+                                                PointerPressed="CharacterImportCard_PointerPressed"
+                                                ToolTip.Tip="{loc:Tr CharImport_Title}">
+                                            <TextBlock Text="{loc:Tr CharImport_Entry}" />
+                                        </Border>
                                     </StackPanel>
                                 </Grid>
                             </Border>

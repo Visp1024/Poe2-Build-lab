@@ -1,0 +1,220 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PBLApp.ViewModels"
+        xmlns:conv="using:PBLApp.Converters"
+        xmlns:loc="using:PBLApp.Localization"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="640"
+        x:Class="PBLApp.Views.CharacterImportWindow"
+        x:DataType="vm:CharacterImportViewModel"
+        Title="{Binding WindowTitle}"
+        Width="580" Height="660" MinWidth="440" MinHeight="380"
+        Background="{DynamicResource BgBaseBrush}"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Styles>
+        <Style Selector="Border.bar">
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="Padding" Value="12,10" />
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="Padding" Value="11,10" />
+        </Style>
+        <Style Selector="TextBlock.muted">
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style Selector="TextBlock.head">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+        </Style>
+        <Style Selector="Button.go">
+            <Setter Property="Background" Value="{DynamicResource ConfirmBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+        <Style Selector="Button.accent">
+            <Setter Property="Background" Value="{DynamicResource Brand100Brush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand500Brush}" />
+            <Setter Property="Foreground" Value="{DynamicResource Brand400Brush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <!-- Строка статуса: цвет по StatusKind -->
+        <Style Selector="Border.status">
+            <Setter Property="Background" Value="{DynamicResource BgMantleBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="9,6" />
+        </Style>
+        <Style Selector="Border.status TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style Selector="Border.status.ok TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+        </Style>
+        <Style Selector="Border.status.warn TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+        </Style>
+        <Style Selector="Border.status.err TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+
+        <!-- Шапка: аккаунт и выход -->
+        <Border Classes="bar" DockPanel.Dock="Top">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0" Text="{loc:Tr CharImport_Title}"
+                           FontSize="14" FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextPrimaryBrush}" />
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="7"
+                            VerticalAlignment="Center" Margin="0,0,8,0"
+                            IsVisible="{Binding IsLoggedIn}">
+                    <Border Width="20" Height="20" CornerRadius="10"
+                            Background="{DynamicResource Brand100Brush}"
+                            BorderBrush="{DynamicResource Brand500Brush}" BorderThickness="1">
+                        <TextBlock Text="{Binding AccountInitial}" FontSize="10" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource Brand400Brush}" />
+                    </Border>
+                    <TextBlock Text="{Binding AccountName}" FontSize="12"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                </StackPanel>
+
+                <Button Grid.Column="2" Content="{loc:Tr CharImport_Logout}"
+                        Command="{Binding LogoutCommand}"
+                        IsVisible="{Binding IsLoggedIn}"
+                        Padding="10,3" FontSize="12" />
+            </Grid>
+        </Border>
+
+        <!-- Подвал: статус + кнопка импорта -->
+        <Border DockPanel.Dock="Bottom" Padding="12,10"
+                Background="{DynamicResource BgMantleBrush}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,1,0,0">
+            <StackPanel Spacing="8">
+                <Border Classes="status"
+                        Classes.ok="{Binding StatusKind, Converter={x:Static conv:EnumEqualsConverter.Instance}, ConverterParameter=Ok}"
+                        Classes.warn="{Binding StatusKind, Converter={x:Static conv:EnumEqualsConverter.Instance}, ConverterParameter=Warning}"
+                        Classes.err="{Binding StatusKind, Converter={x:Static conv:EnumEqualsConverter.Instance}, ConverterParameter=Error}"
+                        IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <TextBlock Text="{Binding StatusMessage}" />
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding IsLoggedIn}">
+                    <Button Classes="go" Content="{loc:Tr CharImport_Button}"
+                            Command="{Binding ImportCommand}"
+                            IsEnabled="{Binding CanImport}"
+                            Padding="16,5" />
+                    <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}"
+                                 Width="130" Height="18" VerticalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Тело -->
+        <Grid Margin="12">
+
+            <!-- Состояние 1: нет входа -->
+            <Border Classes="card" VerticalAlignment="Top"
+                    IsVisible="{Binding !IsLoggedIn}">
+                <StackPanel Spacing="7">
+                    <TextBlock Classes="head" Text="{loc:Tr CharImport_LoginTitle}" />
+                    <TextBlock Classes="muted" Text="{loc:Tr CharImport_LoginDesc}" TextWrapping="Wrap" />
+                    <Button Classes="accent" HorizontalAlignment="Left" Margin="0,4,0,0"
+                            Content="{loc:Tr CharImport_LoginButton}"
+                            Command="{Binding LoginCommand}"
+                            IsEnabled="{Binding !IsBusy}"
+                            Padding="14,5" />
+                </StackPanel>
+            </Border>
+
+            <!-- Состояние 2: список персонажей и опции -->
+            <DockPanel IsVisible="{Binding IsLoggedIn}">
+
+                <!-- Фильтры -->
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,Auto,*,Auto" Margin="0,0,0,9">
+                    <TextBlock Grid.Column="0" Classes="muted" Text="{loc:Tr CharImport_League}"
+                               VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <ComboBox Grid.Column="1" MinWidth="170"
+                              ItemsSource="{Binding Leagues}"
+                              SelectedItem="{Binding SelectedLeague}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <TextBlock Text="{Binding Converter={x:Static conv:LeagueLabelConverter.Instance}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <TextBox Grid.Column="2" Margin="8,0"
+                             Text="{Binding Search}"
+                             PlaceholderText="{loc:Tr CharImport_SearchPlaceholder}" />
+                    <Button Grid.Column="3" Content="⟳"
+                            Command="{Binding LoadCharactersCommand}"
+                            IsEnabled="{Binding !IsBusy}"
+                            ToolTip.Tip="{loc:Tr CharImport_RefreshTip}"
+                            Padding="10,3" />
+                </Grid>
+
+                <!-- Что импортировать -->
+                <Border Classes="card" DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                    <StackPanel Spacing="3">
+                        <TextBlock Classes="head" Text="{loc:Tr CharImport_WhatToImport}" Margin="0,0,0,3" />
+
+                        <CheckBox IsChecked="{Binding ImportPassiveTree}"
+                                  Content="{loc:Tr CharImport_Tree}" />
+
+                        <CheckBox IsChecked="{Binding ImportItemsAndSkills}"
+                                  Content="{loc:Tr CharImport_Items}" />
+                        <CheckBox Margin="20,0,0,0" FontSize="12"
+                                  IsEnabled="{Binding ImportItemsAndSkills}"
+                                  IsChecked="{Binding IgnoreWeaponSwap}"
+                                  Content="{loc:Tr CharImport_IgnoreWeaponSwap}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Список персонажей -->
+                <Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1"
+                        CornerRadius="6" Background="{DynamicResource BgMantleBrush}"
+                        IsVisible="{Binding HasCharacters}">
+                    <ListBox ItemsSource="{Binding Characters}"
+                             SelectedItem="{Binding SelectedCharacter}"
+                             Background="Transparent" BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CharacterEntryViewModel">
+                                <Grid ColumnDefinitions="Auto,Auto,*" Margin="0,1">
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}"
+                                               FontSize="13.5" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Class}" Margin="9,0,0,0"
+                                               FontSize="12.5" FontWeight="SemiBold"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource Brand400Brush}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Meta}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center"
+                                               FontSize="11.5" FontFamily="Cascadia Code,Consolas,monospace"
+                                               Foreground="{DynamicResource TextMutedBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+
+            </DockPanel>
+        </Grid>
+    </DockPanel>
+</Window>

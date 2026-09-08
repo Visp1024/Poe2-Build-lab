@@ -28,6 +28,7 @@ public partial class BuildListView : UserControl
         {
             vm.ConfirmDeleteAsync = ConfirmDeleteAsync;
             vm.ShowImportWindow   = ShowImportWindowAsync;
+            vm.ShowCharacterImportWindow = ShowCharacterImportWindowAsync;
             vm.PromptRenameAsync  = PromptRenameAsync;
         }
     }
@@ -46,6 +47,16 @@ public partial class BuildListView : UserControl
     {
         var owner  = TopLevel.GetTopLevel(this) as Window;
         var window = new ImportExportWindow { DataContext = importVm };
+        importVm.CloseRequested += () => Dispatcher.UIThread.Post(window.Close);
+        if (owner is not null) window.Show(owner);
+        else                   window.Show();
+        return Task.CompletedTask;
+    }
+
+    private Task ShowCharacterImportWindowAsync(CharacterImportViewModel importVm)
+    {
+        var owner  = TopLevel.GetTopLevel(this) as Window;
+        var window = new CharacterImportWindow { DataContext = importVm };
         importVm.CloseRequested += () => Dispatcher.UIThread.Post(window.Close);
         if (owner is not null) window.Show(owner);
         else                   window.Show();
@@ -142,6 +153,17 @@ public partial class BuildListView : UserControl
         // Stop the press from bubbling up to Card_PointerPressed and creating an empty build.
         e.Handled = true;
         _ = vm.OpenImportCommand.ExecuteAsync(null);
+    }
+
+    private void CharacterImportCard_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
+        if (DataContext is not BuildListViewModel vm) return;
+
+        // Как и у импорта из кода: не даём нажатию всплыть до Card_PointerPressed,
+        // иначе поверх окна импорта создастся пустой билд.
+        e.Handled = true;
+        _ = vm.OpenCharacterImportCommand.ExecuteAsync(null);
     }
 
     private void DeleteCard_PointerPressed(object? sender, PointerPressedEventArgs e)

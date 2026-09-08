@@ -185,6 +185,9 @@ public sealed class IpcServer
                 "/ui/text"                => await OnUi(() => DumpUiText(body)),
                 "/app/open-settings"      => await OnUi(OpenAppSettings),
                 "/app/set-theme"          => await OnUi(() => SetAppTheme(body)),
+                "/character-import/open" => await OnUi(() => CharacterImportOpen(body)),
+                "/app/screens"           => await OnUi(ListScreens),
+                "/app/move-to-screen"    => await OnUi(() => MoveToScreen(body)),
                 "/trader/state"      => await OnUi(TraderState),
                 "/trader/open"       => await OnUi(() => TraderOpen(body)),
                 "/trader/search"     => await OnUi(() => TraderSearch(body)),
@@ -1535,6 +1538,113 @@ public sealed class IpcServer
             }).ToArray(),
         };
     }
+
+    /// <summary>Открывает окно импорта персонажа (#47) с экрана выбора билда —
+    /// оно дочернее, скриншот MainWindow его не покажет, поэтому агенту нужен явный
+    /// способ его вызвать. Необязательный "screen" (индекс из /app/screens) уводит
+    /// окно на другой монитор, чтобы проверка не залезала поверх работы человека.</summary>
+    private static object CharacterImportOpen(string body)
+    {
+        if (GetMainVm()?.CurrentPage is not BuildListViewModel bl)
+            return new { error = "Not on the build list page." };
+        bl.OpenCharacterImportCommand.Execute(null);
+
+        var window = AppWindows().OfType<Views.CharacterImportWindow>().LastOrDefault();
+        var placed = PlaceOnScreen(window, ScreenIndexFrom(body));
+        return new { ok = true, placedOnScreen = placed };
+    }
+
+    /// <summary>Мониторы, как их видит приложение: индекс для "screen" в других
+    /// вызовах + рабочая область в физических пикселях.</summary>
+    private static object ListScreens()
+    {
+        var w = GetMainWindow();
+        if (w is null) return new { error = "MainWindow not available." };
+        var screens = w.Screens.All;
+        return new
+        {
+            ok = true,
+            screens = screens.Select((s, i) => new
+            {
+                index = i,
+                primary = s.IsPrimary,
+                x = s.WorkingArea.X,
+                y = s.WorkingArea.Y,
+                width = s.WorkingArea.Width,
+                height = s.WorkingArea.Height,
+                scaling = s.Scaling,
+            }).ToArray(),
+        };
+    }
+
+    /// <summary>Служебное: увести окна приложения на указанный монитор, чтобы
+    /// агентская проверка не перекрывала основной экран человека. "window": "main"
+    /// (по умолчанию) | "character-import" | "all".</summary>
+    private static object MoveToScreen(string body)
+    {
+        var index = ScreenIndexFrom(body);
+        if (index is null) return new { error = "Provide 'screen' (index from /app/screens)." };
+
+        var which = "main";
+        try
+        {
+            var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body);
+            if (req is not null && req.TryGetValue("window", out var w) &&
+                w.ValueKind == JsonValueKind.String && w.GetString() is { Length: > 0 } name)
+                which = name;
+        }
+        catch (JsonException) { /* без "window" — двигаем главное окно */ }
+
+        var moved = new List<string>();
+        foreach (var window in AppWindows())
+        {
+            var isMain = ReferenceEquals(window, GetMainWindow());
+            var match = which switch
+            {
+                "all" => true,
+                "character-import" => window is Views.CharacterImportWindow,
+                _ => isMain,
+            };
+            if (match && PlaceOnScreen(window, index) is not null)
+                moved.Add(window.GetType().Name);
+        }
+        return new { ok = true, screen = index, moved = moved.ToArray() };
+    }
+
+    private static int? ScreenIndexFrom(string body)
+    {
+        if (string.IsNullOrWhiteSpace(body)) return null;
+        try
+        {
+            var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body);
+            if (req is not null && req.TryGetValue("screen", out var s) &&
+                s.ValueKind == JsonValueKind.Number)
+                return s.GetInt32();
+        }
+        catch (JsonException) { /* тела нет или оно не наше — просто без переноса */ }
+        return null;
+    }
+
+    /// <summary>Двигает окно на монитор с указанным индексом и подрезает под его
+    /// рабочую область. Возвращает индекс монитора либо null, если переносить нечего.</summary>
+    private static int? PlaceOnScreen(Window? window, int? index)
+    {
+        if (window is null || index is null) return null;
+        var screens = window.Screens.All;
+        if (index < 0 || index >= screens.Count) return null;
+
+        var screen = screens[index.Value];
+        var scale = screen.Scaling > 0 ? screen.Scaling : 1.0;
+        window.WindowState = WindowState.Normal;
+        window.Width  = Math.Min(window.Width,  screen.WorkingArea.Width  / scale);
+        window.Height = Math.Min(window.Height, screen.WorkingArea.Height / scale);
+        window.Position = new PixelPoint(screen.WorkingArea.X + 40, screen.WorkingArea.Y + 40);
+        return index;
+    }
+
+    private static IReadOnlyList<Window> AppWindows()
+        => (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
+               ?.Windows ?? Array.Empty<Window>();
 
     private static object TraderOpen(string body)
     {
