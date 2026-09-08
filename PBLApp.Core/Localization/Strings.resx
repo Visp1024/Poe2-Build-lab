@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
@@ -385,6 +385,11 @@
   <data name="Sidebar_DPS"          xml:space="preserve"><value>DPS:</value></data>
   <data name="Sidebar_FullDPS"      xml:space="preserve"><value>Full DPS:</value></data>
   <data name="Sidebar_FullDPS_Tip"  xml:space="preserve"><value>Full DPS breakdown</value></data>
+  <data name="Sidebar_EHP"          xml:space="preserve"><value>EHP:</value></data>
+  <data name="Sidebar_EHP_Tip"      xml:space="preserve"><value>Effective Hit Pool</value></data>
+  <data name="Sidebar_EHP_Hits"     xml:space="preserve"><value>Hits before death</value></data>
+  <data name="Sidebar_EHP_Time"     xml:space="preserve"><value>Time before death</value></data>
+  <data name="Sidebar_EHP_Sec"      xml:space="preserve"><value>s</value></data>
   <data name="Sidebar_Life"         xml:space="preserve"><value>Life:</value></data>
   <data name="Sidebar_ES"           xml:space="preserve"><value>ES:</value></data>
   <data name="Sidebar_Ward"         xml:space="preserve"><value>Ward:</value></data>

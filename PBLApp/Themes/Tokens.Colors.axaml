@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!--
         PBL design tokens — color layer.
@@ -54,6 +54,8 @@
             <Color x:Key="StatDps">#E07A8E</Color>
             <Color x:Key="StatLife">#7FC78A</Color>
             <Color x:Key="StatEs">#6FA8DC</Color>
+            <!-- Effective Hit Pool — teal, distinct from the Life/ES pools it aggregates. -->
+            <Color x:Key="StatEhp">#5FD0C5</Color>
             <Color x:Key="StatMana">#8AA6F5</Color>
             <Color x:Key="StatArmour">#E8B763</Color>
             <Color x:Key="StatEvasion">#B69CE8</Color>
@@ -158,6 +160,7 @@
             <SolidColorBrush x:Key="StatDpsBrush" Color="{StaticResource StatDps}" />
             <SolidColorBrush x:Key="StatLifeBrush" Color="{StaticResource StatLife}" />
             <SolidColorBrush x:Key="StatEsBrush" Color="{StaticResource StatEs}" />
+            <SolidColorBrush x:Key="StatEhpBrush" Color="{StaticResource StatEhp}" />
             <!-- Runic Ward — PoB uses the RARE colour for Ward (colorCodes.WARD = RARE). -->
             <SolidColorBrush x:Key="StatWardBrush" Color="{StaticResource RarityRare}" />
             <SolidColorBrush x:Key="StatManaBrush" Color="{StaticResource StatMana}" />
@@ -254,6 +257,8 @@
             <Color x:Key="StatDps">#B23A48</Color>
             <Color x:Key="StatLife">#3F8C4F</Color>
             <Color x:Key="StatEs">#2D7AB8</Color>
+            <!-- Effective Hit Pool — teal, distinct from the Life/ES pools it aggregates. -->
+            <Color x:Key="StatEhp">#17827A</Color>
             <Color x:Key="StatMana">#3D5BB8</Color>
             <Color x:Key="StatArmour">#B07C1A</Color>
             <Color x:Key="StatEvasion">#7E5FB8</Color>
@@ -353,6 +358,7 @@
             <SolidColorBrush x:Key="StatDpsBrush" Color="{StaticResource StatDps}" />
             <SolidColorBrush x:Key="StatLifeBrush" Color="{StaticResource StatLife}" />
             <SolidColorBrush x:Key="StatEsBrush" Color="{StaticResource StatEs}" />
+            <SolidColorBrush x:Key="StatEhpBrush" Color="{StaticResource StatEhp}" />
             <!-- Runic Ward — PoB uses the RARE colour for Ward (colorCodes.WARD = RARE). -->
             <SolidColorBrush x:Key="StatWardBrush" Color="{StaticResource RarityRare}" />
             <SolidColorBrush x:Key="StatManaBrush" Color="{StaticResource StatMana}" />

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -89,6 +89,32 @@ public sealed class BuildModel : INotifyPropertyChanged
     /// <summary>True when the build has any Runic Ward to show.</summary>
     public bool HasWard => _ward > 0;
 
+    // Effective Hit Pool (PoB's output.TotalEHP) — how much raw damage the
+    // character survives under the configured enemy hit, i.e. the defensive
+    // counterpart of DPS. HasEhp gates the sidebar tile so an empty build does
+    // not show a bare "0", matching how Ward / Full DPS are surfaced.
+    private double _totalEhp;
+    public double TotalEhp
+    {
+        get => _totalEhp;
+        private set
+        {
+            Set(ref _totalEhp, value);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasEhp)));
+        }
+    }
+
+    /// <summary>True when the build has a computed Effective Hit Pool to show.</summary>
+    public bool HasEhp => _totalEhp > 0;
+
+    // Companions of TotalEHP shown behind its tooltip, same pair the original
+    // client puts next to it in the "Effective Health Pool" section.
+    private double _hitsBeforeDeath;
+    public double HitsBeforeDeath { get => _hitsBeforeDeath; private set => Set(ref _hitsBeforeDeath, value); }
+
+    private double _survivalTime;
+    public double SurvivalTime { get => _survivalTime; private set => Set(ref _survivalTime, value); }
+
     private double _armour;
     public double Armour { get => _armour; private set => Set(ref _armour, value); }
 
@@ -177,6 +203,9 @@ public sealed class BuildModel : INotifyPropertyChanged
         Mana              = ReadDouble("Mana");
         EnergyShield      = ReadDouble("EnergyShield");
         Ward              = ReadDouble("Ward");
+        TotalEhp          = ReadDouble("TotalEHP");
+        HitsBeforeDeath   = ReadDouble("TotalNumberOfHits");
+        SurvivalTime      = ReadDouble("EHPSurvivalTime");
         Armour            = ReadDouble("Armour");
         Evasion           = ReadDouble("Evasion");
         Spirit            = ReadDouble("Spirit");

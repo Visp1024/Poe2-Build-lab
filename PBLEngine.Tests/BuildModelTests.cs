@@ -1,3 +1,4 @@
+﻿using System;
 using PBLEngine;
 using Xunit;
 
@@ -88,6 +89,27 @@ public class BuildModelTests : IClassFixture<LuaHostFixture>
         model.NewBuild();
 
         Assert.True(model.Life > 0, $"Life should be positive, got {model.Life}");
+    }
+
+    [Fact]
+    public void NewBuild_TotalEhp_IsPositiveAndMatchesRawStat()
+    {
+        var model = new BuildModel(_host);
+        model.NewBuild();
+
+        Assert.True(model.TotalEhp > 0, $"TotalEhp should be positive, got {model.TotalEhp}");
+        Assert.True(model.HasEhp);
+        Assert.Equal(Convert.ToDouble(model.AllStats["TotalEHP"]), model.TotalEhp, 6);
+    }
+
+    [Fact]
+    public void NewBuild_EhpTooltipStats_AreRead()
+    {
+        var model = new BuildModel(_host);
+        model.NewBuild();
+
+        Assert.True(model.HitsBeforeDeath > 0, $"HitsBeforeDeath should be positive, got {model.HitsBeforeDeath}");
+        Assert.True(model.SurvivalTime > 0, $"SurvivalTime should be positive, got {model.SurvivalTime}");
     }
 
     [Fact]

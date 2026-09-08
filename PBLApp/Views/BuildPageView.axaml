@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:PBLApp.ViewModels"
              xmlns:loc="using:PBLApp.Localization"
@@ -172,6 +172,50 @@
                     <TextBlock Text="{Binding Build.FullDps, StringFormat={}{0:N0}}"
                                Classes="num-md"
                                Foreground="{DynamicResource StatDpsBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+                <!-- Effective Hit Pool — the defensive counterpart of DPS, so it sits
+                     right after the damage tiles. Hover shows the two numbers the
+                     original client prints next to it: hits and time before death. -->
+                <StackPanel Orientation="Horizontal" Spacing="6"
+                            IsVisible="{Binding Build.HasEhp}"
+                            ToolTip.ShowDelay="300">
+                    <ToolTip.Tip>
+                        <ToolTip x:CompileBindings="False" Padding="0"
+                                 Background="Transparent" BorderThickness="0">
+                            <Border Background="{DynamicResource BgSurfaceBrush}"
+                                    BorderBrush="{DynamicResource BgRaisedBrush}" BorderThickness="1"
+                                    Padding="10,8" CornerRadius="4" MinWidth="220">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Text="{loc:Tr Sidebar_EHP_Tip}"
+                                               FontWeight="SemiBold" FontSize="11"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Margin="0,0,0,3"/>
+                                    <Grid ColumnDefinitions="*,18,Auto" Margin="0,1">
+                                        <TextBlock Grid.Column="0" Text="{loc:Tr Sidebar_EHP_Hits}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Build.HitsBeforeDeath, StringFormat={}{0:N2}}"
+                                                   Foreground="{DynamicResource StatEhpBrush}"
+                                                   FontSize="12" FontWeight="SemiBold"/>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="*,18,Auto,Auto" Margin="0,1">
+                                        <TextBlock Grid.Column="0" Text="{loc:Tr Sidebar_EHP_Time}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Build.SurvivalTime, StringFormat={}{0:N2}}"
+                                                   Foreground="{DynamicResource StatEhpBrush}"
+                                                   FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="3" Text="{loc:Tr Sidebar_EHP_Sec}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12" Margin="2,0,0,0"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </ToolTip>
+                    </ToolTip.Tip>
+                    <TextBlock Text="{loc:Tr Sidebar_EHP}" Classes="caption" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Build.TotalEhp, StringFormat={}{0:N0}}"
+                               Classes="num-md"
+                               Foreground="{DynamicResource StatEhpBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="6">
