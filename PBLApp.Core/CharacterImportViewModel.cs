@@ -18,6 +18,10 @@ namespace PBLApp.ViewModels;
 /// <summary>Окраска строки статуса — вид выбирает кисть по ней.</summary>
 public enum ImportStatusKind { Info, Ok, Warning, Error }
 
+/// <summary>Режим окна: персонаж становится НОВЫМ билдом (с экрана списка) либо
+/// перезаписывает УЖЕ ОТКРЫТЫЙ билд — «Обновить из игры».</summary>
+public enum CharacterImportMode { NewBuild, Reimport }
+
 /// <summary>Персонаж в списке; класс отдельно — вид красит его цветом класса.</summary>
 public sealed class CharacterEntryViewModel(CharacterSummary character)
 {
@@ -46,6 +50,12 @@ public partial class CharacterImportViewModel : ViewModelBase
 
     private readonly string _buildsFolder;
     private readonly Action<string>? _onImported;
+
+    // Reimport-режим: куда писать и кого дёргать после перезаписи открытого билда.
+    private readonly BuildModel? _build;
+    private readonly string? _xmlPath;
+    private readonly Func<Task>? _afterReimport;
+    private CharacterBinding _binding = new(null, null, null);
 
     private IReadOnlyList<CharacterSummary> _allCharacters = [];
 
@@ -88,13 +98,36 @@ public partial class CharacterImportViewModel : ViewModelBase
     public bool CanImport =>
         SelectedCharacter is not null && (ImportPassiveTree || ImportItemsAndSkills) && !IsBusy;
 
-    public string WindowTitle => LocalizationService.Get("CharImport_Title");
+    /// <summary>Новый билд или перезапись открытого.</summary>
+    public CharacterImportMode Mode { get; }
+
+    public bool IsReimport => Mode == CharacterImportMode.Reimport;
+
+    public string WindowTitle => LocalizationService.Get(
+        IsReimport ? "CharImport_UpdateTitle" : "CharImport_Title");
+
+    /// <summary>Текст кнопки действия: «Импортировать» / «Обновить билд».</summary>
+    public string ActionButtonText => LocalizationService.Get(
+        IsReimport ? "CharImport_UpdateButton" : "CharImport_Button");
+
+    /// <summary>Персонаж, к которому привязан открытый билд («Билд импортирован из: Xyz»);
+    /// пусто — привязки нет, пользователь выбирает персонажа сам.</summary>
+    public string BoundCharacterName => _binding.CharacterName ?? "";
+
+    public bool HasBinding => IsReimport && BoundCharacterName.Length > 0;
+
+    public string BoundCharacterLine =>
+        string.Format(LocalizationService.Get("CharImport_BoundTo"), BoundCharacterName);
+
+    /// <summary>Реимпорт перетирает содержимое билда — предупреждаем об этом в окне.</summary>
+    public bool ShowOverwriteWarning => IsReimport;
 
     /// <summary>Персонаж становится новым файлом билда в <paramref name="buildsFolder"/>,
     /// затем <paramref name="onImported"/> его открывает.</summary>
     public CharacterImportViewModel(Task<LuaHost> hostTask, string buildsFolder,
         Action<string> onImported, PoeOAuthService? oauth = null, CharacterApi? api = null)
     {
+        Mode = CharacterImportMode.NewBuild;
         _hostTask = hostTask;
         _buildsFolder = buildsFolder;
         _onImported = onImported;
@@ -103,6 +136,45 @@ public partial class CharacterImportViewModel : ViewModelBase
         Characters.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCharacters));
         if (!IsLoggedIn)
             SetStatus("CharImport_NotAuthenticated", ImportStatusKind.Warning);
+    }
+
+    /// <summary>«Обновить из игры»: персонаж перезаписывает УЖЕ ОТКРЫТЫЙ билд
+    /// <paramref name="build"/> (файл <paramref name="xmlPath"/>), после чего
+    /// <paramref name="afterReimport"/> обновляет вкладки страницы билда.</summary>
+    public CharacterImportViewModel(Task<LuaHost> hostTask, BuildModel build, string xmlPath,
+        Func<Task> afterReimport, PoeOAuthService? oauth = null, CharacterApi? api = null)
+    {
+        Mode = CharacterImportMode.Reimport;
+        _hostTask = hostTask;
+        _buildsFolder = Path.GetDirectoryName(xmlPath) ?? "";
+        _build = build;
+        _xmlPath = xmlPath;
+        _afterReimport = afterReimport;
+        _oauth = oauth ?? new PoeOAuthService(null);
+        _api = api ?? new CharacterApi(_oauth);
+        Characters.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCharacters));
+        _ = LoadBindingAsync();
+        if (!IsLoggedIn)
+            SetStatus("CharImport_NotAuthenticated", ImportStatusKind.Warning);
+    }
+
+    /// <summary>Читает из движка, к какому персонажу привязан открытый билд.</summary>
+    private async Task LoadBindingAsync()
+    {
+        try
+        {
+            var host = await _hostTask;
+            _binding = await Task.Run(host.GetCharacterBinding);
+            OnPropertyChanged(nameof(BoundCharacterName));
+            OnPropertyChanged(nameof(HasBinding));
+            OnPropertyChanged(nameof(BoundCharacterLine));
+            // Список мог загрузиться раньше привязки — перевыбираем персонажа.
+            if (Characters.Count > 0) await SelectBoundCharacterAsync();
+        }
+        catch
+        {
+            // Движок не готов — окно просто не подсветит привязку.
+        }
     }
 
     partial void OnIsBusyChanged(bool value) => OnPropertyChanged(nameof(CanImport));
@@ -185,7 +257,9 @@ public partial class CharacterImportViewModel : ViewModelBase
 
             RebuildLeagues();
             ApplyFilter();
-            SetStatus("CharImport_ListLoaded", ImportStatusKind.Info);
+            if (IsReimport) await SelectBoundCharacterAsync();
+            SetStatus(IsReimport && SelectedCharacter is not null
+                ? "CharImport_UpdateReady" : "CharImport_ListLoaded", ImportStatusKind.Info);
         }
         finally { IsBusy = false; }
     }
@@ -218,6 +292,51 @@ public partial class CharacterImportViewModel : ViewModelBase
         foreach (var l in leagues) Leagues.Add(l);
         // Молча: сеттер сам перефильтрует, если значение поменялось.
         SelectedLeague = leagues.Contains(previous) ? previous : AllLeagues;
+    }
+
+    /// <summary>Ставит курсор на персонажа, к которому привязан билд: по имени, а у
+    /// билдов из оригинального PoB (там лежит только sha1 имени) — по хешу. Если
+    /// персонаж отфильтрован лигой или поиском — сбрасывает фильтры, иначе кнопка
+    /// «Обновить» молча обновила бы билд из чужого персонажа.</summary>
+    private async Task SelectBoundCharacterAsync()
+    {
+        if (!_binding.HasValue) return;
+
+        var name = _binding.CharacterName;
+        if (string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(_binding.Hash))
+            name = await ResolveNameByHashAsync(_binding.Hash);
+        if (string.IsNullOrEmpty(name)) return;
+
+        // Персонаж есть в аккаунте, но скрыт фильтром — показываем всё, чтобы он нашёлся.
+        if (!Characters.Any(c => Match(c, name)) &&
+            _allCharacters.Any(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase)))
+        {
+            SelectedLeague = AllLeagues;
+            Search = "";
+        }
+
+        var found = Characters.FirstOrDefault(c => Match(c, name));
+        if (found is not null) SelectedCharacter = found;
+
+        static bool Match(CharacterEntryViewModel c, string name) =>
+            string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Имя персонажа по sha1 из билда — перебором персонажей аккаунта,
+    /// ровно как это делает Lua-ImportTab (ImportTab.lua:578).</summary>
+    private async Task<string?> ResolveNameByHashAsync(string hash)
+    {
+        try
+        {
+            var host = await _hostTask;
+            return await Task.Run(() => _allCharacters
+                .FirstOrDefault(c => string.Equals(host.Sha1(c.Name), hash, StringComparison.OrdinalIgnoreCase))
+                ?.Name);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private void ApplyFilter()
@@ -261,12 +380,16 @@ public partial class CharacterImportViewModel : ViewModelBase
             {
                 PassiveTree = ImportPassiveTree,
                 ItemsAndSkills = ImportItemsAndSkills,
-                // Билд создаётся с нуля, чистить в нём нечего — флаги удаления
-                // остаются на своих значениях по умолчанию.
+                // Флаги удаления остаются на значениях по умолчанию (true): при импорте
+                // в новый билд чистить нечего, а при обновлении открытого билда старое
+                // дерево/предметы/умения должны уступить место пришедшим из игры.
                 IgnoreWeaponSwap = IgnoreWeaponSwap,
             };
 
-            await ImportAsNewBuildAsync(host, json.Value!, options);
+            if (IsReimport)
+                await ReimportIntoOpenBuildAsync(host, json.Value!, options);
+            else
+                await ImportAsNewBuildAsync(host, json.Value!, options);
         }
         catch (Exception ex)
         {
@@ -281,6 +404,7 @@ public partial class CharacterImportViewModel : ViewModelBase
         var result = await Task.Run(() => { host.NewBuild(); return host.ImportCharacter(json, options); });
         if (!ReportImport(result)) return;
 
+        host.SetCharacterBinding(SelectedCharacter!.Name, _oauth.AccountName);
         var xml = await Task.Run(host.SaveBuildToXml);
         if (xml is null)
         {
@@ -296,6 +420,38 @@ public partial class CharacterImportViewModel : ViewModelBase
 
         SetStatus("CharImport_Done", ImportStatusKind.Ok);
         _onImported?.Invoke(filePath);
+        CloseRequested?.Invoke();
+    }
+
+    /// <summary>«Обновить из игры»: персонаж ложится поверх открытого билда, файл билда
+    /// перезаписывается, страница билда обновляет вкладки.</summary>
+    private async Task ReimportIntoOpenBuildAsync(LuaHost host, string json, CharacterImportOptions options)
+    {
+        var name = SelectedCharacter!.Name;
+        var result = await Task.Run(() =>
+        {
+            var r = host.ImportCharacter(json, options);
+            if (r.Ok) host.SetCharacterBinding(name, _oauth.AccountName);
+            return r;
+        });
+        if (!ReportImport(result)) return;
+
+        var xml = await Task.Run(() => _build!.SaveBuildToXml());
+        if (xml is null)
+        {
+            SetStatus("Msg_ErrorSave", ImportStatusKind.Error);
+            return;
+        }
+        await File.WriteAllTextAsync(_xmlPath!, xml);
+
+        _binding = new CharacterBinding(name, _oauth.AccountName, _binding.Hash);
+        OnPropertyChanged(nameof(BoundCharacterName));
+        OnPropertyChanged(nameof(HasBinding));
+        OnPropertyChanged(nameof(BoundCharacterLine));
+
+        if (_afterReimport is not null) await _afterReimport();
+
+        SetStatus("CharImport_UpdateDone", ImportStatusKind.Ok);
         CloseRequested?.Invoke();
     }
 

@@ -120,6 +120,10 @@ public partial class BuildPageViewModel : ViewModelBase
     /// <summary>Просит View открыть/перенацелить окно подбора на слот. Ставит BuildPageView.</summary>
     public Action<string>? RequestOpenTrader { get; set; }
 
+    /// <summary>Просит View показать окно «Обновить из игры» (то же окно импорта персонажа,
+    /// в режиме перезаписи текущего билда). Ставит BuildPageView.</summary>
+    public Func<CharacterImportViewModel, Task>? ShowCharacterImportWindow { get; set; }
+
     public TraderSession? TraderSession { get; private set; }
 
     /// <summary>Лениво создаёт сессию трейдера (её конструктор гоняет заметную Lua-работу:
@@ -235,6 +239,33 @@ public partial class BuildPageViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    /// <summary>«Обновить из игры»: тянет персонажа, из которого билд импортирован,
+    /// и перезаписывает им дерево, предметы и умения. Персонаж предвыбран по привязке
+    /// в XML билда; без привязки пользователь выбирает его в списке сам.</summary>
+    [RelayCommand]
+    private async Task UpdateFromGameAsync()
+    {
+        if (Build is null || _host is null || ShowCharacterImportWindow is null) return;
+
+        var vm = new CharacterImportViewModel(Task.FromResult(_host), Build, _xmlPath,
+            afterReimport: () => { RefreshAfterImport(); return Task.CompletedTask; });
+        await ShowCharacterImportWindow(vm);
+    }
+
+    /// <summary>Пересобирает вкладки после того, как в движок влили нового персонажа:
+    /// поменяться могло всё — дерево, снаряжение, группы умений и сами статы.</summary>
+    private void RefreshAfterImport()
+    {
+        Build?.Refresh();
+        TreeTab?.RefreshFromEngine();
+        ItemsTab?.Refresh();
+        CalcsTab?.RefreshSkillGroups();
+        CalcsTab?.Refresh();
+        SkillsTab?.Refresh();
+        _characterLevel = _host?.GetCharacterLevel() ?? _characterLevel;
+        OnPropertyChanged(nameof(CharacterLevel));
     }
 
     [RelayCommand]

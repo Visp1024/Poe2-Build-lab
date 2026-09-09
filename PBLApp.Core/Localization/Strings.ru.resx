@@ -543,6 +543,14 @@
   <data name="CharImport_NotFound"         xml:space="preserve"><value>Аккаунт или персонаж не найден.</value></data>
   <data name="CharImport_RateLimited"      xml:space="preserve"><value>Слишком частые запросы, повторите через {0} с.</value></data>
   <data name="CharImport_NetworkError"     xml:space="preserve"><value>Ошибка сети: {0}</value></data>
+  <data name="CharImport_UpdateTitle" xml:space="preserve"><value>Обновить из игры</value></data>
+  <data name="CharImport_UpdateButton" xml:space="preserve"><value>Обновить билд</value></data>
+  <data name="CharImport_UpdateReady" xml:space="preserve"><value>Персонаж найден &#x2014; нажмите &#x00AB;Обновить билд&#x00BB;, чтобы забрать его из игры.</value></data>
+  <data name="CharImport_UpdateDone" xml:space="preserve"><value>Билд обновлён из игры.</value></data>
+  <data name="CharImport_BoundTo" xml:space="preserve"><value>Билд импортирован из персонажа: {0}</value></data>
+  <data name="CharImport_OverwriteWarning" xml:space="preserve"><value>Обновление перезапишет дерево, снаряжение и умения билда тем, что у персонажа в игре сейчас.</value></data>
+  <data name="Btn_UpdateFromGame" xml:space="preserve"><value>&#x21BB; Из игры</value></data>
+  <data name="Btn_UpdateFromGameTip" xml:space="preserve"><value>Обновить билд из персонажа в игре</value></data>
 
   <data name="Mod_Prefix"    xml:space="preserve"><value>Префикс</value></data>
   <data name="Mod_Suffix"    xml:space="preserve"><value>Суффикс</value></data>

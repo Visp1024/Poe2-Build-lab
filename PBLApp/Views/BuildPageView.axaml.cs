@@ -30,6 +30,7 @@ public partial class BuildPageView : UserControl
             {
                 vm.PromptRenameAsync = PromptRenameAsync;
                 vm.RequestOpenTrader = OpenTrader;
+                vm.ShowCharacterImportWindow = ShowCharacterImportWindowAsync;
             }
         };
     }
@@ -42,6 +43,18 @@ public partial class BuildPageView : UserControl
         var title = LocalizationService.Get("Dlg_RenameTitle");
         var msg   = LocalizationService.Get("Dlg_RenameMsg");
         return await PromptDialog.ShowAsync(owner, title, msg, currentName);
+    }
+
+    /// <summary>Окно «Обновить из игры» — то же окно импорта персонажа, но в режиме
+    /// перезаписи открытого билда.</summary>
+    private System.Threading.Tasks.Task ShowCharacterImportWindowAsync(CharacterImportViewModel importVm)
+    {
+        var owner  = TopLevel.GetTopLevel(this) as Window;
+        var window = new CharacterImportWindow { DataContext = importVm };
+        importVm.CloseRequested += () => Dispatcher.UIThread.Post(window.Close);
+        if (owner is not null) window.Show(owner);
+        else                   window.Show();
+        return System.Threading.Tasks.Task.CompletedTask;
     }
 
     private void RenameBuild_Click(object? sender, RoutedEventArgs e)

@@ -958,6 +958,31 @@ public partial class TreeTabViewModel : ViewModelBase
         RefreshPointUsage();
     }
 
+    /// <summary>Перечитывает дерево из движка целиком — класс, восхождение, аллокации
+    /// и очки. Нужно после того, как билд подменили под ногами (импорт персонажа):
+    /// выбор класса синхронизируется молча, обратно в движок ничего не применяется.</summary>
+    public void RefreshFromEngine()
+    {
+        var (classId, ascId, _, _) = _host.GetCurrentClassInfo();
+        _suppressClassChangeCheck = true;
+        try
+        {
+            var cls = Classes.FirstOrDefault(c => c.Id == classId);
+            if (cls is not null) SelectedClass = cls;
+            _lastAppliedClass = SelectedClass;
+            RebuildAscendancies();
+            // Сеттер восхождения сверяется с движком и на совпадении ничего не делает.
+            SelectedAscend = AvailableAscendancies.FirstOrDefault(a => a.Id == ascId)
+                          ?? AvailableAscendancies.FirstOrDefault();
+        }
+        finally { _suppressClassChangeCheck = false; }
+
+        RefreshNodes();
+        OnPropertyChanged(nameof(ClassBackgroundImage));
+        OnPropertyChanged(nameof(AscendancyFilter));
+        MarkPowerStale();
+    }
+
     /// <summary>Re-query the socketed jewel visuals (radius rings + socket art).
     /// Called by the build page after an Items-tab operation (socketing / removing
     /// a jewel) that the tree would otherwise not learn about.</summary>

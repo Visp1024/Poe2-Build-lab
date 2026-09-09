@@ -24,6 +24,15 @@ public sealed record CharacterImportOptions
 /// <summary>Итог импорта: <c>Ok</c> — всё прошло, иначе <c>Error</c> — текст ошибки Lua.</summary>
 public sealed record CharacterImportResult(bool Ok, string? Error = null);
 
+/// <summary>Привязка билда к персонажу: имя и аккаунт открытым текстом плюс
+/// <paramref name="Hash"/> — sha1 имени, который пишет оригинальный PoB (по нему
+/// узнаётся персонаж у билдов, импортированных до появления имени).</summary>
+public sealed record CharacterBinding(string? CharacterName, string? AccountName, string? Hash)
+{
+    /// <summary>Есть чем опознать персонажа — хотя бы имя или хеш.</summary>
+    public bool HasValue => !string.IsNullOrEmpty(CharacterName) || !string.IsNullOrEmpty(Hash);
+}
+
 // Импорт персонажа: разбор JSON и всю логику делает штатный Lua-ImportTab
 // (тот же код, что в оригинальном PoB) — здесь только мост и флаги-чекбоксы.
 public sealed partial class LuaHost
@@ -50,6 +59,77 @@ public sealed partial class LuaHost
             return apiClass;
         }
         finally { State["_clsIn"] = null; }
+    }
+
+    /// <summary>Персонаж, к которому привязан текущий билд (кого импортировали последним),
+    /// и аккаунт, из которого он пришёл. Пусто — привязки нет: старый билд или билд,
+    /// собранный руками. Хранится в XML билда (<c>&lt;Import lastCharacterName=… &gt;</c>).</summary>
+    public CharacterBinding GetCharacterBinding()
+    {
+        try
+        {
+            var result = State.DoString(@"
+                local importTab = build and build.importTab
+                if not importTab then return nil, nil, nil end
+                return importTab.lastCharacterName, importTab.lastAccountName, importTab.lastCharacterHash
+            ");
+            if (result is null || result.Length == 0) return new CharacterBinding(null, null, null);
+            return new CharacterBinding(
+                result.Length > 0 ? result[0] as string : null,
+                result.Length > 1 ? result[1] as string : null,
+                result.Length > 2 ? result[2] as string : null);
+        }
+        catch
+        {
+            return new CharacterBinding(null, null, null);
+        }
+    }
+
+    /// <summary>sha1 средствами Lua (тот же <c>common.sha1</c>, которым оригинальный PoB
+    /// считает <c>lastCharacterHash</c>) — чтобы узнавать персонажа в билдах без имени.
+    /// <c>null</c>, если движок не готов.</summary>
+    public string? Sha1(string text)
+    {
+        State["_sha1In"] = text;
+        try
+        {
+            var result = State.DoString("return common and common.sha1 and common.sha1(_sha1In) or nil");
+            return result is { Length: > 0 } ? result[0] as string : null;
+        }
+        catch
+        {
+            return null;
+        }
+        finally { State["_sha1In"] = null; }
+    }
+
+    /// <summary>Записывает привязку билда к персонажу; попадает в XML при следующем сохранении.
+    /// Хеш имени (<c>lastCharacterHash</c>) пишется тоже — по нему билд узнаёт оригинальный PoB.</summary>
+    public void SetCharacterBinding(string characterName, string? accountName)
+    {
+        State["_bindChar"] = characterName;
+        State["_bindAccount"] = accountName;
+        try
+        {
+            State.DoString(@"
+                local importTab = build and build.importTab
+                if not importTab then return end
+                importTab.lastCharacterName = _bindChar
+                if _bindAccount and _bindAccount ~= '' then importTab.lastAccountName = _bindAccount end
+                if common and common.sha1 then
+                    importTab.lastCharacterHash = common.sha1(_bindChar)
+                end
+            ");
+        }
+        catch
+        {
+            // Привязка — удобство, а не результат импорта: молча живём без неё.
+        }
+        finally
+        {
+            State["_bindChar"] = null;
+            State["_bindAccount"] = null;
+        }
     }
 
     /// <summary>Импортирует персонажа в текущий билд из ответа
@@ -111,6 +191,13 @@ public sealed partial class LuaHost
                     charData.skills = charData.skills or {}
                     local ok, err = pcall(function() importTab:ImportItemsAndSkills(charData) end)
                     if not ok then return 'предметы и умения: ' .. tostring(err) end
+                end
+
+                -- Билд помнит, из кого он импортирован: по этому имени работает
+                -- «Обновить из игры» (C#-сторона добавляет к нему аккаунт).
+                importTab.lastCharacterName = charData.name
+                if common and common.sha1 then
+                    importTab.lastCharacterHash = common.sha1(charData.name)
                 end
 
                 build.buildFlag = true

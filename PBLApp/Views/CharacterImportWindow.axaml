@@ -77,7 +77,7 @@
         <!-- Шапка: аккаунт и выход -->
         <Border Classes="bar" DockPanel.Dock="Top">
             <Grid ColumnDefinitions="*,Auto,Auto">
-                <TextBlock Grid.Column="0" Text="{loc:Tr CharImport_Title}"
+                <TextBlock Grid.Column="0" Text="{Binding WindowTitle}"
                            FontSize="14" FontWeight="SemiBold"
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource TextPrimaryBrush}" />
@@ -117,7 +117,7 @@
                     <TextBlock Text="{Binding StatusMessage}" />
                 </Border>
                 <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding IsLoggedIn}">
-                    <Button Classes="go" Content="{loc:Tr CharImport_Button}"
+                    <Button Classes="go" Content="{Binding ActionButtonText}"
                             Command="{Binding ImportCommand}"
                             IsEnabled="{Binding CanImport}"
                             Padding="16,5" />
@@ -146,6 +146,18 @@
 
             <!-- Состояние 2: список персонажей и опции -->
             <DockPanel IsVisible="{Binding IsLoggedIn}">
+
+                <!-- Реимпорт: к какому персонажу привязан билд и чем грозит обновление -->
+                <Border Classes="card" DockPanel.Dock="Top" Margin="0,0,0,9"
+                        IsVisible="{Binding ShowOverwriteWarning}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Classes="head" Text="{Binding BoundCharacterLine}"
+                                   TextWrapping="Wrap"
+                                   IsVisible="{Binding HasBinding}" />
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="{loc:Tr CharImport_OverwriteWarning}" />
+                    </StackPanel>
+                </Border>
 
                 <!-- Фильтры -->
                 <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,Auto,*,Auto" Margin="0,0,0,9">

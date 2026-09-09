@@ -543,6 +543,14 @@
   <data name="CharImport_NotFound"         xml:space="preserve"><value>Account or character not found.</value></data>
   <data name="CharImport_RateLimited"      xml:space="preserve"><value>Requests are being sent too fast, try again in {0} s.</value></data>
   <data name="CharImport_NetworkError"     xml:space="preserve"><value>Network error: {0}</value></data>
+  <data name="CharImport_UpdateTitle" xml:space="preserve"><value>Update from the game</value></data>
+  <data name="CharImport_UpdateButton" xml:space="preserve"><value>Update build</value></data>
+  <data name="CharImport_UpdateReady" xml:space="preserve"><value>Character found &#x2014; press &#x201C;Update build&#x201D; to pull it from the game.</value></data>
+  <data name="CharImport_UpdateDone" xml:space="preserve"><value>Build updated from the game.</value></data>
+  <data name="CharImport_BoundTo" xml:space="preserve"><value>This build was imported from: {0}</value></data>
+  <data name="CharImport_OverwriteWarning" xml:space="preserve"><value>Updating overwrites the build&#x2019;s tree, equipment and skills with what the character has in game right now.</value></data>
+  <data name="Btn_UpdateFromGame" xml:space="preserve"><value>&#x21BB; From the game</value></data>
+  <data name="Btn_UpdateFromGameTip" xml:space="preserve"><value>Update this build from its character in the game</value></data>
 
   <data name="Mod_Prefix"    xml:space="preserve"><value>Prefix</value></data>
   <data name="Mod_Suffix"    xml:space="preserve"><value>Suffix</value></data>

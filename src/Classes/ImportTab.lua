@@ -393,6 +393,10 @@ function ImportTabClass:Load(xml, fileName)
 		end
 	end
 	self.lastCharacterHash = xml.attrib.lastCharacterHash
+	-- PathBuildLab: имя персонажа/аккаунта открытым текстом рядом с хешами — по хешу
+	-- нельзя показать, к кому привязан билд, без списка персонажей аккаунта.
+	self.lastCharacterName = xml.attrib.lastCharacterName
+	self.lastAccountName = xml.attrib.lastAccountName
 end
 
 function ImportTabClass:Save(xml)
@@ -401,6 +405,8 @@ function ImportTabClass:Save(xml)
 		lastLeague = self.lastLeague,
 		lastAccountHash = self.lastAccountHash,
 		lastCharacterHash = self.lastCharacterHash,
+		lastCharacterName = self.lastCharacterName,
+		lastAccountName = self.lastAccountName,
 		exportParty = tostring(self.controls.enablePartyExportBuffs.state),
 		importLink = self.importLink
 	}
@@ -614,6 +620,7 @@ function ImportTabClass:DownloadCharacter(callback)
 			return
 		end
 		self.lastCharacterHash = common.sha1(charData.name)
+		self.lastCharacterName = charData.name
 		if not self.lastLeague then
 			self.lastLeague = charSelectLeague:GetSelValueByKey("league")
 		end

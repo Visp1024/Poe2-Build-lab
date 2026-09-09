@@ -101,6 +101,10 @@
                     <Border Width="1" Height="22"
                             Background="{DynamicResource BorderStrongBrush}"
                             VerticalAlignment="Center" />
+                    <Button Content="{loc:Tr Btn_UpdateFromGame}"
+                            Command="{Binding UpdateFromGameCommand}"
+                            ToolTip.Tip="{loc:Tr Btn_UpdateFromGameTip}"
+                            IsVisible="{Binding Build, Converter={x:Static ObjectConverters.IsNotNull}}" />
                     <Button Content="{loc:Tr Btn_Save}"
                             Classes="accent"
                             Command="{Binding SaveBuildCommand}"
