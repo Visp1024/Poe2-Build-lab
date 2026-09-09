@@ -33,5 +33,6 @@
     <EmbeddedResource Include="Translations\config_labels_ru.json" />
     <EmbeddedResource Include="Translations\calc_labels_ru.json" />
     <EmbeddedResource Include="Translations\class_names_ru.json" />
+    <EmbeddedResource Include="Export\passive_planner_ids.json" />
   </ItemGroup>
 </Project>

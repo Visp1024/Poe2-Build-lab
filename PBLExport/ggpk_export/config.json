@@ -1,8 +1,9 @@
 {
   "steam": "D:\\Games\\steamapps\\common\\Path of Exile 2",
-
-  "translations": ["English", "Russian"],
-
+  "translations": [
+    "English",
+    "Russian"
+  ],
   "files": [
     "Data/StatDescriptions/stat_descriptions.csd",
     "Data/StatDescriptions/skill_stat_descriptions.csd",
@@ -15,15 +16,20 @@
     "Data/StatDescriptions/advanced_mod_stat_descriptions.csd",
     "Data/StatDescriptions/utility_flask_buff_stat_descriptions.csd"
   ],
-
   "tables": [
     {
       "name": "Characters",
-      "columns": ["Id", "Name"]
+      "columns": [
+        "Id",
+        "Name"
+      ]
     },
     {
       "name": "Ascendancy",
-      "columns": ["Id", "Name"]
+      "columns": [
+        "Id",
+        "Name"
+      ]
     },
     {
       "name": "PassiveSkills",
@@ -46,7 +52,12 @@
     },
     {
       "name": "Stats",
-      "columns": ["Id", "IsScalable", "IsLocal", "IsWeaponLocal"]
+      "columns": [
+        "Id",
+        "IsScalable",
+        "IsLocal",
+        "IsWeaponLocal"
+      ]
     },
     {
       "name": "ActiveSkills",
@@ -60,112 +71,212 @@
     },
     {
       "name": "BaseItemTypes",
-      "columns": ["Id", "Name", "ItemClass", "ItemVisualIdentity", "Width", "Height"]
+      "columns": [
+        "Id",
+        "Name",
+        "ItemClass",
+        "ItemVisualIdentity",
+        "Width",
+        "Height"
+      ]
     },
     {
       "name": "ItemClasses",
-      "columns": ["Id", "Name"]
+      "columns": [
+        "Id",
+        "Name"
+      ]
     },
     {
       "name": "ItemVisualIdentity",
-      "columns": ["Id", "DDSFile"]
+      "columns": [
+        "Id",
+        "DDSFile"
+      ]
     },
     {
       "name": "UniqueStashLayout",
-      "columns": ["WordsKey", "ItemVisualIdentityKey", "IsAlternateArt"]
+      "columns": [
+        "WordsKey",
+        "ItemVisualIdentityKey",
+        "IsAlternateArt"
+      ]
     },
     {
       "name": "Words",
-      "columns": ["Text", "Text2"]
+      "columns": [
+        "Text",
+        "Text2"
+      ]
     },
     {
       "name": "CostTypes",
-      "columns": ["Id", "Stat", "FormatText", "Divisor", "PerMinute"]
+      "columns": [
+        "Id",
+        "Stat",
+        "FormatText",
+        "Divisor",
+        "PerMinute"
+      ]
     },
     {
       "name": "FlavourText",
-      "columns": ["Id", "Text"]
+      "columns": [
+        "Id",
+        "Text"
+      ]
     },
     {
       "name": "UniqueOrigins",
-      "columns": ["Unique", "Origin"]
+      "columns": [
+        "Unique",
+        "Origin"
+      ]
     },
     {
       "name": "Origin",
-      "columns": ["Id"]
+      "columns": [
+        "Id"
+      ]
     },
     {
       "name": "Mods",
       "columns": [
-        "Id", "Name", "ModType", "Domain", "GenerationType",
-        "Level", "MaxLevel",
-        "Stat1", "Stat2", "Stat3", "Stat4", "Stat5", "Stat6",
-        "Stat1Value", "Stat2Value", "Stat3Value", "Stat4Value", "Stat5Value", "Stat6Value",
-        "Tags", "SpawnWeight_Tags", "ImplicitTags",
-        "GenerationWeight_Tags", "GenerationWeight_Values",
+        "Id",
+        "Name",
+        "ModType",
+        "Domain",
+        "GenerationType",
+        "Level",
+        "MaxLevel",
+        "Stat1",
+        "Stat2",
+        "Stat3",
+        "Stat4",
+        "Stat5",
+        "Stat6",
+        "Stat1Value",
+        "Stat2Value",
+        "Stat3Value",
+        "Stat4Value",
+        "Stat5Value",
+        "Stat6Value",
+        "Tags",
+        "SpawnWeight_Tags",
+        "ImplicitTags",
+        "GenerationWeight_Tags",
+        "GenerationWeight_Values",
         "Families"
       ]
     },
     {
       "name": "ModType",
-      "columns": ["Name"]
+      "columns": [
+        "Name"
+      ]
     },
     {
       "name": "Tags",
-      "columns": ["Id"]
+      "columns": [
+        "Id"
+      ]
     },
     {
       "name": "ModFamily",
-      "columns": ["Id"]
+      "columns": [
+        "Id"
+      ]
     },
     {
       "name": "SkillGems",
       "columns": [
-        "BaseItemType", "GemEffects", "GemType", "GemColour",
-        "StrengthRequirementPercent", "DexterityRequirementPercent", "IntelligenceRequirementPercent"
+        "BaseItemType",
+        "GemEffects",
+        "GemType",
+        "GemColour",
+        "StrengthRequirementPercent",
+        "DexterityRequirementPercent",
+        "IntelligenceRequirementPercent"
       ]
     },
     {
       "name": "GemEffects",
       "columns": [
-        "Id", "Name", "GrantedEffect", "SupportText", "SupportName",
+        "Id",
+        "Name",
+        "GrantedEffect",
+        "SupportText",
+        "SupportName",
         "AdditionalGrantedEffects"
       ]
     },
     {
       "name": "GrantedEffects",
       "columns": [
-        "Id", "IsSupport", "SupportGemLetter", "ActiveSkill",
-        "StatSet", "AdditionalStatSets", "CostTypes"
+        "Id",
+        "IsSupport",
+        "SupportGemLetter",
+        "ActiveSkill",
+        "StatSet",
+        "AdditionalStatSets",
+        "CostTypes"
       ]
     },
     {
       "name": "GrantedEffectStatSets",
-      "columns": ["Id", "Label"]
+      "columns": [
+        "Id",
+        "Label"
+      ]
     },
     {
       "name": "GrantedEffectLabels",
-      "columns": ["Id"]
+      "columns": [
+        "Id"
+      ]
     },
     {
       "name": "SupportGems",
-      "columns": ["SkillGem"]
+      "columns": [
+        "SkillGem"
+      ]
     },
     {
       "name": "SkillGemSupports",
-      "columns": ["SkillGem", "Supports"]
+      "columns": [
+        "SkillGem",
+        "Supports"
+      ]
     },
     {
       "name": "Essences",
-      "columns": ["BaseItemType", "Tier"]
+      "columns": [
+        "BaseItemType",
+        "Tier"
+      ]
     },
     {
       "name": "EssenceMods",
-      "columns": ["Essence", "TargetItemCategory", "Mod", "DisplayMod"]
+      "columns": [
+        "Essence",
+        "TargetItemCategory",
+        "Mod",
+        "DisplayMod"
+      ]
     },
     {
       "name": "EssenceTargetItemCategories",
-      "columns": ["Id", "ItemClasses"]
+      "columns": [
+        "Id",
+        "ItemClasses"
+      ]
+    },
+    {
+      "name": "Inventories",
+      "columns": [
+        "Id",
+        "InventoryIdKey"
+      ]
     }
   ]
 }

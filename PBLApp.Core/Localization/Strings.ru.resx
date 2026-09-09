@@ -551,6 +551,14 @@
   <data name="CharImport_OverwriteWarning" xml:space="preserve"><value>Обновление перезапишет дерево, снаряжение и умения билда тем, что у персонажа в игре сейчас.</value></data>
   <data name="Btn_UpdateFromGame" xml:space="preserve"><value>&#x21BB; Из игры</value></data>
   <data name="Btn_UpdateFromGameTip" xml:space="preserve"><value>Обновить билд из персонажа в игре</value></data>
+  <data name="Guide_Title" xml:space="preserve"><value>Экспорт гайда в игру</value></data>
+  <data name="Guide_Desc" xml:space="preserve"><value>Пишет файл *.build для внутриигрового планировщика (PoE 2 0.5+): восхождение, набранные пассивки, гемы умений с саппортами и подсказки по слотам снаряжения. Игра подхватывает файл из папки BuildPlanner и подсвечивает по нему дерево, окно гемов и инвентарь.</value></data>
+  <data name="Guide_Folder" xml:space="preserve"><value>Папка BuildPlanner</value></data>
+  <data name="Guide_SaveButton" xml:space="preserve"><value>Сохранить .build</value></data>
+  <data name="Guide_OpenFolder" xml:space="preserve"><value>Открыть папку</value></data>
+  <data name="Guide_Done" xml:space="preserve"><value>Гайд сохранён: пассивок {0}, умений {1}, слотов {2} &#x2192; {3}</value></data>
+  <data name="Guide_SkippedPassives" xml:space="preserve"><value>Пропущено пассивок: {0} — для них нет id в выгруженных данных игры.</value></data>
+  <data name="Guide_NoEngine" xml:space="preserve"><value>Движок ещё не готов — попробуйте через мгновение.</value></data>
 
   <data name="Mod_Prefix"    xml:space="preserve"><value>Префикс</value></data>
   <data name="Mod_Suffix"    xml:space="preserve"><value>Суффикс</value></data>

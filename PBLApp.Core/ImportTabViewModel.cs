@@ -1,8 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PBLApp.Core.Export;
 using PBLApp.Core.Localization;
 using PBLEngine;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -20,7 +22,9 @@ public enum ImportExportMode
 public partial class ImportTabViewModel : ViewModelBase
 {
     private readonly BuildModel? _build;
+    private readonly LuaHost? _host;
     private string? _xmlPath;
+    private string _buildName = "";
 
     // ListImport-mode collaborators.
     private readonly string? _buildsFolder;
@@ -49,8 +53,10 @@ public partial class ImportTabViewModel : ViewModelBase
     public ImportTabViewModel(LuaHost host, BuildModel build, string xmlPath)
     {
         Mode = ImportExportMode.BuildExport;
+        _host = host;
         _build = build;
         _xmlPath = xmlPath;
+        _buildName = Path.GetFileNameWithoutExtension(xmlPath);
     }
 
     /// <summary>ListImport mode: decode a share code into a new build file under
@@ -65,7 +71,75 @@ public partial class ImportTabViewModel : ViewModelBase
     }
 
     /// <summary>Repoint at a new file path after the build was renamed (BuildExport mode).</summary>
-    public void UpdateXmlPath(string xmlPath) => _xmlPath = xmlPath;
+    public void UpdateXmlPath(string xmlPath)
+    {
+        _xmlPath = xmlPath;
+        _buildName = Path.GetFileNameWithoutExtension(xmlPath);
+    }
+
+    // ── Экспорт гайда в игру (.build для внутриигрового планировщика) ────────
+
+    /// <summary>Папка, куда игра смотрит за файлами гайдов; показывается в окне
+    /// и остаётся редактируемой — путь к Documents можно перенести.</summary>
+    [ObservableProperty] private string _guideFolder = BuildGuideExporter.DefaultFolder;
+
+    /// <summary>Путь последнего записанного .build — по нему открывается папка.</summary>
+    [ObservableProperty] private string _lastGuideFile = "";
+
+    public bool ShowGuideExport => Mode == ImportExportMode.BuildExport;
+
+    /// <summary>Пишет .build в <see cref="GuideFolder"/>. Формат — схема GGG
+    /// (pathofexile.com/developer/docs/game): пассивки, гемы с саппортами и
+    /// подсказки по слотам; уровневых интервалов гайд не содержит.</summary>
+    [RelayCommand]
+    private async Task ExportGuideAsync()
+    {
+        if (_host is null)
+        {
+            StatusMessage = LocalizationService.Get("Guide_NoEngine");
+            return;
+        }
+
+        IsWorking = true;
+        try
+        {
+            var folder = GuideFolder;
+            var name = _buildName;
+            var result = await Task.Run(() => BuildGuideExporter.Export(_host, name, folder));
+            if (!result.Ok)
+            {
+                StatusMessage = string.Format(LocalizationService.Get("Msg_Error"), result.Error ?? "");
+                return;
+            }
+
+            LastGuideFile = result.FilePath ?? "";
+            StatusMessage = string.Format(LocalizationService.Get("Guide_Done"),
+                result.PassiveCount, result.SkillCount, result.ItemCount, result.FilePath);
+            if (result.SkippedPassives > 0)
+                StatusMessage += " " + string.Format(
+                    LocalizationService.Get("Guide_SkippedPassives"), result.SkippedPassives);
+        }
+        finally
+        {
+            IsWorking = false;
+        }
+    }
+
+    /// <summary>Открывает папку гайдов в проводнике — файл ещё нужно увидеть глазами.</summary>
+    [RelayCommand]
+    private void OpenGuideFolder()
+    {
+        try
+        {
+            var folder = Directory.Exists(GuideFolder) ? GuideFolder : BuildGuideExporter.DefaultFolder;
+            Directory.CreateDirectory(folder);
+            Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = string.Format(LocalizationService.Get("Msg_Error"), ex.Message);
+        }
+    }
 
     [RelayCommand]
     private void GenerateCode()

@@ -1,0 +1,607 @@
+[
+  {
+    "_index": 0,
+    "Id": "MainInventory1",
+    "InventoryIdKey": 0
+  },
+  {
+    "_index": 1,
+    "Id": "BodyArmour1",
+    "InventoryIdKey": 1
+  },
+  {
+    "_index": 2,
+    "Id": "Weapon1",
+    "InventoryIdKey": 2
+  },
+  {
+    "_index": 3,
+    "Id": "Offhand1",
+    "InventoryIdKey": 3
+  },
+  {
+    "_index": 4,
+    "Id": "Helm1",
+    "InventoryIdKey": 4
+  },
+  {
+    "_index": 5,
+    "Id": "Amulet1",
+    "InventoryIdKey": 5
+  },
+  {
+    "_index": 6,
+    "Id": "Ring1",
+    "InventoryIdKey": 6
+  },
+  {
+    "_index": 7,
+    "Id": "Ring2",
+    "InventoryIdKey": 6
+  },
+  {
+    "_index": 8,
+    "Id": "Gloves1",
+    "InventoryIdKey": 7
+  },
+  {
+    "_index": 9,
+    "Id": "Boots1",
+    "InventoryIdKey": 8
+  },
+  {
+    "_index": 10,
+    "Id": "Belt1",
+    "InventoryIdKey": 9
+  },
+  {
+    "_index": 11,
+    "Id": "Flask1",
+    "InventoryIdKey": 10
+  },
+  {
+    "_index": 12,
+    "Id": "Cursor1",
+    "InventoryIdKey": 11
+  },
+  {
+    "_index": 13,
+    "Id": "Map1",
+    "InventoryIdKey": 12
+  },
+  {
+    "_index": 14,
+    "Id": "Weapon2",
+    "InventoryIdKey": 2
+  },
+  {
+    "_index": 15,
+    "Id": "Offhand2",
+    "InventoryIdKey": 3
+  },
+  {
+    "_index": 16,
+    "Id": "Expedition2Crafting",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 17,
+    "Id": "StrDexMasterCrafting",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 18,
+    "Id": "DexMasterCrafting",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 19,
+    "Id": "DexIntMasterCrafting",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 20,
+    "Id": "IntMasterCrafting",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 21,
+    "Id": "VerisiumCraftingInput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 22,
+    "Id": "VerisiumCraftingOutput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 23,
+    "Id": "PassiveJewels1",
+    "InventoryIdKey": 13
+  },
+  {
+    "_index": 24,
+    "Id": "AnimatedArmour1",
+    "InventoryIdKey": 14
+  },
+  {
+    "_index": 25,
+    "Id": "GuildTag1",
+    "InventoryIdKey": 12
+  },
+  {
+    "_index": 26,
+    "Id": "StashInventoryId",
+    "InventoryIdKey": 17
+  },
+  {
+    "_index": 27,
+    "Id": "DivinationCardTrade",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 28,
+    "Id": "Darkshrine",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 29,
+    "Id": "TalismanTrade",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 30,
+    "Id": "Leaguestone1",
+    "InventoryIdKey": 16
+  },
+  {
+    "_index": 31,
+    "Id": "BestiaryCrafting",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 32,
+    "Id": "IncursionSacrifice",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 33,
+    "Id": "Unveiling1",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 34,
+    "Id": "ItemSynthesisInput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 35,
+    "Id": "ItemSynthesisOutput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 36,
+    "Id": "BlightCraftingInput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 37,
+    "Id": "BlightCraftingItem",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 38,
+    "Id": "DONOTUSE5",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 39,
+    "Id": "AtlasUpgrades1",
+    "InventoryIdKey": 28
+  },
+  {
+    "_index": 40,
+    "Id": "AtlasUpgradesStorage",
+    "InventoryIdKey": 28
+  },
+  {
+    "_index": 41,
+    "Id": "ExpeditionMapMission",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 42,
+    "Id": "ExpeditionDeal1",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 43,
+    "Id": "HarvestCraftingItem",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 44,
+    "Id": "HeistContractMission",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 45,
+    "Id": "HeistNpcEquipment1",
+    "InventoryIdKey": 34
+  },
+  {
+    "_index": 46,
+    "Id": "HeistNpcEquipment2",
+    "InventoryIdKey": 34
+  },
+  {
+    "_index": 47,
+    "Id": "HeistNpcEquipment3",
+    "InventoryIdKey": 34
+  },
+  {
+    "_index": 48,
+    "Id": "HeistNpcEquipment4",
+    "InventoryIdKey": 34
+  },
+  {
+    "_index": 49,
+    "Id": "HeistNpcEquipment5",
+    "InventoryIdKey": 34
+  },
+  {
+    "_index": 50,
+    "Id": "HeistNpcEquipment6",
+    "InventoryIdKey": 34
+  },
+  {
+    "_index": 51,
+    "Id": "HeistNpcEquipment7",
+    "InventoryIdKey": 34
+  },
+  {
+    "_index": 52,
+    "Id": "HeistNpcEquipment8",
+    "InventoryIdKey": 34
+  },
+  {
+    "_index": 53,
+    "Id": "HeistNpcEquipment9",
+    "InventoryIdKey": 34
+  },
+  {
+    "_index": 54,
+    "Id": "Trinket1",
+    "InventoryIdKey": 35
+  },
+  {
+    "_index": 55,
+    "Id": "HeistBlueprintMission",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 56,
+    "Id": "HeistStorage1",
+    "InventoryIdKey": 36
+  },
+  {
+    "_index": 57,
+    "Id": "RitualSavedRewards1",
+    "InventoryIdKey": 37
+  },
+  {
+    "_index": 58,
+    "Id": "DONOTUSE1",
+    "InventoryIdKey": 12
+  },
+  {
+    "_index": 59,
+    "Id": "DONOTUSE2",
+    "InventoryIdKey": 12
+  },
+  {
+    "_index": 60,
+    "Id": "DONOTUSE3",
+    "InventoryIdKey": 12
+  },
+  {
+    "_index": 61,
+    "Id": "DONOTUSE4",
+    "InventoryIdKey": 12
+  },
+  {
+    "_index": 62,
+    "Id": "SkillSlots1",
+    "InventoryIdKey": 41
+  },
+  {
+    "_index": 63,
+    "Id": "Currency1",
+    "InventoryIdKey": 42
+  },
+  {
+    "_index": 64,
+    "Id": "MapCurrency1",
+    "InventoryIdKey": 43
+  },
+  {
+    "_index": 65,
+    "Id": "MobileMapInventory1",
+    "InventoryIdKey": 12
+  },
+  {
+    "_index": 66,
+    "Id": "UltimatumCraftingItem",
+    "InventoryIdKey": 44
+  },
+  {
+    "_index": 67,
+    "Id": "DelveCraftingItem",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 68,
+    "Id": "MobileHeldMapsInventory1",
+    "InventoryIdKey": 12
+  },
+  {
+    "_index": 69,
+    "Id": "DONOTUSE7",
+    "InventoryIdKey": 29
+  },
+  {
+    "_index": 70,
+    "Id": "HellscapeModificationInventory1",
+    "InventoryIdKey": 45
+  },
+  {
+    "_index": 71,
+    "Id": "DONOTUSE6",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 72,
+    "Id": "SentinelDroneInventory1",
+    "InventoryIdKey": 48
+  },
+  {
+    "_index": 73,
+    "Id": "SentinelStorage1",
+    "InventoryIdKey": 49
+  },
+  {
+    "_index": 74,
+    "Id": "LakeTabletInventory1",
+    "InventoryIdKey": 50
+  },
+  {
+    "_index": 75,
+    "Id": "MemoryLineMaps",
+    "InventoryIdKey": 12
+  },
+  {
+    "_index": 76,
+    "Id": "Relics1",
+    "InventoryIdKey": 52
+  },
+  {
+    "_index": 77,
+    "Id": "RelicStorage1",
+    "InventoryIdKey": 53
+  },
+  {
+    "_index": 78,
+    "Id": "SanctumSpecialRelic1",
+    "InventoryIdKey": 54
+  },
+  {
+    "_index": 79,
+    "Id": "Weapon3",
+    "InventoryIdKey": 2
+  },
+  {
+    "_index": 80,
+    "Id": "Offhand3",
+    "InventoryIdKey": 3
+  },
+  {
+    "_index": 81,
+    "Id": "MobileSkillGemCrafting1",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 82,
+    "Id": "CurrentSanctumRun1",
+    "InventoryIdKey": 55
+  },
+  {
+    "_index": 83,
+    "Id": "MercenaryCompanionBodyArmour1",
+    "InventoryIdKey": 1
+  },
+  {
+    "_index": 84,
+    "Id": "MercenaryCompanionHelm1",
+    "InventoryIdKey": 4
+  },
+  {
+    "_index": 85,
+    "Id": "MercenaryCompanionGloves1",
+    "InventoryIdKey": 7
+  },
+  {
+    "_index": 86,
+    "Id": "MercenaryCompanionBoots1",
+    "InventoryIdKey": 8
+  },
+  {
+    "_index": 87,
+    "Id": "MercenaryCompanionWeapon1",
+    "InventoryIdKey": 2
+  },
+  {
+    "_index": 88,
+    "Id": "MercenaryCompanionOffhand1",
+    "InventoryIdKey": 3
+  },
+  {
+    "_index": 89,
+    "Id": "ThreeToOneOutput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 90,
+    "Id": "UNUSED1",
+    "InventoryIdKey": 17
+  },
+  {
+    "_index": 91,
+    "Id": "ThreeToOneInput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 92,
+    "Id": "UNUSED2",
+    "InventoryIdKey": 17
+  },
+  {
+    "_index": 93,
+    "Id": "UltimatumKey1",
+    "InventoryIdKey": 56
+  },
+  {
+    "_index": 94,
+    "Id": "DefaultAttackSkills1",
+    "InventoryIdKey": 57
+  },
+  {
+    "_index": 95,
+    "Id": "AscendancySkills1",
+    "InventoryIdKey": 57
+  },
+  {
+    "_index": 96,
+    "Id": "Tower1",
+    "InventoryIdKey": 58
+  },
+  {
+    "_index": 97,
+    "Id": "ExpandedInventory1",
+    "InventoryIdKey": 0
+  },
+  {
+    "_index": 98,
+    "Id": "ExpeditionDeal2",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 99,
+    "Id": "ExpeditionDeal3",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 100,
+    "Id": "UltimatumKeySacrifice1",
+    "InventoryIdKey": 59
+  },
+  {
+    "_index": 101,
+    "Id": "Ring3",
+    "InventoryIdKey": 6
+  },
+  {
+    "_index": 102,
+    "Id": "RecombinatorInput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 103,
+    "Id": "RecombinatorOutput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 104,
+    "Id": "EndgameSplinters1",
+    "InventoryIdKey": 63
+  },
+  {
+    "_index": 105,
+    "Id": "Chakra1",
+    "InventoryIdKey": 65
+  },
+  {
+    "_index": 106,
+    "Id": "CraftPredictionScratch",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 107,
+    "Id": "IncursionLegLeft",
+    "InventoryIdKey": 66
+  },
+  {
+    "_index": 108,
+    "Id": "IncursionLegRight",
+    "InventoryIdKey": 66
+  },
+  {
+    "_index": 109,
+    "Id": "IncursionArmLeft",
+    "InventoryIdKey": 67
+  },
+  {
+    "_index": 110,
+    "Id": "IncursionArmRight",
+    "InventoryIdKey": 67
+  },
+  {
+    "_index": 111,
+    "Id": "IncursionRewardBench1",
+    "InventoryIdKey": 68
+  },
+  {
+    "_index": 112,
+    "Id": "BrequelExchange",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 113,
+    "Id": "LoreweaveExchange",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 114,
+    "Id": "UNUSED3",
+    "InventoryIdKey": 17
+  },
+  {
+    "_index": 115,
+    "Id": "LoreweaveExchangeOutput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 116,
+    "Id": "RiteOfTheNameless1",
+    "InventoryIdKey": 70
+  },
+  {
+    "_index": 117,
+    "Id": "BereksTamingExchangeInput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 118,
+    "Id": "BereksTamingExchangeOutput",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 119,
+    "Id": "TrialOfChaosBench",
+    "InventoryIdKey": 15
+  },
+  {
+    "_index": 120,
+    "Id": "UltimatumEarnedRewards1",
+    "InventoryIdKey": 40
+  }
+]

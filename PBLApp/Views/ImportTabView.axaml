@@ -63,6 +63,31 @@
                 </StackPanel>
             </Border>
 
+            <!-- Экспорт гайда во внутриигровой планировщик (.build) -->
+            <Border Background="{DynamicResource BgRaisedBrush}" Padding="12"
+                    IsVisible="{Binding ShowGuideExport}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{loc:Tr Guide_Title}" FontWeight="Bold" FontSize="14"
+                               Foreground="{DynamicResource TextPrimaryBrush}" />
+                    <TextBlock Text="{loc:Tr Guide_Desc}" TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" />
+                    <TextBlock Text="{loc:Tr Guide_Folder}" FontSize="12"
+                               Foreground="{DynamicResource TextMutedBrush}" />
+                    <TextBox Text="{Binding GuideFolder}"
+                             FontFamily="Cascadia Code,Consolas,monospace" FontSize="11.5"
+                             Background="{DynamicResource BgMantleBrush}"
+                             Foreground="{DynamicResource TextPrimaryBrush}"
+                             BorderBrush="{DynamicResource BorderStrongBrush}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="{loc:Tr Guide_SaveButton}"
+                                Command="{Binding ExportGuideCommand}"
+                                IsEnabled="{Binding !IsWorking}" />
+                        <Button Content="{loc:Tr Guide_OpenFolder}"
+                                Command="{Binding OpenGuideFolderCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
             <!-- Status -->
             <TextBlock Text="{Binding StatusMessage}"
                        IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"

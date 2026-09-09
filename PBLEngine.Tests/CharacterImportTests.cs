@@ -92,4 +92,37 @@ public class CharacterImportTests : IClassFixture<LuaHostFixture>
         Assert.False(result.Ok);
         Assert.Contains("персонаж", result.Error!);
     }
+
+    [Fact]
+    public void ImportCharacter_RecordsBindingForReimport()
+    {
+        var result = _host.ImportCharacter(CharacterJson(),
+            new CharacterImportOptions { PassiveTree = true, ItemsAndSkills = false });
+        Assert.True(result.Ok, result.Error);
+
+        var binding = _host.GetCharacterBinding();
+        Assert.Equal("TestChar", binding.CharacterName);
+        Assert.True(binding.HasValue);
+        // Хеш пишется рядом с именем — по нему персонажа узнаёт оригинальный PoB.
+        Assert.Equal(_host.Sha1("TestChar"), binding.Hash);
+    }
+
+    [Fact]
+    public void CharacterBinding_SurvivesSaveAndLoad()
+    {
+        _host.ImportCharacter(CharacterJson(),
+            new CharacterImportOptions { PassiveTree = true, ItemsAndSkills = false });
+        _host.SetCharacterBinding("TestChar", "TestAccount");
+
+        var xml = _host.SaveBuildToXml();
+        Assert.NotNull(xml);
+        _host.NewBuild();
+        Assert.Null(_host.GetCharacterBinding().CharacterName);
+
+        _host.LoadBuildFromXml(xml!, "Reloaded");
+
+        var binding = _host.GetCharacterBinding();
+        Assert.Equal("TestChar", binding.CharacterName);
+        Assert.Equal("TestAccount", binding.AccountName);
+    }
 }
