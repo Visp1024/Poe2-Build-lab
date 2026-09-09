@@ -26,12 +26,28 @@ public sealed partial class ExplicitModViewModel : ObservableObject
     public string AffixLabel { get; }
     public string Group      { get; }   // for duplicate prevention
 
-    /// <summary>Unified one-letter badge for the mod row (P/S/I/C or empty).</summary>
-    public string TypeBadgeLabel =>
+    /// <summary>Тир мода в серии базы, 1 = лучший. 0 — неизвестен (задача #51).</summary>
+    public int Tier      { get; }
+    /// <summary>Сколько всего тиров в серии.</summary>
+    public int TierCount { get; }
+
+    /// <summary>Одна буква вида мода — P/S/I/C или пусто.</summary>
+    public string TypeBadgeKind =>
         IsCorruption            ? "C" :
         IsImplicit              ? "I" :
         AffixType == "Prefix"   ? "P" :
         AffixType == "Suffix"   ? "S" : "";
+
+    /// <summary>Unified badge for the mod row: «P4» / «S1» / «I» / «C» (or empty).</summary>
+    public string TypeBadgeLabel =>
+        TypeBadgeKind.Length > 0 && Tier > 0 ? TypeBadgeKind + Tier : TypeBadgeKind;
+
+    /// <summary>Правый чип строки: «T4 / 10». Показывается только когда тир известен
+    /// и серия действительно многотировая.</summary>
+    public bool HasTierChip => Tier > 0 && TierCount > 1;
+    public string TierChipText =>
+        HasTierChip ? $"{LocalizationService.Instance["Mod_TierShort"]}{Tier} / {TierCount}" : "";
+    public string TierTooltip => ModBadgeText.Describe(TypeBadgeKind, Tier, TierCount);
 
     /// <summary>Theme resource key for the unified badge colour.</summary>
     public string TypeBadgeBrushKey =>
@@ -57,6 +73,8 @@ public sealed partial class ExplicitModViewModel : ObservableObject
     public double SliderMin  { get; }
     public double SliderMax  { get; }
     public string SliderLabel => $"{(int)SliderMin}–{(int)SliderMax}";
+    /// <summary>Шаг ползунка: у дробных диапазонов целочисленный тик округлял бы ролл.</summary>
+    public double SliderTick => _isFloatRange ? 0.01 : 1;
 
     private readonly string? _template;  // e.g. "+{0} to Strength"
     private bool _isFloatRange;          // true if the range bounds aren't both integers
@@ -120,7 +138,9 @@ public sealed partial class ExplicitModViewModel : ObservableObject
             PartBefore = text; PartNumber = ""; PartAfter = "";
             return;
         }
-        var m = Regex.Match(text, @"\d+");
+        // Дробные роллы («+3.66% к шансу крит. удара») должны попадать в PartNumber
+        // целиком — иначе дробная часть теряется между Before и After.
+        var m = Regex.Match(text, @"\d+(?:\.\d+)?");
         if (m.Success)
         {
             PartBefore = text[..m.Index];
@@ -154,7 +174,8 @@ public sealed partial class ExplicitModViewModel : ObservableObject
                                 string group = "", string originalStatText = "",
                                 string? rawLineForSave = null,
                                 double? initialRangeFraction = null,
-                                bool isImplicit = false)
+                                bool isImplicit = false,
+                                int tier = 0, int tierCount = 0)
     {
         _editor       = editor;
         _text         = text;
@@ -162,6 +183,8 @@ public sealed partial class ExplicitModViewModel : ObservableObject
         AffixLabel    = affixType switch { "Prefix" => "P", "Suffix" => "S", _ => "" };
         Group         = group;
         IsImplicit    = isImplicit;
+        Tier          = tier;
+        TierCount     = tierCount;
         _rawLineForSave = rawLineForSave;
 
         // Try to build a slider from the original stat text (single integer range only)
@@ -249,6 +272,11 @@ public sealed class AffixEntryViewModel
     /// blue/green the picker used before theming.</summary>
     public string TypeBrushKey => Entry.AffixType == "Prefix" ? "AttrIntBrush" : "AttrDexBrush";
     public string TypeLabel => Entry.AffixType == "Prefix" ? "P" : "S";
+    /// <summary>Тир мода в серии — «T4»; пусто, если серия одно-тировая (задача #51).</summary>
+    public string TierLabel => Entry.Tier > 0 && Entry.TierCount > 1
+        ? $"{LocalizationService.Instance["Mod_TierShort"]}{Entry.Tier}" : "";
+    public string TierTooltip =>
+        ModBadgeText.Describe(TypeLabel, Entry.Tier, Entry.TierCount);
     /// <summary>Localised stat text shown in the affix picker.</summary>
     public string TranslatedStatText =>
         PBLApp.Core.Localization.GameTranslationService.Instance.TooltipLine(Entry.StatText);
@@ -1261,7 +1289,9 @@ public partial class ItemEditorViewModel : ViewModelBase
             affixType: e.AffixType,
             affixName: e.AffixName,
             group:     e.Group,
-            originalStatText: e.StatText));
+            originalStatText: e.StatText,
+            tier:      e.Tier,
+            tierCount: e.TierCount));
         OnPropertyChanged(nameof(PrefixCount));
         OnPropertyChanged(nameof(SuffixCount));
         OnPropertyChanged(nameof(PrefixSuffixLabel));
@@ -1463,9 +1493,28 @@ public partial class ItemEditorViewModel : ViewModelBase
             }
         }
 
-        // 7. Add explicit mods with resolved type info
-        foreach (var modText in explicitTexts)
+        // 7. Add explicit mods with resolved type info.
+        //    Основной источник грейда — PBLModTiers: он строит пул по той же цепочке,
+        //    что Item.lua (data.itemMods[type..subType] → [type] → .Item), поэтому
+        //    видит локальные моды оружия/брони, которых нет в _allAffixes.
+        //    FindMatchingAffix остаётся запасным вариантом.
+        var tierInfos = ResolveTiersSafe(SelectedBase?.Name ?? "", explicitTexts);
+        for (int mi = 0; mi < explicitTexts.Count; mi++)
         {
+            var modText = explicitTexts[mi];
+            var info    = mi < tierInfos.Count ? tierInfos[mi] : null;
+            if (info is not null)
+            {
+                ExplicitMods.Add(new ExplicitModViewModel(this, modText,
+                    affixType:        info.AffixType,
+                    affixName:        info.AffixName,
+                    group:            info.Group,
+                    originalStatText: info.StatText,
+                    tier:             info.Tier,
+                    tierCount:        info.TierCount));
+                continue;
+            }
+
             var matched = FindMatchingAffix(modText);
             if (matched is not null)
             {
@@ -1473,7 +1522,9 @@ public partial class ItemEditorViewModel : ViewModelBase
                     affixType:        matched.AffixType,
                     affixName:        matched.AffixName,
                     group:            matched.Group,
-                    originalStatText: matched.StatText));
+                    originalStatText: matched.StatText,
+                    tier:             matched.Tier,
+                    tierCount:        matched.TierCount));
             }
             else
             {
@@ -1484,6 +1535,15 @@ public partial class ItemEditorViewModel : ViewModelBase
         OnPropertyChanged(nameof(PrefixCount));
         OnPropertyChanged(nameof(SuffixCount));
         OnPropertyChanged(nameof(PrefixSuffixLabel));
+    }
+
+    /// <summary>Грейд строк мода через PBLModTiers; при любой ошибке — пустой список,
+    /// чтобы редактор открылся даже если движок ответил неожиданно.</summary>
+    private List<ModTierInfo?> ResolveTiersSafe(string baseName, IReadOnlyList<string> lines)
+    {
+        if (string.IsNullOrEmpty(baseName) || lines.Count == 0) return [];
+        try { return _host.ResolveModTiers(baseName, lines); }
+        catch { return []; }
     }
 
     /// <summary>Returns true if the line is a known PoB item metadata line (not a mod).</summary>

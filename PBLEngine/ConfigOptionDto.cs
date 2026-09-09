@@ -60,7 +60,13 @@ public record ItemTooltipLine(
     string Text,
     bool Centered,
     int Block,
-    string? Font = null);
+    string? Font = null,
+    /// <summary>Грейд мода: "P" — префикс, "S" — суффикс, "I" — имплицит, "" — не мод.</summary>
+    string AffixKind = "",
+    /// <summary>Тир мода (1 = лучший). 0 — неизвестен / у серии один тир.</summary>
+    int Tier = 0,
+    /// <summary>Сколько всего тиров в серии. 0 — неизвестно.</summary>
+    int TierCount = 0);
 
 public record ItemEntry(
     string Name,
@@ -97,7 +103,9 @@ public record AffixEntry(
     string StatText,   // e.g. "+(13-16) to Strength"
     string AffixType,  // "Prefix" or "Suffix"
     int    Level,
-    string Group       // e.g. "Strength"
+    string Group,      // e.g. "Strength"
+    int    Tier = 0,   // 1 = лучший тир серии; 0 — неизвестен
+    int    TierCount = 0
 );
 
 public record UniqueItemEntry(

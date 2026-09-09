@@ -587,20 +587,28 @@
                                                 <Button Classes="list-btn"
                                                         Command="{Binding AddCommand}"
                                                         ToolTip.Tip="{Binding Entry.AffixName}">
-                                                    <Grid ColumnDefinitions="16,*,Auto" ColumnSpacing="6">
+                                                    <Grid ColumnDefinitions="16,26,*,Auto" ColumnSpacing="6">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{Binding TypeLabel}"
                                                                    Foreground="{Binding TypeBrushKey, Converter={x:Static vm:TooltipKindConverter.BrushKeyOrTransparent}}"
                                                                    FontSize="13" FontWeight="Bold"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
+                                                        <!-- Грейд мода (задача #51) -->
                                                         <TextBlock Grid.Column="1"
+                                                                   Text="{Binding TierLabel}"
+                                                                   ToolTip.Tip="{Binding TierTooltip}"
+                                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                                   FontSize="12" FontWeight="SemiBold"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="2"
                                                                    Text="{Binding TranslatedStatText}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}" FontSize="14"
                                                                    FontFamily="Cascadia Code,Consolas,monospace"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Column="2"
+                                                        <TextBlock Grid.Column="3"
                                                                    Text="{Binding Entry.Level, StringFormat='Lv {0}'}"
                                                                    Foreground="{DynamicResource BorderStrongBrush}" FontSize="14"
                                                                    VerticalAlignment="Center"
@@ -695,7 +703,7 @@
                                         <Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1"
                                                 Background="{Binding RowBackgroundBrushKey, Converter={x:Static vm:TooltipKindConverter.BrushKeyOrTransparent}}"
                                                 Padding="6,5,6,5">
-                                            <Grid ColumnDefinitions="3,16,*,Auto" ColumnSpacing="8">
+                                            <Grid ColumnDefinitions="3,26,*,Auto,Auto" ColumnSpacing="8">
                                                 <!-- Corruption accent stripe — vivid red left edge for corruption mods only -->
                                                 <Border Grid.Column="0"
                                                         Width="3"
@@ -706,6 +714,7 @@
                                                 <!-- Type badge (P / S / I / C / empty) -->
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding TypeBadgeLabel}"
+                                                           ToolTip.Tip="{Binding TierTooltip}"
                                                            Foreground="{Binding TypeBadgeBrushKey, Converter={x:Static vm:TooltipKindConverter.BrushKeyOrTransparent}}"
                                                            FontSize="14" FontWeight="Bold"
                                                            HorizontalAlignment="Center"
@@ -747,7 +756,7 @@
                                                                 Minimum="{Binding SliderMin}"
                                                                 Maximum="{Binding SliderMax}"
                                                                 Value="{Binding SliderValue}"
-                                                                TickFrequency="1"
+                                                                TickFrequency="{Binding SliderTick}"
                                                                 IsSnapToTickEnabled="True"
                                                                 HorizontalAlignment="Stretch"
                                                                 Margin="0,0,0,0"
@@ -760,8 +769,20 @@
                                                     </Grid>
                                                 </StackPanel>
 
+                                                <!-- Чип грейда: «T4 / 10» (задача #51) -->
+                                                <Border Grid.Column="3"
+                                                        IsVisible="{Binding HasTierChip}"
+                                                        ToolTip.Tip="{Binding TierTooltip}"
+                                                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                                                        CornerRadius="3" Padding="5,0,5,1"
+                                                        VerticalAlignment="Top" Margin="0,2,0,0">
+                                                    <TextBlock Text="{Binding TierChipText}"
+                                                               Foreground="{DynamicResource TextMutedBrush}"
+                                                               FontSize="11" FontWeight="SemiBold"/>
+                                                </Border>
+
                                                 <!-- × Remove (only for removable mods) -->
-                                                <Button Grid.Column="3"
+                                                <Button Grid.Column="4"
                                                         IsVisible="{Binding IsRemovable}"
                                                         Content="✕"
                                                         Classes="remove-mod"

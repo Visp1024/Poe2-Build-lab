@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>#51 — грейд модификаторов</title>
+<style>
+  :root{
+    --bg:#12131a; --panel:#1a1c25; --panel2:#20222d; --border:#2c2f3d;
+    --text:#cdd6f4; --muted:#7e849b; --magic:#8b8bfe; --num:#9db4ff;
+    --prefix:#6aa9ff; --suffix:#6ede8a; --impl:#5fd6e0; --corrupt:#e2504a;
+    --rare:#ffff77;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:14px/1.5 "Segoe UI",system-ui,sans-serif;padding:28px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 24px;max-width:70ch}
+  h2{font-size:15px;margin:32px 0 4px;color:#fff}
+  h2 .tag{font:11px/1 "Segoe UI";background:#2b3550;color:#9db4ff;
+          padding:3px 7px;border-radius:4px;margin-right:8px;vertical-align:2px}
+  .note{color:var(--muted);font-size:13px;margin:0 0 12px;max-width:78ch}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:6px;
+        padding:12px 14px;min-width:330px}
+  .card .cap{color:var(--muted);font-size:12px;text-transform:uppercase;
+             letter-spacing:.06em;margin-bottom:8px}
+  .name{color:var(--rare);font-size:15px;font-weight:600}
+  .base{color:var(--rare);opacity:.75;margin-bottom:6px}
+  hr{border:0;border-top:1px solid var(--border);margin:8px 0}
+  .mod{color:var(--magic);margin:2px 0}
+  .mod b{color:var(--num);font-weight:600}
+  /* variant A — in-game header line */
+  .hdr{font-size:12px;color:var(--muted);margin-top:8px}
+  .hdr .p{color:var(--prefix)} .hdr .s{color:var(--suffix)}
+  .hdr .t{color:#c8b57a}
+  /* variant B — inline badge */
+  .badge{display:inline-block;min-width:26px;text-align:center;font-size:11px;
+         font-weight:700;border-radius:3px;padding:1px 5px;margin-right:8px;
+         vertical-align:1px;border:1px solid transparent}
+  .badge.p{color:var(--prefix);border-color:#2c4c78;background:#182338}
+  .badge.s{color:var(--suffix);border-color:#2f5f3f;background:#152619}
+  .badge.i{color:var(--impl);border-color:#2a5257;background:#132226}
+  .badge.c{color:var(--corrupt);border-color:#63302d;background:#2a1614}
+  /* variant C — right-aligned tier column */
+  .gridmod{display:grid;grid-template-columns:1fr auto;gap:0 10px;align-items:baseline}
+  .tcol{color:var(--muted);font-size:12px;white-space:nowrap}
+  .tcol .p{color:var(--prefix)} .tcol .s{color:var(--suffix)}
+  /* editor rows */
+  .erow{display:grid;grid-template-columns:18px 1fr auto;gap:8px;
+        border-bottom:1px solid #262936;padding:6px 4px;align-items:start}
+  .erow .bl{font-weight:700;font-size:13px;text-align:center}
+  .erow .bl.p{color:var(--prefix)} .erow .bl.s{color:var(--suffix)}
+  .erow .tier{font-size:11px;color:#c8b57a;background:#241f14;border:1px solid #4a3f22;
+              border-radius:3px;padding:1px 6px;white-space:nowrap}
+  .slider{height:3px;background:#333849;border-radius:2px;margin:6px 0 2px;position:relative}
+  .slider::after{content:"";position:absolute;left:62%;top:-4px;width:10px;height:10px;
+                 border-radius:50%;background:#7f9cf5}
+  .pick{display:grid;grid-template-columns:16px 34px 1fr auto;gap:8px;padding:5px 4px;
+        border-bottom:1px solid #23262f;align-items:center}
+  .pick .lv{color:#575c70;font-size:12px}
+  .pick .t{font-size:11px;color:#c8b57a}
+  code{background:#20222d;border:1px solid var(--border);border-radius:3px;
+       padding:1px 5px;font-size:12px;color:#a6c8ff}
+</style>
+</head>
+<body>
+
+<h1>#51 — грейд (тир) модификаторов рядом с модами</h1>
+<p class="sub">Три варианта подачи «префикс / суффикс + тир». Данные тира берутся из
+пула модов базы (<code>data.itemMods.Item</code>, группировка по <code>statOrder</code>,
+как в крафт-панели оригинального PoB). T1 — лучший тир.</p>
+
+<h2><span class="tag">A</span>Как в игре — строка-заголовок над модом</h2>
+<p class="note">Точная калька с PoE2 «advanced mod descriptions»: серая строка
+«Префикс «Flaring» (Тир 3)», под ней сам мод. Максимально узнаваемо, но тултип
+становится вдвое выше.</p>
+<div class="row">
+  <div class="card">
+    <div class="cap">Тултип предмета</div>
+    <div class="name">Кара Ярости</div><div class="base">Кожаный пояс</div>
+    <hr>
+    <div class="hdr"><span class="p">Префикс</span> «Flaring» <span class="t">(Тир 3)</span></div>
+    <div class="mod">+<b>87</b> к максимуму запаса жизни</div>
+    <div class="hdr"><span class="p">Префикс</span> «Athlete's» <span class="t">(Тир 1)</span></div>
+    <div class="mod"><b>18</b>% увеличение брони</div>
+    <div class="hdr"><span class="s">Суффикс</span> «of the Bear» <span class="t">(Тир 5)</span></div>
+    <div class="mod">+<b>14</b> к силе</div>
+  </div>
+</div>
+
+<h2><span class="tag">B</span>Компактный бейдж слева — <em>P3 / S5</em></h2>
+<p class="note">Одна строка на мод: цветной бейдж «P3» (синий префикс) / «S5»
+(зелёный суффикс) / «I» (имплицит) / «C» (порча). Высота тултипа не растёт,
+буква + цвет уже используются в редакторе предметов — единый язык.</p>
+<div class="row">
+  <div class="card">
+    <div class="cap">Тултип предмета</div>
+    <div class="name">Кара Ярости</div><div class="base">Кожаный пояс</div>
+    <hr>
+    <div class="mod"><span class="badge i">I</span>+<b>25</b> к максимуму запаса жизни</div>
+    <hr>
+    <div class="mod"><span class="badge p">P3</span>+<b>87</b> к максимуму запаса жизни</div>
+    <div class="mod"><span class="badge p">P1</span><b>18</b>% увеличение брони</div>
+    <div class="mod"><span class="badge s">S5</span>+<b>14</b> к силе</div>
+    <div class="mod"><span class="badge c">C</span><b>10</b>% увеличение скорости атаки</div>
+  </div>
+  <div class="card">
+    <div class="cap">Редактор предмета — «Выбранные моды»</div>
+    <div class="erow"><div class="bl p">P</div>
+      <div><div class="mod">+<b>87</b> к максимуму запаса жизни</div><div class="slider"></div></div>
+      <div class="tier">T3 / 8</div></div>
+    <div class="erow"><div class="bl p">P</div>
+      <div><div class="mod"><b>18</b>% увеличение брони</div><div class="slider"></div></div>
+      <div class="tier">T1 / 6</div></div>
+    <div class="erow"><div class="bl s">S</div>
+      <div><div class="mod">+<b>14</b> к силе</div><div class="slider"></div></div>
+      <div class="tier">T5 / 7</div></div>
+    <div class="cap" style="margin-top:14px">Список доступных модов</div>
+    <div class="pick"><span class="bl p" style="color:var(--prefix);font-weight:700">P</span>
+      <span class="t">T3</span><span class="mod">+(80-89) к максимуму запаса жизни</span><span class="lv">Ур 44</span></div>
+    <div class="pick"><span class="bl p" style="color:var(--prefix);font-weight:700">P</span>
+      <span class="t">T2</span><span class="mod">+(90-99) к максимуму запаса жизни</span><span class="lv">Ур 55</span></div>
+    <div class="pick"><span class="bl s" style="color:var(--suffix);font-weight:700">S</span>
+      <span class="t">T5</span><span class="mod">+(13-16) к силе</span><span class="lv">Ур 22</span></div>
+  </div>
+</div>
+
+<h2><span class="tag">C</span>Тир отдельной колонкой справа</h2>
+<p class="note">Мод слева, «Преф. T3» справа по краю. Читается как таблица,
+не мешает тексту мода, но требует ширины и на длинных модах колонка «уезжает».</p>
+<div class="row">
+  <div class="card">
+    <div class="cap">Тултип предмета</div>
+    <div class="name">Кара Ярости</div><div class="base">Кожаный пояс</div>
+    <hr>
+    <div class="gridmod">
+      <div class="mod">+<b>87</b> к максимуму запаса жизни</div><div class="tcol"><span class="p">Преф.</span> T3</div>
+      <div class="mod"><b>18</b>% увеличение брони</div><div class="tcol"><span class="p">Преф.</span> T1</div>
+      <div class="mod">+<b>14</b> к силе</div><div class="tcol"><span class="s">Суф.</span> T5</div>
+    </div>
+  </div>
+</div>
+
+<h2>Где показывать</h2>
+<p class="note">Предлагаю: тултип предмета (наведение и панель экипировки),
+редактор предмета (строки выбранных модов + список доступных модов),
+результаты поиска в окне трейдера. Уники/имплициты тира не имеют — там только
+буква-бейдж без цифры.</p>
+
+</body>
+</html>

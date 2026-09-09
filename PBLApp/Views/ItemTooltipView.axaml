@@ -27,6 +27,21 @@
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         </Style>
+        <!-- Бейдж грейда мода: «P4» / «S1» / «I» слева от строки мода (задача #51) -->
+        <Style Selector="Border.tt-badge">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="4,0,4,1"/>
+            <Setter Property="Margin" Value="0,2,7,0"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="MinWidth" Value="24"/>
+        </Style>
+        <Style Selector="Border.tt-badge > TextBlock">
+            <Setter Property="FontFamily" Value="Inter, Segoe UI, Arial"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
         <Style Selector="Border.tt-sep">
             <Setter Property="Height" Value="1"/>
             <Setter Property="Background" Value="{DynamicResource BorderSubtleBrush}"/>
@@ -59,10 +74,21 @@
                                   ItemsSource="{Binding ItemLines}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="vm:TooltipLineVm">
-                                <Grid Margin="0,1">
-                                    <Border Classes="tt-sep"
+                                <Grid Margin="0,1" ColumnDefinitions="Auto,*">
+                                    <Border Grid.Column="0" Grid.ColumnSpan="2"
+                                            Classes="tt-sep"
                                             IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsSeparator}}"/>
-                                    <TextBlock Classes="tt-line"
+                                    <!-- Грейд мода -->
+                                    <Border Grid.Column="0"
+                                            Classes="tt-badge"
+                                            IsVisible="{Binding HasBadge}"
+                                            ToolTip.Tip="{Binding BadgeTooltip}"
+                                            BorderBrush="{Binding BadgeBrushKey, Converter={x:Static vm:TooltipKindConverter.BrushKeyOrTransparent}}">
+                                        <TextBlock Text="{Binding BadgeText}"
+                                                   Foreground="{Binding BadgeBrushKey, Converter={x:Static vm:TooltipKindConverter.BrushKeyOrTransparent}}"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1"
+                                               Classes="tt-line"
                                                IsVisible="{Binding Kind, Converter={x:Static vm:TooltipKindConverter.IsText}}"
                                                ctl:InlinesHelper.ItemSegments="{Binding Segments}"
                                                FontSize="{Binding Size, Converter={x:Static vm:TooltipKindConverter.ScaleSizeItem}}"

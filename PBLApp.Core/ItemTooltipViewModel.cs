@@ -26,6 +26,53 @@ public sealed class TooltipLineVm
     /// <summary>Plain text without colour codes — used by hover-tooltip ToolTip strings.</summary>
     public string PlainText { get; init; } = "";
     public IReadOnlyList<TooltipSegment> Segments { get; init; } = Array.Empty<TooltipSegment>();
+
+    // ── Грейд мода (задача #51) ─────────────────────────────────────────────
+    /// <summary>"P" — префикс, "S" — суффикс, "I" — имплицит, "" — строка не мод.</summary>
+    public string AffixKind { get; init; } = "";
+    /// <summary>Тир мода, 1 = лучший. 0 — неизвестен или в серии один тир.</summary>
+    public int Tier { get; init; }
+    /// <summary>Всего тиров в серии для этой базы.</summary>
+    public int TierCount { get; init; }
+
+    public bool HasBadge => AffixKind.Length > 0;
+
+    /// <summary>Текст бейджа: "P4" / "S1" / "I".</summary>
+    public string BadgeText => Tier > 0 ? AffixKind + Tier.ToString() : AffixKind;
+
+    /// <summary>Ключ ресурса-кисти для цвета бейджа.</summary>
+    public string BadgeBrushKey => AffixKind switch
+    {
+        "P" => "AttrIntBrush",          // синий — префикс
+        "S" => "AttrDexBrush",          // зелёный — суффикс
+        "I" => "ModEnchantBrush",       // циан — имплицит
+        "C" => "CorruptedAccentBrush",  // красный — порча
+        _   => "",
+    };
+
+    /// <summary>Подсказка под бейджем: «Префикс, тир 4 из 10».</summary>
+    public string BadgeTooltip => ModBadgeText.Describe(AffixKind, Tier, TierCount);
+}
+
+/// <summary>Общие подписи бейджа грейда — используются тултипом и редактором.</summary>
+public static class ModBadgeText
+{
+    public static string Describe(string kind, int tier, int count)
+    {
+        var name = kind switch
+        {
+            "P" => LocalizationService.Instance["Mod_Prefix"],
+            "S" => LocalizationService.Instance["Mod_Suffix"],
+            "I" => LocalizationService.Instance["Mod_Implicit"],
+            "C" => LocalizationService.Instance["Mod_Corruption"],
+            _   => "",
+        };
+        if (name.Length == 0) return "";
+        if (tier <= 0) return name;
+        return count > 0
+            ? $"{name} — {LocalizationService.Instance["Mod_Tier"]} {tier}/{count}"
+            : $"{name} — {LocalizationService.Instance["Mod_Tier"]} {tier}";
+    }
 }
 
 /// <summary>
@@ -111,6 +158,9 @@ public partial class ItemTooltipViewModel : ViewModelBase
                     Block = line.Block,
                     PlainText = plain,
                     Segments = segments,
+                    AffixKind = line.AffixKind,
+                    Tier = line.Tier,
+                    TierCount = line.TierCount,
                 });
             }
         }

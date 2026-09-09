@@ -1621,6 +1621,7 @@ public sealed partial class LuaHost : IDisposable
     public List<ItemTooltipLine> GetItemTooltipLines(int itemId, string? slotName = null)
     {
         var lines = new List<ItemTooltipLine>();
+        EnsureModTiers();
         State["_ttItemId"]   = (long)itemId;
         State["_ttSlotName"] = slotName ?? "";
         var result = State.DoString(@"
@@ -1641,6 +1642,27 @@ public sealed partial class LuaHost : IDisposable
             -- Force per-slot delta block (PoB has main.slotOnlyTooltips for the same purpose).
             local prevSlotOnly = main.slotOnlyTooltips
             main.slotOnlyTooltips = (slot ~= nil)
+
+            -- Грейд модов: помечаем каждую отформатированную строку мода бейджем
+            -- 'P|3|13' / 'S|5|7' / 'I'. itemLib.formatModLine — единственная точка,
+            -- через которую строки мода попадают в тултип, поэтому оборачиваем её.
+            local ttBadges = {}
+            local origFormatModLine = nil
+            if PBLModTiers and itemLib and itemLib.formatModLine then
+                local lineMeta = PBLModTiers.BuildLineMeta(item)
+                origFormatModLine = itemLib.formatModLine
+                itemLib.formatModLine = function(ml, dbMode)
+                    local res = origFormatModLine(ml, dbMode)
+                    if res and ml then
+                        local rec = lineMeta[ml] or (ml.line and lineMeta.byLine[ml.line])
+                        if rec then
+                            local ok, badge = pcall(PBLModTiers.BadgeFor, item.baseName, rec.kind, res)
+                            if ok and badge then ttBadges[res] = badge end
+                        end
+                    end
+                    return res
+                end
+            end
 
             -- Stub mimicking Classes/Tooltip.lua just enough for AddItemTooltip.
             local stub = {
@@ -1675,6 +1697,7 @@ public sealed partial class LuaHost : IDisposable
                         if pp == cp and pp ~= '' then return end
                     end
                 end
+                local badge = ttBadges[text]
                 for line in (text .. '\n'):gmatch('([^\n]*)\n') do
                     -- AddItemTooltip's compare block emits ^7-prefixed headers; strip the prefix for matching.
                     local plain = (line:gsub('^%^[xX]?%x*', '')):gsub('^%^%d', '')
@@ -1690,6 +1713,7 @@ public sealed partial class LuaHost : IDisposable
                         center = self.center and 1 or 0,
                         block = #self.blocks,
                         font = font or '',
+                        badge = badge,
                     })
                 end
             end
@@ -1710,13 +1734,14 @@ public sealed partial class LuaHost : IDisposable
                 build.itemsTab:AddItemTooltip(stub, item, slot)
             end)
             main.slotOnlyTooltips = prevSlotOnly
+            if origFormatModLine then itemLib.formatModLine = origFormatModLine end
             if not ok then
                 table.insert(stub.lines, { kind='text', size=14, text='^xFF5555Tooltip error: '..tostring(err),
                     center=0, block=1, font='' })
             end
             -- Serialize to a single string to dodge NLua LuaTable iteration quirks
             -- (observed: long tooltip arrays drop entries when read field-by-field).
-            -- Format per line: kind|size|center|block|font|text — '\\x1F' (US) row delim.
+            -- Format per line: kind|size|center|block|font|badge|text — '\\x1F' (US) row delim.
             local parts = {}
             for _, l in ipairs(stub.lines) do
                 local kind = l.kind or 'text'
@@ -1724,10 +1749,11 @@ public sealed partial class LuaHost : IDisposable
                 local center = tostring(l.center or 0)
                 local block = tostring(l.block or 1)
                 local font = l.font or ''
+                local badge = l.badge or ''
                 local text = l.text or ''
                 -- Replace any inline tabs in text with spaces (none expected, defensive).
                 text = text:gsub('\t', ' ')
-                table.insert(parts, kind..'\t'..size..'\t'..center..'\t'..block..'\t'..font..'\t'..text)
+                table.insert(parts, kind..'\t'..size..'\t'..center..'\t'..block..'\t'..font..'\t'..badge..'\t'..text)
             end
             return table.concat(parts, '\x1F')
         ");
@@ -1739,18 +1765,32 @@ public sealed partial class LuaHost : IDisposable
             foreach (var row in serialized.Split('\x1F'))
             {
                 if (string.IsNullOrEmpty(row)) continue;
-                var parts = row.Split('\t', 6);
-                if (parts.Length < 6) continue;
+                var parts = row.Split('\t', 7);
+                if (parts.Length < 7) continue;
                 var kind     = parts[0];
                 var size     = int.TryParse(parts[1], out var sz) ? sz : 14;
                 var centered = parts[2] == "1";
                 var block    = int.TryParse(parts[3], out var bl) ? bl : 1;
                 var font     = string.IsNullOrEmpty(parts[4]) ? null : parts[4];
-                var text     = parts[5];
-                lines.Add(new ItemTooltipLine(kind, size, text, centered, block, font));
+                var (affixKind, tier, tierCount) = ParseModBadge(parts[5]);
+                var text     = parts[6];
+                lines.Add(new ItemTooltipLine(kind, size, text, centered, block, font,
+                                              affixKind, tier, tierCount));
             }
         }
         return lines;
+    }
+
+    /// <summary>Разбирает бейдж грейда из Lua: "P|3|13" / "S" / "I" / "" (нет бейджа).</summary>
+    private static (string Kind, int Tier, int TierCount) ParseModBadge(string badge)
+    {
+        if (string.IsNullOrEmpty(badge)) return ("", 0, 0);
+        var p = badge.Split('|');
+        var kind = p[0];
+        if (p.Length < 3) return (kind, 0, 0);
+        int.TryParse(p[1], out var tier);
+        int.TryParse(p[2], out var count);
+        return (kind, tier, count);
     }
 
     /// <summary>Removes an item entirely from the build's item pool.</summary>
@@ -1948,12 +1988,14 @@ public sealed partial class LuaHost : IDisposable
     /// </summary>
     public List<AffixEntry> GetItemAffixes(string baseName)
     {
+        EnsureModTiers();
         State["_affixBase"] = baseName;
         var list = new List<AffixEntry>();
         var result = State.DoString(@"
             if not (data and data.itemBases and data.itemMods and data.itemMods.Item) then return {} end
             local base = data.itemBases[_affixBase]
             if not base then return {} end
+            local _tierPool = PBLModTiers and PBLModTiers.BuildPool(_affixBase) or nil
             -- collect all matching tags for this base
             local tags = {}
             if base.tags then
@@ -1973,13 +2015,20 @@ public sealed partial class LuaHost : IDisposable
                         if wv > 0 and tags[wk] then ok = true; break end
                     end
                     if ok then
+                        -- Тир ищем по тексту стата, а не по modId: этот список
+                        -- перебирает data.itemMods.Item, тогда как реальный пул базы
+                        -- может лежать в data.itemMods[base.type] (оружие, броня).
+                        local te = _tierPool and (_tierPool.byModId[modId]
+                                   or (PBLModTiers and PBLModTiers.Resolve(_affixBase, mod[1])))
                         table.insert(out, {
                             modId,
                             mod.affix or '',
                             mod[1],
                             mod.type,
                             mod.level or 0,
-                            mod.group or ''
+                            mod.group or '',
+                            te and te.tier or 0,
+                            te and te.count or 0
                         })
                     end
                 end
@@ -2002,7 +2051,9 @@ public sealed partial class LuaHost : IDisposable
                     var typ  = row[4L] as string ?? "";
                     var lvl  = row[5L] is long li ? (int)li : 0;
                     var grp  = row[6L] as string ?? "";
-                    list.Add(new AffixEntry(id, afx, stat, typ, lvl, grp));
+                    var tier = row[7L] is long ti ? (int)ti : 0;
+                    var tcnt = row[8L] is long tc ? (int)tc : 0;
+                    list.Add(new AffixEntry(id, afx, stat, typ, lvl, grp, tier, tcnt));
                 }
         return list;
     }
@@ -2033,7 +2084,7 @@ public sealed partial class LuaHost : IDisposable
                         if wv > 0 and tags[wk] then ok = true; break end
                     end
                     if ok then
-                        table.insert(out, { modId, mod.affix or '', mod[1], mod.type, mod.level or 0, mod.group or '' })
+                        table.insert(out, { modId, mod.affix or '', mod[1], mod.type, mod.level or 0, mod.group or '', 0, 0 })
                     end
                 end
             end
@@ -2054,7 +2105,9 @@ public sealed partial class LuaHost : IDisposable
                     var typ  = row[4L] as string ?? "";
                     var lvl  = row[5L] is long li ? (int)li : 0;
                     var grp  = row[6L] as string ?? "";
-                    list.Add(new AffixEntry(id, afx, stat, typ, lvl, grp));
+                    var tier = row[7L] is long ti ? (int)ti : 0;
+                    var tcnt = row[8L] is long tc ? (int)tc : 0;
+                    list.Add(new AffixEntry(id, afx, stat, typ, lvl, grp, tier, tcnt));
                 }
         return list;
     }

@@ -544,4 +544,10 @@
   <data name="CharImport_RateLimited"      xml:space="preserve"><value>Requests are being sent too fast, try again in {0} s.</value></data>
   <data name="CharImport_NetworkError"     xml:space="preserve"><value>Network error: {0}</value></data>
 
+  <data name="Mod_Prefix"    xml:space="preserve"><value>Prefix</value></data>
+  <data name="Mod_Suffix"    xml:space="preserve"><value>Suffix</value></data>
+  <data name="Mod_Implicit"    xml:space="preserve"><value>Implicit</value></data>
+  <data name="Mod_Corruption"    xml:space="preserve"><value>Corrupted implicit</value></data>
+  <data name="Mod_Tier"    xml:space="preserve"><value>tier</value></data>
+  <data name="Mod_TierShort"    xml:space="preserve"><value>T</value></data>
 </root>
