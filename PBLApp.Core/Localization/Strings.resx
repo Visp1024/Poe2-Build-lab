@@ -559,6 +559,10 @@
   <data name="Guide_Done" xml:space="preserve"><value>Guide saved: {0} passives, {1} skills, {2} gear slots &#x2192; {3}</value></data>
   <data name="Guide_SkippedPassives" xml:space="preserve"><value>{0} passive(s) skipped: no id in the exported game data.</value></data>
   <data name="Guide_NoEngine" xml:space="preserve"><value>The engine is not ready yet &#x2014; try again in a moment.</value></data>
+  <data name="Dlg_UpdateFromGameTitle" xml:space="preserve"><value>Update from the game</value></data>
+  <data name="Dlg_UpdateFromGameMsg" xml:space="preserve"><value>The build&#x2019;s passive tree, equipment and skills will be replaced with what the character has in game right now. Continue?</value></data>
+  <data name="BuildPage_UpdatedFromGame" xml:space="preserve"><value>Updated from {0}</value></data>
+  <data name="CharImport_NoBinding" xml:space="preserve"><value>This build is not linked to a character &#x2014; pick one to update it from.</value></data>
 
   <data name="Mod_Prefix"    xml:space="preserve"><value>Prefix</value></data>
   <data name="Mod_Suffix"    xml:space="preserve"><value>Suffix</value></data>

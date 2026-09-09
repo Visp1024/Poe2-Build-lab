@@ -56,6 +56,7 @@ public partial class CharacterImportViewModel : ViewModelBase
     private readonly string? _xmlPath;
     private readonly Func<Task>? _afterReimport;
     private CharacterBinding _binding = new(null, null, null);
+    private Task _bindingLoad = Task.CompletedTask;
 
     private IReadOnlyList<CharacterSummary> _allCharacters = [];
 
@@ -153,7 +154,7 @@ public partial class CharacterImportViewModel : ViewModelBase
         _oauth = oauth ?? new PoeOAuthService(null);
         _api = api ?? new CharacterApi(_oauth);
         Characters.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCharacters));
-        _ = LoadBindingAsync();
+        _bindingLoad = LoadBindingAsync();
         if (!IsLoggedIn)
             SetStatus("CharImport_NotAuthenticated", ImportStatusKind.Warning);
     }
@@ -361,6 +362,68 @@ public partial class CharacterImportViewModel : ViewModelBase
         SelectedCharacter = Characters.FirstOrDefault(c => c.Name == previous) ?? Characters.FirstOrDefault();
     }
 
+    // ── Тихое обновление («Из игры» без окна) ────────────────────────────────
+
+    /// <summary>Чем кончилась попытка обновить билд без окна: <paramref name="Ok"/> —
+    /// готово; иначе окно всё же нужно — показать пользователю
+    /// <paramref name="Status"/> (уже проставлен в <see cref="StatusMessage"/>).</summary>
+    public sealed record QuickUpdateResult(bool Ok, string? CharacterName = null, string? Status = null);
+
+    /// <summary>Обновляет билд из привязанного персонажа НЕ открывая окно: имя известно
+    /// из XML билда, поэтому список персонажей не нужен — идём сразу за самим персонажем.
+    /// Окно понадобится, если билд ни к кому не привязан, вход не сделан или API ответил
+    /// ошибкой: тогда результат неуспешен, а окно откроет вызывающий.</summary>
+    public async Task<QuickUpdateResult> TryQuickUpdateAsync()
+    {
+        if (!IsReimport) return new QuickUpdateResult(false);
+
+        if (!IsLoggedIn)
+        {
+            SetStatus("CharImport_NotAuthenticated", ImportStatusKind.Warning);
+            return new QuickUpdateResult(false, null, StatusMessage);
+        }
+
+        // Привязка читается асинхронно при создании VM — дождёмся её.
+        await _bindingLoad;
+        var name = _binding.CharacterName;
+        if (string.IsNullOrEmpty(name))
+        {
+            // Привязки нет (или в билде только sha1 из оригинального PoB) — без списка
+            // персонажей не обойтись, а это уже разговор в окне.
+            SetStatus("CharImport_NoBinding", ImportStatusKind.Warning);
+            return new QuickUpdateResult(false, null, StatusMessage);
+        }
+
+        IsBusy = true;
+        SetStatus("CharImport_Downloading", ImportStatusKind.Info);
+        try
+        {
+            var json = await _api.GetCharacterJsonAsync(name);
+            if (!json.Ok)
+            {
+                ReportApiError(json.Error, json.Message, json.RetryAfterSeconds);
+                return new QuickUpdateResult(false, name, StatusMessage);
+            }
+
+            SetStatus("CharImport_Importing", ImportStatusKind.Info);
+            var host = await _hostTask;
+            var ok = await ReimportIntoOpenBuildAsync(host, json.Value!, new CharacterImportOptions
+            {
+                PassiveTree = true,
+                ItemsAndSkills = true,
+                IgnoreWeaponSwap = IgnoreWeaponSwap,
+            }, name);
+            return new QuickUpdateResult(ok, name, ok ? null : StatusMessage);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = string.Format(LocalizationService.Get("Msg_Error"), ex.Message);
+            StatusKind = ImportStatusKind.Error;
+            return new QuickUpdateResult(false, name, StatusMessage);
+        }
+        finally { IsBusy = false; }
+    }
+
     // ── Импорт ───────────────────────────────────────────────────────────────
 
     [RelayCommand]
@@ -392,9 +455,14 @@ public partial class CharacterImportViewModel : ViewModelBase
             };
 
             if (IsReimport)
-                await ReimportIntoOpenBuildAsync(host, json.Value!, options);
+            {
+                if (await ReimportIntoOpenBuildAsync(host, json.Value!, options, SelectedCharacter!.Name))
+                    CloseRequested?.Invoke();
+            }
             else
+            {
                 await ImportAsNewBuildAsync(host, json.Value!, options);
+            }
         }
         catch (Exception ex)
         {
@@ -430,23 +498,33 @@ public partial class CharacterImportViewModel : ViewModelBase
 
     /// <summary>«Обновить из игры»: персонаж ложится поверх открытого билда, файл билда
     /// перезаписывается, страница билда обновляет вкладки.</summary>
-    private async Task ReimportIntoOpenBuildAsync(LuaHost host, string json, CharacterImportOptions options)
+    private async Task<bool> ReimportIntoOpenBuildAsync(LuaHost host, string json,
+        CharacterImportOptions options, string characterName)
     {
-        var name = SelectedCharacter!.Name;
+        var name = characterName;
         var result = await Task.Run(() =>
         {
             var r = host.ImportCharacter(json, options);
             if (r.Ok) host.SetCharacterBinding(name, _oauth.AccountName);
             return r;
         });
-        if (!ReportImport(result)) return;
+        if (!ReportImport(result)) return false;
 
         var xml = await Task.Run(() => _build!.SaveBuildToXml());
         if (xml is null)
         {
             SetStatus("Msg_ErrorSave", ImportStatusKind.Error);
-            return;
+            return false;
         }
+        // Обновление затирает содержимое билда — прежнюю версию кладём рядом .bak,
+        // чтобы случайное «Обновить» не стоило человеку собранного билда.
+        try
+        {
+            if (File.Exists(_xmlPath!))
+                File.Copy(_xmlPath!, _xmlPath! + ".bak", overwrite: true);
+        }
+        catch { /* не смогли сделать копию — обновление всё равно продолжаем */ }
+
         await File.WriteAllTextAsync(_xmlPath!, xml);
 
         _binding = new CharacterBinding(name, _oauth.AccountName, _binding.Hash);
@@ -457,7 +535,7 @@ public partial class CharacterImportViewModel : ViewModelBase
         if (_afterReimport is not null) await _afterReimport();
 
         SetStatus("CharImport_UpdateDone", ImportStatusKind.Ok);
-        CloseRequested?.Invoke();
+        return true;
     }
 
     private bool ReportImport(CharacterImportResult result)

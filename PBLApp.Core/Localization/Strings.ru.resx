@@ -559,6 +559,10 @@
   <data name="Guide_Done" xml:space="preserve"><value>Гайд сохранён: пассивок {0}, умений {1}, слотов {2} &#x2192; {3}</value></data>
   <data name="Guide_SkippedPassives" xml:space="preserve"><value>Пропущено пассивок: {0} — для них нет id в выгруженных данных игры.</value></data>
   <data name="Guide_NoEngine" xml:space="preserve"><value>Движок ещё не готов — попробуйте через мгновение.</value></data>
+  <data name="Dlg_UpdateFromGameTitle" xml:space="preserve"><value>Обновить из игры</value></data>
+  <data name="Dlg_UpdateFromGameMsg" xml:space="preserve"><value>Дерево, снаряжение и умения билда будут заменены тем, что у персонажа в игре сейчас. Продолжить?</value></data>
+  <data name="BuildPage_UpdatedFromGame" xml:space="preserve"><value>Обновлено из {0}</value></data>
+  <data name="CharImport_NoBinding" xml:space="preserve"><value>Билд не привязан к персонажу — выберите, из кого его обновить.</value></data>
 
   <data name="Mod_Prefix"    xml:space="preserve"><value>Префикс</value></data>
   <data name="Mod_Suffix"    xml:space="preserve"><value>Суффикс</value></data>

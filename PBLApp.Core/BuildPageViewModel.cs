@@ -245,9 +245,19 @@ public partial class BuildPageViewModel : ViewModelBase
         }
     }
 
-    /// <summary>«Обновить из игры»: тянет персонажа, из которого билд импортирован,
-    /// и перезаписывает им дерево, предметы и умения. Персонаж предвыбран по привязке
-    /// в XML билда; без привязки пользователь выбирает его в списке сам.</summary>
+    /// <summary>Спрашивает подтверждение (заголовок, текст) — вид подставляет модалку.</summary>
+    public Func<string, string, Task<bool>>? ConfirmAsync { get; set; }
+
+    /// <summary>Идёт обновление из игры — кнопка на время выключается.</summary>
+    [ObservableProperty] private bool _isUpdatingFromGame;
+
+    /// <summary>Короткая строка об исходе обновления, рядом с кнопкой.</summary>
+    [ObservableProperty] private string _updateFromGameStatus = "";
+
+    /// <summary>«Обновить из игры»: билд знает, из какого персонажа он импортирован, поэтому
+    /// обновление идёт СРАЗУ — только с предупреждением, что содержимое будет заменено.
+    /// Окно импорта открывается лишь когда без разговора не обойтись: билд ни к кому не
+    /// привязан, нет входа в аккаунт или API ответил ошибкой.</summary>
     [RelayCommand]
     private async Task UpdateFromGameAsync()
     {
@@ -255,7 +265,41 @@ public partial class BuildPageViewModel : ViewModelBase
 
         var vm = new CharacterImportViewModel(Task.FromResult(_host), Build, _xmlPath,
             afterReimport: () => { RefreshAfterImport(); return Task.CompletedTask; });
+
+        if (ConfirmAsync is not null)
+        {
+            var confirmed = await ConfirmAsync(
+                LocalizationService.Get("Dlg_UpdateFromGameTitle"),
+                LocalizationService.Get("Dlg_UpdateFromGameMsg"));
+            if (!confirmed) return;
+        }
+
+        UpdateFromGameStatus = "";
+        IsUpdatingFromGame = true;
+        try
+        {
+            var result = await vm.TryQuickUpdateAsync();
+            if (result.Ok)
+            {
+                UpdateFromGameStatus = string.Format(
+                    LocalizationService.Get("BuildPage_UpdatedFromGame"), result.CharacterName);
+                return;
+            }
+        }
+        finally { IsUpdatingFromGame = false; }
+
+        // Не вышло молча — показываем окно: там и причина, и выбор персонажа.
         await ShowCharacterImportWindow(vm);
+    }
+
+    /// <summary>Открыть окно импорта персонажа напрямую, минуя быстрый путь — нужно
+    /// агентской проверке UI (IPC <c>/character-import/open</c>).</summary>
+    public async Task OpenCharacterImportWindowAsync()
+    {
+        if (Build is null || _host is null || ShowCharacterImportWindow is null) return;
+        await ShowCharacterImportWindow(new CharacterImportViewModel(
+            Task.FromResult(_host), Build, _xmlPath,
+            afterReimport: () => { RefreshAfterImport(); return Task.CompletedTask; }));
     }
 
     /// <summary>Пересобирает вкладки после того, как в движок влили нового персонажа:

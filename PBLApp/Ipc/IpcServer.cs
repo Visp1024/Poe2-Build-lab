@@ -187,6 +187,7 @@ public sealed class IpcServer
                 "/app/set-theme"          => await OnUi(() => SetAppTheme(body)),
                 "/character-import/open" => await OnUi(() => CharacterImportOpen(body)),
                 "/export/open"           => await OnUi(() => ImportExportOpen(body)),
+                "/build/update-from-game" => await OnUi(UpdateFromGame),
                 "/app/screens"           => await OnUi(ListScreens),
                 "/app/move-to-screen"    => await OnUi(() => MoveToScreen(body)),
                 "/trader/state"      => await OnUi(TraderState),
@@ -397,6 +398,7 @@ public sealed class IpcServer
                 AppWindows().OfType<Views.CharacterImportWindow>().LastOrDefault(),
             "settings" => AppWindows().OfType<Views.SettingsWindow>().LastOrDefault(),
             "notes"    => AppWindows().OfType<Views.NotesWindow>().LastOrDefault(),
+            "confirm"  => AppWindows().OfType<Views.ConfirmDialog>().LastOrDefault(),
             _          => GetMainWindow(),
         };
         if (window is null) return new { error = $"Window '{which}' is not open." };
@@ -1569,7 +1571,8 @@ public sealed class IpcServer
                 bl.OpenCharacterImportCommand.Execute(null);
                 break;
             case BuildPageViewModel bp:
-                bp.UpdateFromGameCommand.Execute(null);
+                // Именно окно: сама кнопка «Из игры» обновляет билд без него.
+                _ = bp.OpenCharacterImportWindowAsync();
                 break;
             default:
                 return new { error = "Not on the build list or build page." };
@@ -1578,6 +1581,16 @@ public sealed class IpcServer
         var window = AppWindows().OfType<Views.CharacterImportWindow>().LastOrDefault();
         var placed = PlaceOnScreen(window, ScreenIndexFrom(body));
         return new { ok = true, placedOnScreen = placed };
+    }
+
+    /// <summary>Жмёт «Из игры» на странице билда — как пользователь: сперва диалог
+    /// подтверждения, потом обновление из привязанного персонажа.</summary>
+    private static object UpdateFromGame()
+    {
+        if (GetMainVm()?.CurrentPage is not BuildPageViewModel bp)
+            return new { error = "Not on the build page." };
+        bp.UpdateFromGameCommand.Execute(null);
+        return new { ok = true };
     }
 
     /// <summary>Открывает окно «Импорт/Экспорт» открытого билда — там же живёт

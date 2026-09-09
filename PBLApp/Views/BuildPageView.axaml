@@ -101,8 +101,13 @@
                     <Border Width="1" Height="22"
                             Background="{DynamicResource BorderStrongBrush}"
                             VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding UpdateFromGameStatus}"
+                               Classes="caption" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               IsVisible="{Binding UpdateFromGameStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                     <Button Content="{loc:Tr Btn_UpdateFromGame}"
                             Command="{Binding UpdateFromGameCommand}"
+                            IsEnabled="{Binding !IsUpdatingFromGame}"
                             ToolTip.Tip="{loc:Tr Btn_UpdateFromGameTip}"
                             IsVisible="{Binding Build, Converter={x:Static ObjectConverters.IsNotNull}}" />
                     <Button Content="{loc:Tr Btn_Save}"

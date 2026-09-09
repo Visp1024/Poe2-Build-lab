@@ -32,6 +32,7 @@ public partial class BuildPageView : UserControl
                 vm.RequestOpenTrader = OpenTrader;
                 vm.ShowCharacterImportWindow = ShowCharacterImportWindowAsync;
                 vm.RequestOpenImportExport = () => OpenImportExport_Click(this, new RoutedEventArgs());
+                vm.ConfirmAsync = ConfirmAsync;
             }
         };
     }
@@ -44,6 +45,14 @@ public partial class BuildPageView : UserControl
         var title = LocalizationService.Get("Dlg_RenameTitle");
         var msg   = LocalizationService.Get("Dlg_RenameMsg");
         return await PromptDialog.ShowAsync(owner, title, msg, currentName);
+    }
+
+    private async System.Threading.Tasks.Task<bool> ConfirmAsync(string title, string message)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window;
+        if (owner is null) return true;
+        return await ConfirmDialog.ShowAsync(owner, title, message,
+            LocalizationService.Get("CharImport_UpdateButton"));
     }
 
     /// <summary>Окно «Обновить из игры» — то же окно импорта персонажа, но в режиме
