@@ -186,6 +186,7 @@ public sealed class IpcServer
                 "/app/open-settings"      => await OnUi(OpenAppSettings),
                 "/app/set-theme"          => await OnUi(() => SetAppTheme(body)),
                 "/character-import/open" => await OnUi(() => CharacterImportOpen(body)),
+                "/export/open"           => await OnUi(() => ImportExportOpen(body)),
                 "/app/screens"           => await OnUi(ListScreens),
                 "/app/move-to-screen"    => await OnUi(() => MoveToScreen(body)),
                 "/trader/state"      => await OnUi(TraderState),
@@ -382,8 +383,23 @@ public sealed class IpcServer
     private static object TakeScreenshot(string body)
     {
         var req = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body) ?? new();
-        var window = GetMainWindow();
-        if (window is null) return new { error = "MainWindow not available." };
+
+        // "window": какое окно снимать — главное (по умолчанию) или отдельное:
+        // "export" (импорт/экспорт), "character-import", "settings", "notes".
+        var which = req.TryGetValue("window", out var wsel) && wsel.ValueKind == JsonValueKind.String
+            ? wsel.GetString() ?? "main"
+            : "main";
+        var window = which.ToLowerInvariant() switch
+        {
+            "export" or "import-export" =>
+                AppWindows().OfType<Views.ImportExportWindow>().LastOrDefault() as Window,
+            "character-import" =>
+                AppWindows().OfType<Views.CharacterImportWindow>().LastOrDefault(),
+            "settings" => AppWindows().OfType<Views.SettingsWindow>().LastOrDefault(),
+            "notes"    => AppWindows().OfType<Views.NotesWindow>().LastOrDefault(),
+            _          => GetMainWindow(),
+        };
+        if (window is null) return new { error = $"Window '{which}' is not open." };
 
         var size = window.ClientSize;
         if (size.Width <= 0 || size.Height <= 0)
@@ -392,7 +408,7 @@ public sealed class IpcServer
         var px = new PixelSize(Math.Max(1, (int)size.Width), Math.Max(1, (int)size.Height));
         var dpi = new Vector(96, 96);
 
-        // Render the entire MainWindow into a bitmap.
+        // Render the whole window into a bitmap.
         var rtb = new RenderTargetBitmap(px, dpi);
         rtb.Render(window);
 
@@ -1545,11 +1561,36 @@ public sealed class IpcServer
     /// окно на другой монитор, чтобы проверка не залезала поверх работы человека.</summary>
     private static object CharacterImportOpen(string body)
     {
-        if (GetMainVm()?.CurrentPage is not BuildListViewModel bl)
-            return new { error = "Not on the build list page." };
-        bl.OpenCharacterImportCommand.Execute(null);
+        // На списке билдов это импорт нового билда, на странице билда — «Обновить
+        // из игры» (то же окно в режиме перезаписи открытого билда).
+        switch (GetMainVm()?.CurrentPage)
+        {
+            case BuildListViewModel bl:
+                bl.OpenCharacterImportCommand.Execute(null);
+                break;
+            case BuildPageViewModel bp:
+                bp.UpdateFromGameCommand.Execute(null);
+                break;
+            default:
+                return new { error = "Not on the build list or build page." };
+        }
 
         var window = AppWindows().OfType<Views.CharacterImportWindow>().LastOrDefault();
+        var placed = PlaceOnScreen(window, ScreenIndexFrom(body));
+        return new { ok = true, placedOnScreen = placed };
+    }
+
+    /// <summary>Открывает окно «Импорт/Экспорт» открытого билда — там же живёт
+    /// экспорт гайда в игру (.build).</summary>
+    private static object ImportExportOpen(string body)
+    {
+        if (GetMainVm()?.CurrentPage is not BuildPageViewModel bp)
+            return new { error = "Not on the build page." };
+        if (bp.RequestOpenImportExport is null)
+            return new { error = "Build page view is not ready." };
+        bp.RequestOpenImportExport();
+
+        var window = AppWindows().OfType<Views.ImportExportWindow>().LastOrDefault();
         var placed = PlaceOnScreen(window, ScreenIndexFrom(body));
         return new { ok = true, placedOnScreen = placed };
     }

@@ -512,6 +512,39 @@ IPC: `/tree/state` несёт `workersReady/workersTotal/powerSortIndex/powerFil
   `/character-import/open` (`{"screen": N}` — открыть и увести на монитор N), `/app/screens`
   (список мониторов), `/app/move-to-screen` (`{"screen": N, "window": "main"|"character-import"|"all"}`).
 
+### Phase 21 — Реимпорт персонажа + экспорт гайда в игру ✅ DONE
+
+Две стороны одного моста с игрой: билд можно обновить из персонажа и отдать обратно в
+внутриигровой планировщик (PoE2 0.5+).
+
+**Обновить из игры.** Билд помнит, из кого импортирован: `src/Classes/ImportTab.lua` возит в
+`<Import>` рядом с хешами открытые `lastCharacterName` / `lastAccountName` (по sha1 нельзя
+показать привязку, не имея списка персонажей аккаунта). Мост — `GetCharacterBinding` /
+`SetCharacterBinding` / `Sha1` в `PBLEngine/LuaHostImport.cs`; `ImportCharacter` пишет привязку
+сам. `CharacterImportViewModel` получил режим `Reimport`: то же окно, но импорт ложится поверх
+ОТКРЫТОГО билда (очистка дерева/предметов/умений включена), файл билда перезаписывается,
+персонаж предвыбран по привязке (фоллбэк по sha1 — для билдов из оригинального PoB), а если он
+скрыт фильтром лиги/поиска — фильтры снимаются. Кнопка «↻ Из игры» в тулбаре страницы билда;
+вкладки после импорта пересобирает `BuildPageViewModel.RefreshAfterImport`
+(+ `TreeTabViewModel.RefreshFromEngine` — класс/восхождение/аллокации синхронизируются молча).
+
+**Экспорт гайда (`*.build`).** `PBLApp.Core/Export/BuildGuideExporter.cs` собирает объект `Build`
+схемы GGG (pathofexile.com/developer/docs/game): `ascendancy` — внутренний id восхождения
+(«Sorceress1», из `tree.classes[..].classes[..].internalId`), `passives` — строковые
+`PassiveSkills.Id`, `skills` — `Metadata/Items/Gems/...` из `gemData.gameId` с вложенными
+`support_skills`, `inventory_slots` — идентификаторы таблицы `Inventories` («Weapon1»,
+«BodyArmour1», …), уники по `unique_name`, прочее — строкой `additional_text`. Уровневых
+интервалов (`level_interval`) первая версия не пишет. Данные из движка тянет
+`PBLEngine/LuaHostBuildGuide.cs`. Маппинг «нода дерева → `PassiveSkills.Id`» живёт только в GGPK,
+поэтому генерируется: `PBLExport/gen_build_planner_ids.py` → `PBLApp.Core/Export/passive_planner_ids.json`
+(5014 нод, покрытие деревьев 0_1…0_5 полное). UI — секция «Экспорт гайда в игру» в окне
+«Импорт/Экспорт»: путь к папке `BuildPlanner` (правится руками), «Сохранить .build», «Открыть папку».
+
+Служебное IPC для проверки: `/export/open` (окно импорта/экспорта), `/character-import/open`
+теперь работает и со страницы билда (открывает «Обновить из игры»), а `/screenshot` принимает
+`{"window": "export"|"character-import"|"settings"|"notes"|"main"}` — дочерние окна в снимок
+MainWindow не попадают.
+
 ---
 
 ## Backlog (deferred / future work)
@@ -528,7 +561,7 @@ IPC: `/tree/state` несёт `workersReady/workersTotal/powerSortIndex/powerFil
 - [x] ~~Open the trade site for an item~~ — закрыто Phase 18 (вкладка «Трейдер»: in-app поиск апгрейдов + «Открыть на trade-сайте»). Остаток: точечный поиск «такого же предмета» из тултипа/редактора — см. вне-скоупа Phase 18. Исходная заметка: «Купить на торговой площадке» action on a slot / pool item that builds an official `pathofexile.com/trade` (PoE2) search for that item and opens it in the default browser. PoB already ships the generator: `Classes/TradeQueryGenerator.lua` turns an item's mods into a query, `Classes/TradeQuery.lua` / `TradeHelpers.lua` build the URL, `Data/QueryMods.lua` + `Data/TradeSiteStats.lua` map mod text → trade stat ids. Scope for PBLApp: expose a `LuaHost.BuildTradeQueryUrl(itemId, slotName)` wrapper over the generator (no live API calls / rate-limiter needed — just the URL), wire a button in the item tooltip / editor header, open via `Process.Start(url)` (C# side, not Lua). Decide weighting mode (exact mods vs. "find upgrades"). Stretch: in-app price-check panel using `TradeQueryRequests` + `TradeQueryRateLimiter` (needs PoE session / OAuth — much larger).
 
 ### Game integration (PoE2 0.5+)
-- [ ] **Generate an in-game Build Planner `.build` file** — PoE2 0.5 "Return of the Ancients" (29 May 2026) added a native **Build Planner** that reads a community `.build` file from `Documents/My Games/Path of Exile 2/BuildPlanner` and overlays the plan (passive nodes to take, main + weapon-set tree toggles, skill + support gems; items not yet supported by GGG's reader) onto the player's character in-game. poe.ninja shipped a prototype exporter (the file is JSON under a `.build` extension; export dialog lets you pick which parts to include). Scope for PBLApp: an "Export Build Planner" action (next to share-code export) that serialises the current build's `spec.allocNodes` (per weapon set) + socket groups/gems into the GGG `.build` JSON schema and writes it to the BuildPlanner folder (with a "copy JSON" alternative). **Needs research first**: reverse-engineer the exact JSON schema (node id keys, gem identifiers, weapon-set structure) from a poe.ninja-exported sample / GGG docs — capture it before implementing. Watch for schema changes as GGG iterates (still early prototype; item support is coming).
+- [x] ~~**Generate an in-game Build Planner `.build` file**~~ — закрыто Phase 21 (экспорт из окна «Импорт/Экспорт»; остаток: `level_interval` — прогрессия по уровням, и подсказки по слотам для не-уников сейчас идут текстом). Исходная заметка: — PoE2 0.5 "Return of the Ancients" (29 May 2026) added a native **Build Planner** that reads a community `.build` file from `Documents/My Games/Path of Exile 2/BuildPlanner` and overlays the plan (passive nodes to take, main + weapon-set tree toggles, skill + support gems; items not yet supported by GGG's reader) onto the player's character in-game. poe.ninja shipped a prototype exporter (the file is JSON under a `.build` extension; export dialog lets you pick which parts to include). Scope for PBLApp: an "Export Build Planner" action (next to share-code export) that serialises the current build's `spec.allocNodes` (per weapon set) + socket groups/gems into the GGG `.build` JSON schema and writes it to the BuildPlanner folder (with a "copy JSON" alternative). **Needs research first**: reverse-engineer the exact JSON schema (node id keys, gem identifiers, weapon-set structure) from a poe.ninja-exported sample / GGG docs — capture it before implementing. Watch for schema changes as GGG iterates (still early prototype; item support is coming).
 
 ### Localisation depth
 - [ ] Extend `unique_names_ru.json` beyond the ~75 hand-translated PoE2 uniques to full coverage (~600+).

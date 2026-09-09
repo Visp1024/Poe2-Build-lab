@@ -120,6 +120,10 @@ public partial class BuildPageViewModel : ViewModelBase
     /// <summary>Просит View открыть/перенацелить окно подбора на слот. Ставит BuildPageView.</summary>
     public Action<string>? RequestOpenTrader { get; set; }
 
+    /// <summary>Просит View открыть окно «Импорт/Экспорт». Ставит BuildPageView;
+    /// нужно и кнопке, и IPC-проверке окна экспорта.</summary>
+    public Action? RequestOpenImportExport { get; set; }
+
     /// <summary>Просит View показать окно «Обновить из игры» (то же окно импорта персонажа,
     /// в режиме перезаписи текущего билда). Ставит BuildPageView.</summary>
     public Func<CharacterImportViewModel, Task>? ShowCharacterImportWindow { get; set; }

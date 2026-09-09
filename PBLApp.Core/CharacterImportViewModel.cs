@@ -169,7 +169,8 @@ public partial class CharacterImportViewModel : ViewModelBase
             OnPropertyChanged(nameof(HasBinding));
             OnPropertyChanged(nameof(BoundCharacterLine));
             // Список мог загрузиться раньше привязки — перевыбираем персонажа.
-            if (Characters.Count > 0) await SelectBoundCharacterAsync();
+            if (Characters.Count > 0 && await SelectBoundCharacterAsync())
+                SetStatus("CharImport_UpdateReady", ImportStatusKind.Info);
         }
         catch
         {
@@ -257,9 +258,11 @@ public partial class CharacterImportViewModel : ViewModelBase
 
             RebuildLeagues();
             ApplyFilter();
-            if (IsReimport) await SelectBoundCharacterAsync();
-            SetStatus(IsReimport && SelectedCharacter is not null
-                ? "CharImport_UpdateReady" : "CharImport_ListLoaded", ImportStatusKind.Info);
+            // «Персонаж найден» — только когда нашёлся ИМЕННО тот, к кому привязан
+            // билд: иначе курсор просто стоит на первом в списке.
+            var foundBound = IsReimport && await SelectBoundCharacterAsync();
+            SetStatus(foundBound ? "CharImport_UpdateReady" : "CharImport_ListLoaded",
+                ImportStatusKind.Info);
         }
         finally { IsBusy = false; }
     }
@@ -298,14 +301,15 @@ public partial class CharacterImportViewModel : ViewModelBase
     /// билдов из оригинального PoB (там лежит только sha1 имени) — по хешу. Если
     /// персонаж отфильтрован лигой или поиском — сбрасывает фильтры, иначе кнопка
     /// «Обновить» молча обновила бы билд из чужого персонажа.</summary>
-    private async Task SelectBoundCharacterAsync()
+    /// <returns>true — привязанный персонаж есть в аккаунте и выбран.</returns>
+    private async Task<bool> SelectBoundCharacterAsync()
     {
-        if (!_binding.HasValue) return;
+        if (!_binding.HasValue) return false;
 
         var name = _binding.CharacterName;
         if (string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(_binding.Hash))
             name = await ResolveNameByHashAsync(_binding.Hash);
-        if (string.IsNullOrEmpty(name)) return;
+        if (string.IsNullOrEmpty(name)) return false;
 
         // Персонаж есть в аккаунте, но скрыт фильтром — показываем всё, чтобы он нашёлся.
         if (!Characters.Any(c => Match(c, name)) &&
@@ -317,6 +321,7 @@ public partial class CharacterImportViewModel : ViewModelBase
 
         var found = Characters.FirstOrDefault(c => Match(c, name));
         if (found is not null) SelectedCharacter = found;
+        return found is not null;
 
         static bool Match(CharacterEntryViewModel c, string name) =>
             string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase);

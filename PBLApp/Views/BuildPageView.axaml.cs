@@ -31,6 +31,7 @@ public partial class BuildPageView : UserControl
                 vm.PromptRenameAsync = PromptRenameAsync;
                 vm.RequestOpenTrader = OpenTrader;
                 vm.ShowCharacterImportWindow = ShowCharacterImportWindowAsync;
+                vm.RequestOpenImportExport = () => OpenImportExport_Click(this, new RoutedEventArgs());
             }
         };
     }
