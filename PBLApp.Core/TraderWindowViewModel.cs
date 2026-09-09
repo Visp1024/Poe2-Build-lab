@@ -215,7 +215,7 @@ public partial class TraderWindowViewModel : ViewModelBase
         {
             Status = LocalizationService.Get("Trader_StatusGenerating");
             var q = await Session.Host.GenerateTradeQueryAsync(SlotName, OptionsJson, null, _cts.Token);
-            if (q.Error is not null) { Status = q.Error; return; }
+            if (q.Error is not null) { Status = Humanize(q.Error); return; }
             LastQueryJson = q.QueryJson;
             OpenOnSiteCommand.NotifyCanExecuteChanged();
 
@@ -229,7 +229,7 @@ public partial class TraderWindowViewModel : ViewModelBase
 
             Status = LocalizationService.Get("Trader_StatusSearching");
             var search = await Session.Host.SearchTradeAsync(Session.SelectedLeague, LastQueryJson!, _cts.Token);
-            if (search.Error is not null) { Status = search.Error; return; }
+            if (search.Error is not null) { Status = Humanize(search.Error); return; }
             foreach (var l in search.Listings)
                 Results.Add(new TraderResultViewModel(this, Session, l));
 
@@ -245,13 +245,18 @@ public partial class TraderWindowViewModel : ViewModelBase
             Status = Results.Count == 0 ? LocalizationService.Get("Trader_NoResults") : "";
         }
         catch (OperationCanceledException) { Status = LocalizationService.Get("Trader_Cancelled"); }
-        catch (Exception ex) { Status = ex.Message; }
+        catch (Exception ex) { Status = Humanize(ex.Message); }
         finally
         {
             Session.SearchGate.Release();
             IsBusy = false;
         }
     }
+
+    /// <summary>403 от трейд-сайта — почти всегда VPN/адрес дата-центра, а не поломка
+    /// приложения: «Response code: 403» об этом не говорит ничего.</summary>
+    internal static string Humanize(string error) =>
+        error.Contains("403") ? LocalizationService.Get("Trader_Forbidden") : error;
 
     [RelayCommand]
     private void Cancel() => _cts?.Cancel();

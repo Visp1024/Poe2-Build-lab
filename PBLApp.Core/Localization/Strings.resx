@@ -63,6 +63,8 @@
   <data name="Trader_ColValue"         xml:space="preserve"><value>Value/div</value></data>
   <data name="Trader_ColSeller"        xml:space="preserve"><value>Seller</value></data>
   <data name="Trader_NoResults"        xml:space="preserve"><value>No results</value></data>
+  <data name="Trader_Forbidden"        xml:space="preserve"><value>The trade site refused the request (403). That is how it answers requests made through a VPN, a proxy or a data-centre address — try connecting directly.</value></data>
+  <data name="Trader_LeaguesOffline"   xml:space="preserve"><value>Could not load the league list — showing the default leagues.</value></data>
   <data name="Trader_WindowTitle"      xml:space="preserve"><value>{0} — Find upgrades</value></data>
   <data name="Trader_EmptySlot"        xml:space="preserve"><value>Equip an item in this slot to search for an upgrade.</value></data>
   <data name="Trader_EmptyHint"        xml:space="preserve"><value>Set stat weights and press “Find upgrades”.</value></data>

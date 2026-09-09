@@ -32,6 +32,32 @@ public class TraderTabViewModelTests : IClassFixture<LuaHostFixture>
         Assert.True(after > before, $"Life before={before}, after={after}");
     }
 
+    // Кнопка «Примерить» больше не гаснет после первого нажатия, поэтому повторная
+    // примерка того же лота обязана надеть предмет из пула, а не плодить копии
+    [Fact(Timeout = 60_000)]
+    public async Task TryOnListing_Twice_DoesNotDuplicatePoolItem()
+    {
+        const string itemText =
+            "Rarity: RARE\nDoom Crown\nWarrior Greathelm\nItem Level: 81\nImplicits: 0\n+120 to maximum Life";
+
+        Assert.True(await _host.TryOnListingAsync("Helmet", itemText, CancellationToken.None));
+        var afterFirst = PoolItemCount();
+        var life = Convert.ToDouble(_host.GetStat("Life"));
+
+        Assert.True(await _host.TryOnListingAsync("Helmet", itemText, CancellationToken.None));
+
+        Assert.True(afterFirst == PoolItemCount(), DumpPool());
+        Assert.Equal(life, Convert.ToDouble(_host.GetStat("Life")), 6);
+    }
+
+    private int PoolItemCount() => Convert.ToInt32(_host.State.DoString(
+        "local n = 0 for _ in pairs(build.itemsTab.items) do n = n + 1 end return n")[0]);
+
+    private string DumpPool() => (string)_host.State.DoString(
+        "local out = {} for id, it in pairs(build.itemsTab.items) do " +
+        "out[#out+1] = '--- ' .. tostring(id) .. ' ---\\n' .. tostring(it:BuildRaw()) end " +
+        "return table.concat(out, '\\n')")[0];
+
     [Fact(Timeout = 60_000)]
     public async Task TryOnListing_GarbageText_ReturnsFalse()
     {

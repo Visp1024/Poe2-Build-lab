@@ -245,23 +245,54 @@ public partial class TraderSession : ViewModelBase
 
     // ── Лиги и курсы ─────────────────────────────────────────────────────────
 
+    /// <summary>Лиги трейд-сайта на случай, когда список не скачался (VPN/403):
+    /// без них дропдаун пуст и поиск невозможен вообще.</summary>
+    private static readonly string[] FallbackLeagues =
+        ["Standard", "Hardcore", "Solo Self-Found", "Hardcore SSF"];
+
+    private const string PrefLeague = "TraderLeague";
+
     private async Task InitLeaguesAsync()
     {
+        var saved = AppPreferences.Get(PrefLeague);
         try
         {
             var leagues = await _webApi.GetLeaguesAsync();
             Leagues.Clear();
             foreach (var l in leagues) Leagues.Add(l);
-            if (Leagues.Count > 0 && string.IsNullOrEmpty(SelectedLeague))
-                SelectedLeague = Leagues[0];
             LeagueLoadError = "";
         }
-        catch (Exception ex) { LeagueLoadError = ex.Message; }
+        catch
+        {
+            // список лиг живёт на том же хосте, что и поиск: 403 от VPN валит и его
+            Leagues.Clear();
+            foreach (var l in FallbackLeagues) Leagues.Add(l);
+            LeagueLoadError = LocalizationService.Get("Trader_LeaguesOffline");
+        }
+        // прошлая лига могла быть приватной — её нет ни в одном списке, но
+        // выбор пользователя важнее полноты дропдауна
+        if (!string.IsNullOrEmpty(saved) && !Leagues.Contains(saved))
+            Leagues.Insert(0, saved);
+        if (string.IsNullOrEmpty(SelectedLeague))
+        {
+            // стартовое значение не пишем обратно в настройки: сохраняем только
+            // сознательный выбор пользователя
+            _suppressLeaguePersist = true;
+            try
+            {
+                SelectedLeague = saved is { Length: > 0 } ? saved
+                    : Leagues.Count > 0 ? Leagues[0] : "";
+            }
+            finally { _suppressLeaguePersist = false; }
+        }
     }
+
+    private bool _suppressLeaguePersist;
 
     partial void OnSelectedLeagueChanged(string value)
     {
         if (string.IsNullOrEmpty(value)) return;
+        if (!_suppressLeaguePersist) AppPreferences.Set(PrefLeague, value);
         _ = LoadRatesAsync(value);
     }
 

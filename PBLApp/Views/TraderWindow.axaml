@@ -43,6 +43,10 @@
             <Setter Property="Foreground" Value="{DynamicResource TextOnBrandBrush}" />
             <Setter Property="FontWeight" Value="Bold" />
         </Style>
+        <!-- уже примеренный лот: кнопка активна, но помечена -->
+        <Style Selector="Button.tried">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brand400Brush}" />
+        </Style>
     </Window.Styles>
 
     <Grid>
@@ -280,8 +284,11 @@
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" Classes="muted" VerticalAlignment="Center" FontSize="11"
                                                Text="{Binding Listing.Seller}" TextTrimming="CharacterEllipsis" />
+                                    <!-- кнопка остаётся активной: повторная примерка надевает
+                                         уже добавленный в пул предмет, а не создаёт копию -->
                                     <Button Grid.Column="1" Content="{loc:Tr Trader_TryOn}"
-                                            Command="{Binding TryOnCommand}" IsEnabled="{Binding !IsTriedOn}" />
+                                            Command="{Binding TryOnCommand}"
+                                            Classes.tried="{Binding IsTriedOn}" />
                                 </Grid>
                             </StackPanel>
                         </Border>

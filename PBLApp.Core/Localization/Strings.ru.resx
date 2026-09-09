@@ -63,6 +63,8 @@
   <data name="Trader_ColValue"         xml:space="preserve"><value>Ценность/див</value></data>
   <data name="Trader_ColSeller"        xml:space="preserve"><value>Продавец</value></data>
   <data name="Trader_NoResults"        xml:space="preserve"><value>Нет результатов</value></data>
+  <data name="Trader_Forbidden"        xml:space="preserve"><value>Сайт торговли отклонил запрос (403). Так он отвечает на запросы через VPN, прокси и адреса дата-центров — попробуйте выйти напрямую.</value></data>
+  <data name="Trader_LeaguesOffline"   xml:space="preserve"><value>Не удалось загрузить список лиг — показаны стандартные.</value></data>
   <data name="Trader_WindowTitle"      xml:space="preserve"><value>{0} — Подбор</value></data>
   <data name="Trader_EmptySlot"        xml:space="preserve"><value>Экипируйте предмет в этот слот, чтобы подобрать апгрейд.</value></data>
   <data name="Trader_EmptyHint"        xml:space="preserve"><value>Настройте веса статов и нажмите «Найти апгрейды».</value></data>

@@ -1000,6 +1000,11 @@ function ImportBuild(importLink, callback)
 end
 
 function escapeGGGString(text)
+	-- ответы сайта торговли отдают одно и то же поле то строкой, то объектом;
+	-- не-строка здесь роняла весь разбор блока результатов
+	if type(text) ~= "string" then
+		return text
+	end
 	local line = text
 		:gsub("<[^>]+>{([^}]+)}", "%1")
 		:gsub("%[([^|%]]+)%]", "%1")

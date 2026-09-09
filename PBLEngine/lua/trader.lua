@@ -117,9 +117,17 @@ function PBLTrader.StartSearch(realm, league, queryJson)
 end
 
 function PBLTrader.Pump()
-	PBLTrader.requests:ProcessQueue(function(waitTime)
-		PBLTrader.rateLimitWait = waitTime or 0
+	-- pcall: ошибка разбора ответа сайта не должна улетать исключением NLua —
+	-- в UI это показывалось сырым «Modules/Common.lua:NNNN: ...»
+	local ok, err = pcall(function()
+		PBLTrader.requests:ProcessQueue(function(waitTime)
+			PBLTrader.rateLimitWait = waitTime or 0
+		end)
 	end)
+	if not ok then
+		PBLTrader.searchErr = "failed to parse trade site response: " .. tostring(err)
+		PBLTrader.searchDone = true
+	end
 end
 
 function PBLTrader.GetSearchStateJson()

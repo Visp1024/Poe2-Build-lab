@@ -52,14 +52,42 @@ public class TraderSearchTests : IClassFixture<LuaHostFixture>
     // hashB намеренно БЕЗ whisper: реальные ~b/o-лоты его не имеют, dkjson опускает
     // nil-ключ и парсер не должен падать (KeyNotFoundException — реальный баг).
 
-    private FakeHttpHandler Setup()
+    // Реальная форма ответа GGG для посоха (снято с api.pathofexile.com):
+    // runeMods — МАССИВ СТРОК, explicitMods — объекты {description, flags},
+    // имена свойств содержат [Скобочную|Разметку]. Разбор обязан принимать обе
+    // формы: на смешанном ответе он падал и убивал весь поиск.
+    private const string StaffFetchJson =
+        """
+        {"result":[
+          {"id":"hashStaff",
+           "item":{"rarity":"RARE","name":"Victory Weaver","typeLine":"Sinister Quarterstaff","ilvl":79,
+                   "properties":[{"name":"[Quarterstaff]","values":[]},
+                                 {"name":"[Physical] Damage","values":[["133-219",1]]},
+                                 {"name":"[Quality]","values":[["+20%",1]]}],
+                   "requirements":[{"name":"Level","values":[["67",0]]}],
+                   "sockets":[{"group":0,"type":"rune"},{"group":1,"type":"rune"}],
+                   "runeMods":["Adds 18 to 30 [Cold|Cold] Damage",
+                               "[ShamanOnlyMods|Bonded]: 60% increased [Freeze|Freeze] Buildup"],
+                   "explicitMods":[{"description":"Adds 41 to 51 [Cold|Cold] Damage","flags":{"fractured":true}},
+                                   {"description":"109% increased [ElementalDamage|Elemental] Damage with [Attack|Attacks]"},
+                                   {"description":"101% increased [Physical] Damage","flags":{"desecrated":true}}],
+                   "pseudoMods":["Sum: 42.5"]},
+           "listing":{"price":{"amount":3,"currency":"divine","type":"buyout"},
+                      "whisper":"@Seller3 Hi","account":{"name":"Seller3"}}}
+        ]}
+        """;
+
+    private const string StaffSearchJson =
+        """{"id":"testquery2","complexity":10,"result":["hashStaff"],"total":42}""";
+
+    private FakeHttpHandler Setup(string? fetchJson = null, string? searchJson = null)
     {
         var fake = new FakeHttpHandler();
         fake.Responder = req =>
         {
             var url = req.RequestUri!.ToString();
-            var json = url.Contains("/api/trade2/search/") ? SearchJson
-                     : url.Contains("/api/trade2/fetch/") ? FetchJson
+            var json = url.Contains("/api/trade2/search/") ? (searchJson ?? SearchJson)
+                     : url.Contains("/api/trade2/fetch/") ? (fetchJson ?? FetchJson)
                      : "{}";
             return new HttpResponseMessage(HttpStatusCode.OK)
                 { Content = new StringContent(json, Encoding.UTF8, "application/json") };
@@ -88,6 +116,29 @@ public class TraderSearchTests : IClassFixture<LuaHostFixture>
         var second = result.Listings[1];
         Assert.Equal("", second.Whisper);
         Assert.Equal("Seller2", second.Seller);
+    }
+
+    // #50: смешанные формы модов (строки в runeMods + объекты в explicitMods)
+    // роняли разбор блока результатов, и поиск возвращал сырую Lua-ошибку
+    [Fact(Timeout = 30_000)]
+    public async Task SearchTrade_MixedModShapes_ParsesListing()
+    {
+        Setup(StaffFetchJson, StaffSearchJson);
+        var result = await _host.SearchTradeAsync("Standard", WeightQuery, CancellationToken.None);
+
+        Assert.Null(result.Error);
+        var listing = Assert.Single(result.Listings);
+        Assert.Equal("Seller3", listing.Seller);
+        Assert.Equal(42.5, listing.Weight);
+        // рунный мод пришёл строкой — он не должен потеряться
+        Assert.Contains("Adds 18 to 30 Cold Damage", listing.ItemText);
+        // объектный мод разобран, скобочная разметка снята
+        Assert.Contains("109% increased Elemental Damage with Attacks", listing.ItemText);
+        // флаги мода превращаются в теги строки, понятные Item:ParseRaw
+        Assert.Contains("{fractured}Adds 41 to 51 Cold Damage", listing.ItemText);
+        Assert.Contains("{desecrated}101% increased Physical Damage", listing.ItemText);
+        // "Implicits: N" совпадает с числом реально добавленных строк
+        Assert.Contains("Implicits: 2", listing.ItemText);
     }
 
     [Fact(Timeout = 30_000)]

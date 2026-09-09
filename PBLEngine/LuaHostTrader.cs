@@ -285,7 +285,8 @@ public sealed partial class LuaHost
     // ── Примерка ─────────────────────────────────────────────────────────────
 
     /// <summary>Импортирует itemText в пул и экипирует в слот (Undo вернёт).
-    /// false — предмет не распарсился.</summary>
+    /// Повторная примерка того же лота НЕ плодит копии: если такой предмет уже
+    /// лежит в пуле, надевается он. false — предмет не распарсился.</summary>
     public async Task<bool> TryOnListingAsync(string slotName, string itemText, CancellationToken ct)
     {
         await _traderLua.WaitAsync(ct);
@@ -305,8 +306,27 @@ public sealed partial class LuaHost
                         if d.BuildAndParseRaw then d:BuildAndParseRaw() end
                     end)
                 end
-                build.itemsTab:AddDisplayItem(true)  -- noAutoEquip = true
-                local newId = d.id
+                -- уже примеряли этот лот — надеваем предмет из пула, а не копию.
+                -- Сравниваем именно BuildRaw(): исходный item.raw у пулового предмета
+                -- и у свежесозданного отличается (второй уже канонизирован разбором —
+                -- в нём проставлены Armour/Quality/LevelReq), а BuildRaw даёт обоим
+                -- один и тот же текст.
+                local wanted = d:BuildRaw()
+                local existingId
+                for id, item in pairs(build.itemsTab.items) do
+                    if item ~= d and item:BuildRaw() == wanted then
+                        existingId = id
+                        break
+                    end
+                end
+                local newId
+                if existingId then
+                    build.itemsTab:SetDisplayItem()
+                    newId = existingId
+                else
+                    build.itemsTab:AddDisplayItem(true)  -- noAutoEquip = true
+                    newId = d.id
+                end
                 local slot = build.itemsTab.slots[_pblSlotName]
                 if slot and newId and build.itemsTab.items[newId] then
                     slot:SetSelItemId(newId)

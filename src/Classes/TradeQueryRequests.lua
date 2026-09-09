@@ -7,6 +7,14 @@
 local dkjson = require "dkjson"
 local utils = LoadModule("Modules/Utils")
 
+-- Флаги мода из ответа сайта, которые Item:ParseRaw понимает как теги строки
+-- (подмножество lineFlags, Item.lua:77). Остальные флаги игнорируем — тег,
+-- которого парсер не знает, остался бы мусором в тексте предмета.
+local lineFlagsFromTrade = {
+	["crafted"] = true, ["fractured"] = true, ["desecrated"] = true,
+	["mutated"] = true, ["unscalable"] = true,
+}
+
 ---@class TradeQueryRequests
 local TradeQueryRequestsClass = newClass("TradeQueryRequests", function(self, rateLimiter)
 	self.maxFetchPerSearch = 10
@@ -302,7 +310,7 @@ function TradeQueryRequestsClass:FetchResultBlock(url, callback)
 				
 				if item.properties then
 					for _, property in ipairs(item.properties) do
-						local name = escapeGGGString(property.name)
+						local name = type(property.name) == "string" and escapeGGGString(property.name) or ""
 						if name == "Armour" then
 							armour = property.values[1][1]
 						elseif name == "Evasion Rating" then
@@ -397,27 +405,48 @@ function TradeQueryRequestsClass:FetchResultBlock(url, callback)
 				item.implicitMods = item.implicitMods or { }
 				item.explicitMods = item.explicitMods or { }
 
+				-- Списки модов приходят от сайта в ДВУХ формах: объектом
+				-- { description, flags } (explicitMods) и просто строкой
+				-- (runeMods, bondedMods). Обе надо принимать: на одной форме
+				-- рушился разбор всего блока результатов.
 				local function processLine(modLine)
+					if type(modLine) ~= "table" then
+						return modLine and escapeGGGString(tostring(modLine)) or ""
+					end
 					local s = ""
 					for flagName, flag in pairs(modLine.flags or {}) do
-						if flag then
+						-- только теги, которые понимает Item:ParseRaw (Item.lua:77)
+						if flag and lineFlagsFromTrade[flagName] then
 							s = s .. string.format("{%s}", flagName)
 						end
 					end
-					return escapeGGGString(modLine.description)
+					local description = modLine.description or modLine.text or modLine.name
+					if type(description) ~= "string" then
+						return ""
+					end
+					return s .. escapeGGGString(description)
 				end
-				t_insert(rawLines, "Implicits: " .. (#item.enchantMods + #item.runeMods + #item.implicitMods))
-				for _, modLine in ipairs(item.enchantMods or {}) do
-					t_insert(rawLines, "{enchant}" .. processLine(modLine))
+				local function collectModLines(out, prefix, list)
+					for _, modLine in ipairs(list or {}) do
+						local line = processLine(modLine)
+						if line ~= "" then
+							t_insert(out, prefix .. line)
+						end
+					end
 				end
-				for _, modLine in ipairs(item.runeMods or {}) do
-					t_insert(rawLines, "{enchant}{rune}" .. processLine(modLine))
+				-- строки собираем заранее: "Implicits: N" должен совпасть с числом
+				-- реально добавленных строк (нераспознанные моды пропускаем)
+				local implicitLines, explicitLines = { }, { }
+				collectModLines(implicitLines, "{enchant}", item.enchantMods)
+				collectModLines(implicitLines, "{enchant}{rune}", item.runeMods)
+				collectModLines(implicitLines, "", item.implicitMods)
+				collectModLines(explicitLines, "", item.explicitMods)
+				t_insert(rawLines, "Implicits: " .. #implicitLines)
+				for _, line in ipairs(implicitLines) do
+					t_insert(rawLines, line)
 				end
-				for _, modLine in ipairs(item.implicitMods or {}) do
-					t_insert(rawLines, processLine(modLine))
-				end
-				for _, modLine in ipairs(item.explicitMods or {}) do
-					t_insert(rawLines, processLine(modLine))
+				for _, line in ipairs(explicitLines) do
+					t_insert(rawLines, line)
 				end
 				if item.mirrored then
 					t_insert(rawLines, "Mirrored")
@@ -432,7 +461,11 @@ function TradeQueryRequestsClass:FetchResultBlock(url, callback)
 				end
 
 				local pseudoMod = trade_entry.item.pseudoMods and trade_entry.item.pseudoMods[1]
-				local pseudoModLine = pseudoMod and (pseudoMod.description or pseudoMod)
+				local pseudoModLine = pseudoMod
+					and (type(pseudoMod) == "table" and pseudoMod.description or pseudoMod)
+				if type(pseudoModLine) ~= "string" then
+					pseudoModLine = nil
+				end
 				table.insert(items, {
 					amount = trade_entry.listing.price.amount,
 					currency = trade_entry.listing.price.currency,
@@ -440,7 +473,7 @@ function TradeQueryRequestsClass:FetchResultBlock(url, callback)
 					item_string = table.concat(rawLines, "\n"),
 					whisper = trade_entry.listing.whisper,
 					trader = trade_entry.listing.account.name,
-					weight = trade_entry.item.pseudoMods and pseudoModLine:match("Sum: (.+)") or "0",
+					weight = pseudoModLine and pseudoModLine:match("Sum: (.+)") or "0",
 					id = trade_entry.id
 				})
 			end
